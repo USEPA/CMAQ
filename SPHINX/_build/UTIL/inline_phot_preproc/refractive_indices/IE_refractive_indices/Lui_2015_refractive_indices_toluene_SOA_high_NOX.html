@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>&lt;no title&gt; &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'UTIL/inline_phot_preproc/refractive_indices/IE_refractive_indices/Lui_2015_refractive_indices_toluene_SOA_high_NOX';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/UTIL/inline_phot_preproc/refractive_indices/IE_refractive_indices/Lui_2015_refractive_indices_toluene_SOA_high_NOX.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../DOCS/Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">&lt;no title&gt;</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p>TOLU_HIGH_NOX
+!P. F. Liu, N. Abdelmalki, H.-M. Hung, Y. Wang, W. H. Brune and S. T. Martin
+!Ultraviolet and visible complex refractive indices of secondary organic
+!material produced by photooxidation of the aromatic compounds toluene and m-xylene
+!Atmos. Chem. Phys., 15, 1435-1446, 2015
+!www.atmos-chem-phys.net/15/1435/2015/
+!doi:10.5194/acp-15-1435-2015
+!
+!Parameters for Cauchy’s equation
+! n(lambda(um)) = B + C /lambda<strong>2 + D /lambda</strong>4
+!for  the wavelength-dependent real refractive index n of toluene- and m-xylene-derived SOMs for several initial NO (ppm)
+!A1 Toluene 0.0 1.505 7.57e-3 -1.17e-4
+!A2 Toluene 2.5 1.514 6.87e-3 -1.16e-4
+!A3 Toluene 5.0 1.513 9.07e-3 -1.72e-4
+!A4 Toluene 10.0 1.519 1.03e-2 -2.91e-4
+!B1 m-Xylene 0.0 1.499 4.59e-3 9.84e-5
+!B2 m-Xylene 2.5 1.500 5.53e-3 3.63e-5
+!B3 m-Xylene 5.0 1.501 7.77e-3 1.45e-5
+!B4 m-Xylene 10.0 1.510 1.07e-2 -2.60e-4
+!
+!Notes: Below 280 nm, the imaginary part, k, is extrapolted using the angstrom exponent derived from values at 275 and
+!280 nm. Above 580 nm, k is set to value at 560 nm, the angstrom exponent is set to zero.
+!
+!
+!Wvl  Tol_A4 Tol_A4
+!(um)     m      k<br />
+0.150 1.6029 0.0684
+0.210 1.6029 0.0684
+0.220 1.6076 0.0627
+0.230 1.6097 0.0577
+0.240 1.6101 0.0533
+0.250 1.6093 0.0494
+0.260 1.6077 0.0459
+0.270 1.6055 0.0428
+0.280 1.6030 0.0400
+0.285 1.5230 0.0387
+0.290 1.5230 0.0373
+0.295 1.5230 0.0361
+0.300 1.5230 0.0351
+0.305 1.5230 0.0343
+0.310 1.5230 0.0337
+0.315 1.5230 0.0333
+0.320 1.5231 0.0327
+0.325 1.5231 0.0320
+0.330 1.5231 0.0312
+0.335 1.5231 0.0302
+0.340 1.5231 0.0290
+0.345 1.5231 0.0277
+0.350 1.5231 0.0263
+0.355 1.5231 0.0247
+0.360 1.5231 0.0234
+0.365 1.5231 0.0219
+0.370 1.5231 0.0206
+0.375 1.5231 0.0195
+0.380 1.5231 0.0187
+0.385 1.5231 0.0178
+0.390 1.5232 0.0169
+0.395 1.5232 0.0163
+0.400 1.5232 0.0158
+0.405 1.5232 0.0153
+0.410 1.5232 0.0144
+0.415 1.5232 0.0139
+0.420 1.5232 0.0134
+0.425 1.5232 0.0129
+0.430 1.5232 0.0126
+0.435 1.5232 0.0116
+0.440 1.5232 0.0113
+0.445 1.5232 0.0107
+0.450 1.5232 0.0098
+0.455 1.5232 0.0089
+0.460 1.5232 0.0081
+0.465 1.5232 0.0075
+0.470 1.5232 0.0063
+0.475 1.5232 0.0059
+0.480 1.5232 0.0054
+0.485 1.5232 0.0053
+0.490 1.5232 0.0045
+0.495 1.5233 0.0039
+0.500 1.5233 0.0034
+0.505 1.5233 0.0029
+0.510 1.5233 0.0023
+0.515 1.5233 0.0017
+0.520 1.5233 0.0013
+0.525 1.5233 0.0010
+0.530 1.5233 0.0008
+0.535 1.5233 0.0007
+0.540 1.5233 0.0005
+0.545 1.5233 0.0004
+0.550 1.5233 0.0004
+0.555 1.5233 0.0004
+0.560 1.5233 0.0003
+0.565 1.5233 0.0003
+0.570 1.5233 0.0003
+0.575 1.5233 0.0003
+0.580 1.5233 0.0003
+0.585 1.5233 0.0003
+0.590 1.5233 0.0003
+0.595 1.5233 0.0003
+0.600 1.5233 0.0003
+0.605 1.5233 0.0003
+0.610 1.5233 0.0003
+0.615 1.5233 0.0003
+0.620 1.5233 0.0003
+0.625 1.5233 0.0003
+0.630 1.5233 0.0003
+0.635 1.5233 0.0003
+0.640 1.5233 0.0003
+0.645 1.5233 0.0003
+0.650 1.5233 0.0003
+0.655 1.5233 0.0003
+0.660 1.5233 0.0003
+0.665 1.5233 0.0003
+0.670 1.5233 0.0003
+0.675 1.5233 0.0003
+0.680 1.5233 0.0003
+0.685 1.5233 0.0003
+0.690 1.5233 0.0003
+0.695 1.5233 0.0003
+0.700 1.5233 0.0003
+0.705 1.5233 0.0003
+0.710 1.5233 0.0003
+0.715 1.5233 0.0003
+0.720 1.5233 0.0003
+0.725 1.5233 0.0003
+0.730 1.5234 0.0003
+0.735 1.5234 0.0003
+0.740 1.5234 0.0003
+0.745 1.5234 0.0003
+0.750 1.5234 0.0003
+0.755 1.5234 0.0003
+0.760 1.5234 0.0003
+0.765 1.5234 0.0003
+0.770 1.5234 0.0003
+0.775 1.5234 0.0003
+0.780 1.5234 0.0003
+0.785 1.5234 0.0003
+0.790 1.5234 0.0003
+0.795 1.5234 0.0003
+0.800 1.5234 0.0003
+0.805 1.5234 0.0003
+0.810 1.5234 0.0003
+0.815 1.5234 0.0003
+0.820 1.5234 0.0003
+0.825 1.5234 0.0003
+0.830 1.5234 0.0003
+0.835 1.5234 0.0003
+0.840 1.5234 0.0003
+0.845 1.5234 0.0003
+0.850 1.5234 0.0003
+0.855 1.5234 0.0003
+0.860 1.5234 0.0003
+0.865 1.5234 0.0003
+0.870 1.5234 0.0003
+0.875 1.5234 0.0003
+0.880 1.5234 0.0003
+0.885 1.5234 0.0003
+0.890 1.5234 0.0003
+0.895 1.5234 0.0003
+0.900 1.5234 0.0003
+0.905 1.5234 0.0003
+0.910 1.5234 0.0003
+0.915 1.5234 0.0003
+0.920 1.5234 0.0003
+0.925 1.5234 0.0003
+0.930 1.5234 0.0003
+0.935 1.5234 0.0003
+0.940 1.5234 0.0003
+0.945 1.5234 0.0003
+0.950 1.5234 0.0003
+0.955 1.5234 0.0003
+0.960 1.5234 0.0003
+0.965 1.5234 0.0003
+0.970 1.5234 0.0003
+0.975 1.5234 0.0003</p>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

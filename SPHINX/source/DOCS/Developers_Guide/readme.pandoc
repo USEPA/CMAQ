@@ -1,0 +1,3 @@
+pandoc command for creating the PDF
+
+pandoc -N --variable geometry:margin=1in --pdf-engine=xelatex --variable version=5.3 --variable title="CMAQv5.3 Developer Guide" --variable subtitle="09/10/2019" -s -o ./PDF/CMAQ_Dev_Guide.pdf CMAQ_Dev_Guide.md Code_Management.md

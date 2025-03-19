@@ -1,0 +1,83 @@
+********************************************************************************
+Announcing the release of MCIP Version 5.5 (19 September 2024)
+********************************************************************************
+
+The MCIP code is updated to version 5.5.  This is a minor update to MCIP.
+These release notes and the CHANGES file reflect all changes that have been
+made to MCIP since MCIPv5.4 (the previous release).  Changes to MCIPv5.5
+were made by Tanya Spero (U.S. EPA).
+
+MCIPv5.5 accompanies CMAQv5.5.  If you are using CMAQv5.3+, you must
+upgrade to use MCIPv5.0+.
+
+MCIPv5.5 requires I/O API version 3.1 or greater to support error-checking
+within the I/O API.
+
+MCIPv5.5 requires the netCDF F90 module (rather than the F77 include).
+
+
+MCIP can be cited with the following reference:
+
+  Otte, T. L., and J. E. Pleim, 2010.  The Meteorology-Chemistry Interface
+     Processor (MCIP) for the CMAQ modeling system: updates through
+     MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
+
+A DOI will also be available for CMAQv5.5 (which includes MCIPv5.5).
+
+
+Background on MCIP and other useful information about the CMAQ system can be
+found online at http://www.epa.gov/cmaq.
+
+Inquiries related to potential bugs in MCIPv5.5 for questions related to
+proper use of the code should be submitted to the MCIP Category in the
+Forum hosted by the CMAS Center:  https://forum.cmascenter.org/c/mcip.
+
+Users are encouraged to read the Frequently Asked Questions (FAQ) file.
+Users should consult the FAQ and other issues raised within the Forum
+before submitting new inquiries.
+
+
+
+MCIPv5.5 was tested with the following Fortran compilers under both debug
+and optimized options (as shown in the Makefile):
+
+  Intel 21.4 with netCDF 4.9.2 and I/O API 3.2
+
+  Nvidia 22.11 with netCDF 4.9.2 and I/O API 3.2
+
+  GCC 8.5.0 with netCDF 4.9.2 and I/O API 3.2
+
+
+
+With MCIPv5.5, the following remain deprecated:
+  - Including "SOIM1", "SOIM2", "SOIT1", and "SOIT2" in METCRO2D.
+    Those fields are now in a separate file that includes all soil layers and
+    their associated depths (SOI_CRO).
+  - Including "LUFRAC_xx" in GRIDCRO2D.  Those fields are now in a separate
+    file that includes each fractional land use classification (LUFRAC_CRO).
+
+With MCIPv5.5, the following output variables in METCRO2D remain deprecated:
+     - 2-D cloud fraction (CFRAC)
+     - cloud top (CLDT)
+     - cloud bottom (CLDB)
+     - liquid water content (WBAR)
+They will be removed from METCRO2D in a forthcoming release of MCIP.
+
+
+Interactions with members of the CMAQ user community led to some of the changes
+that have been incorporated into MCIPv5.5.
+
+
+The following is a summary of the changes in MCIPv5.5:
+
+ 1.  Changed constraint on XORIG and YORIG for Lambert conformal projections
+     with user-specified runtime reference latitude. Original constraint of
+     500 meters introduced an error in calculating the location of the
+     lower-left corner (i.e., XORIG and YORIG) in domains with a horizontal
+     grid spacing that is not a multiple of 1 km. Now using a constraint of
+     5 meters to allow for "neater" XORIG and YORIG values across compilers.
+
+ 2.  Updated WRF option translation for the MCIP metadata for new physics
+     introduced between WRFv4.1 and WRFv4.6.
+
+ 3.  Removed a redundant NF90_OPEN/NF90_CLOSE couplet to improve efficiency.

@@ -1,0 +1,5 @@
+cmaqsatproc
+geopandas
+xarray
+netcdf4
+pycno

@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Appendix D: Parallel Implementation of CMAQ &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Appendix/CMAQ_UG_appendixD_parallel_implementation';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixD_parallel_implementation.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Appendix D: Parallel Implementation of CMAQ</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_appendixC_spatial_data.html"><span class="std std-doc">&lt;&lt; Previous Appendix</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixE_configuring_WRF.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a></p>
+<!-- END COMMENT -->
+<section id="appendix-d-parallel-implementation-of-cmaq">
+<h1>Appendix D: Parallel Implementation of CMAQ<a class="headerlink" href="#appendix-d-parallel-implementation-of-cmaq" title="Link to this heading">#</a></h1>
+<section id="d-1-general-structure-of-data">
+<h2>D.1 General Structure of data<a class="headerlink" href="#d-1-general-structure-of-data" title="Link to this heading">#</a></h2>
+<p>There are a few approaches to parallelize an application, such as data-parallelism. Data-parallelism is a paradigm which decomposes data into “equal” sections and distributes them among allocated processors. Each processor works on the portion it owns. CMAQ parallel implementation is based on this methodology.</p>
+<p>The CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the spatial domain is decomposed. When NPROCS processors are used to run CMAQ, NPCOL number of processors are assigned to the column dimension and NPROCS/NPCOL processors are assigned to the row dimension (NPROCS = NPCOL x NPROW). In the case that the column dimension is not divisible by NPCOL, the remainder is distributed equally to NPCOL processors. The same approach is applied to the row dimension. For example (illustrated in Figure D-1), given a 100 by 75 (column x row) data grid and six processors with three processors along the column dimension and two processors along the row dimension, the following subdomain sizes (NCOLS x NROWS) are assigned to each processor: 34 x 38 (processor 0), 33 x 38 (processors 1 and 2), 34 x 37 (processor 3), and 33 x 37 (processors 4 and 5).</p>
+<p><img alt="Figure D-1" src="../../../_images/FigureD-1.png" /></p>
+<p><strong>Figure D-1. Domain decomposition illustration</strong></p>
+</section>
+<section id="d-2-interprocessor-communication">
+<h2>D.2 Interprocessor Communication<a class="headerlink" href="#d-2-interprocessor-communication" title="Link to this heading">#</a></h2>
+<p>In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide a simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to a given processor (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW (Fig. D-2).</p>
+<p><img alt="Figure D-2" src="../../../_images/FigureD-2.png" /></p>
+<p><strong>Figure D-2. A depiction of near neighbor processors</strong></p>
+<p>As an illustration of interprocessor data access (Fig. D-3), consider the following piece of code being executed on Processor 2 with a 2x2, 4-processor domain decomposition. It is clear that the calculation at the grid cell denoted by “X” requires data denoted by red dots which reside in near neighbor processors 0 and 3.</p>
+<p>DIMENSION DATA( NCOLS, NROWS )</br></p>
+<p>DO J = 1, NROWS</br>
+DO I = 1, NCOLS</br>
+DATA(I,J) = A(I+2,J) * A(I, J-1)</br>
+END DO</br>
+END DO</p>
+<p><img alt="Figure D-3" src="../../../_images/FigureD-3.png" /></p>
+<p><strong>Figure D-3. An example to show interprocessor data access is needed</strong></p>
+<p>To facilitate interprocessor communication as shown in the example above, “ghost” regions are used (extra space in the data structure), i.e. DIMENSION DATA (NCOLS+2, NROWS+1). The thickness of the ghost region depends of the amount of overlap that is required by the algorithm.</p>
+<p>The Stencil Exchange (SE) Library is designed in Fortran 90 using Object Oriented-base technology to handle various types of communication with the objective of hiding the management of the low-level data movement. SE addresses four types of communication and a brief description of each type is provided below.</p>
+<ul class="simple">
+<li><p>interior to ghost region, which is indicated in light blue in Figure D-4. This particular type of communication is being used in various places such as HADV and HDIFF.</p></li>
+</ul>
+<p><img alt="Figure D-4" src="../../../_images/FigureD-4.png" /></p>
+<p><strong>Figure D-4. Interior to ghost region communication</strong></p>
+<ul class="simple">
+<li><p>sub-section data redistribution (Fig. D-5). This particular type of communication is being used in Process Analysis.</p></li>
+</ul>
+<p><img alt="Figure D-5" src="../../../_images/FigureD-5.png" /></p>
+<p><strong>Figure D-5. Sub-section data redistribution communication</strong></p>
+</section>
+<section id="d-3-parallel-i-o">
+<h2>D.3 Parallel I/O<a class="headerlink" href="#d-3-parallel-i-o" title="Link to this heading">#</a></h2>
+<p>All I/O operations in CMAQ are handled by the I/O API library. Furthermore, the I/O API library was designed for serial code. As a result, CMAQ cannot utilize any I/O functions contained in the in I/O API library (such as READ3 and WRITE3) directly in any parallel computing platform.</p>
+<p>CMAQv4.7.1 and later releases include a directory called ‘PARIO’ which was developed to bridge this gap. PARIO contains a smaller set of functions which are counterparts to equivalent functions in IOAPI but capable to run in parallel. The following I/O API routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in the PARIO library has a “P” prefix to distinguish it from its counterpart in the I/O API library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines is done at compilation through CPP flags. Note that the subroutine argument lists in any PARIO routine are identical to those in the I/O API counterpart routine.</p>
+<p>On the output side, all processors are required to send their portion of data to processor 0, which will stitch together each sub-part and then output it to the file (Fig. D-8). This is considered a “pseudo” parallel I/O approach and this approach is being using in PARIO.</p>
+<p><img alt="Figure D-8" src="../../../_images/FigureD-8.png" /></p>
+<p><strong>Figure D-8. Combine all sub-domain data from each processor in an I/O processor</strong></p>
+<p>In CMAQv5.2 and later versions, we have developed a true parallel I/O approach, referred to as PIO (Wong et. al.). PIO allows each processor to write their portion to the output file simultaneously (Fig. D-9).</p>
+<p><img alt="Figure D-9" src="../../../_images/FigureD-9.png" /></p>
+<p><strong>Figure D-9. True parallel I/O approach</strong></p>
+<p>To invoke this feature users have to re-build CMAQ after building additional libraries not used with CMAQ traditionally as well as retaining the traditional libraries with the exception of the non-“mpi” IOAPI library downloaded in <a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html"><span class="std std-doc">Chapter 3</span></a>. The additional libraries required by invoking this option include the PnetCDF library and the “mpi” version of the IOAPI library. It also requires installation of parallel file system, e.g. Lustre or BeeGFS, with sufficient I/O hardware such as disk drive and I/O sub-system to support parallel file system software.</p>
+<p><strong>PnetCDF library</strong></p>
+<p>The PnetCDF library is the parallel I/O implementation to complement the classic netCDF library. The PnetCDF library is available for download at https://parallel-netcdf.github.io/ users should find and follow the instructions for proper installation given on the website. Users should install a stand alone PnetCDF library using MPI Fortran 90 and C compilers. After successful installation, check the environment PATH &amp; LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the PnetCDF libraries and bin. Note that users may have to set these paths manually if not set, and that these paths must be loaded every time a new shell is started. Note: users should not re-build their netCDF library at this point, within CMAQ the classic netCDF library and PnetCDF library interact as two stand alone libraries.</p>
+<p><strong>IOAPI library</strong></p>
+<p>The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE   <strong>Version Supported: IOAPI 3.2 tagged 20200828</strong></p>
+<p>The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.</p>
+<p>This approach also requires installation of “mpi” I/O API libraries as shown below (note these steps should be followed after completing the steps in Chapter 3 section 3.2.3):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setenv</span> <span class="n">BIN</span> <span class="n">Linux2_x86_64gfortmpi</span>
+</pre></div>
+</div>
+<p>Edit the file in the ioapi folder called Makeinclude.Linux2_x86_64gfortmpi to comment out all openMP options as CMAQ does not support openMP. Note: If users are using the ifort compiler you also need to remove -Bstatic flag within the ioapi/Makeinclude.Linux2_x86_64ifortmpi file as well.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OMPFLAGS</span> <span class="o">=</span> <span class="c1"># -fopenmp </span>
+<span class="n">OMPLIBS</span> <span class="o">=</span> <span class="c1"># -fopenmp</span>
+</pre></div>
+</div>
+<p>In the top level IOAPI_3.2 directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">configure</span>
+<span class="n">make</span>
+</pre></div>
+</div>
+<p>After building the reqiured libraries, users must build CCTM. Before compilation of CCTM, users must turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with I/O API 3.2.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#set MakefileOnly                      #&gt; uncomment to build a Makefile, but do not compile;</span>
+<span class="c1">#set build_parallel_io                 #&gt; uncomment to build with parallel I/O (pnetcdf);</span>
+</pre></div>
+</div>
+<p>After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct I/O API BIN before compiling the code. An example of these edits are shown below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>LIB = /home/CMAQ_PIO/CMAQ_libs
+include_path = -I /home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/Linux2_x86_64ifortmpi \
+               -I /home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/ioapi/fixed_src \
+               -I $(LIB)/mpi/include -I.
+
+ IOAPI  = -L/home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/Linux2_x86_64ifortmpi -lioapi
+ NETCDF = -L$(LIB)/netcdf/lib -lnetcdf -lnetcdff
+ PNETCDF = -L$(LIB)/pnetcdf/lib -lpnetcdf
+ LIBRARIES = $(IOAPI) $(NETCDF) $(PNETCDF)
+</pre></div>
+</div>
+<p>Lastly, users must also edit the CCTM run script by inserting MPI: in front of the output file path as shown below:</p>
+<p>setenv CTM_CONC_1      “MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v”       #&gt; On-Hour Concentrations</p>
+<p>For further directions on installation of PIO or if you encounter difficulties using the PIO feature, please contact David Wong at wong.david-c&#64;epa.gov</p>
+</section>
+<section id="d-4-reference">
+<h2>D.4 Reference:<a class="headerlink" href="#d-4-reference" title="Link to this heading">#</a></h2>
+<p>Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., &amp; Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.</p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_appendixC_spatial_data.html"><span class="std std-doc">&lt;&lt; Previous Appendix</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixE_configuring_WRF.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a> <br>
+CMAQv5.5 User’s Guide<br></p>
+<!-- END COMMENT -->
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-1-general-structure-of-data">D.1 General Structure of data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-2-interprocessor-communication">D.2 Interprocessor Communication</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-3-parallel-i-o">D.3 Parallel I/O</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-4-reference">D.4 Reference:</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

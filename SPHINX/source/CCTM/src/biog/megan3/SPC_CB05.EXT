@@ -1,0 +1,55 @@
+C=======================================================================
+C  SPC_CB05.EXT
+C  This include file contains CB05 (CMAQ/CAMx) species and their MW.
+C
+C
+C  Mechanism Name: CB05 (CMAQ/CAMx)
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  bkoo         04/13/07 - Created
+C  Ling Huang   06/08/17 - updated for MEGANv3 with new species
+C=======================================================================
+
+      CHARACTER*16   SPC_CB05MECH
+      PARAMETER     (SPC_CB05MECH = 'CB05            ')
+
+      INTEGER        N_CB05_SPC
+      PARAMETER     (N_CB05_SPC = 29)
+
+      CHARACTER*16   MECH_SPC_CB05( N_CB05_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_CB05( N_CB05_SPC )  ! Mechanism species molecular weight
+
+
+      DATA  MECH_SPC_CB05(  1), MECH_MWT_CB05(  1) / 'ISOP            ',  68.12  /
+      DATA  MECH_SPC_CB05(  2), MECH_MWT_CB05(  2) / 'TERP            ', 136.23  /
+      DATA  MECH_SPC_CB05(  3), MECH_MWT_CB05(  3) / 'PAR             ',  14.43  /
+      DATA  MECH_SPC_CB05(  4), MECH_MWT_CB05(  4) / 'XYL             ', 106.17  /
+      DATA  MECH_SPC_CB05(  5), MECH_MWT_CB05(  5) / 'OLE             ',  27.65  /
+      DATA  MECH_SPC_CB05(  6), MECH_MWT_CB05(  6) / 'NR              ',  16.00  /
+      DATA  MECH_SPC_CB05(  7), MECH_MWT_CB05(  7) / 'MEOH            ',  32.04  /
+      DATA  MECH_SPC_CB05(  8), MECH_MWT_CB05(  8) / 'CH4             ',  16.04  /
+      DATA  MECH_SPC_CB05(  9), MECH_MWT_CB05(  9) / 'NH3             ',  17.03  /
+      DATA  MECH_SPC_CB05( 10), MECH_MWT_CB05( 10) / 'NO              ',  46.00  /
+      DATA  MECH_SPC_CB05( 11), MECH_MWT_CB05( 11) / 'ALD2            ',  44.05  /
+      DATA  MECH_SPC_CB05( 12), MECH_MWT_CB05( 12) / 'ETOH            ',  46.07  /
+      DATA  MECH_SPC_CB05( 13), MECH_MWT_CB05( 13) / 'FORM            ',  30.03  /
+      DATA  MECH_SPC_CB05( 14), MECH_MWT_CB05( 14) / 'ALDX            ',  43.65  /
+      DATA  MECH_SPC_CB05( 15), MECH_MWT_CB05( 15) / 'TOL             ',  92.14  /
+      DATA  MECH_SPC_CB05( 16), MECH_MWT_CB05( 16) / 'IOLE            ',  56.11  /
+      DATA  MECH_SPC_CB05( 17), MECH_MWT_CB05( 17) / 'CO              ',  28.01  /
+      DATA  MECH_SPC_CB05( 18), MECH_MWT_CB05( 18) / 'ETHA            ',  30.07  /
+      DATA  MECH_SPC_CB05( 19), MECH_MWT_CB05( 19) / 'ETH             ',  28.05  /
+      DATA  MECH_SPC_CB05( 20), MECH_MWT_CB05( 20) / 'AACD            ',  60.05  /
+      DATA  MECH_SPC_CB05( 21), MECH_MWT_CB05( 21) / 'FACD            ',  46.03  /
+      DATA  MECH_SPC_CB05( 22), MECH_MWT_CB05( 22) / 'HCN             ',  27.03  /
+      DATA  MECH_SPC_CB05( 23), MECH_MWT_CB05( 23) / 'ISPD            ',  70.09  /
+      DATA  MECH_SPC_CB05( 24), MECH_MWT_CB05( 24) / 'N2O             ',  44.01  /
+      DATA  MECH_SPC_CB05( 25), MECH_MWT_CB05( 25) / 'SESQ            ', 204.35  /
+      DATA  MECH_SPC_CB05( 26), MECH_MWT_CB05( 26) / 'TRS             ',  34.08  /
+      DATA  MECH_SPC_CB05( 27), MECH_MWT_CB05( 27) / 'CH3BR           ',  94.94  /
+      DATA  MECH_SPC_CB05( 28), MECH_MWT_CB05( 28) / 'CH3CL           ',  50.49  /
+      DATA  MECH_SPC_CB05( 29), MECH_MWT_CB05( 29) / 'CH3I            ', 141.94  /

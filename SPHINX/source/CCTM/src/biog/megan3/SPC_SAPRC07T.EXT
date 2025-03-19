@@ -1,0 +1,84 @@
+C=======================================================================
+C  SPC_SAPRC07T.EXT
+C  This include file contains SAPRC07T species and their MW.
+C
+C
+C  Mechanism Name: SAPRC07T
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  Ling Huang   06/13/17 - Created for MEGAN3
+C=======================================================================
+
+      CHARACTER*16   SPC_SAPRC07TMECH
+      PARAMETER     (SPC_SAPRC07TMECH = 'SAPRC07T        ')
+
+      INTEGER        N_SAPRC07T_SPC
+      PARAMETER     (N_SAPRC07T_SPC = 56)
+
+      CHARACTER*16   MECH_SPC_SAPRC07T( N_SAPRC07T_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_SAPRC07T( N_SAPRC07T_SPC )  ! Mechanism species molecular weight
+
+! Note conversion between 134 species and SAPRC07 is done by 1:1 mole
+
+
+      DATA  MECH_SPC_SAPRC07T(  1), MECH_MWT_SAPRC07T(  1) / 'CH4             ', 16.04   /
+      DATA  MECH_SPC_SAPRC07T(  2), MECH_MWT_SAPRC07T(  2) / 'ALK1            ', 30.07   /
+      DATA  MECH_SPC_SAPRC07T(  3), MECH_MWT_SAPRC07T(  3) / 'ALK2            ', 36.73   /
+      DATA  MECH_SPC_SAPRC07T(  4), MECH_MWT_SAPRC07T(  4) / 'ALK3            ', 58.61   /
+      DATA  MECH_SPC_SAPRC07T(  5), MECH_MWT_SAPRC07T(  5) / 'ALK4            ', 77.60   /
+      DATA  MECH_SPC_SAPRC07T(  6), MECH_MWT_SAPRC07T(  6) / 'ALK5            ', 118.89  /
+      DATA  MECH_SPC_SAPRC07T(  7), MECH_MWT_SAPRC07T(  7) / 'ETHENE          ', 28.05   /
+      DATA  MECH_SPC_SAPRC07T(  8), MECH_MWT_SAPRC07T(  8) / 'OLE1            ', 72.34   /
+      DATA  MECH_SPC_SAPRC07T(  9), MECH_MWT_SAPRC07T(  9) / 'OLE2            ', 75.78   /
+      DATA  MECH_SPC_SAPRC07T( 10), MECH_MWT_SAPRC07T( 10) / 'ISOPRENE        ', 68.12   /
+      DATA  MECH_SPC_SAPRC07T( 11), MECH_MWT_SAPRC07T( 11) / 'TERP            ', 136.24  /
+      DATA  MECH_SPC_SAPRC07T( 12), MECH_MWT_SAPRC07T( 12) / 'BENZ            ', 78.11   /
+      DATA  MECH_SPC_SAPRC07T( 13), MECH_MWT_SAPRC07T( 13) / 'ARO1            ', 95.16   /
+      DATA  MECH_SPC_SAPRC07T( 14), MECH_MWT_SAPRC07T( 14) / 'ARO2MN          ', 118.72  /
+      DATA  MECH_SPC_SAPRC07T( 15), MECH_MWT_SAPRC07T( 15) / 'ACYE            ', 26.04   /
+      DATA  MECH_SPC_SAPRC07T( 16), MECH_MWT_SAPRC07T( 16) / 'HCHO            ', 30.03   /
+      DATA  MECH_SPC_SAPRC07T( 17), MECH_MWT_SAPRC07T( 17) / 'CCHO            ', 44.05   /
+      DATA  MECH_SPC_SAPRC07T( 18), MECH_MWT_SAPRC07T( 18) / 'RCHO            ', 58.08   /
+      DATA  MECH_SPC_SAPRC07T( 19), MECH_MWT_SAPRC07T( 19) / 'BALD            ', 106.13  /
+      DATA  MECH_SPC_SAPRC07T( 20), MECH_MWT_SAPRC07T( 20) / 'ACETONE         ', 58.08   /
+      DATA  MECH_SPC_SAPRC07T( 21), MECH_MWT_SAPRC07T( 21) / 'MEK             ', 72.11   /
+      DATA  MECH_SPC_SAPRC07T( 22), MECH_MWT_SAPRC07T( 22) / 'PRD2            ', 116.16  /
+      DATA  MECH_SPC_SAPRC07T( 23), MECH_MWT_SAPRC07T( 23) / 'MEOH            ', 32.04   /
+      DATA  MECH_SPC_SAPRC07T( 24), MECH_MWT_SAPRC07T( 24) / 'HCOOH           ', 46.03   /
+      DATA  MECH_SPC_SAPRC07T( 25), MECH_MWT_SAPRC07T( 25) / 'CCOOH           ', 60.05   /
+      DATA  MECH_SPC_SAPRC07T( 26), MECH_MWT_SAPRC07T( 26) / 'CCOOOH          ', 74.08   /
+      DATA  MECH_SPC_SAPRC07T( 27), MECH_MWT_SAPRC07T( 27) / 'GLY             ', 58.04   /
+      DATA  MECH_SPC_SAPRC07T( 28), MECH_MWT_SAPRC07T( 28) / 'MGLY            ', 72.07   /
+      DATA  MECH_SPC_SAPRC07T( 29), MECH_MWT_SAPRC07T( 29) / 'BACL            ', 86.09   /
+      DATA  MECH_SPC_SAPRC07T( 30), MECH_MWT_SAPRC07T( 30) / 'CRES            ', 108.14  /
+      DATA  MECH_SPC_SAPRC07T( 31), MECH_MWT_SAPRC07T( 31) / 'MACR            ', 70.09   /
+      DATA  MECH_SPC_SAPRC07T( 32), MECH_MWT_SAPRC07T( 32) / 'MVK             ', 70.09   /
+      DATA  MECH_SPC_SAPRC07T( 33), MECH_MWT_SAPRC07T( 33) / 'IPRD            ', 100.1   /
+      DATA  MECH_SPC_SAPRC07T( 34), MECH_MWT_SAPRC07T( 34) / 'RNO3            ', 147.18  /
+      DATA  MECH_SPC_SAPRC07T( 35), MECH_MWT_SAPRC07T( 35) / 'CO              ', 28.01   /
+      DATA  MECH_SPC_SAPRC07T( 36), MECH_MWT_SAPRC07T( 36) / 'SESQ            ', 204.36  /
+      DATA  MECH_SPC_SAPRC07T( 37), MECH_MWT_SAPRC07T( 37) / 'HCN             ', 27.03   /
+      DATA  MECH_SPC_SAPRC07T( 38), MECH_MWT_SAPRC07T( 38) / 'CH3BR           ', 94.94   /
+      DATA  MECH_SPC_SAPRC07T( 39), MECH_MWT_SAPRC07T( 39) / 'CH3CL           ', 50.49   /
+      DATA  MECH_SPC_SAPRC07T( 40), MECH_MWT_SAPRC07T( 40) / 'CH3I            ', 141.94  /
+      DATA  MECH_SPC_SAPRC07T( 41), MECH_MWT_SAPRC07T( 41) / 'TRS             ', 32.00   /
+      DATA  MECH_SPC_SAPRC07T( 42), MECH_MWT_SAPRC07T( 42) / 'NO              ', 46.00   /
+      DATA  MECH_SPC_SAPRC07T( 43), MECH_MWT_SAPRC07T( 43) / 'NH3             ', 17.03   /
+      DATA  MECH_SPC_SAPRC07T( 44), MECH_MWT_SAPRC07T( 44) / 'N2O             ', 44.01   /
+      DATA  MECH_SPC_SAPRC07T( 45), MECH_MWT_SAPRC07T( 45) / 'APIN            ', 136.24  /
+      DATA  MECH_SPC_SAPRC07T( 46), MECH_MWT_SAPRC07T( 46) / 'HCHO_PRIMARY    ', 30.03   /
+      DATA  MECH_SPC_SAPRC07T( 47), MECH_MWT_SAPRC07T( 47) / 'CCHO_PRIMARY    ', 44.05   /
+      DATA  MECH_SPC_SAPRC07T( 48), MECH_MWT_SAPRC07T( 48) / 'MXYL            ', 70.09   / ! 1
+      DATA  MECH_SPC_SAPRC07T( 49), MECH_MWT_SAPRC07T( 49) / 'OXYL            ', 70.09   / ! 2
+      DATA  MECH_SPC_SAPRC07T( 50), MECH_MWT_SAPRC07T( 50) / 'PXYL            ', 70.09   / ! 3
+      DATA  MECH_SPC_SAPRC07T( 51), MECH_MWT_SAPRC07T( 51) / 'NAPHTHALENE     ', 128.2   / ! 4 
+      DATA  MECH_SPC_SAPRC07T( 52), MECH_MWT_SAPRC07T( 52) / 'OCS             ', 60.07   / ! 5
+      DATA  MECH_SPC_SAPRC07T( 53), MECH_MWT_SAPRC07T( 53) / 'TOLU            ', 92.10   / ! 6
+      DATA  MECH_SPC_SAPRC07T( 54), MECH_MWT_SAPRC07T( 54) / 'PROPENE         ', 42.10   / ! 7
+      DATA  MECH_SPC_SAPRC07T( 55), MECH_MWT_SAPRC07T( 55) / 'ETOH            ', 46.07   / ! 8
+      DATA  MECH_SPC_SAPRC07T( 56), MECH_MWT_SAPRC07T( 56) / 'PYRYACID        ', 70.09   / ! 9 only saprc07tic assigned to BALD in saprc07t
+                                                         

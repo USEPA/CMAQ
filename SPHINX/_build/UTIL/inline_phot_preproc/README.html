@@ -1,0 +1,928 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Inline photolysis preprocessor (inline_phot_preproc) &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'UTIL/inline_phot_preproc/README';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/UTIL/inline_phot_preproc/README.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Inline photolysis preprocessor (inline_phot_preproc)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="inline-photolysis-preprocessor-inline-phot-preproc">
+<h1>Inline photolysis preprocessor (inline_phot_preproc)<a class="headerlink" href="#inline-photolysis-preprocessor-inline-phot-preproc" title="Link to this heading">#</a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>The Inline photolysis preprocessor utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA_<em>mechanism</em> file contains the
+cross-section and quantum yields for the photolysis rates used by the specified photochemical <em>mechanism</em>. The <em>mechanism</em> is determined the RXNS_DATA_MODULE.F90 from building and running the
+<strong>chemmech</strong> utility. The PHOT_OPTICS.dat file gives the optical properties for cloud water and ice plus the refractive indice for aerosol species. The file does not change between photochemical <em>mechanisms</em>.
+When using the files for CCTM executions, the number of wavebands defined in the CSQY_DATA_<em>mechanism</em> and PHOT_OPTICS.dat files need to be the same.</p>
+<p>The utility’s method is based on how FAST-JX version 6.8 processes cross-section and quantum yield data to a condensed waveband structure for calculating photolysis rates. The process has two steps that allocate the data over wavelength bins and average the data over the bins based on the solar spectrum. The below table lists the maximum number of wavelength bins. At the shortest wavelength, bins overlap because the O<sub>2</sub> absorption cross-section and the solar flux are correlated in the Schumman-Runge bands.  The utility includes an option that subsets the bins starting from longest to shortest wavelenghts.</p>
+<center> Table 1. Wavelength Bins Intervals </center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Bin</p></th>
+<th class="head text-center"><p>start(nm)</p></th>
+<th class="head text-center"><p>effective(nm)</p></th>
+<th class="head text-center"><p>stop(nm)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>1</p></td>
+<td class="text-center"><p>177.500</p></td>
+<td class="text-center"><p>186.839</p></td>
+<td class="text-center"><p>202.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>2</p></td>
+<td class="text-center"><p>177.500</p></td>
+<td class="text-center"><p>191.209</p></td>
+<td class="text-center"><p>202.500</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>3</p></td>
+<td class="text-center"><p>202.500</p></td>
+<td class="text-center"><p>193.620</p></td>
+<td class="text-center"><p>206.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>4</p></td>
+<td class="text-center"><p>206.500</p></td>
+<td class="text-center"><p>196.244</p></td>
+<td class="text-center"><p>209.500</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>5</p></td>
+<td class="text-center"><p>209.500</p></td>
+<td class="text-center"><p>202.392</p></td>
+<td class="text-center"><p>212.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>6</p></td>
+<td class="text-center"><p>212.500</p></td>
+<td class="text-center"><p>208.183</p></td>
+<td class="text-center"><p>215.500</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>7</p></td>
+<td class="text-center"><p>215.500</p></td>
+<td class="text-center"><p>211.125</p></td>
+<td class="text-center"><p>221.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>8</p></td>
+<td class="text-center"><p>221.500</p></td>
+<td class="text-center"><p>213.817</p></td>
+<td class="text-center"><p>233.000</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>9</p></td>
+<td class="text-center"><p>233.000</p></td>
+<td class="text-center"><p>261.412</p></td>
+<td class="text-center"><p>275.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>10</p></td>
+<td class="text-center"><p>275.500</p></td>
+<td class="text-center"><p>270.511</p></td>
+<td class="text-center"><p>286.500</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>11</p></td>
+<td class="text-center"><p>286.500</p></td>
+<td class="text-center"><p>281.149</p></td>
+<td class="text-center"><p>291.000</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>12</p></td>
+<td class="text-center"><p>291.000</p></td>
+<td class="text-center"><p>294.590</p></td>
+<td class="text-center"><p>298.300</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>13</p></td>
+<td class="text-center"><p>298.300</p></td>
+<td class="text-center"><p>303.151</p></td>
+<td class="text-center"><p>307.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>14</p></td>
+<td class="text-center"><p>307.500</p></td>
+<td class="text-center"><p>310.007</p></td>
+<td class="text-center"><p>312.500</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>15</p></td>
+<td class="text-center"><p>312.500</p></td>
+<td class="text-center"><p>316.434</p></td>
+<td class="text-center"><p>320.300</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>16</p></td>
+<td class="text-center"><p>320.300</p></td>
+<td class="text-center"><p>333.076</p></td>
+<td class="text-center"><p>345.000</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>17</p></td>
+<td class="text-center"><p>345.000</p></td>
+<td class="text-center"><p>381.997</p></td>
+<td class="text-center"><p>412.500</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>18</p></td>
+<td class="text-center"><p>412.500</p></td>
+<td class="text-center"><p>607.723</p></td>
+<td class="text-center"><p>850.000</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="using-the-utility">
+<h3>Using the Utility.<a class="headerlink" href="#using-the-utility" title="Link to this heading">#</a></h3>
+<p>The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program and the bldrun script specifies what compiler to use.</p>
+<p>To use the utility follow the below instructions.</p>
+<ol class="arabic simple">
+<li><p>Copy and edit bldrun.inline_phot_preproc.csh (see Table 2.) for your compiler and Mechanism. Save and run to build the software.</p></li>
+<li><p>IF NEEDED, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.</p></li>
+<li><p>If the application uses photolysis rates whose cross-section and quantum yields are not listed under the subdirectory, <em>photolysis_CSQY_data</em>, create the data files for each rate and add them to the directory.</p></li>
+<li><p>Execute the script. Check the bldrun.log file if the executable does not produce CSQY_DATA table in the output directory.</p></li>
+</ol>
+<center> Table 2. inline_phot_preproc bldrun script run time or environment settings </center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Names</p></th>
+<th class="head text-left"><p>Definition</p></th>
+<th class="head text-left"><p>Notes or Recommeded Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>COMPILER</p></td>
+<td class="text-left"><p>FORTRAN compiler to building create_ebi</p></td>
+<td class="text-left"><p>the utility’s makefile, <em>src/inline_phot_preproc.makefile</em>, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>RXNS_DATA_SRC</p></td>
+<td class="text-left"><p>Full path to mechanism’s RXNS_DATA_MODULE.F90 or mechanism include files</p></td>
+<td class="text-left"><p>Produced by CHEMMECH utility</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>USE_RXNS_MODULES</p></td>
+<td class="text-left"><p>whether FORTRAN 90 describe the photochemical mechanism</p></td>
+<td class="text-left"><p>T if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>WVL_AE_REFRAC</p></td>
+<td class="text-left"><p>Whether to include spectral values of refractive indices for aerosol species</p></td>
+<td class="text-left"><p>T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>SPLIT_OUTPUT</p></td>
+<td class="text-left"><p>whether optical and CSQY data written to two separate files</p></td>
+<td class="text-left"><p>T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>N_WAVEBANDS_OUT</p></td>
+<td class="text-left"><p>Number of Wavebands to write to output files starting from the band with the longest</p></td>
+<td class="text-left"><p>range 1 to 18; use 7 for CMAQ and 11 from MPAS-CMAQ</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>APPL</p></td>
+<td class="text-left"><p>Name of the photochemical mechanism for application</p></td>
+<td class="text-left"><p>values equals MECHNAME in RXNS_DATA_MODULE.F90</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>WVBIN_FILE</p></td>
+<td class="text-left"><p>Full path to file defining the wavelength bins</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/wavel-bins.dat</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>FLUX_FILE</p></td>
+<td class="text-left"><p>Full path to solar flux file used for averaging over the wavelength bins</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/solar-p05nm-UCI.dat</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>CSQY_DATA_RAW</p></td>
+<td class="text-left"><p>Path to directory with ASCII files containing cross-section and quantum yield versus wavelength for photolysis rates in the photochemical mechanism</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data; individual file names correspond to values of the PHOTAB array in the RXNS_DATA_MODULE.F90 file</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MAX_NUMB_REFRACT</p></td>
+<td class="text-left"><p>maximum number of aerosol refractive indices to be use</p></td>
+<td class="text-left"><p>16, the value can be greater than the actual number used</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>AE_REFRAC_LIST</p></td>
+<td class="text-left"><p>Lists names of environment variable defining file paths to each aerosol refractive index</p></td>
+<td class="text-left"><p>“index<sub>1</sub> index<sub>2</sub> … index<sub>n</sub>” in general where index<sub>i</sub> defines from 1 to MAX_NUMB_REFRACT file paths. The current build-runscript use <strong>“WATER SOLUTE DUST SEASALT SOOT ISOP_NOX ISOP_SOX LIMONENE_SOA APINENE_SOA NAPTH_SOA MXYL_HIGH_NOX MXYL_LOW_NOX TOLU_HIGH_NOX TOLU_LOW_NOX ORGCARB BIOMASS”</strong> but can be changed. Read the section on aerosol refractive indices.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>index<sub>1</sub></p></td>
+<td class="text-left"><p>Full path to file containing the refractive index 1</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/inline_phot_preproc/refractive_indices/water_refractive_index.dat, WATER</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>index<sub>2</sub></p></td>
+<td class="text-left"><p>Full path to file containing the refractive index 2</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/inso00, DUST</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>index<sub>3</sub></p></td>
+<td class="text-left"><p>Full path to file containing the refractive index 3</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/waso00, SOLUTE</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>index<sub>n</sub></p></td>
+<td class="text-left"><p>Full path to file containing the refractive index n</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indicesadient_aerosol_refrac_indx/refract_biomass_new.txt, BIOMASS</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>OUT_DIR</p></td>
+<td class="text-left"><p>Full path to output directory</p></td>
+<td class="text-left"><p>Value is the user’s preference</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol class="arabic simple">
+<li><p>CMAQ version 5.32 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. Models higher than versions allows change default
+value by change the <em>OPTICS</em> entries in the aerosol species name list.</p></li>
+</ol>
+<center> Table 2. INLINE_PHOT_PREPROC output files </center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File Name</p></th>
+<th class="head"><p>Format</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CSQY_DATA_<strong>mechanism</strong></p></td>
+<td><p>ASCII</p></td>
+<td><p>Processed cross-sections and quantum yields as a function of temperature and wavelength bin; <strong>mechanism</strong> equals the value of MECHNAME in RXNS_DATA_MODULE.F90</p></td>
+</tr>
+<tr class="row-odd"><td><p>PHOT_OPTICS.dat</p></td>
+<td><p>ASCII</p></td>
+<td><p>Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>To report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill&#64;epa.gov.</p>
+</section>
+<section id="files-configuration-and-environment-variables">
+<h3>Files, configuration, and environment variables<a class="headerlink" href="#files-configuration-and-environment-variables" title="Link to this heading">#</a></h3>
+<p>In general, applications of inline_phot_preproc vary based on the photochemical mechanism’s reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism’s RXNS_DATA_MODULE.F90 file (Figure 1.). The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These files follow simple formatting rules (Table 3.). Check files under CSQY_DATA_RAW for examples.</p>
+<p>Table 3. General Format Rules for cross-section and quantum yield data files.</p>
+<ul class="simple">
+<li><p>First line read gives the name of the photolysis rate used by the photochemical mechanism. The PHOTAB array in RXNS_DATA_MODULE.F90 lists the names.</p></li>
+<li><p>Comment lines begin with a “!”. Comments should give the reactions reactants and products as well as cite the source of the file’s data.</p></li>
+<li><p>Second line read begins with a “B”, “E”, “C”, or “P”. The first three symbols state whether the values are the Beginning, End or Center of the wavelength intervals of the data. The last symbol, “P”, states that data should interperted as irradance value. The case determines how the data is interpolated across the wavelength bands in Table 1.</p>
+<ul>
+<li><p>Interpolation scheme gives zero results for wavelengths not covered by the data file.</p></li>
+</ul>
+</li>
+<li><p>Third line read begins with “FAC=” followed by a real number. Its value gives a factor to convert the cross-section data into cm<sup>-2</sup>.</p></li>
+<li><p>Remaining lines read give the data values for the wavelengths (nm), cross-sections and quantum yields of the photolysis rate in free format.</p></li>
+</ul>
+<center> Figure 1. The PHOTAB array extracted from RXNS_DATA_MODULE.F90 for the saprc07tc_ae6_aq mechanism </center>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>     INTEGER, PARAMETER :: NPHOTAB =  38
+     CHARACTER( 16 )    :: PHOTAB( NPHOTAB )
+
+     DATA ( PHOTAB( IRXXN ), IRXXN = 1, NPHOTAB ) / &amp; 
+    &amp;   &#39;NO2_06          &#39;, &#39;NO3NO_06        &#39;, &#39;NO3NO2_6        &#39;, &amp; 
+    &amp;   &#39;O3O1D_06        &#39;, &#39;O3O3P_06        &#39;, &#39;HONO_06         &#39;, &amp; 
+    &amp;   &#39;HNO3            &#39;, &#39;HNO4_06         &#39;, &#39;H2O2            &#39;, &amp; 
+    &amp;   &#39;PAN             &#39;, &#39;HCHOR_06        &#39;, &#39;HCHOM_06        &#39;, &amp; 
+    &amp;   &#39;CCHO_R          &#39;, &#39;C2CHO           &#39;, &#39;ACET_06         &#39;, &amp; 
+    &amp;   &#39;MEK_06          &#39;, &#39;COOH            &#39;, &#39;GLY_07R         &#39;, &amp; 
+    &amp;   &#39;GLY_07M         &#39;, &#39;MGLY_06         &#39;, &#39;BACL_07         &#39;, &amp; 
+    &amp;   &#39;BALD_06         &#39;, &#39;AFG1            &#39;, &#39;MACR_06         &#39;, &amp; 
+    &amp;   &#39;MVK_06          &#39;, &#39;IC3ONO2         &#39;, &#39;HOCCHO_IUPAC    &#39;, &amp; 
+    &amp;   &#39;ACRO_09         &#39;, &#39;PAA             &#39;, &#39;CL2             &#39;, &amp; 
+    &amp;   &#39;CLNO_06         &#39;, &#39;CLONO           &#39;, &#39;CLNO2           &#39;, &amp; 
+    &amp;   &#39;CLONO2_1        &#39;, &#39;CLONO2_2        &#39;, &#39;HOCL_06         &#39;, &amp; 
+    &amp;   &#39;CLCCHO          &#39;, &#39;CLACET          &#39;/
+</pre></div>
+</div>
+<p>To make the CMAQ CCTM use a new CSQY_DATA_<strong>mechanism</strong>, modify the value of CSQY_DATA in the CCTM run-script to equal the new file. CCTM needs to be compiled with RXNS_DATA_MODULE.F90 used to create the new file. Compiling CCTM also needs to use the RXNS_FUNC_MODULE.F90 that the chemmech utility produced along with the RXNS_DATA_MODULE.F90.</p>
+<p>If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value, 7, the CCTM run-script has use the new CSQY_DATA_<strong>mechanism</strong> and PHOT_OPTICS.dat files.</p>
+<section id="aerosol-refractive-indices">
+<h4>Aerosol Refractive Indices<a class="headerlink" href="#aerosol-refractive-indices" title="Link to this heading">#</a></h4>
+<center> Table 3. Aerosol Refractive defined in build-run script </center>
+<p>The current build-run script uses Table 3’s refractive indices. Their raw data files are located
+under the <em>refractive indices</em> subdirectory. After processing this data, inline_phot_preproc
+writes results to the PHOT_OPTICS.dat file read by the CCTM model. A user may
+change refractive indices written to PHOT_OPTICS.dat by changing <strong>AE_REFRAC_LIST</strong> then setting
+new environment variables in the new list and/or by changing values of environment variables in
+the existing list. The <em>refractive indices</em> subdirectory also contain data files that can be used.
+If a user wants to use their own data, the files have to use the same format as the current repository’s files.
+Note that wavelengths have to use nanometers as their units.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Names</p></th>
+<th class="head text-left"><p>Definition or aerosol material</p></th>
+<th class="head text-left"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>WATER</p></td>
+<td class="text-left"><p>water in the aqueous aerosol component</p></td>
+<td class="text-left"><p>Segelstein, D., 1981</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>DUST</p></td>
+<td class="text-left"><p>insoluble mineral and unidentified material</p></td>
+<td class="text-left"><p>OPAC software package (M. Hess et. al, 1998)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>SOLUTE</p></td>
+<td class="text-left"><p>inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions</p></td>
+<td class="text-left"><p>OPAC software package (M. Hess et. al, 1998)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>SOOT</p></td>
+<td class="text-left"><p>insoluble elemental carbon</p></td>
+<td class="text-left"><p>Chang,H &amp; T.T. Charalmpopoulos (1990), Bond, T.C. &amp; R.W. Bergstrom (2006), Personal Communication from Tami Bond.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>SEASALT</p></td>
+<td class="text-left"><p>material from sea spray</p></td>
+<td class="text-left"><p>OPAC software package (M. Hess et. al, 1998)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ISOP_NOX</p></td>
+<td class="text-left"><p>organic material from isoprene oxidation and later reactions with NO<sub>x</sub></p></td>
+<td class="text-left"><p>Nakayama et. al (2018)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ISOP_SOX</p></td>
+<td class="text-left"><p>organic material from isoprene oxidation and later reactions with SO<sub>x</sub></p></td>
+<td class="text-left"><p>Nakayama et. al (2018)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>LIMONENE_SOA</p></td>
+<td class="text-left"><p>organic material from limonene oxidation similar biogenic gases</p></td>
+<td class="text-left"><p>Lui et. al (2013)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>APINENE_SOA</p></td>
+<td class="text-left"><p>organic material from alpha-pinene oxidation similar biogenic gases</p></td>
+<td class="text-left"><p>Lui et. al (2013)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>NAPTH_SOA</p></td>
+<td class="text-left"><p>organic material from polycyclic aromatic hydrocarbon oxidation</p></td>
+<td class="text-left"><p>Lambe et. al (2013)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MXYL_HIGH_NOX</p></td>
+<td class="text-left"><p>organic material from xylenes oxidation under high NO<sub>x</sub></p></td>
+<td class="text-left"><p>Lui et. al (2015)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MXYL_LOW_NOX</p></td>
+<td class="text-left"><p>organic material from xylenes oxidation under low NO<sub>x</sub></p></td>
+<td class="text-left"><p>Lui et. al (2015)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>TOLU_HIGH_NOX</p></td>
+<td class="text-left"><p>organic material from toluene oxidation under high NO<sub>x</sub></p></td>
+<td class="text-left"><p>Lui et. al (2015)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>TOLU_LOW_LOW</p></td>
+<td class="text-left"><p>organic material from toluene oxidation under low NO<sub>x</sub></p></td>
+<td class="text-left"><p>Lui et. al (2015)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ORGCARB</p></td>
+<td class="text-left"><p>general organic material</p></td>
+<td class="text-left"><p>Assembled from numerous sources by Adient review (McMeeking et. al, 2010)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>BIOMASS</p></td>
+<td class="text-left"><p>organic material from biomass combustion</p></td>
+<td class="text-left"><p>Assembled from numerous sources by Adient review (McMeeking et. al, 2010)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<p>ADIENT database: http://www.met.rdg.ac.uk/~adient/refractiveindices.html, last accessed on January 22, 2021.</p>
+<p>Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I &amp; II corrected, June 2008).</p>
+<p>Bond, T.C. (2012), personal communication.</p>
+<p>Bond, T.C. &amp; R.W. Bergstrom (2006) Light absorption by
+Carbonaceous Particles: An investigative review,
+Aerosol Science and Technology. Vol. 40. pp 27-67</p>
+<p>Chang,H and T.T. Charalmpopoulos (1990) Determination of the
+wavelength dependence of refractive indices of flame soot,
+Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.</p>
+<p>Hess M., Koepke P., and I. (1998): Optical Properties of Aerosols and clouds: The software package OPAC, Bull. Am. Met. Soc., 79, 831-844.</p>
+<p>Andrew T. Lambe, Christopher D. Cappa, Paola Massoli, Timothy B. Onasch, Sara D. Forestieri, Alexander T. Martin, Molly J. Cummings,
+David R. Croasdale, William H. Brune, Douglas R. Worsnop, and Paul Davidovits (2013).
+Environmental Science &amp; Technology, 47(12), 6349-6357, DOI: 10.1021/es401043j.</p>
+<p>Liu P.F., Yue Zhang, and Scot T. Martin (2013).
+Complex Refractive Indices of Thin Films of Secondary Organic Materials by Spectroscopic Ellipsometry from 220 to 1200 nm
+Environmental Science &amp; Technology 47(23), 13594-13601, DOI: 10.1021/es403411e.</p>
+<p>Liu P.F., N. Abdelmalki, H.-M. Hung, Y. Wang, W. H. Brune and S. T. Martin (2015).
+Ultraviolet and visible complex refractive indices of secondary organic
+material produced by photooxidation of the aromatic compounds toluene and m-xylene
+Atmos. Chem. Phys., 15, 1435-1446, doi:10.5194/acp-15-1435-2015.</p>
+<p>McMeeking, G. R., Hamburger, T., Liu, D., Flynn, M., Morgan, W. T., Northway, M., Highwood,
+5 E. J., Krejci, R., Allan, J. D., Minikin, A., and Coe, H. (2010). Black carbon measurements in the
+boundary layer over western and northern Europe, Atmos. Chem. Phys., 10, 93939414,
+doi:10.5194/acp-10-9393-2010.</p>
+<p>Nakayama T., Kei Sato, Takashi Imamura, and Yutaka Matsumi (2018).
+Effect of Oxidation Process on Complex Refractive Index of Secondary Organic Aerosol Generated from Isoprene.
+Environmental Science &amp; Technology 52(5), 2566-2574. DOI: 10.1021/acs.est.7b05852</p>
+<p>Segelstein, D., (1981), The Complex Refractive Index of Water, M.S. Thesis, University of Missouri–Kansas City, MO.</p>
+<p>/</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-utility">Using the Utility.</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files-configuration-and-environment-variables">Files, configuration, and environment variables</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aerosol-refractive-indices">Aerosol Refractive Indices</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

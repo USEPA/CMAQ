@@ -1,0 +1,54 @@
+O2_JPL06-2
+! Molecular Oxygen photolysis (O2)
+! O2 + hv -> O + O
+!
+! Reference:
+!  Sander, S.P., R.R. Friedl, D.M. Golden, M.J. Kurylo, G.K. Moortgat,
+!     H. Keller-Rudek, P.H. Wine, A.R. Ravishankara, C.E. Kolb, M.J. Molina,
+!     B.J. Finlayson-Pitts, R.E. Huie, V.L. Orkin "Chemical Kinetics and
+!     Photochemical Data for Use in Atmospheric Studies, Evaluation Number 15,"
+!     JPL Publication 06-2, Jet Propulsion Laboratory, California Institute of
+!     Technology Pasadena, CA, 2006
+!
+! Absorption cross sections from Table 4-2
+! Quantum yields set to 1.0 (not used in the photolysis rate program)
+! format:  wavelength (nm), abs_cs, qy
+Centered
+! With FAC, units are (cm^2/molecule)
+FAC=1.0E-24
+  205   7.35   1.0
+  206   7.13   1.0
+  207   7.05   1.0
+  208   6.86   1.0
+  209   6.68   1.0
+  210   6.51   1.0
+  211   6.24   1.0
+  212   6.05   1.0
+  213   5.89   1.0
+  214   5.72   1.0
+  215   5.59   1.0
+  216   5.35   1.0
+  217   5.13   1.0
+  218   4.88   1.0
+  219   4.64   1.0
+  220   4.46   1.0
+  221   4.26   1.0
+  222   4.09   1.0
+  223   3.89   1.0
+  224   3.67   1.0
+  225   3.45   1.0
+  226   3.21   1.0
+  227   2.98   1.0
+  228   2.77   1.0
+  229   2.63   1.0
+  230   2.43   1.0
+  231   2.25   1.0
+  232   2.10   1.0
+  233   1.94   1.0
+  234   1.78   1.0
+  235   1.63   1.0
+  236   1.48   1.0
+  237   1.34   1.0
+  238   1.22   1.0
+  239   1.10   1.0
+  240   1.01   1.0

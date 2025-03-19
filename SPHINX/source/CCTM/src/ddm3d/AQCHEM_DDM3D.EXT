@@ -1,0 +1,222 @@
+
+! 16 Jul 13 S.Napelenok: initial version for ddm-3d implementation for cmaq5.0.1
+!  9 Sep 22 S.Napelenok: comment out currently unused variables
+
+c     REAL( 8 ) :: S_DEPSUM( NPMAX )
+      REAL( 8 ) :: S_A( NPMAX )               ! iron's anion concentration
+c     REAL( 8 ) :: S_AC( NPMAX )              ! H+ concentration in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_ACT1( NPMAX )            ! activity correction factor, single ions
+c     REAL( 8 ) :: S_ACT2( NPMAX )            ! activity factor correction, double ions
+c     REAL( 8 ) :: S_ACTB( NPMAX )            !
+c     REAL( 8 ) :: S_AE( NPMAX )              ! guess for H+ conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_B( NPMAX )               ! manganese's anion concentration
+c     REAL( 8 ) :: S_PRES_ATM( NPMAX )        ! pressure (Atm)
+c     REAL( 8 ) :: S_BB( NPMAX )              ! lower limit guess of cloudwater pH
+      REAL( 8 ) :: S_CA( NPMAX )              ! Calcium conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_CL( NPMAX )              ! total Cl-  conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_CLACC( NPMAX )           ! fine Cl- in cloudwater (mol/liter)
+      REAL( 8 ) :: S_CLCOR( NPMAX )           ! coarse Cl-  conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_CO2H( NPMAX )            ! Henry's Law constant for CO2
+c     REAL( 8 ) :: S_CO21( NPMAX )            ! First dissociation constant for CO2
+c     REAL( 8 ) :: S_CO22( NPMAX )            ! Second dissociation constant for CO2
+c     REAL( 8 ) :: S_CO212( NPMAX )           ! CO21*CO22
+c     REAL( 8 ) :: S_CO212H( NPMAX )          ! CO2H*CO21*CO22
+c     REAL( 8 ) :: S_CO21H( NPMAX )           ! CO2H*CO21
+      REAL( 8 ) :: S_CO2L( NPMAX )            ! CO2 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_CO3( NPMAX )             ! CO3= conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_CTHK1( NPMAX )           ! cloud thickness (m)
+c     REAL( 8 ) :: S_DSIV_SCALE( NPMAX )      ! mass conservation scale factor for S(IV)
+c     REAL( 8 ) :: S_DTRMV( NPMAX )           !
+      REAL( 8 ) :: S_DTS6( NPMAX )            !
+      REAL( 8 ) :: S_DGLYDT( NPMAX )          ! change in GLY (mol/liter/sec)
+      REAL( 8 ) :: S_DMGLYDT( NPMAX )         ! change in MGLY (mol/liter/sec)
+      REAL( 8 ) :: S_DGLY1( NPMAX )           ! change due to Rxn. in GLY for DTW(0) time step
+      REAL( 8 ) :: S_DMGLY1( NPMAX )          ! change due to Rxn. in MGLY for DTW(0) time step
+      REAL( 8 ) :: S_DORGC( NPMAX )           ! change in ORGC for DTW(0) time step (mol/liter)
+c     REAL( 8 ) :: S_EBETASO4T( NPMAX )       ! EXP( -BETASO4 * TAUCLD )
+c     REAL( 8 ) :: S_EALFA0T( NPMAX )         ! EXP( -ALFA0 * TAUCLD )
+c     REAL( 8 ) :: S_EALFA2T( NPMAX )         ! EXP( -ALFA2 * TAUCLD )
+c     REAL( 8 ) :: S_EALFA3T( NPMAX )         ! EXP( -ALFA3 * TAUCLD )
+      REAL( 8 ) :: S_EC( NPMAX )              ! elemental carbon acc+akn aerosol in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_FA( NPMAX )              ! functional value ??
+c     REAL( 8 ) :: S_FB( NPMAX )              ! functional value ??
+      REAL( 8 ) :: S_FE( NPMAX )              ! Fe+++ conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_FNH3( NPMAX )            ! frac weight of NH3 to total ammonia
+      REAL( 8 ) :: S_FNH4ACC( NPMAX )         ! frac weight of NH4 acc to total ammonia
+      REAL( 8 ) :: S_FHNO3( NPMAX )           ! frac weight of HNO3 to total NO3
+      REAL( 8 ) :: S_FNO3ACC( NPMAX )         ! frac weight of NO3 acc to total NO3
+c     REAL( 8 ) :: S_FRACLIQ( NPMAX )         ! fraction of water in liquid form
+c     REAL( 8 ) :: S_FOA1( NPMAX )            ! First dissociation constant for FOA (Formic Acid)
+c     REAL( 8 ) :: S_FOAH( NPMAX )            ! Henry's Law constant for FOA
+c     REAL( 8 ) :: S_FOA1H( NPMAX )           ! FOAH*FOA1
+      REAL( 8 ) :: S_FOAL( NPMAX )            ! FOA conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_FTST( NPMAX )            !
+c     REAL( 8 ) :: S_GLYH( NPMAX )            ! Henry's Law constant for glyoxal
+      REAL( 8 ) :: S_GLYL( NPMAX )            ! glyoxal conc in cloud water (mol/liter)
+c     REAL( 8 ) :: S_GM( NPMAX )              !
+c     REAL( 8 ) :: S_GM1( NPMAX )             !
+c     REAL( 8 ) :: S_GM1LOG( NPMAX )          !
+c     REAL( 8 ) :: S_GM2( NPMAX )             ! activity correction factor
+c     REAL( 8 ) :: S_GM2LOG( NPMAX )          !
+c     REAL( 8 ) :: S_HA( NPMAX )              !
+c     REAL( 8 ) :: S_HB( NPMAX )              !
+c     REAL( 8 ) :: S_H2OW( NPMAX )            !
+c     REAL( 8 ) :: S_H2O2H( NPMAX )           ! Henry's Law Constant for H2O2
+      REAL( 8 ) :: S_H2O2L( NPMAX )           ! H2O2 conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_HCLH( NPMAX )            ! Henry's Law Constant for HCL
+c     REAL( 8 ) :: S_HCL1( NPMAX )            ! First dissociation constant for HCL
+c     REAL( 8 ) :: S_HCL1H( NPMAX )           ! HCL1*HCLH
+      REAL( 8 ) :: S_HCLL( NPMAX )            ! HCl  conc in  cloudwater (mol/liter)
+      REAL( 8 ) :: S_HCO2( NPMAX )            ! HCO2 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_HCO3( NPMAX )            ! HCO3 conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_HNO3H( NPMAX )           ! Henry's Law Constant for HNO3
+c     REAL( 8 ) :: S_HNO31( NPMAX )           ! First dissociation constant for HNO3
+c     REAL( 8 ) :: S_HNO31H( NPMAX )          !
+      REAL( 8 ) :: S_HNO3L( NPMAX )           ! HNO3 conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_HOH( NPMAX )             ! Henry's Law Constant for HO
+      REAL( 8 ) :: S_HSO3( NPMAX )            ! HSO3 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_HSO4( NPMAX )            ! HSO4 concn in cloudwater (mol/liter)
+      REAL( 8 ) :: S_HSO4ACC( NPMAX )         ! accumulation mode HSO4 concn in cloudwater (mol/liter)
+      REAL( 8 ) :: S_HSO4COR( NPMAX )         ! coarse HSO4 concn in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_HTST( NPMAX )            !
+      REAL( 8 ) :: S_K( NPMAX )               ! K conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_LGTEMP( NPMAX )          ! log of TEMP
+      REAL( 8 ) :: S_MG( NPMAX )              !
+c     REAL( 8 ) :: S_MGLYH( NPMAX )           ! Henry's Law Constant for methylglyoxal
+      REAL( 8 ) :: S_MGLYL( NPMAX )           ! MGLY conc in cloud water (mol/liter)
+c     REAL( 8 ) :: S_MHPH( NPMAX )            ! Henry's Law Constant for MHP
+      REAL( 8 ) :: S_MHPL( NPMAX )            ! MHP conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_MN( NPMAX )              ! Mn++ conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NA( NPMAX )              ! Na conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NAACC( NPMAX )           ! Na in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NACOR( NPMAX )           ! coarse Na in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_NH31( NPMAX )            ! First dissociation constant for NH3
+c     REAL( 8 ) :: S_NH3H( NPMAX )            ! Henry's Law Constant for NH3
+c     REAL( 8 ) :: S_NH3DH20( NPMAX )         !
+c     REAL( 8 ) :: S_NH31HDH( NPMAX )         !
+      REAL( 8 ) :: S_NH3L( NPMAX )            ! NH3 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NH4( NPMAX )             ! NH4+ conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NH4ACC( NPMAX )          ! NH4 acc conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NH4COR( NPMAX )          ! NH4 coarse conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_NITAER( NPMAX )          ! total aerosol nitrate
+      REAL( 8 ) :: S_NO3( NPMAX )             ! NO3 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NO3ACC( NPMAX )          ! NO3 acc conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NO3COR( NPMAX )          ! NO3 coarse conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_NUMCOR( NPMAX )          ! coarse aerosol number in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_O3H( NPMAX )             ! Henry's Law Constant for O3
+      REAL( 8 ) :: S_O3L( NPMAX )             ! O3 conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_OH( NPMAX )              ! OH conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_OHL( NPMAX )             ! OH radical conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_SOA( NPMAX )             ! secondary organic aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: S_ORGC( NPMAX )            ! cloud-produced SOA in cloudwater (treated as primary)
+      REAL( 8 ) :: S_POA( NPMAX )             ! primary organic aerosol in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_PAAH( NPMAX )            ! Henry's Law Constant for PAA
+      REAL( 8 ) :: S_PAAL( NPMAX )            ! PAA conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_PCO2F( NPMAX )           ! gas only CO2 partial pressure (atm)
+      REAL( 8 ) :: S_PFOAF( NPMAX )           ! gas only ORGANIC ACID partial press (atm)
+      REAL( 8 ) :: S_PGLYF( NPMAX )           ! gas only GLY partial pressure (atm)
+      REAL( 8 ) :: S_PH2O2F( NPMAX )          ! gas only H2O2 partial pressure (atm)
+      REAL( 8 ) :: S_PHCLF( NPMAX )           ! gas only HCL partial pressure (atm)
+      REAL( 8 ) :: S_PHNO3F( NPMAX )          ! gas only HNO3 partial pressure (atm)
+      REAL( 8 ) :: S_PHOF( NPMAX )            ! gas only HO partial pressure (atm)
+      REAL( 8 ) :: S_PMGLYF( NPMAX )          ! gas only MGLY parital pressure (atm)
+      REAL( 8 ) :: S_PMHPF( NPMAX )           ! gas only MHP partial pressure (atm)
+      REAL( 8 ) :: S_PNH3F( NPMAX )           ! gas only NH3 partial pressure (atm)
+      REAL( 8 ) :: S_PO3F( NPMAX )            ! gas only O3 partial pressure (atm)
+      REAL( 8 ) :: S_PPAAF( NPMAX )           ! gas only PAA partial pressure (atm)
+      REAL( 8 ) :: S_PRIM( NPMAX )            ! PRIMARY acc+akn aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: S_PSO2F( NPMAX )           ! gas only SO2 partial pressure (atm)
+c     REAL( 8 ) :: S_RATE( NPMAX )            !
+c     REAL( 8 ) :: S_RECIPA1( NPMAX )         !
+c     REAL( 8 ) :: S_RECIPA2( NPMAX )         !
+c     REAL( 8 ) :: S_RECIPAP1( NPMAX )        ! one over pressure (/atm)
+c     REAL( 8 ) :: S_RGLY3( NPMAX )           ! liter/(mol sec)
+c     REAL( 8 ) :: S_RH2O2( NPMAX )           !
+c     REAL( 8 ) :: S_RMGLY3( NPMAX )          ! liter/(mol sec)
+c     REAL( 8 ) :: S_RMHP( NPMAX )            !
+c     REAL( 8 ) :: S_RPAA( NPMAX )            !
+c     REAL( 8 ) :: S_RT( NPMAX )              ! gas const * temperature (liter atm/mol)
+c     REAL( 8 ),SAVE :: S_SCVEFF( NPMAX ) = 100.0D0   ! Scavenging efficiency (%)
+      REAL( 8 ) :: S_SIV( NPMAX )             ! dissolved so2 in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_SK6( NPMAX )             !
+      REAL( 8 ) :: S_SK6TS6( NPMAX )          !
+c     REAL( 8 ) :: S_SO21( NPMAX )            ! First dissociation constant for SO2
+c     REAL( 8 ) :: S_SO22( NPMAX )            ! Second dissociation constant for SO2
+c     REAL( 8 ) :: S_SO2H( NPMAX )            ! Henry's Law Constant for SO2
+c     REAL( 8 ) :: S_SO212( NPMAX )           ! SO21*SO22
+c     REAL( 8 ) :: S_SO212H( NPMAX )          ! SO21*SO22*SO2H
+c     REAL( 8 ) :: S_SO21H( NPMAX )           ! SO21*SO2H
+      REAL( 8 ) :: S_SO2L( NPMAX )            ! SO2 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_SO3( NPMAX )             ! SO3= conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_SO4( NPMAX )             ! SO4= conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_SO4ACC( NPMAX )          ! accumulation mode SO4= conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_SO4COR( NPMAX )          ! coarse SO4= conc in cloudwater (mol/liter)
+c     REAL( 8 ) :: S_STION( NPMAX )           ! ionic strength
+c     REAL( 8 ) :: S_TAC( NPMAX )             !
+c     REAL( 8 ) :: S_TEMP1( NPMAX )           ! (1/T) - (1/298) (1/K)
+c     REAL( 8 ) :: S_TIMEW( NPMAX )           ! cloud chemistry clock (sec)
+      REAL( 8 ) :: S_TGLY( NPMAX )            ! total glyoxal available for oxidation
+      REAL( 8 ) :: S_TMGLY( NPMAX )           ! total methylglyoxal available for oxidation
+c     REAL( 8 ) :: S_TOTOX( NPMAX )           !
+      REAL( 8 ) :: S_TH2O2( NPMAX )
+      REAL( 8 ) :: S_TO3( NPMAX )
+      REAL( 8 ) :: S_TMHP( NPMAX )
+      REAL( 8 ) :: S_TPAA( NPMAX )
+      REAL( 8 ) :: S_TOTAMM( NPMAX )          ! total ammonium
+      REAL( 8 ) :: S_TOTNIT( NPMAX )          ! total nitrate (excluding coarse mode)
+      REAL( 8 ) :: S_TS6( NPMAX )             ! SO4 conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_TS6ACC( NPMAX )          ! SO4 acc conc in cloudwater (mol/liter)
+      REAL( 8 ) :: S_TS6COR( NPMAX )          ! coarse SO4 conc in cloudwater   (mol/liter)
+      REAL( 8 ) :: S_TSIV( NPMAX )            ! total S(iv) available for oxidation
+c     REAL( 8 ) :: S_TST( NPMAX )             !
+c     REAL( 8 ) :: S_TWASH( NPMAX )           ! washout time for clouds (sec)
+c     REAL( 8 ) :: S_WETFAC( NPMAX )          ! converts mol/l to mm-mol/l based on precip
+c     REAL( 8 ) :: S_XC1( NPMAX )             ! (/mm)
+c     REAL( 8 ) :: S_XC2( NPMAX )             ! (liter-atm/mol/mm)
+c     REAL( 8 ) :: S_XL( NPMAX )              ! conversion factor (liter-atm/mol)
+c     REAL( 8 ) :: S_ONE_OVER_XL( NPMAX )     ! 1.0 / XL
+c     REAL( 8 ) :: S_PRES_ATM_OVER_XL( NPMAX ) ! PRES_ATM / XL
+c     REAL( 8 ) :: S_XLCO2( NPMAX )           !
+c     REAL( 8 ) :: S_XLH2O2( NPMAX )          !
+c     REAL( 8 ) :: S_XLHCL( NPMAX )           ! const in calc of HCL final partial pres
+c     REAL( 8 ) :: S_XLHNO3( NPMAX )          !
+c     REAL( 8 ) :: S_XLMHP( NPMAX )           !
+c     REAL( 8 ) :: S_XLNH3( NPMAX )           !
+c     REAL( 8 ) :: S_XLO3( NPMAX )            !
+c     REAL( 8 ) :: S_XLPAA( NPMAX )           !
+c     REAL( 8 ) :: S_XLSO2( NPMAX )           !
+      REAL( 8 ) :: S_CAACC( NPMAX )           ! accumulation mode Calcium (AE6) SLN 16March2011      
+      REAL( 8 ) :: S_MGACC( NPMAX )           ! accumulation mode Magnesium (AE6) SLN 16March2011     
+      REAL( 8 ) :: S_KACC( NPMAX )            ! accumulation mode Potassium (AE6) SLN 16March2011     
+      REAL( 8 ) :: S_CACOR( NPMAX )           ! coarse mode Calcium (AE6) SLN 16March2011
+      REAL( 8 ) :: S_MGCOR( NPMAX )           ! coarse mode Magnesium (AE6) SLN 16March2011
+      REAL( 8 ) :: S_KCOR( NPMAX )            ! coarse mode Potassium (AE6) SLN 16March2011
+      REAL( 8 ) :: S_SOILCOR( NPMAX )         ! coarse mode SOIL (AE6) SLN 16March2011
+      REAL( 8 ) :: S_ANTHCOR( NPMAX )         ! coarse mode CORS (AE6) SLN 16March2011
+      REAL( 8 ) :: S_SEASCOR( NPMAX )         ! coarse mode SEAS (AE6) SLN 16March2011
+      REAL( 8 ) :: S_FEACC( NPMAX )           ! accumulation mode Fe (AE6) SLN 22March2011
+      REAL( 8 ) :: S_MNACC( NPMAX )           ! accumulation mode Fe (AE6) SLN 22March2011
+      REAL( 8 ) :: S_FECOR( NPMAX )           ! coarse mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: S_MNCOR( NPMAX )           ! coarse mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: S_FE_OX( NPMAX )           ! Fe(III) available for sulfate oxidation
+      REAL( 8 ) :: S_MN_OX( NPMAX )           ! Mn(II) available for sulfate oxidation
+c     REAL( 8 ) :: S_FE_III( NPMAX )          ! Fractional Fe(III) partitioning, GS - July 1, 2011
+c     REAL( 8 ) :: S_MN_II( NPMAX )           ! Fractional Mn(II) partitioning, GS - July 1, 2011
+c     REAL( 8 ) :: S_FE_SOL( NPMAX )          ! Fractional Fe solubility, GS - July 1, 2011
+c     REAL( 8 ) :: S_MN_SOL( NPMAX )          ! Fractional Mn solubility, GS - July 1, 2011
+      REAL( 8 ) :: S_LIQUID( NPMAX, NLIQS ) ! wet deposition array (mm mol/liter)
+      REAL( 8 ) :: S_WETDEP( NPMAX, NLIQS ) ! wet deposition array (mm mol/liter)
+      REAL( 8 ) :: S_LOADING( NPMAX, NAER, NMODES ) ! aerosol loading (mol/liter)
+      REAL( 8 ) :: S_INITGAS( NPMAX, NGAS ) ! initial gas partial pressure (atm)      
+      REAL( 8 ) :: S_DSIVDT( NPMAX, 0:NUMOX ) ! rate of so2 oxid incloud (mol/liter/sec)
+      REAL( 8 ) :: S_DS4   ( NPMAX, 0:NUMOX ) ! S(IV) oxidized over timestep DTW(0)
+c     REAL( 8 ) :: S_DTW   ( NPMAX, 0:NUMOX ) ! cloud chemistry timestep (sec)
+
+      REAL( 8 ) :: C1
+      REAL( 8 ) :: C2
+      REAL( 8 ) :: C3
+      REAL( 8 ) :: pwr1D
+      REAL( 8 ) :: pwr1
+
+      INTEGER IP1, IP2
+

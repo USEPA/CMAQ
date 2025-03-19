@@ -1,0 +1,276 @@
+!------------------------------------------------------------------------------!
+! Emission Control Interface                                                   !
+!    for the                                                                   !
+! Detailed Emissions Scaling, Isolation, and Diagnostics (DESID) Module,       !
+!    part of the                                                               !
+! Community Multiscale Air Quality (CMAQ) Model                                !
+!    developed and maintained by the                                           !
+! Center for Environmental Measurement and Modeling (CEMM),                    !
+! Office of Research and Development (ORD)                                     !
+! U.S. Environmental Protection Agency (USEPA)                                 !
+!                                                                              !
+! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
+!                                                                              !
+! See CMAQ User's Guide Appendix B (https://github.com/USEPA/CMAQ/blob/main/   !
+!     DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md)        !
+!     and Murphy et al., Geoscientific Model Development, 14, 3407-3420,       !
+!     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Rule Specification Component                               !
+!   Each rule is presented as a row of inputs. The syntax of the               !
+!   emissions scaling rules is the following:                                  !
+!      EM_INSTR(I) = 'Region Label', 'Stream Label', 'Emission-Species',       !
+!                     'CMAQ-Species', 'Phase/Mode', 'Scale Factor', 'Basis',   !
+!                     'Operation'                                              !
+!                                                                              !
+!    See the User's Guide for detailed definitions of each field.              !
+!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...")        !
+!                                                                              !
+!    Note: If no rules are provided for a species, then there is no emission   !
+!       of that species.                                                       !
+!------------------------------------------------------------------------------!
+&Desid_ScalingVars
+ Desid_Max_Rules = 2000
+/
+
+&Desid_Scaling
+ Desid_Rules_nml =
+
+ ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+ !  Label      |               |Species  | Species      |Mode  |Factor|      |     
+                                                                             
+   ! Gases                                                                  
+   'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'AACD'   ,'AACD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALD2'   ,'ALD2'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'FORM'   ,'FORM'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MEOH'   ,'MEOH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'FACD'   ,'FACD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CO'     ,'CO'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALDX'   ,'ALDX'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETHA'   ,'ETHA'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETOH'   ,'ETOH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'KET'    ,'KET'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PAR'    ,'PAR'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACET'   ,'ACET'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PRPA'   ,'PRPA'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETHY'   ,'ETHY'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYLMN'  ,'XYLMN'       ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CH4'    ,'ECH4'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CL2'    ,'CL2'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HCL'    ,'HCL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACROLEIN'    ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'ALD2_PRIMARY','ALD2_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'FORM_PRIMARY','FORM_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOLU'   ,'TOLU'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HGNRVA' ,'HG'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HGIIGAS','HGIIGAS'     ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
+
+   ! Marine Halogen Chemistry
+   'EVERYWHERE', 'ALL'         ,'DMS'    ,'DMS'         ,'GAS'  ,1.  ,'UNIT','a',
+
+
+   ! Optional Air Toxics in NR namelist, comment out species if the NR namelist
+   ! does not include one or more of them.
+   'EVERYWHERE', 'ALL' ,'ACRYLONITRILE','ACRY_NITRILE',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CARBONTET','CARBONTET',            'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'PROPDICHLORIDE','PROPYL_DICL',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'DICHLOROPROPENE','DICL_PROPENE',   'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL4_ETHANE1122','CL4_ETHANE',      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CHCL3','CHCL3',                    'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'BR2_C2_12','BR2_C2_12',            'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL2_C2_12','CL2_C2_12',            'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ETOX','ETOX',                      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL2_ME','CL2_ME',                  'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL4_ETHE','CL4_ETHE',              'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL3_ETHE','CL3_ETHE',              'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CL_ETHE','CL_ETHE',                'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'NAPH','NAPHTHALENE',               'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'QUINOLINE','QUINOLINE',            'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'HEXAMETHY_DIIS','HEXMETH_DIS',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'HYDRAZINE','HYDRAZINE',            'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'MAL_ANHYDRIDE','MAL_ANHYDRID',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'TOL_DIIS','TOL_DIIS',              'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'TRIETHYLAMINE','TRIETHYLAMIN',     'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'DICHLOROBENZENE','DICL_BENZENE',   'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ACETONITRILE','ACET_NITRILE',      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'XYLENES','XYLENE',                 'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'STYRENE','STYRENE',                'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ACRYLICACID','ACRYACID',           'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'HEXANE','HEXANE',                  'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'METHCHLORIDE','METHCHLORIDE',      'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CARBSULFIDE','CARBSULFIDE',        'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'CHLOROPRENE','CHLOROPRENE',        'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'ETHYLBENZ','ETHYLBENZENE',         'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'BENZOAPYRNE','BENAPY',             'GAS'  ,1.  ,'UNIT','a',
+! Inert Tracers of PAH congeners for simple exposure assessments
+   'EVERYWHERE', 'ALL' , 'PAH_000E0', 'PAH_000E0',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E5', 'PAH_176E5',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_880E5', 'PAH_880E5',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E4', 'PAH_176E4',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E3', 'PAH_176E3',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_192E3', 'PAH_192E3',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_101E2', 'PAH_101E2',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E2', 'PAH_176E2',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_114E1', 'PAH_114E1',          'GAS',1.0  ,'UNIT','a',
+
+   ! Default Aerosols
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
+   'EVERYWHERE', 'ALL'         ,'PSO4'   ,'ASO4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNH4'   ,'ANH4'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNO3'   ,'ANO3'        ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCL'    ,'ACL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PNA'    ,'ANA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PEC'    ,'AEC'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMOTHR' ,'AOTHR'       ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PFE'    ,'AFE'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PAL'    ,'AAL'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PSI'    ,'ASI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PTI'    ,'ATI'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PCA'    ,'ACA'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMG'    ,'AMG'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PK'     ,'AK'          ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMN'    ,'AMN'         ,'FINE' ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PH2O'   ,'AH2O'        ,'FINE' ,1.  ,'UNIT','a', 
+                                                        
+   ! Coarse-Mode Inorganic Ions Scaling                 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACORS'   ,'COARSE',0.99675,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ASO4'    ,'COARSE',0.001  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ANO3'    ,'COARSE',0.00048,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'     ,'COARSE',0.00145,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
+
+   ! Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
+   ! components across mode if AE namelist does not contain them
+   'EVERYWHERE', 'ALL'         'NICKEL_F','ANI'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'         'NICKEL_C','ANI'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMHEX_F','ACR_VI'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMHEX_C','ACR_VI'  ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMTRI_F','ACR_III' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'CHROMTRI_C','ACR_III' ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'BERYLLIUM_F','ABE'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'BERYLLIUM_C','ABE'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'           'LEAD_F','APB'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'           'LEAD_C','APB'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'    'DIESEL_PMFINE','ADE_OTHR','FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'DIESEL_PMEC','ADE_EC'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'DIESEL_PMOC','ADE_OC'  ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'     'DIESEL_PMNO3','ADE_NO3' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'     'DIESEL_PMSO4','ADE_SO4' ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'       'DIESEL_PMC','ADE_CORS','COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'CADMIUM_F','ACD'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'CADMIUM_C','ACD'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'MANGANESE_F','AMN_HAPS','FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'      'MANGANESE_C','AMN_HAPS','COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'ARSENIC_F','AAS'     ,'FINE'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'        'ARSENIC_C','AAS'     ,'COARSE',1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL'             'PHGI','APHG'    ,'FINE'  ,1.  ,'UNIT','a',
+
+   ! Fine-Mode Primary Organic Aerosol Scaling
+   ! --> Nonvolatile POA
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
+   ! --> Semivolatile POA (see CMAQ User's Guide Appendix B.2.2.1)
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+   
+   ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
+   ! formation from combustion sources. It accounts for IVOC oxidation as well as 
+   ! other phenomena (Murphy et al., ACP, 2017). It was parameterized based on data
+   ! primarily from Los Angeles, where vehicle exhaust continues to dominate.
+    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+
+   ! However, the added pcSOA is probably inappropriate for Fire sources, especially
+   ! in its current configuration. This pathway should be zeroed out for all fire
+   ! and wood-burning related sources.
+    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_WILDFIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+   
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Fine Components
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SO4'  ,'ASO4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NO3'  ,'ANO3'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CL'   ,'ACL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NH4'  ,'ANH4'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NA'   ,'ANA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CA'   ,'ACA'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MG'   ,'AMG'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_K'    ,'AK'          ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_FE'   ,'AFE'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_AL'   ,'AAL'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_SI'   ,'ASI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_TI'   ,'ATI'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CR_III'  ,'ACR_III'  ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CR_VI'   ,'ACR_VI'   ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_NI'      ,'ANI'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_AS'      ,'AAS'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_BE'      ,'ABE'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_PHG'     ,'APHG'     ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_PB'      ,'APB'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_CD'      ,'ACD'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_MN_HAPS' ,'AMN_HAPS' ,'FINE',1.   ,'UNIT','a', 
+
+
+   ! Wind-Blown Dust and Sea Spray Scaling
+   ! Coarse Components                                               
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CL' ,'ACL'       ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_III'  ,'ACR_III'  ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_VI'   ,'ACR_VI'   ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_NI'      ,'ANI'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_AS'      ,'AAS'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_BE'      ,'ABE'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_PHG'     ,'APHG'     ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_PB'      ,'APB'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_CD'      ,'ACD'      ,'COARSE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMCOARSE_MN_HAPS' ,'AMN_HAPS' ,'COARSE',1.   ,'UNIT','a', 
+   
+/
+

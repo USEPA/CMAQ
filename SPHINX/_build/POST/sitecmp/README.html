@@ -1,0 +1,714 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>sitecmp &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'POST/sitecmp/README';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/POST/sitecmp/README.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">sitecmp</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sitecmp">
+<h1>sitecmp<a class="headerlink" href="#sitecmp" title="Link to this heading">#</a></h1>
+<p>This Fortran program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.</p>
+<section id="environment-run-time-variables">
+<h2>Environment Run Time Variables:<a class="headerlink" href="#environment-run-time-variables" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">TABLE_TYPE</span>  <span class="n">dataset</span> <span class="nb">type</span> <span class="p">{</span><span class="n">IMPROVE</span><span class="p">,</span> <span class="n">CASTNET</span><span class="p">,</span> <span class="n">STN</span><span class="p">,</span> <span class="n">NADP</span><span class="p">,</span> <span class="n">MDN</span><span class="p">,</span> <span class="n">SEARCH</span><span class="p">,</span>
+             <span class="n">DEARS</span><span class="p">,</span> <span class="n">AIRMON</span><span class="p">,</span> <span class="n">OUT_TABLE</span><span class="p">}</span>
+ <span class="n">M3_FILE_</span><span class="c1">#   ioapi input files containing modeled species data. </span>
+	     <span class="n">The</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">IOAPI</span> <span class="n">files</span> <span class="ow">is</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">be</span> <span class="n">one</span> <span class="n">less</span> <span class="n">than</span> <span class="n">the</span> <span class="k">global</span> <span class="n">IOAPI</span> <span class="n">parameter</span> <span class="n">MXFILE3</span><span class="o">.</span>
+	     <span class="n">Since</span> <span class="n">this</span> <span class="n">parameter</span> <span class="ow">is</span> <span class="n">currently</span> <span class="nb">set</span> <span class="n">to</span> <span class="mi">64</span> <span class="p">(</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">cmascenter</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">ioapi</span><span class="o">/</span><span class="n">documentation</span><span class="o">/</span><span class="n">all_versions</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">TUTORIAL</span><span class="o">.</span><span class="n">html</span><span class="p">),</span>
+	     <span class="n">the</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">IOAPI</span> <span class="nb">input</span> <span class="n">files</span> <span class="ow">is</span> <span class="mf">63.</span>
+             <span class="p">[</span><span class="n">Note</span><span class="p">:</span> <span class="n">Supported</span> <span class="nb">map</span> <span class="n">projections</span> <span class="n">are</span> <span class="n">Lambert</span> <span class="n">conformal</span><span class="p">,</span> <span class="n">polar</span> <span class="n">stereographic</span><span class="p">,</span> <span class="ow">and</span> <span class="n">lat</span><span class="o">/</span><span class="n">lon</span><span class="o">.</span>
+             <span class="n">If</span> <span class="n">an</span> <span class="n">ioapi</span> <span class="n">file</span> <span class="ow">is</span> <span class="n">supplied</span> <span class="n">that</span> <span class="n">has</span> <span class="n">a</span> <span class="n">projection</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">this</span> <span class="nb">list</span> <span class="n">the</span> <span class="n">program</span> <span class="n">will</span> 
+             <span class="n">stop</span> <span class="k">with</span> <span class="n">an</span> <span class="n">error</span> <span class="n">message</span><span class="o">.</span><span class="p">]</span>
+ <span class="n">SITE_FILE</span>   <span class="n">csv</span><span class="o">-</span><span class="n">formatted</span> <span class="nb">input</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">station</span> <span class="n">ID</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="ow">and</span> <span class="n">optionally</span> 
+             <span class="n">GMT</span> <span class="n">offset</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">,</span> <span class="ow">and</span> <span class="n">elevation</span> <span class="k">for</span> <span class="n">each</span> <span class="n">monitor</span><span class="o">.</span>  
+             <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="k">for</span> <span class="n">the</span> <span class="n">required</span> <span class="n">variables</span> <span class="n">need</span> <span class="n">to</span> <span class="n">be</span> <span class="n">stat_id</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="ow">and</span> <span class="n">lon</span><span class="o">.</span>
+             <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="k">for</span> <span class="n">the</span> <span class="n">optional</span> <span class="n">variables</span> <span class="p">(</span><span class="k">if</span> <span class="n">present</span><span class="p">)</span> <span class="n">need</span> <span class="n">to</span> <span class="n">be</span> <span class="n">gmt_offset</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">,</span> 
+	     <span class="ow">and</span> <span class="n">elevation</span><span class="o">.</span>
+	     <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="n">are</span> <span class="n">case</span> <span class="n">insensitve</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">order</span> <span class="n">of</span> <span class="n">the</span> <span class="n">columns</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">matter</span><span class="o">.</span>
+             <span class="n">For</span> <span class="n">legacy</span> <span class="n">purposes</span><span class="p">,</span> <span class="n">SITE_FILE</span> <span class="n">can</span> <span class="n">also</span> <span class="n">be</span> <span class="n">a</span> <span class="n">tab</span> <span class="n">delimited</span> <span class="n">file</span> <span class="k">with</span> <span class="n">no</span> <span class="n">header</span> <span class="ow">and</span> <span class="n">three</span> 
+	     <span class="ow">or</span> <span class="n">four</span> <span class="n">columns</span> <span class="n">that</span> <span class="n">contains</span> <span class="n">site</span> <span class="n">information</span> <span class="k">for</span> <span class="n">each</span> <span class="n">monitor</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">following</span> <span class="n">fixed</span> <span class="n">order</span><span class="p">:</span>
+	     <span class="n">site</span><span class="o">-</span><span class="nb">id</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="ow">and</span> <span class="n">optionally</span> <span class="n">time</span> <span class="n">zone</span> <span class="n">offset</span> <span class="n">between</span> <span class="n">local</span> <span class="n">time</span> <span class="ow">and</span> <span class="n">GMT</span>
+ <span class="n">IN_TABLE</span>    <span class="nb">input</span> <span class="n">file</span> <span class="k">with</span> <span class="n">observed</span> <span class="n">data</span> <span class="p">(</span><span class="n">comma</span> <span class="n">delimited</span> <span class="k">with</span> <span class="n">header</span><span class="p">)</span>
+ <span class="n">OUT_TABLE</span>   <span class="n">file</span> <span class="k">for</span> <span class="n">output</span> <span class="n">data</span> <span class="k">with</span> <span class="n">columns</span> <span class="n">of</span> <span class="n">paired</span> <span class="n">observed</span> <span class="ow">and</span> <span class="n">modeled</span>
+             <span class="n">values</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-variables-not-required">
+<h2>Environment Variables (not required):<a class="headerlink" href="#environment-variables-not-required" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">PRECIP</span>      <span class="n">defines</span> <span class="n">the</span> <span class="n">precipitation</span> <span class="n">field</span> <span class="n">used</span> <span class="ow">in</span> <span class="n">WETDEP</span> <span class="ow">and</span>
+             <span class="n">WETCON</span> <span class="n">calculations</span> <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;Precip&quot;</span><span class="p">)</span>
+ <span class="n">IOAPI_ISPH</span>  <span class="n">projection</span> <span class="n">sphere</span> <span class="nb">type</span> <span class="p">(</span><span class="n">use</span> <span class="nb">type</span> <span class="c1">#20 to match WRF/CMAQ)</span>
+             <span class="p">(</span><span class="n">ioapi</span> <span class="n">default</span> <span class="ow">is</span> <span class="mi">8</span><span class="p">)</span>
+ <span class="n">MISSING</span>     <span class="n">string</span> <span class="n">to</span> <span class="n">indicate</span> <span class="n">missing</span> <span class="n">output</span> <span class="n">data</span> <span class="n">values</span>
+             <span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;-999&quot;</span><span class="p">)</span>
+ <span class="n">START_DATE</span>  <span class="n">starting</span> <span class="n">date</span> <span class="n">of</span> <span class="n">time</span> <span class="n">period</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">YYYYJJJ</span><span class="p">)</span>
+ <span class="n">START_TIME</span>  <span class="n">starting</span> <span class="n">time</span> <span class="n">of</span> <span class="n">time</span> <span class="n">period</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">HHMMSS</span><span class="p">)</span>
+ <span class="n">END_DATE</span>    <span class="n">ending</span> <span class="n">date</span> <span class="n">of</span> <span class="n">time</span> <span class="n">period</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">YYYYJJJ</span><span class="p">)</span>
+ <span class="n">END_TIME</span>    <span class="n">ending</span> <span class="n">time</span> <span class="n">of</span> <span class="n">time</span> <span class="n">period</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">HHMMSS</span><span class="p">)</span>
+ <span class="n">APPLY_DLS</span>   <span class="n">apply</span> <span class="n">daylight</span> <span class="n">savings</span> <span class="n">time</span> <span class="p">(</span><span class="n">default</span> <span class="n">N</span><span class="p">)</span>
+ <span class="n">TIME_SHIFT</span>  <span class="n">number</span> <span class="n">of</span> <span class="n">hours</span> <span class="n">to</span> <span class="n">add</span> <span class="n">when</span> <span class="n">retrieving</span> <span class="n">time</span> <span class="n">steps</span> <span class="kn">from</span> <span class="nn">M3_FILE_n</span> <span class="n">files</span> 
+             <span class="n">during</span> <span class="n">processing</span><span class="o">.</span> <span class="n">This</span> <span class="n">should</span> <span class="n">only</span> <span class="n">be</span> <span class="n">non</span><span class="o">-</span><span class="n">zero</span> <span class="k">if</span> <span class="n">the</span> <span class="n">M3_FILE_n</span> <span class="n">files</span>
+             <span class="n">were</span> <span class="n">pre</span><span class="o">-</span><span class="n">processed</span> <span class="k">with</span> <span class="n">a</span> <span class="n">utility</span> <span class="n">like</span> <span class="n">m3tshift</span> <span class="p">(</span><span class="n">default</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="species-definitions">
+<h2>Species definitions:<a class="headerlink" href="#species-definitions" title="Link to this heading">#</a></h2>
+<p>Defines the data columns for your output file. Each can specify the observed and modeled variables of the species you are analyzing. These definitions are specified by environment variables [species-type]_[1-50], where species type is one of the following {AERO, GAS, WETCON, WETDEP, PREC}. See the sample run scripts for additional examples beyond those listed below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="nb">format</span><span class="p">:</span> <span class="p">[</span><span class="n">Obs_expression</span><span class="p">],</span> <span class="p">[</span><span class="n">Obs_units</span><span class="p">],</span> <span class="p">[</span><span class="n">Mod_expression</span><span class="p">],</span> <span class="p">[</span><span class="n">Mod_unit</span><span class="p">],</span> <span class="p">[</span><span class="n">Variable_name</span><span class="p">]</span>
+ 
+ <span class="n">expression</span> <span class="nb">format</span><span class="p">:</span> <span class="p">[</span><span class="n">factor1</span><span class="p">]</span><span class="o">*</span><span class="n">Obs_name1</span> <span class="p">[</span><span class="o">+</span><span class="p">][</span><span class="o">-</span><span class="p">]</span> <span class="p">[</span><span class="n">factor2</span><span class="p">]</span><span class="o">*</span><span class="n">Obs_name2</span> <span class="o">...</span>
+ 
+ <span class="n">types</span><span class="p">:</span> <span class="n">AERO_n</span>  <span class="p">(</span><span class="n">AEROSOL</span> <span class="n">Variables</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">)</span> <span class="o">-</span> <span class="n">compute</span> <span class="n">average</span> <span class="n">over</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">GAS_n</span>   <span class="p">(</span><span class="n">GAS</span> <span class="n">Variables</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">)</span>  <span class="o">-</span> <span class="n">compute</span> <span class="n">average</span> <span class="n">over</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">WETCON_n</span> <span class="p">(</span><span class="n">Wet</span> <span class="n">Concentration</span> <span class="n">Variables</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">)</span> <span class="o">-</span> <span class="n">compute</span>
+                  <span class="n">volume</span><span class="o">-</span><span class="n">weighted</span> <span class="n">average</span><span class="p">)</span>
+        <span class="n">WETDEP_n</span> <span class="p">(</span><span class="n">Wet</span> <span class="n">Deposition</span> <span class="n">Variables</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">)</span> <span class="o">-</span> <span class="n">compute</span>
+                  <span class="n">accumulated</span> <span class="n">wet</span> <span class="n">deposition</span><span class="p">)</span>
+        <span class="n">PREC_n</span>  <span class="p">(</span><span class="n">Precipitation</span> <span class="n">Variables</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">)</span> <span class="o">-</span> <span class="n">compute</span>
+                 <span class="n">accumulated</span> <span class="n">precipitation</span><span class="p">)</span>
+        <span class="n">CHAR_n</span>  <span class="p">(</span><span class="n">Character</span> <span class="n">fields</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">50</span><span class="p">),</span> <span class="n">copies</span> <span class="kn">from</span> <span class="nn">Obs</span> <span class="n">file</span><span class="p">)</span>
+ 
+ <span class="n">examples</span><span class="p">:</span>
+        <span class="n">AERO_1</span><span class="o">=</span><span class="s2">&quot;SO4f_val,ug/m3, ASO4T,,sulfate&quot;</span>
+              <span class="p">(</span><span class="n">this</span> <span class="n">defines</span> <span class="n">an</span> <span class="n">aerosol</span> <span class="n">species</span> <span class="n">where</span> <span class="n">the</span> <span class="n">observed</span> <span class="n">values</span>
+                <span class="n">are</span> <span class="n">obtained</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s2">&quot;SO4f_val&quot;</span> <span class="n">column</span> <span class="n">setting</span> <span class="n">its</span> <span class="n">units</span>
+                <span class="n">to</span> <span class="n">ug</span><span class="o">/</span><span class="n">m3</span><span class="p">,</span> <span class="n">the</span> <span class="n">modeled</span> <span class="n">values</span> <span class="n">are</span> <span class="n">obtained</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s2">&quot;ASO4T&quot;</span>
+                <span class="n">variable</span> <span class="n">using</span> <span class="n">its</span> <span class="n">predefined</span> <span class="n">units</span><span class="p">,</span> <span class="n">both</span> <span class="n">columns</span> <span class="n">will</span> <span class="n">be</span>
+                <span class="n">named</span> <span class="s2">&quot;sulfate&quot;</span><span class="p">)</span>
+ 
+        <span class="n">PREC_1</span><span class="o">=</span><span class="s2">&quot;Sub Ppt,mm,10*RT,mm,Precip&quot;</span>
+                <span class="p">(</span><span class="n">this</span> <span class="n">defines</span> <span class="n">a</span> <span class="n">precipitation</span> <span class="n">species</span> <span class="n">where</span> <span class="n">the</span> <span class="n">observed</span>
+                <span class="n">values</span> <span class="n">are</span> <span class="n">obtained</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s2">&quot;Sub Ppt&quot;</span> <span class="n">column</span> <span class="n">setting</span> <span class="n">its</span>
+                <span class="n">units</span> <span class="n">to</span> <span class="n">mm</span><span class="p">,</span> <span class="n">the</span> <span class="n">modeled</span> <span class="n">values</span> <span class="n">are</span> <span class="n">obtained</span> <span class="n">by</span> <span class="n">multiplying</span>
+                <span class="mi">10</span> <span class="n">times</span> <span class="n">the</span> <span class="s2">&quot;RT&quot;</span> <span class="n">variable</span> <span class="ow">and</span> <span class="n">setting</span> <span class="n">its</span> <span class="n">units</span> <span class="n">to</span> <span class="n">mm</span><span class="p">,</span>
+                <span class="n">both</span> <span class="n">columns</span> <span class="n">will</span> <span class="n">be</span> <span class="n">named</span> <span class="s2">&quot;Precip&quot;</span><span class="p">)</span>
+ 
+        <span class="n">AERO_2</span><span class="o">=</span><span class="s2">&quot;NH4f_val,ug/m3,,,ammonium&quot;</span>
+                <span class="p">(</span><span class="n">this</span> <span class="n">defines</span> <span class="n">an</span> <span class="n">aerosol</span> <span class="n">species</span> <span class="n">where</span> <span class="n">the</span> <span class="n">observed</span> <span class="n">values</span>
+                <span class="n">are</span> <span class="n">obtained</span> <span class="kn">from</span> <span class="nn">the</span> <span class="s2">&quot;NH4f_val&quot;</span> <span class="n">column</span> <span class="n">setting</span> <span class="n">its</span> <span class="n">units</span>
+                <span class="n">to</span> <span class="n">ug</span><span class="o">/</span><span class="n">m3</span><span class="p">,</span> <span class="n">there</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">modeled</span> <span class="n">values</span> <span class="n">column</span><span class="p">,</span> <span class="n">the</span> <span class="n">column</span>
+                <span class="n">will</span> <span class="n">be</span> <span class="n">named</span> <span class="n">ammonium</span><span class="p">)</span>
+ 
+        <span class="n">CHAR_1</span><span class="o">=</span><span class="s2">&quot;NH4f_flag&quot;</span>
+                <span class="p">(</span><span class="n">this</span> <span class="n">defines</span> <span class="n">a</span> <span class="n">character</span> <span class="n">field</span> <span class="n">to</span> <span class="n">copy</span> <span class="n">only</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">observed</span> <span class="n">field</span><span class="p">,</span>
+                <span class="n">no</span> <span class="n">units</span> <span class="ow">or</span> <span class="n">modeled</span> <span class="n">species</span> <span class="n">are</span> <span class="n">used</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="file-formats">
+<h2>File formats:<a class="headerlink" href="#file-formats" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">SITE_FILE</span> <span class="o">-</span> <span class="n">csv</span><span class="o">-</span><span class="n">formatted</span> <span class="nb">input</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">station</span> <span class="n">ID</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="ow">and</span> <span class="n">optionally</span> 
+             <span class="n">GMT</span> <span class="n">offset</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">,</span> <span class="ow">and</span> <span class="n">elevation</span> <span class="k">for</span> <span class="n">each</span> <span class="n">monitor</span><span class="o">.</span>  
+             <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="k">for</span> <span class="n">the</span> <span class="n">required</span> <span class="n">variables</span> <span class="n">need</span> <span class="n">to</span> <span class="n">be</span> <span class="n">stat_id</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="ow">and</span> <span class="n">lon</span><span class="o">.</span>
+             <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="k">for</span> <span class="n">the</span> <span class="n">optional</span> <span class="n">variables</span> <span class="p">(</span><span class="k">if</span> <span class="n">present</span><span class="p">)</span> <span class="n">need</span> <span class="n">to</span> <span class="n">be</span> <span class="n">gmt_offset</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">,</span> 
+	     <span class="ow">and</span> <span class="n">elevation</span><span class="o">.</span>
+	     <span class="n">The</span> <span class="n">column</span> <span class="n">headings</span> <span class="n">are</span> <span class="n">case</span> <span class="n">insensitve</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">order</span> <span class="n">of</span> <span class="n">the</span> <span class="n">columns</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">matter</span><span class="o">.</span>
+             <span class="n">For</span> <span class="n">legacy</span> <span class="n">purposes</span><span class="p">,</span> <span class="n">SITE_FILE</span> <span class="n">can</span> <span class="n">also</span> <span class="n">be</span> <span class="n">a</span> <span class="n">tab</span> <span class="n">delimited</span> <span class="n">file</span> <span class="k">with</span> <span class="n">no</span> <span class="n">header</span> <span class="ow">and</span> <span class="n">three</span> 
+	     <span class="ow">or</span> <span class="n">four</span> <span class="n">columns</span> <span class="n">that</span> <span class="n">contains</span> <span class="n">site</span> <span class="n">information</span> <span class="k">for</span> <span class="n">each</span> <span class="n">monitor</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">following</span> <span class="n">fixed</span> <span class="n">order</span><span class="p">:</span>
+	     <span class="n">site</span><span class="o">-</span><span class="nb">id</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="ow">and</span> <span class="n">optionally</span> <span class="n">time</span> <span class="n">zone</span> <span class="n">offset</span> <span class="n">between</span> <span class="n">local</span> <span class="n">time</span> <span class="ow">and</span> <span class="n">GMT</span>
+ 
+ <span class="n">M3_FILE_n</span> <span class="o">-</span> <span class="n">IOAPI</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">modeled</span> <span class="n">species</span> <span class="n">data</span> <span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="o">-&gt;</span><span class="mi">12</span><span class="p">)</span>
+ 
+ <span class="n">IN_TABLE</span>  <span class="o">-</span> <span class="n">text</span> <span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">observed</span> <span class="n">data</span> <span class="n">values</span>
+           <span class="n">Each</span> <span class="nb">type</span> <span class="n">of</span> <span class="n">dataset</span> <span class="n">requires</span> <span class="n">a</span> <span class="n">site</span> <span class="n">field</span> <span class="ow">and</span> <span class="n">fields</span> <span class="n">that</span> <span class="n">define</span>
+           <span class="n">the</span> <span class="n">data</span> <span class="n">record</span><span class="s1">&#39;s time period. These are the required fields for</span>
+           <span class="n">each</span> <span class="nb">type</span><span class="o">.</span>
+ 
+ <span class="n">IMPROVE</span> <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;site_code&quot;</span>
+           <span class="n">date</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;obs_date&quot;</span>  <span class="p">(</span><span class="n">YYYYMMDD</span><span class="p">)</span>
+           <span class="n">The</span> <span class="n">time</span> <span class="n">period</span> <span class="ow">is</span> <span class="mi">24</span> <span class="n">hours</span> <span class="p">(</span><span class="n">midnight</span> <span class="n">to</span> <span class="n">midnight</span><span class="p">)</span>
+ 
+ <span class="n">NADP</span>    <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;Site&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;DateOn&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span>   <span class="s2">&quot;DateOff&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span><span class="p">)</span>
+           <span class="n">The</span> <span class="n">time</span> <span class="n">period</span> <span class="ow">is</span> <span class="mi">9</span><span class="p">:</span><span class="mi">00</span><span class="n">am</span> <span class="n">to</span> <span class="mi">8</span><span class="p">:</span><span class="mi">59</span><span class="n">am</span>
+ 
+ <span class="n">STN</span>     <span class="o">-</span> <span class="p">(</span><span class="n">Use</span> <span class="k">with</span> <span class="n">CSN</span> <span class="n">data</span><span class="p">)</span>
+           <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;airs_site_code&quot;</span>
+           <span class="n">date</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;DATETIME&quot;</span>  <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span><span class="p">)</span>
+           <span class="n">The</span> <span class="n">time</span> <span class="n">period</span> <span class="ow">is</span> <span class="mi">24</span> <span class="n">hours</span> <span class="p">(</span><span class="mi">9</span><span class="p">:</span><span class="mi">00</span><span class="n">am</span> <span class="n">to</span> <span class="mi">8</span><span class="p">:</span><span class="mi">59</span><span class="n">am</span><span class="p">)</span>
+ 
+ <span class="n">MDN</span>     <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;SITE&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;START&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;STOP&quot;</span>    <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span><span class="p">)</span>
+           <span class="n">The</span> <span class="n">time</span> <span class="n">period</span> <span class="ow">is</span> <span class="mi">9</span><span class="p">:</span><span class="mi">00</span><span class="n">am</span> <span class="n">to</span> <span class="mi">8</span><span class="p">:</span><span class="mi">59</span><span class="n">am</span>
+ 
+ <span class="n">CASTNET</span> <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;Site_id&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;DateOn&quot;</span> <span class="p">(</span><span class="s2">&quot;YYYY-MM-DD hh:mm:ss&quot;</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;DateOff&quot;</span>  <span class="p">(</span><span class="s2">&quot;YYYY-MM-DD hh:mm:ss&quot;</span><span class="p">)</span>
+ 
+ <span class="n">MET</span>     <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="s2">&quot; &quot;</span><span class="n">site_id</span><span class="s2">&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;date_time&quot;</span> <span class="p">(</span><span class="s2">&quot;YYYY-MM-DD hh:mm:ss&quot;</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span> <span class="mi">59</span> <span class="n">minutes</span> <span class="n">added</span> <span class="n">to</span> <span class="n">starting</span> <span class="n">time</span>
+ 
+ 
+ <span class="n">SEARCH</span>  <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;Site_id&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;DateOn&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span> <span class="n">hh</span><span class="p">:</span><span class="n">mm</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;DateOff&quot;</span>  <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span> <span class="n">hh</span><span class="p">:</span><span class="n">mm</span><span class="p">)</span>
+ 
+ <span class="n">DEARS</span>   <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;PID&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;StartDate&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YY</span><span class="p">)</span>
+           <span class="n">The</span> <span class="n">time</span> <span class="n">period</span> <span class="ow">is</span> <span class="mi">24</span> <span class="n">hours</span> <span class="p">(</span><span class="mi">9</span><span class="p">:</span><span class="mi">00</span><span class="n">am</span> <span class="n">to</span> <span class="mi">8</span><span class="p">:</span><span class="mi">59</span><span class="n">am</span><span class="p">)</span>
+ 
+ <span class="n">AIRMON</span>  <span class="o">-</span> <span class="n">site</span> <span class="n">field</span><span class="p">:</span> <span class="s2">&quot;Site&quot;</span>
+           <span class="n">starting</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;Date/Time On&quot;</span> <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span> <span class="n">hh</span><span class="p">:</span><span class="n">mm</span><span class="p">)</span>
+           <span class="n">ending</span> <span class="n">date</span><span class="p">:</span> <span class="s2">&quot;Date/Time Off&quot;</span>  <span class="p">(</span><span class="n">MM</span><span class="o">/</span><span class="n">DD</span><span class="o">/</span><span class="n">YYYY</span> <span class="n">hh</span><span class="p">:</span><span class="n">mm</span><span class="p">)</span>
+ 
+ 
+ <span class="n">OUT_TABLE</span> <span class="o">-</span> <span class="n">output</span> <span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="n">text</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">columns</span> <span class="n">of</span> <span class="n">paired</span> <span class="n">observed</span> <span class="ow">and</span>
+             <span class="n">modeled</span> <span class="n">values</span>
+</pre></div>
+</div>
+</section>
+<section id="compile-sitecmp-source-code">
+<h2>Compile sitecmp source code:<a class="headerlink" href="#compile-sitecmp-source-code" title="Link to this heading">#</a></h2>
+<p>Execute the build script to compile sitecmp:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/POST/sitecmp/scripts
+./bldit_sitecmp.csh [compiler] [version] |&amp; tee build_sitecmp.log
+</pre></div>
+</div>
+</section>
+<section id="run-sitecmp">
+<h2>Run sitecmp:<a class="headerlink" href="#run-sitecmp" title="Link to this heading">#</a></h2>
+<p>Edit the sample run script (run_sitecmp_AQS_Hourly.csh*), then run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">./</span><span class="n">run_sitecmp_AQS_Hourly</span><span class="o">.</span><span class="n">csh</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">sitecmp</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>Check the log file to ensure complete and correct execution without errors.</p>
+<p>*A sample run scripts has been provided for matching model data to hourly observations from AQS.  The README.txt file in the scripts folder shows the changes need to adapt this run script to one of the following networks: AERONET, AMON, CASTNET (hourly and weekly data), CSN, IMPROVE, NADP, and SEARCH (hourly and daily data).  The formatted observation data files needed for running the sitecmp utility are available starting in 2000 from the CMAS Data Warehouse Google Drive: <a class="reference external" href="https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=drive_link" rel="noreferrer" target="_blank">North America Air Quaility Observation Files <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p>
+<p>Note that the run scripts rely on model output that has already been processed using the combine utility. The user should first run combine on ACONC and DEP output files to create the necessary COMBINE_ACONC and COMBINE_DEP files that contain the model species that can be matched to available observations. See the sample run scripts for the combine utility for examples on creating COMBINE_ACONC and COMBINE_DEP.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-run-time-variables">Environment Run Time Variables:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables-not-required">Environment Variables (not required):</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#species-definitions">Species definitions:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-formats">File formats:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-sitecmp-source-code">Compile sitecmp source code:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-sitecmp">Run sitecmp:</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

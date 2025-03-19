@@ -1,0 +1,29 @@
+SOOT                
+!References: 
+! 1) For 2.0460 <= lambda <= 3.4615,
+! C&C Chang,H and T.T. Charalmpopoulos (1990) Determination of the
+! wavelength dependence of refractive indices of flame soot,
+! Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
+!
+! 2) For 1.0101 <= lambda < 1.7840,
+! B&B Bond, T.C. & R.W. Bergstrom (2006) Light absorption by
+! Carbonaceous Particles: An investigative review,
+! Aerosol Science and Technology. Vol. 40. pp 27-67
+!
+! 3) For 0.2316 <= lanbda < 0.70160,
+! Bond  Personal Communication from Tami Bond
+! 4) At 0.1500 um added a floor for shortest wavelength bands
+! -------------------
+!wvl,um   nr   ni
+0.15000 1.850 0.710
+0.23160 1.850 0.710
+0.29900 1.850 0.710
+0.38815 1.850 0.710
+0.53325 1.850 0.710
+1.01010 1.870 0.726
+1.27050 1.905 0.737
+1.78400 1.940 0.760
+2.04600 1.950 0.784
+2.78850 2.014 0.939
+3.46150 2.089 1.070
+

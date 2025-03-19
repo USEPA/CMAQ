@@ -370,10 +370,10 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT -->
 
 [link_7_nml]: ../../CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  
 
-[](hardcode_links)  
+<!-- END_OF_COMMENT -->
 
 [link_7_nml]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  

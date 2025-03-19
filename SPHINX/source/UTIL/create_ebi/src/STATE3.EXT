@@ -1,0 +1,179 @@
+
+!.........................................................................
+! Version "@(#)$Header$"
+! EDSS/Models-3 I/O API.  Copyright (C) 1992-2002 MCNC
+! Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
+! See file "LGPL.txt" for conditions of use.
+!....................................................................
+!  INCLUDE FILE  STATE3.EXT
+!
+!
+!  DO NOT EDIT !!
+!
+!       The EDSS/Models-3 I/O API depends in an essential manner
+!       upon the contents of this INCLUDE file.  ANY CHANGES are
+!       likely to result in very obscure, difficult-to-diagnose
+!       bugs caused by an inconsistency between standard "libioapi.a"
+!       object-libraries and whatever code is compiled with the
+!       resulting modified INCLUDE-file.
+!
+!       By making any changes to this INCLUDE file, the user
+!       explicitly agrees that in the case any assistance is 
+!       required of MCNC or of the I/O API author, Carlie J. Coats, Jr.
+!       as a result of such changes, THE USER AND/OR HIS PROJECT OR
+!       CONTRACT AGREES TO REIMBURSE MCNC AND/OR THE I/O API AUTHOR,
+!       CARLIE J. COATS, JR., AT A RATE TRIPLE THE NORMAL CONTRACT
+!       RATE FOR THE SERVICES REQUIRED.
+!
+!  CONTAINS:  Commons  BSTATE3  and  CSTATE3  which store I/O system state
+!          for FORTRAN Models-3 I/O System API.  (Recall that FORTRAN 77
+!          prohibits character and non-character data in the same common.)
+!          Note that grid description info needs to be double-precision
+!          instead of single-precision, in order to minimize roundoff
+!          error in grid-to/from-geographic coordinate transformations.
+!
+!  DEPENDENT UPON:  PARMS3.EXT
+!
+!  REFERENCED BY:  IOAPI routines (assume that it is referenced by all
+!                  of them.
+!
+!     ---->>  PRIVATE TO IO API; NOT TO BE USED BY APPLICATIONS !!!!!
+!
+!  REVISION HISTORY:
+!       prototype 3/1992 by CJC
+!       modified 12/1992 by CJC:  map-projection descriptive parameters P_ALP,
+!                               P_BET, P_GAM (q.v. FDESC3.EXT)
+!       modified  7/1994 by CJC:  XCENT3, YCENT3; reorder BSTATE3 for
+!                               alignment of entries.
+!       Modified 12/1996 by CJC:  support for new file types
+!       Modified  1/2002 by CJC:  updated dates, license
+!
+!       Modified  3/2002 by CJC:  updated dates, license; compatibility
+!       with both free and fixed Fortran 9x source forms; split out
+!       virtual-mode COMMON in STATE3V.EXT
+!
+!       Modified  3/2002 by CJC:  flag STDOUT set by INIT3() and used
+!       by M3MSG2() to control error output to the screen.
+!
+!       Modified 10/2002 by CJC for I/O AP1 v3:  add VERSN3 to CSTATE3
+!....................................................................
+
+        LOGICAL       FINIT3            ! Is M3 FORTRAN I/O started?
+
+        INTEGER       COUNT3            ! current number of open files
+        INTEGER       CURDATE           ! current date, format YYYYDDD
+        INTEGER       CURTIME           ! current time, format HHMMSS
+        INTEGER       LOGDEV            ! unit number for log file
+        INTEGER       CDFID3( MXFILE3 ) ! netCDF file ID's
+        INTEGER       FTYPE3( MXFILE3 ) ! file types(dict, grid, bdy, etc.)
+        INTEGER       SDATE3( MXFILE3 ) ! starting dates, format YYYYDDD
+        INTEGER       STIME3( MXFILE3 ) ! starting times, format  HHMMSS
+        INTEGER       TSTEP3( MXFILE3 ) ! timesteps, format H*MMSS
+        INTEGER       MXREC3( MXFILE3 ) ! maximum timestep record number
+        INTEGER       NVARS3( MXFILE3 ) ! number of variables (species...)
+        INTEGER       NLAYS3( MXFILE3 ) ! number of layers
+        INTEGER       NROWS3( MXFILE3 ) ! number of grid rows or data sites
+        INTEGER       NCOLS3( MXFILE3 ) ! number of grid cols or profile lvls
+        INTEGER       NTHIK3( MXFILE3 ) ! B'DY:  perimeter thickness (cells)
+        INTEGER       TINDX3( MXFILE3 ) ! netCDF var. ID for timestep-flag
+        INTEGER       NINDX3( MXFILE3 ) ! netCDF var. ID for site-count
+        INTEGER       SINDX3( MXFILE3 ) ! netCDF var. ID for site-ID
+        INTEGER       LINDX3( MXFILE3 ) ! netCDF var. ID for level-count
+        INTEGER       WCNDX3( MXFILE3 ) ! netCDF var. ID for bdy col-count
+        INTEGER       WRNDX3( MXFILE3 ) ! netCDF var. ID for bdy row-count
+        INTEGER       XINDX3( MXFILE3 ) ! netCDF var. ID for X
+        INTEGER       YINDX3( MXFILE3 ) ! netCDF var. ID for Y
+        INTEGER       ZINDX3( MXFILE3 ) ! netCDF var. ID for Z
+        INTEGER       DXNDX3( MXFILE3 ) ! netCDF var. ID for GRNEST DX
+        INTEGER       DYNDX3( MXFILE3 ) ! netCDF var. ID for GRNEST DY
+        INTEGER       VINDX3( MXVARS3, MXFILE3 ) ! netCDF var. IDs
+        INTEGER       VTYPE3( MXVARS3, MXFILE3 ) ! netCDF datatypes for vars
+        INTEGER       GDTYP3( MXFILE3 ) ! grid type (lat-lon, UTM, ... )
+
+        REAL*8        P_ALP3( MXFILE3 ) ! first, second, third map
+        REAL*8        P_BET3( MXFILE3 ) ! projection descriptive
+        REAL*8        P_GAM3( MXFILE3 ) ! parameters.
+        REAL*8        XCENT3( MXFILE3 ) ! lon, coord system origin, by file
+        REAL*8        YCENT3( MXFILE3 ) ! lat, coord system origin, by file
+        REAL*8        XORIG3( MXFILE3 ) ! X-coord grid origin, by file
+        REAL*8        YORIG3( MXFILE3 ) ! X-coord grid origin, by file
+        REAL*8        XCELL3( MXFILE3 ) ! X-coord cell dimension, by file
+        REAL*8        YCELL3( MXFILE3 ) ! X-coord cell dimension, by file
+
+        LOGICAL       VOLAT3( MXFILE3 ) ! "volatile" flags:  use NCSYNC
+
+        LOGICAL       RONLY3( MXFILE3 ) ! read-only flags
+
+!...........   Circular buffer structures used for BUFFERED "files".
+
+        INTEGER       BSIZE3( MXFILE3 )           !  buffer size or IMISS
+        INTEGER       LDATE3( MXVARS3, MXFILE3 )  !  start date, time for 
+        INTEGER       LTIME3( MXVARS3, MXFILE3 )  !  current BUFFERED data
+        INTEGER       NDATE3( MXVARS3, MXFILE3 )  !  end date, time for 
+        INTEGER       NTIME3( MXVARS3, MXFILE3 )  !  current BUFFERED data
+        INTEGER       ILAST3( MXVARS3, MXFILE3 )  !  0,1 sub. for LDATE:LTIME
+
+!...........   Data structures used for input LIST "file-sequences" for,
+!...........   READ3/INTERP3, designated by logical-name bindings of the
+!...........   form "setenv FOO "LIST:BAR,QUX,ZOT..."
+!...........   This is done with "sparse representation" for the data 
+!...........   structures
+!...........   NLIST3(FID) s the number of list entries for FLIST3(FID).
+!...........   ILCNT3 is the total number of active list-entries.
+!...........   ILIST3(*) is the list of FID's for all "list-files"
+!...........   BEGRC3(*) is the list of starting record numbers, relative
+!...........   to the parent FID
+!...........   ENDRC3(*) is the list of ending record numbers, relative
+!...........   to the parent FID
+
+        INTEGER       ILCNT3              !  total # of list entries
+        INTEGER       NLIST3( MXFILE3 )   !  list-size for this FID
+        INTEGER       IFRST3( MXFILE3 )   !  starting list index in ILIST3
+        INTEGER       ILIST3( MXFILE3 )   !  ID-list (compressed)
+        INTEGER       BEGRC3( MXFILE3 )   !  buffer size or IMISS
+        INTEGER       ENDRC3( MXFILE3 )   !  buffer size or IMISS
+
+!...........   Other system attributes:
+
+        LOGICAL       STDOUT ! controls message-echo to standard output
+
+        CHARACTER*80  EXECN3 ! value of env vble EXECUTION_ID (set by INIT3())
+
+        CHARACTER*80  VERSN3 ! value of I/O API Version (set by INIT3())
+
+        CHARACTER*16  FLIST3( MXFILE3 ) ! file name table
+        CHARACTER*16  GDNAM3( MXFILE3 ) ! grid name table
+
+        CHARACTER*80  SCNDSC( MXDESC3 ) ! scenario description text
+
+        CHARACTER*16  VLIST3( MXVARS3 , MXFILE3 ) ! variable-name table
+
+        !!  non-character portion of current I/O API state
+        !!  Note that DOUBLE components are listed first, in order
+        !!  to ensure appropriate (64-bit, usually) alignment.
+
+        COMMON  / BSTATE3 /
+     &
+     &          P_ALP3, P_BET3, P_GAM3,
+     &          XCENT3, YCENT3, XORIG3, YORIG3, XCELL3, YCELL3,
+     &          FINIT3, COUNT3, CURDATE, CURTIME, LOGDEV,
+     &          CDFID3, FTYPE3, SDATE3, STIME3, TSTEP3, MXREC3,
+     &          NVARS3, NLAYS3, NROWS3, NCOLS3, NTHIK3,
+     &          TINDX3, NINDX3, SINDX3, LINDX3, WCNDX3, WRNDX3,
+     &          XINDX3, YINDX3, ZINDX3, DXNDX3, DYNDX3, VINDX3,
+     &          GDTYP3, VOLAT3, RONLY3,
+     &          BSIZE3, LDATE3, LTIME3, NDATE3, NTIME3, ILAST3,
+     &          VTYPE3,
+     &          ILCNT3, NLIST3, IFRST3, ILIST3, BEGRC3, ENDRC3,
+     &          STDOUT
+
+        !!  character portion of current I/O API state
+
+        COMMON  / CSTATE3 /
+     &
+     &          EXECN3, SCNDSC, FLIST3, GDNAM3, VLIST3, VERSN3
+ 
+        SAVE / BSTATE3 / , / CSTATE3 /
+
+!................   end   STATE3.EXT   ....................................
+

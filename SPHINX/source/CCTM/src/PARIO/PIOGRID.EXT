@@ -1,0 +1,71 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+C RCS file, release, date & time of last delta, author, state, [and locker] 
+C $Header: /project/work/rep/PARIO/src/PIOGRID.EXT,v 1.1.1.1 1998/12/18 12:51:29 yoj Exp $
+
+C....................................................................
+C  INCLUDE FILE  PIOGRID.EXT
+C
+C  CONTAINS:  Grid-related variables for parallel Models-3 I/O
+C             library routines.
+C             
+C
+C  DEPENDENT UPON:  none
+C
+C  REVISION HISTORY:
+C       Original version  7/98 by Al Bourgeois (AJB).
+C       Modified 08/28/98 by AJB to add BTHICK, MY_NROWS, MY_NCOLS,
+C            and MAXCELLS.
+C....................................................................
+
+
+C          Variables            Description
+C          ---------            -----------
+
+      INTEGER  NPROWD          ! Number of processors across grid rows.
+      INTEGER  NPCOLD          ! Number of processors across grid columns.
+      INTEGER  GNROWS          ! Number of rows in global grid.
+      INTEGER  GNCOLS          ! Number of columns in global grid.
+      INTEGER  GNLAYS          ! Number of layers in global grid.
+      INTEGER  BTHICK          ! Cell thickness of grid boundary.
+      INTEGER  NUMROWS         ! Row dimension of local-processor arrays.
+      INTEGER  NUMCOLS         ! Column dimension of local-processor arrays.
+      INTEGER  MY_NROWS        ! Local number of grid rows actually used.
+      INTEGER  MY_NCOLS        ! Local number of grid columns actually used.
+      INTEGER  MAXCELLS        ! Maximum subdomain size (# cells) over PEs.
+      INTEGER  NGB_PE(8)       ! PE neighborhood, first north then clockwise:
+                               !        8  1  2
+                               !        7     3
+                               !        6  5  4
+
+      COMMON / PIOGRID /       ! type
+     &         NPROWD,         ! INTEGER
+     &         NPCOLD,         ! INTEGER
+     &         GNROWS,         ! INTEGER
+     &         GNCOLS,         ! INTEGER
+     &         GNLAYS,         ! INTEGER
+     &         BTHICK,         ! INTEGER
+     &         NUMROWS,        ! INTEGER
+     &         NUMCOLS,        ! INTEGER
+     &         MY_NROWS,       ! INTEGER
+     &         MY_NCOLS,       ! INTEGER
+     &         MAXCELLS,       ! INTEGER
+     &         NGB_PE          ! INTEGER
+

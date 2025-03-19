@@ -359,13 +359,13 @@ The run script below uses the [`BCON`][link_3] program to create boundary condit
 ```
 
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT --> 
 
 [link_1]: ../../../PREP/bcon/map2mech/
 [link_2]: ../../../PREP/icon/
 [link_3]: ../../../PREP/bcon
 
-[](hardcode_links)  
+<!-- END_OF_COMMENT --> 
 
 [link_1]: https://github.com/USEPA/CMAQ/blob/main/PREP/bcon/map2mech/
 [link_2]: https://github.com/USEPA/CMAQ/blob/main/PREP/icon/ 

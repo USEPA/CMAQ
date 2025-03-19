@@ -156,14 +156,13 @@ CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT --> 
 
 [link_F_Data]: ../../../CCTM/src/driver/ELMO_DATA.F
 [link_F_Proc]: ../../../CCTM/src/driver/ELMO_PROC.F
-[link_F_Control]:
 
-[](hardcode_links)  
+
+<!-- END_OF_COMMENT -->
 
 [link_F_Data]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_DATA.F
 [link_F_Proc]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_PROC.F
-[link_F_Control]:

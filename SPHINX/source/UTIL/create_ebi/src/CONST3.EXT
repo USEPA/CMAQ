@@ -1,0 +1,143 @@
+
+!.........................................................................
+! Version "@(#)$Header: /env/proj/archive/cvs/ioapi/./ioapi/src/CONST3.EXT,v 1.7 2001/01/03 20:14:33 coats Exp $"
+! EDSS/Models-3 I/O API.  Portions copyright (C) 1992-1997 MCNC
+! See file "COPYRIGHT.txt" for conditions of use.
+!.........................................................................
+
+!....................................................................
+!  INCLUDE FILE  CONST3.EXT
+!
+!  CONTAINS:  
+!       Physical and mathematical constants
+!
+!  REVISION HISTORY:
+!
+!       Adapted 6/1992 by Carlie J. Coats, Jr., MCNC Environmental Programs,
+!       from ROM's PI.EXT.
+!
+!       Revised 3/1/1993 John McHenry to include constants needed by
+!       LCM aqueous chemistry
+!
+!       Revised 9/1993 by John McHenry to include additional constants
+!       needed for FMEM clouds and aqueous chemistry
+
+!       Modified  2/2002 by CJC for compatibility with both free and
+!       fixed Fortran 9x source forms
+!....................................................................
+
+!.......   Mathematical Constants
+
+      REAL         PI     ! PI (single precision 3.14159...)
+      REAL         TWOPI  ! 2 * PI
+      REAL         PI6    ! degrees-to-radians:  PI/6
+      REAL         PI180  ! degrees-to-radians:  PI/180
+      REAL         RPI180 ! radians-to-degrees:  180/PI
+      REAL         AMISS  ! standard missing value -9999.9
+      REAL        EPSILON ! "standard" small number
+
+      PARAMETER  (
+     &  PI     = 3.14159265358979324 ,
+     &  TWOPI  = 6.28318530717958649 ,
+     &  PI6    = PI /   6.0 ,                                             
+     &  PI180  = PI / 180.0 ,
+     &  RPI180 = 180.0 / PI          ,
+     &  AMISS  =  -9999.9            ,
+     & EPSILON =      1.0E-10 )
+
+
+!.......   Physical Constants
+
+      REAL         REARTH ! radius of the earth (meters)
+      REAL         DG2M   ! latitude degrees to meters
+      REAL         DG2MSQ ! DG2M ** 2
+      REAL         DG2KM  ! latitude degrees to kilometers
+      REAL         D2KMSQ ! DG2KM ** 2
+      REAL         SIDAY  ! length of a sidereal day (seconds)
+      REAL         SIYEAR ! length of a sidereal year (days)
+      REAL         TRYEAR ! length of a tropical year (days)
+      REAL         EOMEGA ! Earth's angular velocity (radians/sec)
+      REAL         GRAV   ! mean gravitational acceleration (m/sec**2)
+      REAL         RDGAS  ! dry-air gas constant (J/g-deg.K)
+      REAL         RCHGAS ! gas constant in chemical units (L-atm/mole-K)
+      REAL         RWVP   ! gas constant for water vapor (J/g-deg.K)
+      REAL         HWVP   ! latent heat of vaporization of water at 0 C (J/g)
+      REAL         EWVP0  ! ref saturation vapor press of water at temp TWVP0
+      REAL         TWVP0  ! base temp. for vapor pressure calculations (deg.K)
+      REAL         CTOK   ! conversion constant from deg.C to deg.K
+      REAL         SI2PPM ! conversion constant from mu-g/m**3 to PPM
+      REAL         PPM2SI ! conversion constant from PPM to mu-g/m**3
+      REAL	   VP0    ! vapor press of water at 0 C (cb)
+      REAL         LV     ! latent heat of vaporization of water at 0 C (J/kg)
+      REAL         LF     ! latent heat of fusion of water at 0 C (J/kg)
+      REAL         CP     ! specific heat of air at const press (J/kg-deg K)
+      REAL         RDCP   ! RDGAS * CP
+      REAL         DALR   ! dry adiabatic lapse rate (deg K/m)
+      REAL         GOVRD  ! ratio of grav const to dry gas const GRAV/RDGAS
+      REAL         RDOVG  ! RDGAS/GRAV
+      REAL         ROVCP  ! ratio of dry gas const to specific heat const
+      REAL         LVOCP  ! ratio of latent heat of vap to specific heat const
+      REAL         AVO    ! Avogadro's Constant (number per mole)
+      REAL         BOLTZ  ! Boltzmann's Constant (erg/K)         
+      REAL         STDATMCB ! standard atmosphere in centibars
+      REAL         STDATMMB ! standard atmosphere in millibars
+
+      PARAMETER (
+     &  REARTH = 6367333.0           , DG2M   = REARTH * PI180      ,
+     &  DG2MSQ = DG2M  * DG2M        , DG2KM  = 1.0E-3 * DG2M       ,
+     &  D2KMSQ = DG2KM * DG2KM       , SIDAY  = 86164.09            ,
+     &  SIYEAR = 365.256363          , TRYEAR =   365.242190        ,
+     &  EOMEGA = TWOPI / SIDAY       , GRAV   =     9.80665         ,
+     &  RDGAS  =  287.0406           , RWVP   =     0.4615          ,
+     &  HWVP   = 2500.0              , EWVP0  =    40.0             ,
+     &  TWVP0  =  302.0              , CTOK   =   273.15            ,
+     &  SI2PPM =    0.0245           , PPM2SI =     1.0 / SI2PPM    ,
+     &  CP     = 1004.6              , VP0    =     0.6112          ,
+     &  LF     =    3.34E+5          , RCHGAS =     0.082057        ,
+     &  LV     =  HWVP * 1.0E+3      , RDCP   =  RDGAS * CP         ,
+     &  DALR   =  GRAV / CP          , GOVRD  =  GRAV / RDGAS       ,
+     &  RDOVG  = RDGAS / GRAV        , ROVCP  =  RDGAS / CP         ,
+     &  LVOCP  =  LV / CP            , AVO    =     6.02257E23      ,
+     &  BOLTZ  =   1.38E-16          , STDATMCB = 101.325           ,
+     &  STDATMMB = 0.1 * STDATMCB    )
+
+
+!.......   Molecular Weight and Bulk Density Constants
+
+      REAL	   MWAIR   ! mean molecular weight for air
+      REAL	   MWWAT   ! mean molecular weight for water
+      REAL	   MWH2O2  ! mean molecular weight for H2O2
+      REAL	   MWNACL  ! mean molecular weight for NaCl
+      REAL	   MWCL    ! mean atomic    weight for Cl
+      REAL	   MWNH3   ! mean molecular weight for NH3
+      REAL	   MWNH4   ! mean ionic     weight for NH4
+      REAL	   MWNO3   ! mean ionic     weight for NO3
+      REAL	   MWHNO3  ! mean molecular weight for HNO3
+      REAL	   MWORG   ! mean molecular weight for lumped organics
+      REAL	   MWSO2   ! mean molecular weight for SO2
+      REAL	   MWSO4   ! mean ionic     weight for SO4
+      REAL	   MWH2SO4 ! mean molecular weight for H2SO4
+
+      REAL         MVOMA     ! ratio of mol wt of water vapor to mol wt of air
+      REAL         SO4TOAIR  ! mol wt so4 / mol wt air
+      REAL         NH3TOAIR  ! mol wt nh3 / mol wt air
+      REAL         NH4TOSO4  ! mol wt nh4 / mol wt so4
+      
+      REAL         RHOSO4  !  bulk density of aerosol sulfate (g/cm^3)
+      REAL         RHONH4  !  bulk density of aerosol ammonium (g/cm^3)
+      REAL         RHOH2O  !  bulk density of aerosol water (g/cm^3)
+
+
+      PARAMETER (
+     &  MWAIR    =   28.9644 ,       MWWAT    =   18.0153 ,
+     &  MWH2O2   =   34.0 ,          MWNACL   =   58.44277 ,
+     &  MWCL     =   35.453 ,        MWNH3    =   17.03061 ,
+     &  MWNH4    =   18.03858 ,      MWNO3    =   62.0049 ,
+     &  MWHNO3   =   63.01287 ,      MWORG    =   16.0 ,
+     &  MWSO2    =   64.0 ,          MWSO4    =   96.0576 ,
+     &  MWH2SO4  =   98.07354 ,      MVOMA    =   MWWAT / MWAIR ,
+     &  SO4TOAIR =   MWSO4 / MWAIR , NH3TOAIR =   MWNH3 / MWAIR ,
+     &  NH4TOSO4 =   MWNH4 / MWSO4 , RHOSO4   =    1.8 ,
+     &  RHONH4   =    1.8 ,          RHOH2O   =    1.0 )
+      
+!................   end   CONST3.EXT   ....................................

@@ -1,0 +1,97 @@
+
+!.........................................................................
+! Version "@(#)$Header$"
+!    EDSS/Models-3 I/O API.  Copyright (C) 1992-2002 MCNC
+!    Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
+!    See file "LGPL.txt" for conditions of use.
+!....................................................................
+!  INCLUDE FILE  ATDSC3.EXT
+!
+!  DO NOT EDIT !!
+!
+!       The EDSS/Models-3 I/O API depends in an essential manner
+!       upon the contents of this INCLUDE file.  ANY CHANGES are
+!       likely to result in very obscure, difficult-to-diagnose
+!       bugs caused by an inconsistency between standard "libioapi.a"
+!       object-libraries and whatever code is compiled with the
+!       resulting modified INCLUDE-file.
+!
+!       By making any changes to this INCLUDE file, the user
+!       explicitly agrees that in the case any assistance is 
+!       required of MCNC or of the I/O API author, Carlie J. Coats, Jr.
+!       as a result of such changes, THE USER AND/OR HIS PROJECT OR
+!       CONTRACT AGREES TO REIMBURSE MCNC AND/OR THE I/O API AUTHOR,
+!       CARLIE J. COATS, JR., AT A RATE TRIPLE THE NORMAL CONTRACT
+!       RATE FOR THE SERVICES REQUIRED.
+!
+!  CONTAINS:  Fortran data structures for a MODELS 3 file description
+!             for file type TSRIES3 (timeseries).  Based upon FDESC3.EXT.
+!             Used to pass data between RDDICT3, WRDICT3, CREATE3, DESC3,
+!             and their callers.  Common BATTS3 is used to store the
+!             non-character-string data, and CATTS3 is used to store
+!             the character-string data (recall that FORTRAN 77 prohibits
+!             character and non-character data in the same common)
+!
+!  SHOULD ONLY BE USED AS A NAME BASED ARGUMENT PASSING MECHANISM;
+!  the user should have local variables to/from which this data structure
+!  is copied immediately prior to or immediately after calls which set
+!  or use these COMMONs, since their values are subject to change at
+!  any time by the IOAPI.
+!
+!  DEPENDENT UPON:  PARMS3.EXT
+!
+!  REVISION HISTORY:
+!       Prototype 6/1992 by Carlie J. Coats, Jr., MCNC Environmental
+!       Programs
+!
+!       Modified  6/1996 by CJC to add variable attributes for
+!       TSRIES3 file type
+!
+!       Modified  2/2002 by CJC for compatibility with both free and
+!       fixed Fortran 9x source forms
+!
+!  SET BY:
+!          DESC3:    Everything in ATTDSC3.EXT
+!
+!          RDDICT3:  FTYPE3D, TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D, NVARS3D,
+!                    NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D,
+!                    XORIG3D, YORIG3D, XCELL3D, YCELL3D, GDNAM3D,
+!                    XCENT3D, YCENT3D, VNAME3D, UNITS3D, VDESC3D
+!
+!  REFERENCED BY:
+!          CREATE3:  FTYPE3D, SDATE3D, STIME3D, TSTEP3D, NCOLS3D, NROWS3D,
+!                    NLAYS3D, NVARS3D, NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D,
+!                    P_GAM3D, XORIG3D, YORIG3D, XCELL3D, YCELL3D, GDNAM3D,
+!                    XCENT3D, YCENT3D, VNAME3D, UNITS3D, VDESC3D
+!
+!          WRDICT3:  FTYPE3D, TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D, NVARS3D,
+!                    NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D, XORIG3D,
+!                    YORIG3D, XCELL3D, YCELL3D, XCELL3D, YCELL3D, GDNAM3D, 
+!                    VNAME3D, UNITS3D, VDESC3D
+!
+!....................................................................
+!
+  
+!    VARIABLE ATTRIBUTES
+
+        CHARACTER*16   ATNAM3D( MXATTS3, MXVARS3)  ! variable attrib. name
+        REAL           FATTS3D( MXATTS3, MXVARS3 ) ! var. att. value (real)
+        INTEGER        NATTS3D( MXVARS3 )          ! no. of var. atts used
+                              ! in addition to long_name, units, var_desc
+
+
+        !!non-character per-variable attribute data
+
+        COMMON  / BATTS3 /
+     &
+     &      NATTS3D, FATTS3D
+     
+     
+        !! character-string per-variable attribute data
+
+        COMMON  / CATTS3 /
+     &
+     &      ATNAM3D
+     
+!................   end   ATDSC3.EXT   ....................................
+

@@ -1,0 +1,38 @@
+NOA_O_MCMv32
+!nitrooxy-acetone (NOA) photolysis quantum yields
+!cross section based on 
+!  J.M. Roberts and R.W. Fajer, UV absorption cross sections of organic nitrates 
+!  of potential atmospheric importance and estimation of atmospheric lifetimes,
+!  Environ. Sci. Technol. 23, 945-951 (1989).
+! quantum yield based on set to zero out rate
+!    
+!phi1 (CH3C(O)CH2O + NO2)
+!phi2 (CH3CO + HCHO + NO2)
+!phi3 (total)
+!
+!wavelength (nm) phi3
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+245 2.29E-19 0.000
+250 1.47E-19 0.000
+255 1.07E-19 0.000
+260 8.53E-20 0.000
+265 7.63E-20 0.000
+270 7.29E-20 0.000
+275 7.02E-20 0.000
+280 6.67E-20 0.000
+285 6.25E-20 0.000
+290 5.83E-20 0.000
+295 5.18E-20 0.000
+300 4.48E-20 0.000
+305 3.61E-20 0.000
+310 2.69E-20 0.000
+315 1.86E-20 0.000
+320 1.31E-20 0.000
+325 7.90E-21 0.000
+330 4.55E-21 0.000
+335 2.20E-21 0.000
+340 1.60E-21 0.000
+345 0.00E+00 0.000
+350 0.00E+00 0.000

@@ -1,0 +1,23 @@
+&NR_nml
+
+NR_SPECIES_DATA = 
+
+!SPECIES         ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,NR2AE SURR     ,NR2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
+'NH3'            , 17.0   ,''     ,-1     ,''     ,-1     ,'VD_NH3'          , 1   ,'NH3'             , 1  ,'NH3'          ,'NH3'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVALK1'         ,225.0   ,''     ,-1     ,''     ,-1     ,'VD_SVALK1'       , 1   ,'SVALK1'          , 1  ,'SVALK1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVALK2'         ,205.1   ,''     ,-1     ,''     ,-1     ,'VD_SVALK2'       , 1   ,'SVALK2'          , 1  ,'SVALK2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVXYL1'         ,174.0   ,''     ,-1     ,''     ,-1     ,'VD_SVXYL1'       , 1   ,'SVXYL1'          , 1  ,'SVXYL1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVXYL2'         ,185.0   ,''     ,-1     ,''     ,-1     ,'VD_SVXYL2'       , 1   ,'SVXYL2'          , 1  ,'SVXYL2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVTOL1'         ,163.0   ,''     ,-1     ,''     ,-1     ,'VD_SVTOL1'       , 1   ,'SVTOL1'          , 1  ,'SVTOL1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVTOL2'         ,175.0   ,''     ,-1     ,''     ,-1     ,'VD_SVTOL2'       , 1   ,'SVTOL2'          , 1  ,'SVTOL2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVBNZ1'         ,161.0   ,''     ,-1     ,''     ,-1     ,'VD_SVBNZ1'       , 1   ,'SVBNZ1'          , 1  ,'SVBNZ1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVBNZ2'         ,134.0   ,''     ,-1     ,''     ,-1     ,'VD_SVBNZ2'       , 1   ,'SVBNZ2'          , 1  ,'SVBNZ2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVPAH1'         ,195.6   ,''     ,-1     ,''     ,-1     ,'VD_SVPAH1'       , 1   ,'SVPAH1'          , 1  ,'SVPAH1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVPAH2'         ,178.7   ,''     ,-1     ,''     ,-1     ,'VD_SVPAH2'       , 1   ,'SVPAH2'          , 1  ,'SVPAH2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVTRP1'         ,177.0   ,''     ,-1     ,''     ,-1     ,'VD_SVTRP1'       , 1   ,'SVTRP1'          , 1  ,'SVTRP1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVTRP2'         ,198.0   ,''     ,-1     ,''     ,-1     ,'VD_SVTRP2'       , 1   ,'SVTRP2'          , 1  ,'SVTRP2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO1'         ,132.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO1'       , 1   ,'SVISO1'          , 1  ,'SVISO1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO2'         ,133.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO2'       , 1   ,'SVISO2'          , 1  ,'SVISO2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVSQT'          ,273.0   ,''     ,-1     ,''     ,-1     ,'VD_SVSQT'        , 1   ,'SVSQT'           , 1  ,'SVSQT'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'LVPCSOG'        ,170.0   ,''     ,-1     ,''     ,-1     ,'VD_LVPCSOG'      , 1   ,'ADIPIC_ACID'     , 1  ,'LVPCSOG'      ,''        ,'Yes' ,''    ,''    ,'Yes',
+/

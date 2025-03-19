@@ -1,0 +1,36 @@
+NOA_14
+!nitrooxy-acetone (NOA) photolysis cross sections (298 K) as MCM
+!Data form the MPI-Mainz spectral atlas:
+!http://www.atmosphere.mpg.de/enid/2295
+!Average of:
+!1.  I. Barnes, K.H. Becker, and T. Zhu 
+!J. Atmos. Chem. 17, 353-373 (1993).
+!2.  J.M. Roberts and R.W. Fajer 
+!Environ. Sci. Technol. 23, 945-951 (1989).
+!
+!quantum yields: set to 1.0 as per Suarez-Bertoa et al., Env. Sci. Tech., 
+! Vol. 46,12502-12509, 2012
+!
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+245.0   2.29E-19   1.0 
+250.0   1.47E-19   1.0 
+255.0   1.07E-19   1.0 
+260.0   8.53E-20   1.0 
+265.0   7.63E-20   1.0 
+270.0   7.29E-20   1.0
+275.0   7.02E-20   1.0
+280.0   6.67E-20   1.0
+285.0   6.25E-20   1.0
+290.0   5.83E-20   1.0
+295.0   5.18E-20   1.0
+300.0   4.48E-20   1.0
+305.0   3.61E-20   1.0
+310.0   2.69E-20   1.0
+315.0   1.86E-20   1.0
+320.0   1.31E-20   1.0
+325.0   7.90E-21   1.0
+330.0   4.55E-21   1.0
+335.0   2.20E-21   1.0
+340.0   1.60E-21   1.0

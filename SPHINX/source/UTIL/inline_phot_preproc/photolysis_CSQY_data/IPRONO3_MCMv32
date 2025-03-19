@@ -1,0 +1,67 @@
+IPRONO3_MCMv32
+!2-propyl nitrate T dependent cross-sections ((CH3)2CHONO2)
+!
+!Taken from the MPI-Mainz Spectral Atlas:
+!http://www.atmosphere.mpg.de/enid/2295
+!
+!From IUPAC 2005 recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf//P17_i-C3H7ONO2+hv.pdf
+!
+!Taken from:
+!1.  J. M. Roberts and R. W. Fajer, Environ. Sci. Technol. 23, 945 (1989).
+!2.  M. P. Turberg, D. M. Giolando, C. Tilt, T. Soper, S. Mason, M. Davies, P. Klingensmith,
+!and G. A. Takacs, J. Photochem. Photobiol. A51, 281 (1990).
+!3.  K. C. Clemitshaw, J. Williams, O. V. Rattigan, D. E. Shallcross, K. S. Law, and R. A.
+!Cox, J. Photochem. Photobiol. A: Chemistry 102, 117 (1997).
+!4.  R. K. Talukdar, J. B. Burkholder, M. Hunter, M. K. Giles, J. M. Roberts, and A. R.
+!Ravishankara, J. Chem. Soc. Faraday Trans. 93, 2797 (1997).
+!
+!Quantum Yield
+!
+!There are no data on either the products of photodissociation or the quantum yields. 
+!However, the quantum yields for photodissociation of both ethyl and methyl nitrate to form 
+!NO2 have been shown to be unity at 308 nm and 248 nm, see IUPAC datasheets for these RONO2 species
+!
+!Equation:  ln (sigma (T)) - ln (sigma (298 K)) = B(T-(298))
+!
+!wavelength (nm) sigma (298K) qy B(K-1)
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+185.0 1.79E-17 1.000 -0.009
+188.0 1.81E-17 1.000 -0.009
+190.0 1.79E-17 1.000 -0.009
+195.0 1.61E-17 1.000 -0.009
+200.0 1.26E-17 1.000 -0.009
+205.0 8.67E-18 1.000 -0.009
+210.0 4.98E-18 1.000 -0.009
+215.0 2.47E-18 1.000 -0.009
+220.0 1.25E-18 1.000 -0.009
+225.0 6.20E-19 1.000 -0.009
+230.0 3.40E-19 1.000 -0.009
+235.0 1.80E-19 1.000 -0.009
+240.0 1.10E-19 1.000 0.0028
+245.0 7.00E-20 1.000 0.0027
+250.0 5.40E-20 1.000 0.0025
+255.0 4.90E-20 1.000 0.0025
+260.0 4.60E-20 1.000 0.0026
+265.0 4.30E-20 1.000 0.0028
+270.0 3.90E-20 1.000 0.0031
+275.0 3.40E-20 1.000 0.0033
+280.0 2.80E-20 1.000 0.0036
+285.0 2.20E-20 1.000 0.004
+290.0 1.60E-20 1.000 0.0044
+295.0 1.20E-20 1.000 0.0048
+300.0 7.80E-21 1.000 0.0054
+305.0 5.00E-21 1.000 0.0061
+310.0 2.90E-21 1.000 0.0069
+315.0 1.70E-21 1.000 0.0081
+320.0 8.50E-22 1.000 0.0094
+325.0 4.40E-22 1.000 0.0111
+330.0 2.20E-22 1.000 0.0119
+335.0 1.10E-22 1.000 0.014
+340.0 5.30E-23 1.000 0.0139
+345.0 1.80E-23 1.000 -0.009
+350.0 8.00E-24 1.000 -0.009
+355.0 2.90E-24 1.000 -0.009
+360.0 1.80E-24 1.000 -0.009

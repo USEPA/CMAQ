@@ -1,0 +1,3497 @@
+CHANGES for MCIP
+
+
+MCIP Version 5.5 (19 September 2024)
+
+- Changed constraint on XORIG and YORIG for Lambert conformal projections
+  with user-specified runtime reference latitude. Original constraint of
+  500 meters introduced an error in calculating the location of the
+  lower-left corner (i.e., XORIG and YORIG) in domains with a horizontal
+  grid spacing that is not a multiple of 1 km. Now using a constraint of
+  5 meters to allow for "neater" XORIG and YORIG values across compilers.
+
+  Changed files:  PREP/mcip/src/setgriddefs.f90
+
+
+- Updated WRF option translation for the MCIP metadata for new physics
+  introduced between WRFv4.1 and WRFv4.6.
+
+  Changed files:  PREP/mcip/src/wrfemopts.f90
+
+
+- Removed redundant NF90_OPEN/NF90_CLOSE couplet to improve efficiency.
+
+  Changed files:  PREP/mcip/src/rdwrfem.f90
+
+
+- Updated version stamp.
+
+  Changed files:  PREP/mcip/src/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.4 (12 July 2022)
+
+- Updated version stamp.
+
+  Changed files:  PREP/mcip/src/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.3.3 (30 June 2021)
+
+- Removed reliance on reading F (Coriolis parameter) from WRF output for
+  PV scaling in CMAQ.  Instead, calculate F from latitude.
+
+  Changed files:  mcip5/rdwrfem.f90
+
+
+- Corrected error in logic for processing meteorology data at a time interval
+  that is coarser than the available data in the file.
+
+  Changed files:  mcip5/setgriddefs.f90
+
+
+- Updated description and units for potential vorticity to adhere to
+  constraints on character field in I/O API. Note that units do not conform
+  to MKS, but full explanation is given in the description field.
+
+  Changed files:  mcip5/init_ctm.f90
+
+
+- Corrected minor bug in assigning bounds for XCLAY_PX, as identified in
+  CMAS Center Forum.
+
+  Changed files:  mcip5/metvars2ctm.f90
+
+
+- Changed write statement for MCIP-generated GRIDDESC files to accommodate
+  domains with more than 999 grid cells on a side.
+
+  Changes files:  mcip5/wrgdesc.f90
+
+
+- Updated Makefile to reflect newer options for PGI.
+
+  Changed files:  mcip5/Makefile
+
+
+- Updated version stamp. With this release, the versioning for MCIP will
+  become consistent with the CMAQ system. The version skips from MCIPv5.1
+  to MCIPv5.3.3. (There is no MCIPv5.2 or MCIPv5.3.)
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.1 (25 November 2019)
+
+- Expanded options to allow for surface analysis nudging option 2 (FASDAS),
+  which has been available since WRFv3.8.
+
+  Changed files:  mcip5/blddesc.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Corrected setting for namelist variable file_geo in namelist generation
+  part of the script.
+
+  Changed files:  mcip5/run_mcip.csh
+
+
+- Corrected error in setting the 3D fractional cloud coverage on one of the
+  lateral boundaries.
+
+  Changed files:  mcip5/ctmproc.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.0 (19 June 2019)
+
+- Updated units of output fields to conform to CF compliance.  These units
+  were formerly set in gridout.f90, groutcom_mod.f90, luoutcom_mod.f90,
+  mcoutcom_mod.f90, mdoutcom_mod.f90, metcro.f90, mosoutcom_mod.f90, and
+  soioutcom_mod.f90.  They are now all contained in a new routine.
+
+  New file:       mcip5/init_ctm.f90
+
+
+- Renamed module with land use categories to avoid confusion.
+
+  Changed file:   mcip5/getluse.f90
+
+  New file:       mcip5/lucats_mod.f90
+
+  Deleted file:   mcip5/luvars_mod.f90
+
+
+- Renamed module with netCDF IO routines to broaden usage beyond WRF.
+
+  Changed file:   mcip5/rdwrfem.f90
+                  mcip5/setup_wrfem.f90
+
+  New file:       mcip5/netcdf_io_mod.f90
+
+  Deleted file:   mcip5/wrf_netcdf_mod.f90
+
+
+- Combined elements of MCIP output fields from several modules into a single
+  Fortran module.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/gridout.f90
+                  mcip5/lucro.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soilcro.f90
+
+  New file:       mcip5/ctmvars_mod.f90
+
+  Deleted files:  mcip5/groutcom_mod.f90
+                  mcip5/luoutcom_mod.f90
+                  mcip5/mcoutcom_mod.f90
+                  mcip5/mdoutcom_mod.f90
+                  mcip5/mosoutcom_mod.f90
+                  mcip5/soioutcom_mod.f90
+
+
+- Created a missing value token for MCIP.
+
+  Changed files:  mcip5/gridout.f90
+                  mcip5/init_x.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metcro.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/pblsup.f90
+                  mcip5/resistcalc.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Changed internal data formats for output variables to use data structures.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/ctmvars_mod.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/gridout.f90
+                  mcip5/init_ctm.f90
+                  mcip5/lucro.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soicro.f90
+
+
+- Corrected bug in setting land use category names in MCIP for USGS24 + lakes.
+
+  Changed files:  mcip5/getluse.f90
+                  mcip5/lucats_mod.f90
+
+
+- Enabled hybrid option for vertical coordinate in WRF.  Was already coded, but
+  was commented out.  Changed condition to enable processing for the hybrid
+  vertical coordinate.
+
+  Changed files:  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/rdwrfem.f90
+
+
+- Removed support for MM5v3 input.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/blddesc.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/dealloc_met.f90
+                  mcip5/dealloc_x.f90
+                  mcip5/files_mod.f90
+                  mcip5/getmet.f90
+                  mcip5/gridout.f90
+                  mcip5/groutcom_mod.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/metcro.f90
+                  mcip5/metinfo_mod.f90
+                  mcip5/metvars_mod.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/mcip.f90
+                  mcip5/pblsup.f90
+                  mcip5/rdwrfem.f90
+                  mcip5/readnml.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/setup.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/statflds.f90
+                  mcip5/xvars_mod.f90
+                  mcip5/Makefile
+                  mcip5/run_mcip.csh
+
+  Deleted files:  mcip5/cori.f90
+                  mcip5/getgist.f90
+                  mcip5/getversion.f90
+                  mcip5/mm5v3opts.f90
+                  mcip5/rdmm5v3.f90
+                  mcip5/refstate.f90
+                  mcip5/sat2mcip_mod.f90
+                  mcip5/setup_mm5v3.f90
+                  mcip5/readter.f90
+                  mcip5/vertnhy.f90
+
+
+- Changed fill value for convective rainfall when "no cumulus parameterization"
+  was used from -1 to a large negative number to prevent inadvertent use in
+  CCTM and post-processing.
+
+  Changed files:  mcip5/metvars2ctm.f90
+
+
+- Corrected error in computing precipitation amounts when the tipping bucket
+  is used and less than 0.5 mm of precipitation accumulated during the same
+  hour that the bucket tips; corrects erroneous precipitation spikes.
+  Corrected error in array mapping for precipitation on initial time step in
+  the outermost row and column (dummy cells not used by CMAQ).
+
+  Changed files:  mcip5/rdwrfem.f90
+
+
+- Allowed WRFv4.0+ input to be used.
+
+  Changed file:   mcip5/setup.f90
+
+
+- Modified criteria to determine whether incremental precipitation is available
+  in WRF output.  WRFv4.0 allows header variable PREC_ACC_DT to appear even
+  if the accompanying precipitation fields are not in the output.
+
+  Changed file:   mcip5/setup_wrfem.f90
+
+
+- Moved parsing and processing of output fields on the CCTM grid to routines
+  separated from the output functions.
+
+  Changed files:  mcip5/Makefile
+                  mcip5/gridout.f90
+                  mcip5/mcip.f90
+
+  Deleted files:  mcip5/lucro.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soilcro.f90
+
+  New files:      mcip5/ctmproc.f90
+                  mcip5/gridproc.f90
+                  mcip5/ctmout.f90
+                  mcip5/outcm3io.f90
+                  mcip5/outgm3io.f90
+                  mcip5/outncf.f90
+                  mcip5/outncfglobal.f90
+
+
+- Added flag (IFRCURB) to determine if fraction of urban area is obtained from
+  an urban canopy model in WRF.
+
+  Changed files:  mcip5/gridproc.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Added runtime option to choose output format.
+
+  Changed files:  mcip5/Makefile
+                  mcip5/close_files.f90
+                  mcip5/ctmout.f90
+                  mcip5/files_mod.f90
+                  mcip5/gridout.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+
+  New files:      mcip5/outcm3io.f90
+                  mcip5/outgm3io.f90
+                  mcip5/outglog.f90
+                  mcip5/outclog.f90
+                  mcip5/outncf.f90
+                  mcip5/outncfglobal.f90
+
+
+- Updated to identify physics options from WRFv4.0 and WRFv4.1.
+
+  Changed file:   mcip5/wrfemopts.f90
+
+
+- Removed layer collapsing.
+
+  Changed files:  mcip5/ctmproc.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/Makefile
+                  mcip5/run_mcip.csh
+
+  Deleted files:  mcip5/collapx.f90
+
+
+- Updated metadata descriptions for JACOBF, JACOBM, DENSA_J, and WWIND.
+
+  Changed files:  mcip5/init_ctm.f90
+
+
+- Added 7 new 2D variables to the output if the Pleim-Xiu land-surface model
+  is run in WRFv4.1.  These variables can be used to improve simulation of dust
+  in CCTM.  LAI_PX replaces LAI in the output, and the following 6 variables
+  are added: WSAT_PX, WFC_PX, WWLT_PX, CSAND_PX, FMSAND_PX, and CLAY_PX.
+
+  Added 4 optional 3D variables with Kain-Fritsch convective parameterization
+  scheme with radiative feedbacks on.  These variables can enhance cloud
+  representation in CCTM.  The variables include: QC_CU, QI_CU, CLDFRA_DP, and
+  CLDFRA_SH.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/ctmproc.f90
+                  mcip5/ctmvars_mod.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/dealloc_met.f90
+                  mcip5/dealloc_x.f90
+                  mcip5/init_ctm.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/metvars_mod.f90
+                  mcip5/outcm3io.f90
+                  mcip5/rdwrfem.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/xvars_mod.f90
+
+
+- Modified calculations of the total Jacobian (Jacobian divided by the square
+  of the map scale factors) to eliminate unnecessary multiplication and division
+  by density.
+
+  Changed files:  mcip5/ctmproc.f90
+
+
+- Commensurate with removing support for MM5, changed default 3D winds output
+  to be on the Arakawa-C staggering (like CCTM) instead of on the Arakawa-B
+  staggering.  In METDOT3D, now the default output will be UWINDC and VWINDC
+  instead of UWIND and VWIND.  Instead of allowing UWINDC and VWINDC to be
+  optional via the runtime switch, LUVCOUT, the runtime switch is renamed
+  LUVBOUT, and the optional variables are UWIND and VWIND.  The switch remains
+  "on" by default.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/ctmproc.f90
+                  mcip5/init_ctm.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/run_mcip.csh
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.5 (16 March 2018)
+
+- Corrected error in calculation of dot-point latitude and longitude for polar
+  steroegraphic WRF.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Refined calculation of interval between WRF output times to account for
+  small drifts when advection time steps do not fall exactly on the hour.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setgriddefs.f90
+
+
+- Corrected error in print statement for CLDFRA in the log file.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Corrected error in print statement and comment for Monin-Obukhov length from
+  the Pleim-Xiu land-surface model in WRF.  Print statement and comment
+  erroneously attributed MOL to ACM2 PBL scheme.
+
+  Changed files:  mcip4/pblsup.f90
+                  mcip4/setgriddefs.f90
+
+
+- Updated options for compiling with Intel Fortran by eliminating the need for
+  the IMF library. Reversed the order of loading netcdff and netcdf so
+  the netCDF Fortran library is loaded first for all compilers.
+
+  Changed files:  mcip4/Makefile
+
+
+- Added snow height (SNOWH) to METCRO2D output.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Changed initial value for MET_PCP_INCR from real to integer to align with
+  type specified for the variable.
+
+  Changed files:  mcip4/setup_mm5v3.f90
+
+
+- Removed unused variables.
+
+  Changed files:  mcip4/sat2mcip_mod.f90
+
+
+- Added capability to properly process PURB when the 21-category MODIS land use
+  is used in WRF.  Corrected an internal list for the 21-category MODIS for
+  the lake category.
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/luvars_mod.f90
+
+
+- Created a minumum value for rainfall in order to avoid underflow condition.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Removed superfluous variables METROW and METCOL.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setgriddefs.f90
+
+
+- Added support for hybrid vertical coordinate in WRF output.
+  Disabled the effects on the Jacobian pending additional testing and
+  modifications within CMAQ.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Added coefficient for spectral nudging of moisture to metadata.
+
+  Changed file:   mcip4/blddesc.f90
+
+
+- Changed print statement preceding the printing of metadata in the log file.
+
+  Changed file:   mcip4/mcip.f90
+
+
+- Added capability to read and process data from the NOAH Mosaic land-surface
+  model in WRF via MCIP.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/getluse.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metgrid2ctm.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrf_netcdf_mod.f90
+                  mcip4/wrfemopts.f90
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_mos.f90
+                  mcip4/getpsih.f90
+                  mcip4/moscro.f90
+                  mcip4/mosoutcom_mod.f90
+
+
+- Removed unnecessary variable MAXLUC and replaced it with existing variable
+  NUMMETLU.
+
+  Changed files:  mcip4/alloc_x.f90
+                  mcip4/mcipparm_mod.f90
+
+
+- Created new M3 I/O API output file for data within soil layers.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/comheader.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_soi.f90
+                  mcip4/soicro.f90
+                  mcip4/soioutcom_mod.f90
+
+
+- Created new M3 I/O API output file for fractional land use data.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/mcip.f90
+
+  New files:      mcip4/comheader_lufrac.f90
+                  mcip4/lucro.f90
+                  mcip4/luoutcom_mod.f90
+
+
+- Prevent MCIP from using meteorology initialization time period.
+
+  Changed file:   mcip4/setgriddefs.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.4 (23 June 2017)
+
+- Changed name of run script to "run_mcip.csh" and changed names of MCIP output
+  files referenced in the script to have the extension ".nc" for consistency
+  with other changes in the CMAQ system.
+
+  New file:       mcip4/run_mcip.csh
+
+  Deleted file:   mcip4/run.mcip
+
+
+- Made minor changes related to WRF implementation of MODIS land use with
+  category 21 representing "lake".
+
+  Changed files:  mcip4/rdwrfem.f90
+                  mcip4/resistcalc.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Corrected error in the calculation of 10-m wind speed from WRF simulations.
+  Previous version inadvertently used longitude from center of the domain
+  instead of the reference longitude for the projection.  Should not affect
+  CMAQ simulations because WDIR10 is not used.
+
+  Changed files:  mcip4/pblsup.f90
+
+
+- Refined coding to increase robustness under different compilers.
+
+  Changed files:  mcip4/gridout.f90
+
+
+- Changed reference to WRF variable for fraction of urban area from FRC_URB
+  to FRC_URB2D to be consistent with its usage in WRF.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Updated metadata for new physics options in WRFv3.8, WRFv3.8.1, and WRFv3.9.
+
+  Changed files:  mcip4/wrfemopts.f90
+
+
+- Now determine whether the hybrid vertical coordinate was used in WRF; the
+  option is available as of WRFv3.9.  Currently disable option to use MCIP
+  and CMAQ with hybrid vertical coordinate until additional modifications
+  and testing are performed.
+
+  Changed files:  mcip4/metinfo_mod.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.3 (6 November 2015)
+
+- Updated to accommodate optional lake category in WRF USGS and MODIS land use
+  classifications.  Moved definitions of land use indices from getluse.f90 to
+  setup_wrfem.f90 and setup_mm5v3.f90 because indices for water, ice, lake, and
+  urban are global variables in WRF output header.
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Corrected error-handling for format 9400 and in four places that of the code
+  that would have still worked with the "old" error-handling format.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Removed requirement that fractional land use field (FRC_URB) is part of
+  WRF output when the urban canopy model is used.
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/gridout.f90
+                  mcip4/rdwrfem.f90
+
+
+- Added 3D cloud fraction to METCRO3D output.  This field is only created when
+  3D cloud fraction from WRF is exclusively comprised of resolved cloud.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Updated metadata for new physics options in WRFv3.6, WRFv3.6.1, and WRFv3.7.
+
+  Changed files:  mcip4/wrfemopts.f90
+
+
+- Changed latent heat flux from QFX to LH to be consistent with variable name
+  in WRF and WRF-CMAQ coupled model.  Affects variable name in METCRO2D and
+  all local variable names.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/rdmm5v3.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Recompute Monin-Obukhov length if PX is used in WRF because local MOL
+  in ACM2 on the WRF time step is not actually passed to WRF output.  Makes
+  MOL usage in CMAQ consistent with other on-time-step calculations in WRF.
+  This is done only when the Pleim-Xiu land-surface model is used in WRF.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/const_pbl_mod.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- When Pleim-Xiu land-surface model is used in WRF, realign soil categories
+  so they match WRF documentation and for consistency when used in the dust
+  and bidi models in CMAQ.  (This function has been commented out in MCIPv4.3,
+  and is reserved for future use.)
+
+  Changed files:  mcip4/Makefile
+                  mcip4/rdwrfem.f90
+
+  New file:       mcip4/detangle_soil_px.f90
+
+
+- Changed IF/THEN conditional to remove segmentation fault triggered by some
+  Fortran compilers.
+
+  Changed file:   mcip4/getluse.f90
+
+
+- Changed WRITE statements for printing sampled data to log file to eliminate
+  warning messages.
+
+  Changed files:  mcip4/metcro.f90
+                  mcip4/metdot.f90
+                  mcip4/rdwrfem.f90
+
+
+- Updated suite of debug options associated with various compilers.
+
+  Changed file:   mcip4/Makefile
+
+
+- The following output variables in METCRO2D are now deprecated:
+
+    cloud fraction (CFRAC)
+    cloud top (CLDT)
+    cloud bottom (CLDB)
+    liquid water content (WBAR)
+
+  The default CMAQ no longer uses these fields,  and they will be removed
+  from METCRO2D in the next release of MCIP.
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.2 (23 August 2013)
+
+- Increased maximum number of input files for MCIP in order to handle one
+  year of daily output files at a time.
+
+  Changed files:  mcip4/files_mod.f90
+                  mcip4/run.mcip
+
+
+- Added option to process convective and non-convective precipitation if it
+  is already incremental from WRF.
+
+  Changed files:  mcip4/metinfo_mod.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Added handling for 40-category 2006 NLCD-MODIS land use classification as
+  "NLCD40".  Added alternate name for 50-category 2001 NLCD-MODIS land use
+  classification as "NLCD50".
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/luvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/resistcalc.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Read land-water mask from WRF and use directly for WRF runs that used the
+  Pleim-Xiu land-surface model (rather than reconstructing inside MCIP).  For
+  other LSMs in WRF, the land-water mask is dynamic and ice points toggle from
+  water to land.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/getluse.f90
+                  mcip4/init_met.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/rdwrfem.f90
+
+
+- Updated metadata for new physics options in WRFv3.4.1 and WRFv3.5.
+
+  Changed files:  mcip4/wrfemopts.f90
+
+
+- Updated version stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.1 (11 May 2012)
+
+- Updated code and made minor corrections to handle spectral nudging runs
+  from WRF.
+
+  Changed files:  mcip4/blddesc.f90
+                  mcip4/metinfo_mod.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Force 2-m water vapor mixing ratio from WRF with YSU PBL to be filled with
+  layer 1 QVAPOR to avoid occasional Q2 < 0 in wintertime.
+
+  Changed files:  mcip4/setup_wrfem.f90
+
+
+- Corrected error in tipping bucket precipitation calculation.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Added provision for calculating Monin-Obukhov length when the sensible heat
+  flux is 0.
+
+  Changed files:  mcip4/pblsup.f90
+
+
+- Updated metadata for new physics options in WRFv3.4.
+
+  Changed files:  mcip4/wrfemopts.f90
+
+
+- Corrected alphabetization of files in Makefile.
+
+  Changed files:  mcip4/Makefile
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.0 (9 September 2011)
+
+- Removed option to compute dry deposition velocities in MCIP.  Option is now
+  exclusively available in CMAQ's CCTM.
+
+  Changed files:  mcip4/Makefile
+                  mcip4/dynflds.f90
+                  mcip4/mcip.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/readnml.f90
+                  mcip4/run.mcip
+                  mcip4/setgriddefs.f90
+
+  Removed files:  mcip4/alloc_depv.f90
+                  mcip4/dealloc_depv.f90
+                  mcip4/depvvars_mod.f90
+                  mcip4/hlconst.f90
+                  mcip4/init_depv.f90
+                  mcip4/m3dry.f90
+
+
+- Corrected error in calculating dot point map-scale factors for polar
+  stereographic projections when true latitude is not at the pole.
+
+  Changed files:  mcip4/mapfac_ps.f90
+
+
+- Changed calculation of dot-point and face-point latitude and longitude
+  for polar stereographic projection to interpolation to eliminate the
+  error in the calculation.  The approximation from interpolation is
+  adequate for CMAQ.
+
+  Changed files:  mcip4/rdmm5v3.f90
+                  mcip4/rdwrfem.f90
+
+  Removed file:   mcip4/xy2ll_ps.f90
+
+
+- Improved support for long MCIP runs from long WRF runs.
+
+  Changed files:  mcip4/rdwrfem.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Corrected error in propagating canopy wetness from WRF runs to MCIP
+  output where scaling was over air density rather than water density.
+
+  Changed files:  mcip4/metvars2ctm.f90
+
+
+- Added sea ice to METCRO2D.  Corrected land/water mask so that ice
+  cells are considered water.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/getluse.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdmm5v3.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Added option for precipitation tipping bucket to be used in WRF and
+  processed correctly by MCIP.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/init_met.f90
+                  mcip4/metinfo_mod.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Changed values of output convective precipitation array to negative (i.e.,
+  non-physical) values if a cumulus parameterization scheme was not used in
+  the meteorological model.  Works with a change to the sub-grid cloud scheme
+  in CMAQv5.0.
+
+  Changed files:  mcip4/metvars2ctm.f90
+
+
+- Changed format of print statements to take Intel compiler's recommendations
+  and eliminate warning messages.
+
+  Changed files:  mcip4/blddesc.f90
+                  mcip4/statflds.f90
+
+
+- Updated metadata with options from WRFv3.2 and WRFv3.3.  Added shallow convection
+  option to metadata.
+
+  Changed files:  mcip4/blddesc.f90
+                  mcip4/metinfo_mod.f90
+                  mcip4/mm5v3opts.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrfemopts.f90
+
+
+- Corrected variable type mismatch between double-precision and single-precision
+  real.
+
+  Changed files:  mcip4/ll2xy_lam.f90
+                  mcip4/ll2xy_lam_tan.f90
+
+
+- Replaced Fortran 90 modules parms3_mod.f90, fdesc3_mod.f90, and
+  iodecl3_mod.f90 and dependencies on PARMS3.EXT, FDESC3.EXT, and IODECL3.EXT
+  with I/O API module M3UTILIO.  Also removed I/O API internal parameter
+  checking call to I/O API routine IOPARMS3 in init_io.f90.
+  ** MCIP now has a dependency on I/O API v3.1 or higher.
+
+  Removed files:  mcip4/fdesc3_mod.f90
+                  mcip4/iodecl3_mod.f90
+                  mcip4/parms3_mod.f90
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/close_files.f90
+                  mcip4/comheader.f90
+                  mcip4/gridout.f90
+                  mcip4/init_io.f90
+                  mcip4/init_x.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metdot.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/resistcalc.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/Makefile
+
+
+- Changed name of module FILE to FILES to avoid conflict with F90 protected
+  intrinsic.
+
+  Removed file:   mcip4/file_mod.f90
+
+  New file:       mcip4/files_mod.f90
+
+  Changed files:  mcip4/chkwpshdr.f90
+                  mcip4/chkwrfhdr.f90
+                  mcip4/getgist.f90
+                  mcip4/getversion.f90
+                  mcip4/gridout.f90
+                  mcip4/mcip.f90
+                  mcip4/metcro.f90
+                  mcip4/metdot.f90
+                  mcip4/rdmm5v3.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/readnml.f90
+                  mcip4/readter.f90
+                  mcip4/setup.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrgdesc.f90
+                  mcip4/Makefile
+
+
+- Updated netCDF commands from F77 to F90, and improved error handling.
+
+  Changed files:  mcip4/chkwpshdr.f90
+                  mcip4/chkwrfhdr.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setgriddefs.f90
+                  mcip4/setup.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrf_netcdf_mod.f90
+
+
+- Improved error handling by removing GOTO statements.
+
+  Changed files:  mcip4/collapx.f90
+                  mcip4/getgist.f90
+                  mcip4/getluse.f90
+                  mcip4/getmet.f90
+                  mcip4/getversion.f90
+                  mcip4/gridout.f90
+                  mcip4/layht.f90
+                  mcip4/ll2xy_lam.f90
+                  mcip4/metcro.f90
+                  mcip4/metdot.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdmm5v3.f90
+                  mcip4/readnml.f90
+                  mcip4/readter.f90
+                  mcip4/resistcalc.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/statflds.f90
+
+
+- Consolidated land use definitions and removed unnecessary routines.
+
+  Removed files:  mcip4/alloc_lu.f90
+                  mcip4/dealloc_lu.f90
+                  mcip4/init_lu.f90
+
+  Changed files:  mcip4/luvars_mod.f90
+                  mcip4/mcip.f90
+                  mcip4/Makefile
+
+
+- Changed arguments for subroutine GETH_IDTS in module DATE_PACK so that
+  the character strings are explicitly 19-characters long.
+
+  Changed files:  mcip4/date_pack_mod.f90
+                  mcip4/rdmm5v3.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setup_wrfem.f90
+
+
+- Changed TOL on comparing data sets for MM5.
+
+  Changed files:  mcip4/setup_mm5v3.f90
+
+
+- Updated F77 constructs to F90, and replaced DATA statement declarations
+  with PARAMETER statements.
+
+
+- Changed directory names from MCIP3 to MCIP4 and mcip3 to mcip4 to minimize
+  confusion.
+
+
+- Updated disclaimer at top of codes.
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.5 beta (29 Oct 2009) and Version 3.6 (19 Mar 2010)
+
+- Added user option to define reference latitude for WRF domains with Lambert
+  conformal projection.  This option uses a new namelist variable, and this
+  option is particularly useful when trying to match a WRF domain to an
+  existing MM5 domain (to compare WRF vs. MM5 or to "recycle" emissions
+  surrogates).
+
+  Changed files:  mcip3/mcipparm_mod.f90
+                  mcip3/readnml.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/run.mcip
+
+
+- Corrected calculation of I/O API header variables for WRF polar stereographic
+  projection.
+
+  Changed files:  mcip3/ll2xy_ps.f90
+                  mcip3/setgriddefs.f90
+
+
+- Corrected error in computing wind direction when U-component wind is
+  effectively zero.
+
+  Changed file:   mcip3/wind.f90
+
+
+- Corrected error checking of surface-layer scheme for 2nd and subsequent WRF
+  files.
+
+  Changed files:  mcip3/chkwrfhdr.f90
+
+
+- Corrected error in mapping TKE to DUMARAY1 and vice versa in the layer
+  collapsing prior to outputting cross-point 3-D fields.
+
+  Changed files:  mcip3/metcro.f90
+
+
+- Added Modified IGBP MODIS NOAH and NLCD/MODIS as land-use classification
+  options for WRF.  Changed GRIDCRO2D to print land use category description
+  (e.g., urban, deciduous forest) and classification source when fractional
+  land use categories are available rather than "land use category N".
+
+  New files:      mcip3/alloc_lu.f90
+                  mcip3/dealloc_lu.f90
+                  mcip3/init_lu.f90
+                  mcip3/luvars_mod.f90
+
+  Changed files:  mcip3/alloc_x.f90
+                  mcip3/dealloc_x.f90
+                  mcip3/getluse.f90
+                  mcip3/gridout.f90
+                  mcip3/mcip.f90
+                  mcip3/mcippparm_mod.f90
+                  mcip3/metvars2ctm.f90
+                  mcip3/resistcalc.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setup_wrfem.f90
+                  mcip3/xvars_mod.f90
+                  mcip3/Makefile
+
+
+- Updated code to support changes in WRFv3.1+.
+
+  Changed files:  mcip3/alloc_met.f90
+                  mcip3/blddesc.f90
+                  mcip3/getluse.f90
+                  mcip3/metinfo_mod.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/setup_mm5v3.f90
+                  mcip3/setup_wrfem.f90
+                  mcip3/wrfemopts.f90
+
+
+- Added urban model option to output metadata.
+
+  Changed files:  mcip3/blddesc.f90
+                  mcip3/mm5v3opts.f90
+                  mcip3/wrfemopts.f90
+
+
+- Added condition that vegetation fraction must be greater than zero to be
+  considered a land point in M3Dry.  This works around intermittent
+  inconsistencies in surface fields in some WRF data sets.
+ 
+  Changed files:  mcip3/m3dry.f90
+
+
+- Added option to output 3D field of potential vorticity.
+
+  New files:      mcip3/pvs.f90
+
+  Changed files:  mcip3/alloc_ctm.f90
+                  mcip3/alloc_met.f90
+                  mcip3/alloc_x.f90
+                  mcip3/dealloc_ctm.f90
+                  mcip3/dealloc_met.f90
+                  mcip3/dealloc_x.f90
+                  mcip3/dynflds.f90
+                  mcip3/init_met.f90
+                  mcip3/init_x.f90
+                  mcip3/mcipparm_mod.f90
+                  mcip3/mcoutcom_mod.f90
+                  mcip3/metcro.f90
+                  mcip3/metvars_mod.f90
+                  mcip3/metvars2ctm.f90
+                  mcip3/rdmm5v3.f90
+                  mcip3/readnml.f90
+                  mcip3/xvars_mod.f90
+                  mcip3/Makefile
+                  mcip3/run.mcip
+
+
+- Added map-scale factors squared on cross points so the field does not need
+  to be recalculated each MCIP time step.
+
+  Changed files:  mcip3/alloc_x.f90
+                  mcip3/dealloc_x.f90
+                  mcip3/gridout.f90
+                  mcip3/init_x.f90
+                  mcip3/metcro.f90
+                  mcip3/metgrid2ctm.f90
+                  mcip3/xvars_mod.f90
+
+
+- Improved and generalized gridding routines to include additional flexibility
+  for WRF domains.  Corrected errors in defining dot-point latitudes and
+  longitudes for WRF nests.
+
+  Deleted file:   mcip3/gridgeometry.f90
+
+  New files:      mcip3/cori.f90
+                  mcip3/ll2xy_merc.f90
+                  mcip3/mapfac_lam.f90
+                  mcip3/mapfac_merc.f90
+                  mcip3/mapfac_ps.f90
+                  mcip3/xy2ll_lam.f90
+                  mcip3/xy2ll_merc.f90
+                  mcip3/xy2ll_ps.f90
+
+  Changed files:  mcip3/Makefile
+                  mcip3/ll2xy_lam_sec.f90
+                  mcip3/ll2xy_ps.f90
+                  mcip3/rdmm5v3.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/setup_mm5v3.f90
+                  mcip3/setup_wrfem.f90
+
+
+- Allow output variable PURB to be generated without fractional land use but
+  with the urban model in WRF.
+
+  Changed files:  mcip3/alloc_ctm.f90
+                  mcip3/alloc_x.f90
+                  mcip3/gridout.f90
+                  mcip3/init_x.f90
+
+
+- Remove vertical velocity (predicted by the meteorological model; WWIND) from
+  output by default; retain user option to output 3D field.  Add user option to
+  output u- and v-component winds (UWINDC and VWINDC) on C-staggered grid used
+  by WRF and CMAQ.  (Note:  UWIND and VWIND, which are on the B-staggered grid
+  used by MM5, are still available in METDOT3D by default.)
+
+  Changed files:  mcip3/alloc_ctm.f90
+                  mcip3/dealloc_ctm.f90
+                  mcip3/mcipparm_mod.f90
+                  mcip3/mcoutcom_mod.f90
+                  mcip3/mdoutcom_mod.f90
+                  mcip3/metcro.f90
+                  mcip3/metdot.f90
+                  mcip3/readnml.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/run.mcip
+
+
+- Allow output from WRF Preprocessing System (WPS) routine, GEOGRID, to provide
+  fractional land use output if it is unavailable in WRF output (i.e., use
+  file geogrid_d01 in addition to wrfout).
+
+  New file:       mcip3/chkwpshdr.f90
+
+  Changed files:  mcip3/mcipparm_mod.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/setup_mm5v3.f90
+                  mcip3/setup_wrfem.f90
+                  mcip3/Makefile
+                  mcip3/run.mcip
+
+
+- Changed method for determining whether or not roughness length and fractional
+  land use exist to avoid error condition with netCDF4.
+
+  Changed files:  mcip3/mcipparm_mod.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setup_wrfem.f90
+
+
+- Corrected error in checking WRF observation nudging coefficient for
+  temperature.
+
+  Changed files:  mcip3/chkwrfhdr.f90
+
+
+- Changed representation of Mercator projection from MM5 and WRF in I/O API
+  from "general Mercator" to "equatorial Mercator".
+
+  Changed files:  mcip3/setgriddefs.f90
+                  mcip3/setup_mm5v3.f90
+                  mcip3/setup_wrfem.f90
+
+
+- Changed code to allow leaf area index to be filled when a land-surface model
+  is not used in WRF.
+
+  Changed file:   mcip3/rdwrfem.f90
+
+
+- Changed netCDF Fortran 90 calls to netCDF Fortran 77 calls in satellite
+  routines to improve compatibility with netCDF4 and reduce compiler
+  dependencies on the netCDF Fortran 90 interface.
+
+  Changed file:   mcip3/sat2mcip_mod.f90
+
+
+- Changed some real number comparisons from "equivalences" to "less than
+  tolerances".
+
+  Changed files:  mcip3/m3dry.f90
+                  mcip3/metvars2ctm.f90
+                  mcip3/pblsup.f90
+                  mcip3/rdmm5v3.f90
+                  mcip3/rdwrfem.f90
+
+
+- Corrected typo in netCDF description of roughness length, ZRUF.
+
+  Changed files:  mcip3/mcoutcom_mod.f90
+
+
+- Improved WRF file handling and streamlined netCDF reads from WRF files.
+  Reduced number of times files were opened and closed in netCDF.  Changed
+  all netCDF routines to use Fortran interfaces.
+
+  Changed files:  mcip3/chkwpshdr.f90
+                  mcip3/chkwrfhdr.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/setup.f90
+                  mcip3/setup_wrfem.f90
+                  mcip3/wrf_netcdf_mod.f90
+
+
+- Added metadata summary to MCIP log file.
+
+  Changed files:  mcip3/mcip.f90
+
+
+- Added compiler options for gfortran.
+
+  Changed files:  mcip3/Makefile
+
+
+- Removed unused variables.
+
+  Changed files:  mcip3/chkwpshdr.f90
+                  mcip3/chkwrfhdr.f90
+                  mcip3/dynflds.f90
+                  mcip3/getluse.f90
+                  mcip3/getsdt.f90
+                  mcip3/ll2xy_merc.f90
+                  mcip3/mcip.f90
+                  mcip3/pblsup.f90
+                  mcip3/rdmm5v3.f90
+                  mcip3/rdwrfem.f90
+                  mcip3/readter.f90
+                  mcip3/setgriddefs.f90
+                  mcip3/setup_wrfem.f90
+                  mcip3/sfclayer.f90
+                  mcip3/wrf_netcdf_mod.f90
+
+
+- Changed all Fortran routines from *.F to *.f90 to better conform to
+  standard naming conventions.
+
+  Changed files:  mcip3/Makefile
+                  mcip3/*.f90
+
+
+- Added compiler options for gfortran.
+
+  Changed file:   mcip3/Makefile
+
+
+- Changed directory names from MCIP2 to MCIP3 and mcip2 to mcip3 to minimize
+  confusion.
+
+
+- Updated version stamp.
+
+  Changed files:  mcip3/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.4.1 (4 December 2008)
+
+- Changed setting for YCENT_GD (and, thus, XORIG_GD and YORIG_GD) for WRF
+  for Lambert conformal projection so that the headers will not fail in the
+  Spatial Allocator.  Reference latitude is now set to the average of the
+  true latitudes for the secant Lambert conformal case.  (Still need to test
+  settings for polar stereographic and Mercator for WRF.)
+
+  Changed files:  mcip2/ll2xy_lam.F
+                  mcip2/ll2xy_lam_sec.F
+                  mcip2/setgriddefs.F
+
+
+- Prevent users from having tangent Lambert conformal case until it can be
+  tested with the Spatial Allocator.  (Known problem is that the Spatial
+  Allocator does not work properly when the reference latitude is equal to
+  the first true latitude.  Work-around is to set reference latitude to
+  average of true latitudes for Lambert conformal.  But average of true
+  latitudes for tangent Lambert conformal case is the first true latitude,
+  which will result in the same problem as solution used in MCIPv3.4.)
+
+  Changed files:  mcip2/ll2xy_lam.F
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/mcipparm_mod.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.4 (3 November 2008)
+
+- Corrected the scaling parameter used to estimate the friction velocity over
+  water in surface waters (variable "D3").  Added an exception for elemental
+  mercury deposition to wet soil surfaces as most measurements show evasion
+  from recently wet soil surfaces.  Also added trap for undefined dry
+  deposition velocities (e.g., NaN).
+
+  Changed files:  mcip2/m3dry.F
+
+
+- Added dry deposition velocities for five air toxic species.
+
+  Changed files:  mcip2/hlconst.F
+                  mcip2/init_depv.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+
+
+- Added sample print statements to log file for percentage of urban area and
+  fractional land use when those fields are available.
+
+  Changed files:  mcip2/gridout.F
+
+
+- Changed code to use values for gravitational constant and dry gas constant
+  that are consistent with MM5 system rather than CMAQ system for computing
+  coordinate-based fields.  Removed explicit recalculation of reference
+  P-star and use field directly from MM5 output.
+
+  Changed files:  mcip2/metvars2ctm.F
+                  mcip2/refstate.F
+
+
+- Added preliminary support for urban canopy model in WRF.
+
+  Changed file:  mcip2/alloc_met.F
+                 mcip2/dealloc_met.F
+                 mcip2/getluse.F
+                 mcip2/init_met.F
+                 mcip2/metinfo_mod.F
+                 mcip2/metvars_mod.F
+                 mcip2/rdwrfem.F
+                 mcip2/setup_mm5v3.F
+                 mcip2/setup_wrfem.F
+
+
+- Corrected reading snow cover field for MM5 simulations with snow effects
+  turned off (i.e., IFSNOW=0).
+
+  Changed files:  mcip2/rdmm5v3.F
+
+
+- Changed settings for WRF for XCENT_GD, YCENT_GD, XORIG_GD, and YORIG_GD in
+  GRIDDESC and M3IO headers for Lambert conformal projection so that headers
+  will be compatible with M3IO utility routines LL2LAM and LAM2LL.  Still
+  need to test with polar stereographic and Mercator projections.
+
+  Changed files:  mcip2/setgriddefs.F
+
+  New files:      mcip2/ll2xy_lam.F
+                  mcip2/ll2xy_lam_sec.F
+                  mcip2/ll2xy_lam_tan.F
+                  mcip2/ll2xy_ps.F
+
+
+- Changed read of vegetation fraction for WRF to preferentially use VEGF_PX
+  rather than VEGFRA for Pleim-Xiu land-surface model.
+
+  Changed files:  mcip2/rdwrfem.F
+
+
+- Added processing option to include GOES-East satellite analyses to replace
+  cloud top, cloud bottom, and cloud cover and to add cloud transmissivity for
+  use in photolysis in CMAQ.  Software components contributed by University of
+  Alabama at Huntsville.  Requires additional data sets and preprocessing
+  package available from University of Alabama at Huntsville.
+
+  Changed files:  mcip2/Makefile
+                  mcip2/mcip.F
+                  mcip2/metcro.F
+                  mcip2/readnml.F
+                  mcip2/run.mcip
+                  mcip2/setgriddefs.F
+
+  New file:       mcip2/sat2mcip_mod.F
+
+
+- Added 2-m mixing ratio (Q2) to the METCRO2D output.  Use Q2 directly from
+  MM5 or WRF, if it is available; otherwise use layer-1 QV.  Modified PBLSUP
+  to use Q2 rather than layer-1 QV to diagnose near-surface variables.  Added
+  turbulent kinetic energy (TKE or TKEF) to the METCRO3D output, if it is
+  available from MM5 or WRF.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblsup.F
+                  mcip2/rdmm5v3.F
+                  mcip2/rdwrfem.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+                  mcip2/xvars_mod.F
+
+
+- Allow skin temperature from WRF-based input to be filled by top-layer soil
+  temperature, if skin temperature is unavailable in WRF output.
+
+  Changed files:  mcip2/rdwrfem.F
+
+
+- Expanded tables of roughness length values to include 33 USGS land use
+  categories.  Added error-checking when ZNT is set from the lookup table for
+  WRF.  Corrected season assignment for WRF lookup table for the Southern
+  Hemisphere.
+
+  Changed files:  mcip2/metvars2ctm.F
+                  mcip2/rdwrfem.F
+                  mcip2/resistcalc.F
+
+
+- Added error checking to ensure that WRF files used in an MCIP run are
+  from the same simulation so that incremental precipitation totals are
+  processed correctly.
+
+  Changed files:  mcip2/rdwrfem.F
+
+  New file:       mcip2/chkwrfhdr.F
+
+
+- Updated list of WRF model options used in metadata to reflect changes in
+  WRFv3.
+
+  Changed files:  mcip2/wrfemopts.F
+
+
+- Changed setting for LAI to a fixed value (4.0) if NOAH LSM was used with WRF
+  and if LAI is not found in the meteorology input files.  Check LAI, RA, and
+  RSTOM to ensure that there are non-zero values in the fields, if they exist.
+  If the values of RA and/or RSTOM are all 0.0, reset IFRESIST flag so that
+  they will be calculated later.  If LAI is in output but is 0.0, set LAI
+  to a fixed value (4.0) for NOAH LSM.
+
+  Changed files:  mcip2/metvars2ctm.F
+                  mcip2/rdwrfem.F
+
+
+- Changed criteria for setting number of land use categories from WRF when
+  netCDF dimension "land_cat_stag" does not exist (i.e., when fractional
+  land use is not part of the output).
+
+  Changed files:  mcip2/getluse.F
+                  mcip2/setup_wrfem.F
+                  mcip2/rdwrfem.F
+
+
+- Added nudging coefficients to metadata.
+
+  Changed files:  mcip2/blddesc.F
+                  mcip2/metinfo_mod.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+
+
+- Added earth radius assumed in MCIP to user input and to metadata.
+
+  Changed files:  mcip2/blddesc.F
+                  mcip2/const_mod.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/readnml.F
+                  mcip2/run.mcip
+                  mcip2/gridgeometry.F
+
+- Updated Henry's Law constants for O3, NO3, hexane, octane, nonane, and
+  methanol, and updated isoprene reference following changes made to
+  analogous routine in CMAQ.
+
+  Changed files:  mcip2/hlconst.F
+
+ 
+- Replaced NTHIKD with NTHIK and replaced NBNDYD with NBNDY.  Removed option
+  for NTHIK=0.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/gridout.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/metcro.F
+                  mcip2/setgriddefs.F
+
+
+- Increased maximum number of meteorology input files to 300 to accommodate
+  5-minute input for one day (i.e., 289 files).
+
+  Changed files:  mcip2/file_mod.F
+
+
+- Changed code to explicitly read free-form F90-compliant "include" files
+  from I/O API rather than duplicate their contents.
+
+  Changed files:  mcip2/fdesc3_mod.F
+                  mcip2/iodecl3_mod.F
+                  mcip2/parms3_mod.F
+                  mcip2/Makefile
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/mcipparm_mod.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.3 (1 Aug 2007)
+
+- Added a non-zero mesophyll resistance for NO, NO2, and CO in M3Dry
+  following Pleim et al. (1984).  Restored wet cuticle resistance for
+  O3 based on field study measurements.  Added wet ground resistance.
+  Changed ground resistance to include partitioning of wet and dry ground.
+  Updated pH of rain water for eastern United States and outside of North
+  America.  Changed reactivity for PAN.  Corrected error in the calculation
+  of surface resistance over water where (Sc/Pr)**(2/3) had inadvertently
+  been omitted from the numerator.  Surface resistance over water is now
+  a function of species.  Surface resistance over water now uses wet bulb
+  temperature rather than ground (water) temperature in the calculation of
+  the effective Henry's law constant, and algorithm has been updated.
+  Changed (Sc/Pr)**(2/3) over water to a species-dependent, meteorologically
+  dependent variable.  Effective Henry's law constant over land now uses
+  2-m temperature rather than layer 1 temperature.  Clarified usage of
+  variables that store saturation vapor pressure and humidity.
+
+  Changed files:  mcip2/m3dry.F
+
+
+- Removed dry deposition velocity calculations for obsolete chlorine species
+  ICL1 and ICL2.
+
+  Changed files:  mcip2/init_depv.F
+                  mcip2/m3dry.F
+
+
+- Corrected error in processing incremental precipitation (output fields
+  RN and RC in METCRO2D) for first MCIP output time period when the first
+  WRF output time is not used by MCIP.
+
+  Changed files:  mcip2/rdwrfem.F
+
+
+- Corrected error in calculation of contravariant vertical velocity (output
+  field WHAT_JD in METCRO3D) for non-hydrostatic MM5 simulations where the
+  total surface pressure from the first time period processed by MCIP was used
+  rather than the reference surface pressure.  [Has no impact on CMAQ
+  simulations that use the (default) Yamartino scheme because contravariant
+  vertical velocity is recalculated there.]  Also eliminated calculation of
+  reference surface pressure in METGRID2CTM because it was never referenced
+  before being overwritten with total pressure and it is now captured in
+  REFSTATE.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/refstate.F
+                  mcip2/vertnhy.F
+                  mcip2/xvars_mod.F
+
+
+- Added output fields to support calculating dry deposition velocities
+  inline in the CCTM.  Added option (LDDEP=0) to bypass calculating dry
+  deposition velocities in MCIP.  Added fractional land use to output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/mcip.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+
+
+- Removed obsolescent routines for processing RADM dry deposition velocities,
+  MM5 version 2-formatted data, and recalculating PBL and radiation fields.
+  Changed code so that M3Dry with chlorine and mercury is the only option
+  to compute dry deposition velocities in MCIP.  Removed user options
+  associated with these (former) MCIP functions (i.e., LPBL, LCLD, LRAD,
+  LHYDOUT).  Changed USTAR and RADYN to be 2D arrays without a dimension for
+  fractional land use that was required for RADMdry.  Removed RADMdry variable
+  ISESN.
+
+  Changed files:  mcip2/Makefile
+                  mcip2/run.mcip
+                  mcip2/alloc_depv.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_depv.F
+                  mcip2/depvvars_mod.F
+                  mcip2/dynflds.F
+                  mcip2/getluse.F
+                  mcip2/getmet.F
+                  mcip2/getversion.F
+                  mcip2/init_depv.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/metcro.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblsup.F
+                  mcip2/readnml.F
+                  mcip2/resistcalc.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+                  mcip2/statflds.F
+                  mcip2/xvars_mod.F
+
+  Deleted files:  mcip2/const_mete_mod.F
+                  mcip2/crs2dot.F
+                  mcip2/cvmgp.F
+                  mcip2/cvmgz.F
+                  mcip2/lradmdat_mod.F
+                  mcip2/mdate2hdate.F
+                  mcip2/pblpkg.F
+                  mcip2/pblpwr.F
+                  mcip2/radmdry.F
+                  mcip2/rdmm5.F
+                  mcip2/rdmm5v2.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/sfcflux.F
+                  mcip2/slflux.F
+                  mcip2/solar.F
+                  mcip2/transm.F
+                  mcip2/verthyd.F
+
+
+- Modified calculations to eliminate dependencies on functions CVMGP and CVMGZ.
+
+  Changed files:  mcip2/getpblht.F
+                  mcip2/pblsup.F
+
+
+- Eliminated dependencies on module CONST_METE.
+
+  Changed files:  mcip2/bcldprc_ak.F
+                  mcip2/wind.F
+
+
+- Removed RBNDYI and JACOBS from output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/xvars_mod.F
+
+
+- Removed calculations of low, middle, and high cloud amounts.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/bcldprc_ak.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/xvars_mod.F
+
+
+- Removed calculations of 1.5-m and 10-m temperatures.  Changed 2-m
+  temperature to be output all of the time and to be calculated if it is
+  unavailable in the input meteorology file(s).  Changed 2-m temperature
+  from "XT2" to "XTEMP2".
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/pblsup.F
+                  mcip2/xvars_mod.F
+
+
+- Simplfied calculation of layer-1 specific humidity to optimize code.
+  (Exact same answer.)
+
+  Changed file:   mcip2/pblsup.F
+
+
+- Updated MCIP to account for new method of storing "real" scalars in
+  WRF I/O API with WRFv2.2.
+
+  Changed files:  mcip2/setup_wrfem.F
+                  mcip2/wrf_netcdf_mod.F
+
+
+- Added reads for fractional land use, leaf area index, aerodynamic
+  and stomatal resistances, vegetation fraction, and canopy wetness,
+  if they are available, in WRF.  Allowed for roughness length to be
+  filled from a lookup table if it is not available in WRF output file.
+
+  Changed files:  mcip2/metinfo_mod.F
+                  mcip2/rdwrfem.F
+                  mcip2/setup_wrfem.F
+                  mcip2/wrf_netcdf_mod.F
+
+
+- Removed reads and internal variables for emissivity and net radiation.
+  Changed P-X variables for soil moisture, soil temperature, and soil type
+  to general optional variables associated with IFSOIL.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/rdmm5v3.F
+                  mcip2/rdwrfem.F
+                  mcip2/xvars_mod.F
+
+
+- Refined M3IO description of dominant land use categories to include
+  land use source.
+
+  Changed files:  mcip2/getluse.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/resistcalc.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+                  mcip2/xvars_mod.F
+
+
+- Moved F2 and RSTMIN from metvars2ctm.F to resistcalc.F, and made them
+  local variables.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/metvars2ctm.F
+                  mcip2/resistcalc.F
+                  mcip2/xvars_mod.F
+
+
+- Eliminated logical variable "PX" to make code more general.  Added
+  several flags to indicate whether or not fields are available in input
+  meteorology.  Made changes to accommodate the NOAH LSM.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/init_met.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metinfo_mod.F
+                  mcip2/pblsup.F
+                  mcip2/rdmm5v3.F
+                  mcip2/rdwrfem.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+
+
+- Changed setting of Schmidt number for water to be consistent in code.
+
+  Changed files:  mcip2/resistcalc.F
+
+
+- Corrected setting for number of microphysical species available when
+  warm rain scheme is run in MM5.
+
+  Changed files:  mcip2/setup_mm5v3.F
+
+
+- Corrected sample prints in the log file for a one-cell domain.
+
+  Changed file:   mcip2/setgriddefs.F
+
+
+- Added "IMPLICIT NONE".
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/const_mod.F
+                  mcip2/const_pbl_mod.F
+                  mcip2/coord_mod.F
+                  mcip2/date_time_mod.F
+                  mcip2/depvvars_mod.F
+                  mcip2/fdesc3_mod.F
+                  mcip2/file_mod.F
+                  mcip2/getpblht.F
+                  mcip2/groutcom_mod.F
+                  mcip2/iodecl3_mod.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/mdoutcom_mod.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars_mod.F
+                  mcip2/parms3_mod.F
+                  mcip2/setgriddefs.F
+                  mcip2/vertarys.F
+                  mcip2/vgrd_mod.F
+                  mcip2/xvars_mod.F
+
+
+- Reduced memory use in cloud postprocessing routine.
+
+  Changed files:  mcip2/bcldprc_ak.F
+
+
+- Added metadata to output files to describe MCIP version, input meteorology
+  source, and options used in the meteorology model.
+
+  Changed files:  mcip2/Makefile
+                  mcip2/comheader.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/metinfo_mod.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+                  mcip2/statflds.F
+                  mcip2/vstamp.F
+
+  New files:      mcip2/blddesc.F
+                  mcip2/mm5v3opts.F
+                  mcip2/wrfemopts.F
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/mcipparm_mod.F
+                  mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.2 (20 September 2006)
+
+- Modified I/O API header variable settings for WRF-ARW (WRF-EM) to reflect
+  additional capability to have center of coarse domain located elsewhere
+  than the center of the projection.  (Note that applications of CMAQ with
+  WRF-ARW input will no longer adhere to the "grid family" paradigm for
+  the Models-3 I/O API, and a separate GRIDDESC file will be required for
+  each grid.)
+
+  Changed files:  mcip2/metinfo_mod.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+
+  Deleted file:   mcip2/xxyy.F
+
+
+- For non-PX runs only:  Corrected error in bookkeeping "last wet time" in
+  M3Dry dry deposition when Pleim-Xiu land-surface model is not run.  Also
+  now use ground temperature rather than 2-m air temperature to calculate
+  ground-level relative humidity.  Allow canopy to dry out gradually between
+  2 and 3 hours after "last wet time".
+
+  Changed files:  mcip2/dynflds.F
+                  mcip2/m3dry.F
+
+
+- Corrected checking and setting of I/O API header variables for
+  Mercator and polar stereographic projections.
+
+  Changed files:  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+
+
+- Added restriction that Eta/Ferrier microphysics scheme in WRF-ARW (WRF-EM)
+  is currently incompatible with CMAQ.
+
+  Changed file:   mcip2/setup_wrfem.F
+
+
+- Added capability to fill land-use lookup table fields in MM5v3-formatted
+  data that have been converted from MM5v2 format.
+
+  Changed file:   mcip2/rdmm5v3.F
+
+
+- Corrected filling of vertical velocity array for MM5v2-formatted data.
+
+  Changed file:   mcip2/rdmm5v2.F
+
+
+- Added land-water mask to output in GRIDCRO2D.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_x.F
+                  mcip2/getluse.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/init_x.F
+                  mcip2/xvars_mod.F
+
+
+- Corrected logic for processing MM5's TERRAIN file to account for
+  expanded grid in domain 1.
+
+  Changed file:   mcip2/readter.F
+
+
+- Updated condition for GRIDCRO3D output to reflect new WRF-ARW (WRF-EM)
+  vertical coordinate descriptor for I/O API.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/gridout.F
+
+
+- Optimized calculations of species-specific constants.
+
+  Changed files:  mcip2/alloc_depv.F
+                  mcip2/dealloc_depv.F
+                  mcip2/depvvars_mod.F
+                  mcip2/m3dry.F
+
+
+- Use land-water mask rather than dominant land use array to determine
+  water points.
+
+  Changed files:  mcip2/m3dry.F
+                  mcip2/resistcalc.F
+
+
+- General code clean-up (remove unused variables, moved variables from
+  global modules to local within subroutines, type mismatches, correcting
+  or clarifying comments, etc.).
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/collapx.F
+                  mcip2/const_mete_mod.F
+                  mcip2/const_mod.F
+                  mcip2/dealloc_x.F
+                  mcip2/getluse.F
+                  mcip2/getmet.F
+                  mcip2/gridout.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/layht.F
+                  mcip2/m3dry.F
+                  mcip2/metcro.F
+                  mcip2/metdot.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblpkg.F
+                  mcip2/pblpwr.F
+                  mcip2/resistcalc.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/setup_wrfem.F
+                  mcip2/sfcflux.F
+                  mcip2/sfclayer.F
+                  mcip2/slflux.F
+                  mcip2/solar.F
+                  mcip2/vertnhy.F
+                  mcip2/vertnhy_wrf.F
+                  mcip2/wrf_netcdf_mod.F
+                  mcip2/xvars_mod.F
+
+
+- Added ASCII file that includes calling tree for MCIP.
+
+  New file:       doc/CODE_STRUCTURE
+
+
+- Updated frequently asked questions list.
+
+  Changed file:   doc/FAQ
+
+
+- Updated version stamp.
+
+  Changed file:   mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.1 (27 February 2006)
+
+- Updated calculation of dry deposition velocities for elemental mercury (Hg0)
+  in M3Dry.
+
+  Changed files:  mcip2/alloc_depv.F
+                  mcip2/dealloc_depv.F
+                  mcip2/depvvars_mod.F
+                  mcip2/m3dry.F
+
+
+- Changed tolerances on calculation of grid origin for WRF so that the grid
+  center is not restricted to a cell corner.
+
+  Changed file:   mcip2/setgriddefs.F
+
+
+- Updated code for vertical coordinate definitions for WRF.
+
+  Changed files:  mcip2/parms3_mod.F
+                  mcip2/setgriddefs.F
+
+
+- Corrected setting of I/O API grid definition for Mercator projection.
+
+  Changed file:   mcip2/setgriddefs.F
+
+
+- Updated script to correctly set namelist end string for Mac running
+  XLF compiler.
+
+  Changed file:   mcip2/run.mcip
+
+
+- Removed unused "USE" statement.
+
+  Changed file:   mcip2/dynflds.F
+
+
+- Updated frequently asked questions list.
+
+  Changed file:   doc/FAQ
+
+
+- Updated version stamp.
+
+  Changed file:   mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 3.0 (19 August 2005)
+
+- Added processing of meteorological fields from WRF-EM (i.e., WRF-ARW or NCAR
+  core).
+
+  Changed files:  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/getmet.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcip.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/radmdry.F
+                  mcip2/setgriddefs.F
+                  mcip2/statflds.F
+
+  New files:      mcip2/rdwrfem.F
+                  mcip2/setup.F
+                  mcip2/setup_wrfem.F
+                  mcip2/vertnhy_wrf.F
+                  mcip2/wrf_netcdf_mod.F
+                  mcip2/xxyy.F
+
+  Deleted files:  mcip2/setupmm5.F
+
+
+- Renamed subroutines to make code more general.
+
+  New files:      mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+
+  Deleted files:  mcip2/setupv2.F
+                  mcip2/setupv3.F
+
+
+- Added options to M3Dry for processing dry deposition species for chlorine
+  and mercury.  Moved setup of dry deposition arrays to separate routines.
+  Removed pointers to dry deposition species names.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/dynflds.F
+                  mcip2/hlconst.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcip.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/radmdry.F
+                  mcip2/readnml.F
+                  mcip2/setgriddefs.F
+                  mcip2/xvars_mod.F
+                  mcip2/run.mcip
+
+  New files:      mcip2/alloc_depv.F
+                  mcip2/dealloc_depv.F
+                  mcip2/depvvars_mod.F
+                  mcip2/init_depv.F
+
+
+- Added capability to process and use fractional land use fields from
+  MM5v3, if they are available in separate input file.  Allow fractional
+  land use to be used in RADMDry.  Added optional output field, percent
+  urban area (PURB), to GRIDCRO2D.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/file_mod.F
+                  mcip2/getluse.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/rdmm5v3.F
+                  mcip2/readnml.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/xvars_mod.F
+                  mcip2/run.mcip
+
+  New files:      mcip2/readter.F
+
+
+- Corrected settings for Southern Hemisphere seasons and other calculations
+  for Southern Hemisphere domains.
+
+  Changed files:  mcip2/gridgeometry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/radmdry.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/sfcflux.F
+
+
+- Added option to use all layers from input meteorology as MCIP output
+  without specifying list a priori.
+
+  Changed files:  mcip2/mcipparm_mod.F
+                  mcip2/readnml.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/run.mcip
+
+
+- Added check to ensure settings in I/O API library are consistent with
+  settings in modules in MCIP.  Requires I/O API v3.0.
+
+  Changed files:  mcip2/init_io.F
+
+
+- Changed calculations of 3D transport winds (UHAT_JD, VHAT_JD, and WHAT_JD)
+  and PBL variables to use winds and map-scale factors with fewer interpolation
+  steps to better reflect fields from input meteorology model.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/metdot.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/verthyd.F
+                  mcip2/vertnhy.F
+                  mcip2/xvars_mod.F
+
+
+- Updated calculation of layer heights for non-hydrostatic MM5 to use formulae
+  defined by NCAR for MM5 base state rather than subroutine LAYHT.
+
+  Changed file:   mcip2/refstate.F
+
+
+- Removed GRIDCRO3D for hydrostatic runs.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/gridout.F
+
+
+- Added optimization to extracting fields from input meteorology onto
+  internal MCIP "X" arrays.
+
+  Changed files:  mcip2/getluse.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+
+
+- Several minor adjustments to RADM dry deposition and variable
+  filling, including a provision to prevent negative dry deposition
+  velocities from occurring in output.
+
+  Changed files:  mcip2/radmdry.F
+
+
+- Changed index order on arrays read from meteorology files to be
+  Cartesian (X,Y,Z) with origin at surface and southwest corner
+  rather than use MM5 convention (Y,X,Z) to make code more general.
+  Changed namelist variables I0 and J0 to Y0 and X0, respectively.
+
+  Changed files:  mcip2/alloc_met.F
+                  mcip2/getluse.F
+                  mcip2/gridgeometry.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/readnml.F
+                  mcip2/setgriddefs.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/run.mcip.F
+
+
+- Changed maximum number of meteorology input files from 5 to 100.
+
+  Changed files:  mcip2/file_mod.F
+                  mcip2/readnmlF
+                  mcip2/run.mcip
+
+
+- Updated double-precision declarations to F90 standard.
+
+  Changed files:  mcip2/const_mod.F
+                  mcip2/coord_mod.F
+
+
+- Consolidated extracting state variables from input meteorology
+  onto internal MCIP "X" grid.
+
+  Changed file:   mcip2/metvars2ctm.F
+
+  Deleted file:   mcip2/met3dsup.F
+
+
+- Removed option to use interpolation with rational functions for
+  layer collapsing.
+
+  Changed files:  mcip2/collapx.F
+                  mcip2/gridout.F
+                  mcip2/metcro.F
+                  mcip2/metdot.F
+
+  Deleted file:   mcip2/ratint.F
+
+
+- Made minor correction to calculation of theta-v-star.
+
+  Changed files:  mcip2/pblsup.F
+
+
+- Added option to use 10-m wind components if they are available from
+  input meteorology file to fill output fields for 10-m wind speed
+  and 10-m wind direction.
+
+  Changed files:  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvar2ctm.F
+                  mcip2/pblsup.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+
+
+- Changed variable names to avoid confusion with F90 intrinsic functions.
+
+  Changed files:  mcip2/date_pack_mod.F
+                  mcip2/gridout.F
+                  mcip2/metcro.F
+                  mcip2/metdot.F
+                  mcip2/metvars2ctm.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setup_mm5v2.F
+                  mcip2/setup_mm5v3.F
+                  mcip2/statflds.F
+
+
+- Removed option to interpolate input meteorology fields to finer
+  horizontal grid spacing (in favor of adding code efficiencies).
+  Modified output file names in environment variables by removing
+  "_G1" to reflect this change.
+
+  Changed files:  mcip2/file_mod.F
+                  mcip2/getluse.F
+                  mcip2/gridout.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/metcro.F
+                  mcip2/metdot.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+                  mcip2/readnml.F
+                  mcip2/setgriddefs.F
+                  mcip2/run.mcip
+
+  Deleted files:  mcip2/bilin2d.F
+                  mcip2/bilin3d.F
+
+
+- Removed several unused variables.
+
+  Changed files:  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/file_mod.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/metvars_mod.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/readnml.F
+                  mcip2/refstate.F
+                  mcip2/resistcalc.F
+                  mcip2/setgriddefs.F
+                  mcip2/sfcflux.F
+                  mcip2/slflux.F
+                  mcip2/xvars_mod.F
+
+
+- Updated compiler options for IBM and PGF90.  Added compiler options
+  for Intel.  Removed compiler options for SGI and Sun.
+
+  Changed file:   mcip2/Makefile
+
+
+- Created list of frequently asked questions for user self-help.
+
+  New file:       doc/FAQ
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2.3 (18 August 2004)
+
+- Added processing of hydrometeor field, graupel.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/null_x.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/xvars_mod.F
+
+
+- Added work-around to account for NCAR bug in processing vegetation
+  fraction for the Pleim-Xiu land-surface model.  The bug was introduced
+  in MM5 in MM5v3.5 and was corrected in MM5v3.6.2.
+
+  Changed files:  mcip2/alloc_met.F
+                  mcip2/dealloc_met.F
+                  mcip2/init_met.F
+                  mcip2/m3dry.F
+                  mcip2/metvars_mod.F
+                  mcip2/rdmm5v3.F
+
+
+- Corrected minor formatting bugs in GRIDDESC output file.
+
+  Changed files:  mcip2/wrgdesc.F
+
+
+- Added provision to set minimum PBL heights when Mellor-Yamada (Eta)
+  PBL scheme is used in MM5.
+
+  Changed files:  mcip2/pblsup.F
+
+
+- Restored GRIDBDY2D file to output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/file_mod.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/run.mcip
+
+
+- Added initialization of I/O API.
+
+  Changed files:  mcip2/mcip.F
+                  mcip2/Makefile
+
+  New files:      mcip2/init_io.F
+
+
+- Restored full Jacobian (JACOBF and JACOBS) to output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+
+
+- Added flag to create static output (GRID) files.
+
+  Changed files:  mcip2/file_mod.F
+                  mcip2/mcip.F
+                  mcip2/readnml.F
+                  mcip2/run.mcip
+
+
+- Modified error-checking for restart files to ensure that there
+  is no physical discontinuity.
+
+  Changed files:  mcip2/rdmm5v3.F
+
+
+- Added Henry's Law constants for new species to be consistent with
+  latest version in CMAQ.
+
+  Changed files:  mcip2/hlconst.F
+
+
+- Refined error-checking that prevents users from defining thinner
+  top and/or bottom layers than available in MM5 output.
+
+  Changed files:  mcip2/statflds.F
+
+
+- Removed bookkeeping XFLAGS and associated variables XNAMES and XINDEX
+  including pointers to XINDEX.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/bcldprc_ak.F
+                  mcip2/dealloc_x.F
+                  mcip2/getluse.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/met3dsup.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/radmdry.F
+                  mcip2/refstate.F
+                  mcip2/resistcalc.F
+                  mcip2/solar.F
+                  mcip2/xvars_mod.F
+
+  Deleted files:  mcip2/null_x.F
+
+
+- Eliminated type mismatches flagged by compiler in debug mode by
+  adding interface block for obscure, unused routine.
+
+  Changed files:  mcip2/collapx.F
+
+
+- Eliminated support for NT version of MCIP.
+
+  Deleted files:  mcip2/Makefile.nt
+                  mcip2/run_mcip.bat
+
+
+- Updated modules that support I/O API.
+
+  Changed files:  mcip2/iodecl3_mod.F
+                  mcip2/parms3_mod.F
+
+
+- Changed local array allocation to occur only on initial call to subroutine
+  to avoid memory fragmentation.
+
+  Changed files:  mcip2/bcldprc_ak.F
+                  mcip2/getpblht.F
+                  mcip2/gridout.F
+                  mcip2/met3dsup.F
+                  mcip2/metcro.F
+                  mcip2/metdot.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/radmdry.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/verthyd.F
+
+
+- Corrected header settings for polar stereographic and Mercator projections.
+
+  Changed files:  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setgriddefs.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+
+
+- Modified code so that arrays are made available in output only if user
+  options in MM5 generate those data, e.g., hydrometeor species and variables
+  from the Pleim-Xiu land-surface model.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/setgriddefs.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+
+
+- Limited calculation of wind speed for initial time (in MM5 file) to the
+  cross-point domain.
+
+  Changed files:  mcip2/pblsup.F
+
+
+- Added provision to define PBL height if bulk Richardson number suggests
+  it should be the lowest model layer.
+
+  Changed files:  mcip2/getpblht.F
+
+
+- Modified code to handle MM5's IFSNOW=2 option which creates WEASD instead
+  of SNOWCOVR.
+
+  Changed files:  mcip2/metinfo_mod.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+
+
+- Clean up unused variables.
+
+  Changed files:  mcip2/metinfo_mod.F
+                  mcip2/pblsup.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+                  mcip2/sfclayer.F
+
+
+- Added 10-m wind speed and direction to output.  Changed XWIND10 to
+  XWSPD10.
+
+  Changed files:  mcip2/Makefile
+                  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metinfo_mod.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+                  mcip2/xvars_mod.F
+
+  New files:      mcip2/wind.F
+
+
+- Added explicit calculation of dot-point latitude, longitude, and
+  map-scale factors based on grid geometry.
+
+  Changed files:  mcip2/metinfo_mod.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+
+  New files:      mcip2/gridgeometry.F
+
+
+- Added 2-m temperature (TEMP2) to be passed through from MM5, if
+  it is available there.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/rdmm5v3.F
+                  mcip2/setgriddefs.F
+                  mcip2/setupv2.F
+                  mcip2/setupv3.F
+                  mcip2/xvars_mod.F
+
+
+- Added leaf-area index from the Pleim-Xiu LSM to output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+
+
+- Removed obsolete land-use input options.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/getluse.F
+                  mcip2/lradmdat_mod.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/readnml.F
+                  mcip2/setgriddefs.F
+                  mcip2/xvars_mod.F
+
+  Deleted files:  mcip2/lutrans1.F
+                  mcip2/lutrans2.F
+                  mcip2/lutrans3.F
+                  mcip2/lutrans4.F
+                  mcip2/lutrans5.F
+                  mcip2/lutrans6.F
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2.2  (11 June 2003)
+
+- Improved dry deposition algorithms, particularly for winter cases.
+  In M3DRY, added explicit resistance to snow and ice with dependence
+  on temperature; modified cuticle resistance for NH3 as function of
+  relative humidity; and added wet ground similarly to wet canopy.
+
+  Changed files:  mcip2/m3dry.F
+                  mcip2/radmdry.F
+                  mcip2/Makefile
+                  mcip2/Makefile.nt
+
+  New file:       mcip2/hlconst.F
+
+
+- Added three new dry deposition species:  N2O5, NO3, and generic
+  aldehyde.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/null_x.F
+                  mcip2/radmdry.F
+                  mcip2/xvars_mod.F
+
+
+- Added snow cover field to input and output to support winter dry
+  deposition algorithms.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_met.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_met.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_met.F
+                  mcip2/init_x.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/metvars_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/null_x.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/xvars_mod.F
+
+
+- Changed definition of F2 (for resistance calculations) to be based
+  on land use category to improve resistance calculations for M3DRY
+  when Pleim-Xiu land-surface model is not run.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/metinfo_mod.F
+                  mcip2/metvars2ctm.F
+                  mcip2/null_x.F
+                  mcip2/rdmm5v2.F
+                  mcip2/rdmm5v3.F
+                  mcip2/resistcalc.F
+                  mcip2/xvars_mod.F
+
+
+- Corrected algorithm to calculate W in the PSRATE calculation for
+  hydrostatic vertical velocity.
+
+  Changed files:  mcip2/verthyd.F
+
+
+- Commented out the need for PBL variables on input if they are set
+  to be rediagnosed (for compatibility with MM5v2.6 and prior
+  releases.
+
+  Changed files:  mcip2/rdmm5v2.F
+
+
+- Restricted output vertical structure so that layer collapsing is
+  not used to create a thinner lowest or top layer than input
+  meteorology.
+
+  Changed files:  mcip2/statflds.F
+
+
+- Removed GRIDBDY2D, GRIDBDY3D, and METBDY2D from output.  Removed
+  dry deposition species, ATRA and ATRAP, from output.  Removed
+  several other extraneous variables from output.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/file_mod.F
+                  mcip2/gridout.F
+                  mcip2/groutcom_mod.F
+                  mcip2/init_x.F
+                  mcip2/m3dry.F
+                  mcip2/mcipparm_mod.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/null_x.F
+                  mcip2/radmdry.F
+                  mcip2/run.mcip
+                  mcip2/run_mcip.bat
+                  mcip2/xvars_mod.F
+
+
+- Clarified instructions on setting BTRIM, I0, and J0 in script.  Removed
+  links to GRIDBDY2D, GRIDBDY3D, and METBDY2D.
+
+  Changed files:  mcip2/run.mcip
+                  mcip2/run_mcip.bat
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2.1  (27 March 2003)
+
+- Added calculation of mid-layer density using virtual temperature.
+
+  Changed files:  mcip2/met3dsup.F
+
+
+- Corrected bugs in calculations of UHAT_S and VHAT_T:  added calls to
+  COLLAPX for XUHAT and XVHAT, and fixed algorithm to translate from dot
+  points to square and triangle points (Arakawa B grid to Arakawa C grid).
+  Also changed COLLAPX calls for UHAT_S and VHAT_T to be on winds coupled
+  with density and Jacobian for better mass conservation.
+
+  Changed files:  mcip2/metdot.F
+
+
+- Corrected calculation of WGHT_TOP and WGHT_BOT that is used to get
+  WHAT_JD_C and WHAT_JD_B on full levels.  Removed extraneous calculation
+  of X3MIDL.  Changed calls to COLLAPX to be on Jacobian coupled with
+  density instead of just Jacobian for better mass conservation.  Changed
+  subsequent calculations of output variables based on Jacobian.
+
+  Changed files:  mcip2/metcro.F
+
+
+- Corrected calculation of weights used for vertical interpolation to
+  full levels.  Corrected algorithm to calculate XWHAT from XUHAT and
+  XVHAT.
+
+  Changed files:  mcip2/vertnhy.F
+
+
+- Modified definitions of XORIG_GD and YORIG_GD to minimize real number
+  round-off issues which can cause header mismatches in CMAQ.  Added
+  double precision attributes to variables assigned to I/O API header.
+
+  Changed files:  mcip2/setgriddefs.F
+
+
+- Removed unused variable JDRATE from code and from METCRO3D.
+
+  Changed files:  mcip2/alloc_ctm.F
+                  mcip2/alloc_x.F
+                  mcip2/dealloc_ctm.F
+                  mcip2/dealloc_x.F
+                  mcip2/init_x.F
+                  mcip2/mcoutcom_mod.F
+                  mcip2/metcro.F
+                  mcip2/null_x.F
+                  mcip2/verthyd.F
+                  mcip2/xvars_mod.F
+
+
+- Simplified algorithm to map input meteorology to MCIP_X domain.
+
+  Changed files:  mcip2/lutrans3.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+
+
+- Expanded MCIP_X domain dot-point arrays to (NCOLS_X+1, NROWS_X+1).
+  Changed supporting code to reflect new dimensions.
+
+  Changed files:  mcip2/alloc_x.F
+                  mcip2/met3dsup.F
+                  mcip2/metdot.F
+                  mcip2/metgrid2ctm.F
+                  mcip2/metvars2ctm.F
+                  mcip2/pblpkg.F
+                  mcip2/pblsup.F
+                  mcip2/vertnhy.F
+
+
+- Constrained calculation of non-PBL parameters with user option LRAD
+  in the PBL rediagnosis routine.
+
+  Changed files:  mcip2/pblpkg.F
+
+
+- Updated version stamp.
+
+  Changed files:  mcip2/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2.0  (19 March 2002)
+
+- Added temperature dependence to Henry's Law constants in Models-3
+  dry deposition scheme.  Added temperature and pressure dependence
+  to diffusivity in Models-3 dry deposition scheme.  Changed the
+  reference wet cuticle resistance.
+
+  Changed files:  BLD/m3dry.F
+
+
+- Added dry deposition velocity for new species, methanol.
+
+  Changed files:  BLD/alloc_x.F
+                  BLD/init_x.F
+                  BLD/m3dry.F
+                  BLD/mcipparm_mod.F
+                  BLD/null_x.F
+                  BLD/radmdry.F
+                  BLD/xvars_mod.F
+
+
+- Corrected error in translation between input domain and MCIP "X"
+  domain.  (Error from MCIP Version 1.)  This routine was over-looked
+  in correction of this bug in second beta release.
+
+  Changed files:  BLD/lutrans3.F
+
+
+- Made minor changes to improve portability of code including re-ordering
+  variable declarations and changing file access from Fortran unit numbers
+  to explicit file names.
+
+  Changed files:  run.mcip
+                  BLD/bilin2d.F
+                  BLD/bilin3d.F
+                  BLD/file_mod.F
+                  BLD/getgist.F
+                  BLD/metgrid2ctm.F
+                  BLD/metvars2ctm.F
+                  BLD/rdmm5v2.F
+                  BLD/rdmm5v3.F
+                  BLD/readnml.F
+                  BLD/setupmm5.F
+                  BLD/wrgdesc.F
+
+
+- Added missing explicit variable declarations.
+
+  Changed files:  BLD/resistcalc.F
+
+
+- Allow MM5v2 output from 2000 and beyond to show up correctly in
+  date/time stamps.
+
+  Changed files:  BLD/mdate2hdate.F
+
+
+- Replaced error-exit calls to "abort" and "stop" statments with calls
+  to "m3exit" for graceful shut-down of I/O API files.  Moved SDATE
+  and STIME to new module DATE_TIME.
+
+  Changed files:  BLD/Makefile
+                  BLD/close_files.F
+                  BLD/collapx.F
+                  BLD/crs2dot.F
+                  BLD/dynflds.F
+                  BLD/getgist.F
+                  BLD/getversion.F
+                  BLD/getluse.F
+                  BLD/gridout.F
+                  BLD/layht.F
+                  BLD/lutrans1.F
+                  BLD/lutrans3.F
+                  BLD/lutrans5.F
+                  BLD/lutrans6.F
+                  BLD/mcip.F
+                  BLD/met3dsup.F
+                  BLD/metcro.F
+                  BLD/metdot.F
+                  BLD/metvars2ctm.F
+                  BLD/pblpkg.F
+                  BLD/rdmm5.F
+                  BLD/rdmm5v2.F
+                  BLD/rdmm5v3.F
+                  BLD/readnml.F
+                  BLD/setgriddefs.F
+                  BLD/setupmm5.F
+                  BLD/setupv2.F
+                  BLD/setupv3.F
+                  BLD/sfcflux.F
+
+  New files:      BLD/date_time_mod.F
+                  BLD/graceful_stop.F
+
+  Deleted file:   BLD/errmsg.F
+
+
+- Changed logic to define water points using dominant land use category.
+
+  Changed files:  BLD/m3dry.F
+                  BLD/resistcalc.F
+
+
+- Created script and Makefile for Windows NT.
+
+  New files:      run_mcip.bat
+                  BLD/Makefile.nt
+
+
+- Corrected calculation of PSIM variable.
+
+  Changed files:  BLD/sfclayer.F
+
+
+- Added basic compiler options for Sun, IBM, Linux, and SGI to Makefile.
+
+  Changed files:  BLD/Makefile
+
+
+- Generalized the end-of-namelist delimiter in the script.
+
+  Changed files:  run.mcip
+
+
+- Changed the creation of the GRIDDESC file from a list-directed
+  write to a formatted write to improve portability.
+
+  Changed files:  BLD/wrgdesc.F
+
+
+- Adjusted minimum PBL height to be height of lowest mid-layer rather
+  than height of lowest full layer for PBL pass-through option.
+
+  Changed files:  BLD/getpblht.F
+
+
+- Changed initialization of X-variables from 0.0 to BADVAL3 (a large
+  negative number) and changed missing output variables to BADVAL3
+  to avoid confusion.
+
+  Changed files:  BLD/gridout.F
+                  BLD/init_x.F
+                  BLD/m3dry.F
+                  BLD/metcro.F
+                  BLD/metdot.F
+                  BLD/metvars2ctm.F
+                  BLD/pblsup.F
+                  BLD/radmdry.F
+                  BLD/resistcalc.F
+                  BLD/setupv2.F
+                  BLD/setupv3.F
+
+
+- Removed RIB from output.
+
+  Changed files:  BLD/alloc_ctm.F
+                  BLD/dealloc_ctm.F
+                  BLD/mcoutcom_mod.F
+                  BLD/metcro.F
+
+
+- Corrected text definition of RSTOMI and SURF2 in MC2VDESC.  Corrected units
+  of SURF2 in MC2UNITS.  Changed QICE and QSNOW to QI and QS to be consistent
+  with CCTM.
+
+  Changed files:  BLD/mcoutcom_mod.F
+
+
+- Renamed SURF2 as WIND10, and SURF1 as TEMP1P5.
+
+  Changed files:  BLD/alloc_ctm.F
+                  BLD/alloc_x.F
+                  BLD/dealloc_ctm.F
+                  BLD/dealloc_x.F
+                  BLD/init_x.F
+                  BLD/mcoutcom_mod.F
+                  BLD/metcro.F
+                  BLD/null_x.F
+                  BLD/pblpkg.F
+                  BLD/pblsup.F
+                  BLD/xvars_mod.F
+
+
+- Changed PBL-rediagnosis routine to use constants that are common to the
+  rest of the code.  In some cases, definitions of constants were either
+  made more precise or changed outright to be consistent with other PBL
+  rediagnosis routines.  This affects TEMP10, TEMP1P5, and WIND10 in the
+  PBL rediagnosis options only.
+
+  Changed files:  BLD/pblpwr.F
+
+
+- Corrected bug that persisted cloud base arrays when clouds had dissipated.
+
+  Changed files:  BLD/bcldprc_ak.F
+
+
+- Replace GOTO/CONTINUE section of code with DO loop.
+
+  Changed files:  BLD/sfcflux.F
+
+
+- Removed minimum size for windows.
+
+  Changed files:  run.mcip
+                  BLD/readnml.F
+                  BLD/setgriddefs.F
+
+
+- Added updates to XFLAGS for variables filled in METVARS2CTM.
+
+  Changed files:  BLD/metvars2ctm.F
+
+
+- Corrected upper bound for DO loop.
+
+  Changed files:  BLD/locate.F
+
+
+- Changed file names for Fortran 90 modules from "module_routine_name.F"
+  to "routine_name_mod.F".
+
+  Changed files:  BLD/Makefile (and physical names of all f90 modules)
+
+
+- Updated disclaimer.
+
+  Changed files:  BLD/*.F
+
+
+- Updated version stamp.
+
+  Changed files:  BLD/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2, Beta Release 3  (20 November 2001)
+
+- Corrected setting of XORIG_GD and YORIG_GD which was inadvertently
+  changed in beta release 2.
+
+  Changed files:  BLD/setgriddefs.F
+
+
+- Allow use of MCIP in the absence of input cloud and rain mixing
+  ratios, e.g., from MM5 "warm rain" scheme.
+
+  Changed files:  BLD/rdmm5v2.F
+                  BLD/rdmm5v3.F
+
+
+- Added time stamp for all input time periods read in MM5v2 file.
+
+  Changed files:  BLD/rdmm5v2.F
+
+
+- Removed "sanity" checks.
+
+  Changed files:  Makefile
+                  BLD/gridout.F
+                  BLD/metcro.F
+                  BLD/metdot.F
+
+  Deleted files:  BLD/sanity.F
+
+
+- Updated version stamp.
+
+  Changed files:  BLD/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2, Beta Release 2  (18 October 2001)
+
+- Corrected calculation of RNET in non-P-X applications to include
+  emissivity.  (Note that GLW represents a different quantity for
+  "pass-through" and P-X versions than for recalculation.  Variables
+  RNET and GLW are not used in any downstream processor.)
+
+  Changed files:  BLD/metvars2ctm.F
+
+
+- Added ASCII output file GRIDDESC to contain grid description
+  information.  Added new variable COORDNAM to describe coordinate
+  system used in GRIDDESC.  GRIDDESC will be used by SMOKE and other
+  programs within CMAQ system.
+
+  Changed files:  run.mcip
+                  BLD/Makefile
+                  BLD/mcip.F
+                  BLD/module_coord.F
+                  BLD/module_file.F
+                  BLD/module_mcipparm.F
+                  BLD/readnml.F
+                  BLD/setgriddefs.F
+
+  New files:      BLD/wrgdesc.F
+
+
+- Corrected setting of P_GAM_GD for Lambert conformal maps.  Also
+  set P_ALP_GD, P_BET_GD, and P_GAM_GD based on map projection.
+
+  Changed files:  BLD/setgriddefs.F
+                  BLD/setupv2.F
+                  BLD/setupv3.F
+
+
+- Added capability to process 24-category land use in MM5v2 files.
+
+  Changed files:  BLD/rdmm5v2.F
+
+
+- Corrected precipitation calculation in first hour of second, third,
+  etc., MM5 input files.  Added logic to use multiple output files when
+  MM5 option for splitting output is used in MM5v3.  Added error-checking
+  on header variables for multiple input MM5 files.
+
+  Changed files:  BLD/rdmm5v2.F
+                  BLD/rdmm5v3.F
+
+ 
+- Added windowing capability for the MCIP output sub-domain.  Corrected
+  definition of grid dimensions based on BTRIM, I0, and J0.  Corrected
+  print statement regarding end location of window.
+
+  Changed files:  run.mcip
+                  BLD/readnml.F
+                  BLD/setgriddefs.F
+
+
+- Corrected restriction on variables in MET_CRO_3D related to
+  epsilon.  Added the same restriction to MET_BDY_3D.
+
+  Changed files:  BLD/metcro.F
+
+
+- Corrected error in translation between input domain and MCIP "X"
+  domain.  (Error from MCIP Version 1.)
+
+  Changed files:  BLD/metgrid2ctm.F
+                  BLD/metvars2ctm.F
+
+
+- Updated version stamp.
+
+  Changed files:  BLD/vstamp.F
+
+--------------------------------------------------------------------------------
+
+MCIP Version 2, Beta Release (21 September 2001)
+
+MCIP Version 2 contains the following new features:
+
+ - Entirely re-engineered to be dynamically allocatable.  That is,
+   grid specifications and user options are run-time input rather
+   than compile-time input.  A single MCIP executable can be used
+   for any input MM5 files without re-compiling.  Run-time options
+   are communicated via a Fortran namelist that is set from the
+   run script.
+
+ - Supports both MM5 Version 2 and MM5 Version 3 formatted files.
+   The user does not need to specify the format type.
+
+ - Includes "pass-through" options for PBL and radiation variables.
+
+ - Processes output fields from the Pleim-Xiu land-surface model
+   in MM5.
+
+ - New option for Models-3 (Pleim) dry deposition routine.
+
+ - New 3-D output fields for ice and snow mixing ratios.
+
+ - New dry deposition velocity fields for atrazine (ATRA) and
+   atrazine product (ATRAP).
+
+ - New 2-D output fields for soil moisture, soil temperature, and
+   soil texture when Pleim-Xiu land-surface model is run.
+
+ - Ability to use multiple (e.g., restart) MM5 input files on the
+   same execution of MCIP.
+
+ - Ability to process MCIP at coarser granularity than input MM5.
+   For example, MCIP can generate hourly output if MM5 input is
+   every 30 minutes or 15 minutes.
+
+ - MCIP calculations only occur for time period selected.  (Input
+   files must be read to find correct start time, but processing
+   through MCIP only occurs on times of interest.)
+
+ - Ability to print input and output variables in a user-defined cell.
+
+ - Significant clean-up and re-organization of the code has also
+   occurred.
+
+Because of the extent of the revisions to MCIP, some of the features
+in the current release of MCIP were omitted from MCIP Version 2.  Some
+of these features will be added at a later time if demand warrants it.
+Some of the features in the current release of MCIP that are NOT
+supported in MCIP Version 2 at this time include:
+
+ - Windowing of sub-domains.  (Code is still in place, but has not
+   been formally tested.)  This capability will be available in
+   the next release of the CCTM.  {NOTE: Windowing was added back
+   into MCIP in Beta Release 2.}
+
+ - Input meteorology from existing MCIP files.
+
+ - Creating MCIP output at finer horizontal grid spacing than input.
+
+ - Use of common ".EXT" include files consistent with other CMAQ
+   programs.
+
+ - Use of "cfg" file, "m3bld", and "bldit" script to compile MCIP.
+
+ - Extensive use of environment variables to set user definitions.

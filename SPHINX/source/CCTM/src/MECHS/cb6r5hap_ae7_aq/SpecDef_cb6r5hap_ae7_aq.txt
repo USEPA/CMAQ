@@ -1,0 +1,319 @@
+!#start   YYYYJJJ  010000
+!#end     YYYYJJJ  000000
+#layer         1
+
+/
+! This Species Definition File is for Use with the COMBINE tool built for 
+! post-processing CMAQ output. It is compatible with CMAQv5.2.
+! Date: May 12 2017
+
+! Output variables that begin with 'PM' represent those in which a size cut was 
+! applied based on modeled aerosol mode parameters.  For example, PM25_NA is all 
+! sodium that falls below 2.5 um diameter. These 'PM' variables are used for 
+! comparisons at IMPROVE and CSN sites.
+
+! Output variables that begin with 'PMAMS' represent the mass that would have
+! been detected  by an Aerosol Mass Spectrometer.
+
+! Output variables beginning with 'A' (aside from AIR_DENS) represent a 
+! combination of aerosol species in which no size cut was applied.  For example, 
+! ASO4IJ is the sum of i-mode and j-mode sulfate.  These 'A' variables are used 
+! for comparisons at CASTNet sites.
+
+! Output variables beginning with 'PMC' refer to the coarse fraction of total PM,
+! computed by summing all modes and subtracting the PM2.5 fraction.  These 'PMC'
+! variables are used for comparisons at SEARCH sites.
+
+! This Species Definition File is just for use with the uncoupled, offline CMAQ,
+! model. If you are processing WRF-CMAQ results, a different Species Definition
+! file is required.
+
+/ File [1]: CMAQ conc/aconc file
+/ File [2]: METCRO3D file
+/ File [3]: ELMO/AELMO file
+/ File [4]: METCRO2D file
+/
+/new species    ,units     ,expression
+                                         
+!-------------------------------------------!
+!------------- Meteorology -----------------!
+!-------------------------------------------!
+AIR_DENS        ,kg m-3    ,DENS[2]
+RH              ,%         ,100.00*RH[3]
+SFC_TMP         ,C         ,(TEMP2[4]-273.15)
+PBLH            ,m         ,PBL[4]
+SOL_RAD         ,W m-2     ,RGRND[4]
+precip          ,cm        ,RC[4]>=0 ? RN[4]+RC[4] : RN[4]
+WSPD10          ,m s-1     ,WSPD10[4]
+WDIR10          ,deg       ,WDIR10[4]
+
+!-------------------------------------------!
+!--------------- Gases ---------------------!
+!-------------------------------------------!
+ALD2            ,ppbV      ,1000.0*ALD2[1]
+BENZENE         ,ppbV      ,1000.0*BENZENE[1]
+CO              ,ppbV      ,1000.0*CO[1]
+ETH             ,ppbV      ,1000.0*ETH[1]
+ETHA            ,ppbV      ,1000.0*ETHA[1]
+FORM            ,ppbV      ,1000.0*FORM[1]
+H2O2            ,ppbV      ,1000.0*H2O2[1]
+HNO3            ,ppbV      ,1000.0*HNO3[1]
+HNO3_UGM3       ,ug m-3    ,1000.0*(HNO3[1]*2.1756*DENS[2])
+HONO            ,ppbV      ,1000.0*HONO[1]
+HOX             ,ppbV      ,1000.0*(OH[1]+HO2[1])
+OH	            ,ppbV      ,1000.0*(OH[1])
+ISOP            ,ppbV      ,1000.0*ISOP[1]
+N2O5            ,ppbV      ,1000.0*N2O5[1]
+NH3             ,ppbV      ,1000.0*NH3[1]
+NH3_UGM3        ,ug m-3    ,1000.0*(NH3[1]*0.5880*DENS[2])
+NHX             ,ug m-3    ,1000.0*(NH3[1]*0.5880*DENS[2])+ANH4I[1]+ANH4J[1]+ANH4K[1]
+NO              ,ppbV      ,1000.0*NO[1]
+NO2             ,ppbV      ,1000.0*NO2[1]
+NOX             ,ppbV      ,1000.0*(NO[1] + NO2[1])
+ANO3_PPB	,ppbV      ,(ANO3I[1]+ANO3J[1]+ANO3K[1])/(DENS[2]*(62.0/28.97))
+NTR             ,ppbV      ,1000.0*(NTR1[1]+NTR2[1]+INTR[1])
+PANS            ,ppbV      ,1000.0*(PAN[1]+PANX[1]+OPAN[1])
+NOY             ,ppbV      ,1000.0* (NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1]+HNO3[1]+PNA[1] \
+                                     +CRON[1]+CLNO2[1]+CLNO3[1]) \
+                                     +PANS[0]+NTR[0]+ANO3_PPB[0]
+O3              ,ppbV      ,1000.0*O3[1]
+SO2             ,ppbV      ,1000.0*SO2[1]
+SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
+TERP            ,ppbV      ,1000.0*TERP[1]
+TOL             ,ppbV      ,1000.0*TOL[1]
+XYL             ,ppbV      ,1000.0*XYLMN[1]
+
+!! Additional Global, Regional and Urban Toxic gases
+ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 
+ACRY_NITRILE    ,ug/m3     ,1000.0*(ACRY_NITRILE[1]*1.8329*DENS[2])        
+ALD2_UGM3       ,ug/m3     ,1000.0*(ALD2[1]*1.5188*DENS[2])                
+ALD2_PRIMARY    ,ug/m3     ,1000.0*(ALD2_PRIMARY[1]*1.5188*DENS[2])     
+BENZENE_UGM3    ,ug/m3     ,1000.0*(BENZENE[1]*2.6959*DENS[2])       
+BR2_C2_12       ,ug/m3     ,1000.0*(BR2_C2_12[1]*6.4860*DENS[2])    
+BUTADIENE13     ,ug/m3     ,1000.0*(BUTADIENE13[1]*1.8674*DENS[2]) 
+CHCL3           ,ug/m3     ,1000.0*(CHCL3[1]*4.1215*DENS[2])      
+CL_ETHE         ,ug/m3     ,1000.0*(CL_ETHE[1]*2.1574*DENS[2])   
+CL2             ,ppbV      ,1000.0*CL2[1]                       
+CL2_C2_12       ,ug/m3     ,1000.0*(CL2_C2_12[1]*3.4173*DENS[2])  
+CL2_ME          ,ug/m3     ,1000.0*(CL2_ME[1]*2.9306*DENS[2])    
+CL3_ETHE        ,ug/m3     ,1000.0*(CL3_ETHE[1]*4.5357*DENS[2]) 
+CL4_ETHE        ,ug/m3     ,1000.0*(CL4_ETHE[1]*5.7232*DENS[2])  
+CL4_ETHANE      ,ug/m3     ,1000.0*(CL4_ETHANE[1]*5.7956*DENS[2])  
+CARBONTET       ,ug/m3     ,1000.0*(CARBONTET[1]*5.3089*DENS[2])      
+DICL_BENZENE    ,ug/m3     ,1000.0*(DICL_BENZENE[1]*5.069*DENS[2])  
+DICL_PROPENE    ,ug/m3     ,1000.0*(DICL_PROPENE[1]*3.8316*DENS[2]) 
+ETOH            ,ppbV      ,1000.0*ETOH[1]           
+ETOX            ,ug/m3     ,1000.0*(ETOX[1]*1.5223*DENS[2])  
+FORM_UGM3       ,ug/m3     ,1000.0*(FORM[1]*1.0356*DENS[2])  
+FORM_PRIMARY    ,ug/m3     ,1000.0*(FORM_PRIMARY[1]*1.0356*DENS[2])  
+HCL             ,ppbV      ,1000.0*HCL[1]                           
+HEXMETH_DIS     ,ug/m3     ,1000.0*(HEXMETH_DIS[1]*5.8000*DENS[2]) 
+HYDRAZINE       ,ug/m3     ,1000.0*(HYDRAZINE[1]*3.3793*DENS[2])     
+MEOH            ,ppbV      ,1000.0*MEOH[1]                          
+XYLENE          ,ppbV      ,1000.0*XYLENE[1]                       
+MAL_ANHYDRID    ,ug/m3     ,1000.0*(MAL_ANHYDRID[1]*3.3843*DENS[2])  
+NAPHTHALENE     ,ug/m3     ,1000.0*(NAPHTHALENE[1]*4.4253*DENS[2])   
+PROPY_DICL      ,ug/m3     ,1000.0*(PROPYL_DICL[1]*3.9006*DENS[2])  
+QUINOLINE       ,ug/m3     ,1000.0*(QUINOLINE[1]*4.4598*DENS[2])      
+TOLU            ,ppbV      ,1000.0*TOLU[1]                           
+TOL_DIIS        ,ug/m3     ,1000.0*(TOL_DIIS[1]*6.0069*DENS[2])     
+TRIETHYLAMIN    ,ug/m3     ,1000.0*(TRIETHYLAMIN[1]*3.4986*DENS[2])  
+ACET_NITRILE    ,ug/m3     ,1000.0*(ACET_NITRILE[1]*1.4155*DENS[2])  
+STYRENE         ,ug/m3     ,1000.0*(STYRENE[1]*3.5914*DENS[2])      
+ACRYACID        ,ug/m3     ,1000.0*(ACRYACID[1]*2.4849*DENS[2])    
+HEXANE          ,ug/m3     ,1000.0*(HEXANE[1]*2.9717*DENS[2])     
+METHCHLORIDE    ,ug/m3     ,1000.0*(METHCHLORIDE[1]*1.7410*DENS[2])  
+CARBSULFIDE     ,ug/m3     ,1000.0*(CARBSULFIDE[1]*2.0714*DENS[2])  
+CHLOROPRENE     ,ug/m3     ,1000.0*(CHLOROPRENE[1]*3.0530*DENS[2]) 
+ETHYLBENZENE    ,ug/m3     ,1000.0*(ETHYLBENZENE[1]*3.6610*DENS[2])  
+
+!! Inert PAH tracers
+PAH_000E0       ,ug/m3     ,1000.0*(PAH_000E0[1]*6.4340*DENS[2])
+PAH_176E5       ,ug/m3     ,1000.0*(PAH_176E5[1]*6.8314*DENS[2])
+PAH_880E5       ,ug/m3     ,1000.0*(PAH_880E5[1]*6.8383*DENS[2])
+PAH_176E4       ,ug/m3     ,1000.0*(PAH_176E4[1]*8.7907*DENS[2])
+PAH_176E3       ,ug/m3     ,1000.0*(PAH_176E3[1]*9.6166*DENS[2])
+PAH_192E3       ,ug/m3     ,1000.0*(PAH_192E3[1]*9.2745*DENS[2])
+PAH_101E2       ,ug/m3     ,1000.0*(PAH_101E2[1]*10.4493*DENS[2])
+PAH_176E2       ,ug/m3     ,1000.0*(PAH_176E2[1]*8.8556*DENS[2])
+PAH_114E1       ,ug/m3     ,1000.0*(PAH_114E1[1]*3.3793*DENS[2])
+
+!Mercuric gas species
+HG_0            ,ng/m3     ,1000.0*(HG[1]*8.3330*DENS[2]*1000.0)       
+HG_II           ,ng/m3     ,1000.0*(HGIIGAS[1]*8.3330*DENS[2]*1000.0) 
+
+!! Unused Gases. Presented Here for illustration. Users can uncomment
+!! them if they choose.
+!ALDX            ,ppbV      ,1000.0*ALDX[1]
+!CLNO2           ,ppbV      ,1000.0*CLNO2[1] 
+!IOLE            ,ppbV      ,1000.0*IOLE[1]
+!OLE             ,ppbV      ,1000.0*OLE[1]
+!PAR             ,ppbV      ,1000.0*PAR[1]
+!PAN             ,ppbV      ,1000.0*PAN[1]
+!PANX            ,ppbV      ,1000.0*PANX[1]
+!SULF            ,ppbV      ,1000.0*SULF[1]
+!VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 2.0*ETOH[1]  \
+!                                     +2.0*OLE[1]  + 7.0*TOL[1]  + 8.0*XYLMN[1]+ FORM[1]      \
+!                                     +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
+!                                     +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
+
+
+!-------------------------------------------!
+!--------------- Particles -----------------!
+!-------------------------------------------!
+!! Crustal Elements
+AFEJ            ,ug m-3    ,PMF_FE[3]
+AALJ            ,ug m-3    ,PMF_AL[3]
+ASIJ            ,ug m-3    ,PMF_SI[3]
+ATIJ            ,ug m-3    ,PMF_TI[3]
+ACAJ            ,ug m-3    ,PMF_CA[3]
+AMGJ            ,ug m-3    ,PMF_MG[3]
+AKJ             ,ug m-3    ,PMF_K[3]
+AMNJ            ,ug m-3    ,PMF_MN[3]
+ASOILJ          ,ug m-3    ,PMF_SOILIMPV[3]
+
+!! Non-Crustal Inorganic Particle Species
+AHPLUSIJ        ,umol m-3  ,PMF_HP[3]
+ANAK            ,ug m-3    ,PMC_NA[3]
+AMGK            ,ug m-3    ,PMC_MG[3]
+AKK             ,ug m-3    ,PMC_K[3]
+ACAK            ,ug m-3    ,PMC_CA[3]
+ACLIJ           ,ug m-3    ,PMF_CL[3]
+AECIJ           ,ug m-3    ,PMF_EC[3]
+ANAIJ           ,ug m-3    ,PMF_NA[3]
+ANO3IJ          ,ug m-3    ,PMF_NO3[3]
+ANO3K           ,ug m-3    ,PMC_NO3[3]
+TNO3            ,ug m-3    ,TNO3[3]
+ANH4IJ          ,ug m-3    ,PMF_NH4[3]
+ANH4K           ,ug m-3    ,PMC_NH4[3]
+ASO4IJ          ,ug m-3    ,PMF_SO4[3]
+ASO4K           ,ug m-3    ,PMC_SO4[3]
+
+!! Organic Particle Species
+APOCIJ          ,ugC m-3   ,PMF_POC[3]
+APOMIJ          ,ug m-3    ,PMF_POA[3]
+ASOCIJ          ,ugC m-3   ,PMF_SOC[3]
+ASOMIJ          ,ug m-3    ,PMF_SOA[3]
+AOCIJ           ,ugC m-3   ,PMF_OC[3]
+AOMIJ           ,ug m-3    ,PMF_OA[3]
+
+!!! Anthropogenic-VOC Derived Organic Aerosol
+AORGAIJ         ,ug m-3    ,PMF_ASOA[3]
+
+!!! Biogenic-VOC Derived Organic Aerosol
+AORGBIJ         ,ug m-3    ,PMF_BSOA[3]
+
+!!! Cloud-Processed  SOA
+AORGCJ          ,ug m-3    ,AORGCJ[1]
+
+!!! OM/OC ratios
+AOMOCRAT_TOT    ,          ,PMF_OMOC[3]
+
+!! Total PM Aggregates
+ATOTI           ,ug m-3    ,PMAIT_MASS[3]
+ATOTJ           ,ug m-3    ,PMACC_MASS[3]
+ATOTK           ,ug m-3    ,PMC_MASS[3]
+ATOTIJ          ,ug m-3    ,PMF_MASS[3]
+ATOTIJK         ,ug m-3    ,PM_MASS[3]
+
+!! Unspeciated PM including non-carbon organic mass
+AUNSPEC1IJ      ,ug m-3    ,PMF_UN_IMPV1[3]
+!! Non-Carbon Organic Mass
+ANCOMIJ         ,ug m-3    ,PMF_NCOM[3]
+
+!! Unspeciated PM excluding non-carbon organic mass
+AUNSPEC2IJ      ,ug m-3    ,PMF_UN_IMPV2[3]
+
+!! AMS Projection of Output Concentrations
+PMAMS_CL        ,ug m-3    ,PMAMS_CL[3]
+PMAMS_NH4       ,ug m-3    ,PMAMS_NH4[3]
+PMAMS_NO3       ,ug m-3    ,PMAMS_NO3[3]
+PMAMS_OA        ,ug m-3    ,PMAMS_OA[3]
+PMAMS_SO4       ,ug m-3    ,PMAMS_SO4[3]
+
+!! PM1 Cutoff Output
+PM1_TOT         ,ug m-3    ,PM1[3]
+
+!! Unused PM1 Species. Included Here for demonstration
+!PM1_EC         ,ug m-3    ,PM1_EC[3]
+!PM1_OC         ,ugC m-3   ,PM1_OC[3]
+!PM1_OM         ,ug m-3    ,PM1_OA[3]
+!PM1_SO4        ,ug m-3    ,PM1_SO4[3]
+!PM1_CL         ,ug m-3    ,PM1_CL[3]
+!PM1_NA         ,ug m-3    ,PM1_NA[3]
+!PM1_MG         ,ug m-3    ,PM1_MG[3]
+!PM1_K          ,ug m-3    ,PM1_K[3]
+!PM1_CA         ,ug m-3    ,PM1_CA[3]
+!PM1_NH4        ,ug m-3    ,PM1_NH4[3]
+!PM1_NO3        ,ug m-3    ,PM1_NO3[3]
+!PM1_SOIL       ,ug m-3    ,PM1_SOIL[3]
+!PM1_UNSPEC1    ,ug m-3    ,PM1_UNSP1[3]
+!PM1_UNSPCRS    ,ug m-3    ,PM1_UNSPCRS[3]
+
+!! PM2.5 species computed using modeled size distribution
+PM25_HP         ,ug m-3    ,PM25_HP[3]
+PM25_CL         ,ug m-3    ,PM25_CL[3] 
+PM25_EC         ,ug m-3    ,PM25_EC[3] 
+PM25_NA         ,ug m-3    ,PM25_NA[3] 
+PM25_MG         ,ug m-3    ,PM25_MG[3] 
+PM25_K          ,ug m-3    ,PM25_K[3] 
+PM25_CA         ,ug m-3    ,PM25_CA[3] 
+PM25_NH4        ,ug m-3    ,PM25_NH4[3] 
+PM25_NO3        ,ug m-3    ,PM25_NO3[3] 
+PM25_OC         ,ugC m-3   ,PM25_OC[3] 
+PM25_OM         ,ug m-3    ,PM25_OA[3] 
+PM25_SOIL       ,ug m-3    ,PM25_SOIL[3] 
+PM25_SO4        ,ug m-3    ,PM25_SO4[3] 
+PM25_TOT        ,ug m-3    ,PM25[3] 
+PM25_UNSPEC1    ,ug m-3    ,PM25_UNSP1[3] 
+PM25_UNSPCRS    ,ug m-3    ,PM25_UNSPCRS[3] 
+                           
+
+!! PM10.0 and Coarse-Sized Species
+PM10            ,ug m-3    ,PM10[3]
+
+PMC_CL          ,ug m-3    ,PM25TO10_CL[3]
+PMC_NA          ,ug m-3    ,PM25TO10_NA[3]
+PMC_NH4         ,ug m-3    ,PM25TO10_NH4[3] 
+PMC_NO3         ,ug m-3    ,PM25TO10_NO3[3] 
+PMC_SO4         ,ug m-3    ,PM25TO10_SO4[3] 
+PMC_TOT         ,ug m-3    ,PM25TO10[3] 
+
+!! Deisel PM Species
+DIESEL_PM10     ,ug m-3    ,PM10_HDIESEL[3]
+DIESEL_PM25  	  ,ug m-3    ,PM25_HDIESEL[3]
+ 
+!!Benzo-A-Pyrene, gas and aerosol species
+BAP_GAS          ,ng/m3           ,1000.0*GAS_BENAPY[3], gas phase benzo-a-pyrene
+BAP_AERO         ,ng/m3           ,1000.0*PMF_BENAPY[3], fine aerosol phase benzo-a-pyrene
+BAP_FAERO        ,                ,BENAPY_FAERO[3],      aerosol fraction benzo-a-pyrene
+BAP_PM10         ,ng/m3           ,1000.0*PM10_BENAPY[3]                  
+BAP_PM25         ,ng/m3           ,1000.0*PM25_BENAPY[3]   
+ 
+!Toxic Metallic PM species
+BERYLLIUM_PM10  ,ng m-3    ,1000.0*PM10_HBE[3]
+BERYLLIUM_PM25  ,ng m-3    ,1000.0*PM25_HBE[3]
+CADMIUM_PM10    ,ng m-3    ,1000.0*PM10_HCD[3]
+CADMIUM_PM25    ,ng m-3    ,1000.0*PM25_HCD[3]
+CR_III_PM10     ,ng m-3    ,1000.0*PM10_HCR3[3]
+CR_III_PM25     ,ng m-3    ,1000.0*PM25_HCR3[3]
+CR_VI_PM10      ,ng m-3    ,1000.0*PM10_HCR6[3]
+CR_VI_PM25      ,ng m-3    ,1000.0*PM25_HCR6[3]
+CHROMIUM_PM10   ,ng m-3    ,1000.0*PM10_HCR[3]
+CHROMIUM_PM25   ,ng m-3    ,1000.0*PM25_HCR[3]
+LEAD_PM10       ,ng m-3    ,1000.0*PM10_HPB[3]
+LEAD_PM25       ,ng m-3    ,1000.0*PM25_HPB[3]
+MANGANESE_PM10  ,ng m-3    ,1000.0*PM10_HMN[3]
+MANGANESE_PM25  ,ng m-3    ,1000.0*PM25_HMN[3]
+NICKEL_PM10     ,ng m-3    ,1000.0*PM10_HNI[3]
+NICKEL_PM25     ,ng m-3    ,1000.0*PM25_HNI[3]
+ARSENIC_PM10    ,ng m-3    ,1000.0*PM10_HAS[3]
+ARSENIC_PM25    ,ng m-3    ,1000.0*PM25_HAS[3]
+
+!Mercuric PM species
+HG_PM10         ,ng m-3    ,1000.0*PM10_HG[3]
+HG_PM25         ,ng m-3    ,1000.0*PM25_HG[3]
+ 
+!! FRM PM Equivalent Calculation
+PMIJ_FRM        ,ug m-3    ,PMF_FRM[3]
+PM25_FRM        ,ug m-3    ,PM25_FRM[3]

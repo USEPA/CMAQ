@@ -1,0 +1,74 @@
+C=======================================================================
+C  SPC_SAPRC07.EXT
+C  This include file contains SAPRC07 species and their MW.
+C
+C
+C  Mechanism Name: SAPRC07
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  Ling Huang   06/13/17 - Created for MEGAN3
+C=======================================================================
+
+      CHARACTER*16   SPC_SAPRC07MECH
+      PARAMETER     (SPC_SAPRC07MECH = 'SAPRC07         ')
+
+      INTEGER        N_SAPRC07_SPC
+      PARAMETER     (N_SAPRC07_SPC = 47)
+
+      CHARACTER*16   MECH_SPC_SAPRC07( N_SAPRC07_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_SAPRC07( N_SAPRC07_SPC )  ! Mechanism species molecular weight
+
+! Note conversion between 134 species and SAPRC07 is done by 1:1 mole
+
+
+      DATA  MECH_SPC_SAPRC07(  1), MECH_MWT_SAPRC07(  1) / 'CH4             ', 16.04   /
+      DATA  MECH_SPC_SAPRC07(  2), MECH_MWT_SAPRC07(  2) / 'ALK1            ', 30.07   /
+      DATA  MECH_SPC_SAPRC07(  3), MECH_MWT_SAPRC07(  3) / 'ALK2            ', 36.73   /
+      DATA  MECH_SPC_SAPRC07(  4), MECH_MWT_SAPRC07(  4) / 'ALK3            ', 58.61   /
+      DATA  MECH_SPC_SAPRC07(  5), MECH_MWT_SAPRC07(  5) / 'ALK4            ', 77.60   /
+      DATA  MECH_SPC_SAPRC07(  6), MECH_MWT_SAPRC07(  6) / 'ALK5            ', 118.89  /
+      DATA  MECH_SPC_SAPRC07(  7), MECH_MWT_SAPRC07(  7) / 'ETHE            ', 28.05   /
+      DATA  MECH_SPC_SAPRC07(  8), MECH_MWT_SAPRC07(  8) / 'OLE1            ', 72.34   /
+      DATA  MECH_SPC_SAPRC07(  9), MECH_MWT_SAPRC07(  9) / 'OLE2            ', 75.78   /
+      DATA  MECH_SPC_SAPRC07( 10), MECH_MWT_SAPRC07( 10) / 'ISOP            ', 68.12   /
+      DATA  MECH_SPC_SAPRC07( 11), MECH_MWT_SAPRC07( 11) / 'TERP            ', 136.24  /
+      DATA  MECH_SPC_SAPRC07( 12), MECH_MWT_SAPRC07( 12) / 'BENZ            ', 78.11   /
+      DATA  MECH_SPC_SAPRC07( 13), MECH_MWT_SAPRC07( 13) / 'ARO1            ', 95.16   /
+      DATA  MECH_SPC_SAPRC07( 14), MECH_MWT_SAPRC07( 14) / 'ARO2            ', 118.72  /
+      DATA  MECH_SPC_SAPRC07( 15), MECH_MWT_SAPRC07( 15) / 'ACYE            ', 26.04   /
+      DATA  MECH_SPC_SAPRC07( 16), MECH_MWT_SAPRC07( 16) / 'HCHO            ', 30.03   /
+      DATA  MECH_SPC_SAPRC07( 17), MECH_MWT_SAPRC07( 17) / 'CCHO            ', 44.05   /
+      DATA  MECH_SPC_SAPRC07( 18), MECH_MWT_SAPRC07( 18) / 'RCHO            ', 58.08   /
+      DATA  MECH_SPC_SAPRC07( 19), MECH_MWT_SAPRC07( 19) / 'BALD            ', 106.13  /
+      DATA  MECH_SPC_SAPRC07( 20), MECH_MWT_SAPRC07( 20) / 'ACET            ', 58.08   /
+      DATA  MECH_SPC_SAPRC07( 21), MECH_MWT_SAPRC07( 21) / 'MEK             ', 72.11   /
+      DATA  MECH_SPC_SAPRC07( 22), MECH_MWT_SAPRC07( 22) / 'PRD2            ', 116.16  /
+      DATA  MECH_SPC_SAPRC07( 23), MECH_MWT_SAPRC07( 23) / 'MEOH            ', 32.04   /
+      DATA  MECH_SPC_SAPRC07( 24), MECH_MWT_SAPRC07( 24) / 'FACD            ', 46.03   /
+      DATA  MECH_SPC_SAPRC07( 25), MECH_MWT_SAPRC07( 25) / 'AACD            ', 60.05   /
+      DATA  MECH_SPC_SAPRC07( 26), MECH_MWT_SAPRC07( 26) / 'PACD            ', 74.08   /
+      DATA  MECH_SPC_SAPRC07( 27), MECH_MWT_SAPRC07( 27) / 'GLY             ', 58.04   /
+      DATA  MECH_SPC_SAPRC07( 28), MECH_MWT_SAPRC07( 28) / 'MGLY            ', 72.07   /
+      DATA  MECH_SPC_SAPRC07( 29), MECH_MWT_SAPRC07( 29) / 'BACL            ', 86.09   /
+      DATA  MECH_SPC_SAPRC07( 30), MECH_MWT_SAPRC07( 30) / 'CRES            ', 108.14  /
+      DATA  MECH_SPC_SAPRC07( 31), MECH_MWT_SAPRC07( 31) / 'MACR            ', 70.09   /
+      DATA  MECH_SPC_SAPRC07( 32), MECH_MWT_SAPRC07( 32) / 'MVK             ', 70.09   /
+      DATA  MECH_SPC_SAPRC07( 33), MECH_MWT_SAPRC07( 33) / 'IPRD            ', 70.09   /
+      DATA  MECH_SPC_SAPRC07( 34), MECH_MWT_SAPRC07( 34) / 'RNO3            ', 147.18  /
+      DATA  MECH_SPC_SAPRC07( 35), MECH_MWT_SAPRC07( 35) / 'CO              ', 28.01   /
+      DATA  MECH_SPC_SAPRC07( 36), MECH_MWT_SAPRC07( 36) / 'SESQ            ', 204.36  /
+      DATA  MECH_SPC_SAPRC07( 37), MECH_MWT_SAPRC07( 37) / 'HCN             ', 27.03   /
+      DATA  MECH_SPC_SAPRC07( 38), MECH_MWT_SAPRC07( 38) / 'CH3BR           ', 94.94   /
+      DATA  MECH_SPC_SAPRC07( 39), MECH_MWT_SAPRC07( 39) / 'CH3CL           ', 50.49   /
+      DATA  MECH_SPC_SAPRC07( 40), MECH_MWT_SAPRC07( 40) / 'CH3I            ', 141.94  /
+      DATA  MECH_SPC_SAPRC07( 41), MECH_MWT_SAPRC07( 41) / 'TRS             ', 32.00   /
+      DATA  MECH_SPC_SAPRC07( 42), MECH_MWT_SAPRC07( 42) / 'NO              ', 46.00   /
+      DATA  MECH_SPC_SAPRC07( 43), MECH_MWT_SAPRC07( 43) / 'NH3             ', 17.03   /
+      DATA  MECH_SPC_SAPRC07( 44), MECH_MWT_SAPRC07( 44) / 'N2O             ', 44.01   /
+      DATA  MECH_SPC_SAPRC07( 45), MECH_MWT_SAPRC07( 45) / 'APIN            ', 136.24  /
+      DATA  MECH_SPC_SAPRC07( 46), MECH_MWT_SAPRC07( 46) / 'HCHO_PRIMARY    ', 30.03   /
+      DATA  MECH_SPC_SAPRC07( 47), MECH_MWT_SAPRC07( 47) / 'CCHO_PRIMARY    ', 44.05   /

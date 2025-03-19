@@ -1,0 +1,1156 @@
+Frequently Asked Questions for MCIP
+
+MCIP Version 5.5 (19 September 2024)
+
+What are the changes in this release?
+
+  There are only three changes in this release.
+
+  1. MCIP calculates XORIG and YORIG (projection parameters used by the CMAQ
+     system) from the projection information used by WRF. Because the math
+     calculations can get messy with real and double-precision trigonometry,
+     the solutions are inexact. Prior versions of MCIP used a constraint to
+     round the XORIG and YORIG to multiples of 500 meters. This constraint was
+     introduced several years ago, when most groups were using horizontal grid
+     spacings that were evenly divisible by 1 kilometer.
+
+     This release changes the constraint on XORIG and YORIG to now be in
+     multiples of 5 meters (rather than 500 meters). This change allows domains
+     with horizontal grid spacings like 1.333 km and 4.25 km to be handled
+     correctly. In addition, there is consistency in XORIG and YORIG values
+     across compilers and optimizations.
+
+  2. The WRF physics option tokens were updated for the MCIP metadata to
+     reflect new physics introduced between WRFv4.1 and WRFv4.6.
+
+  3. The routine that reads WRF data was updated to remove a redundant
+     NF90_OPEN/NF90_CLOSE couplet that slightly slowed the MCIP processing.
+
+
+Is there an MCIPv5.4.1?
+
+  No. There were no updates to MCIP in the release of CMAQv5.4.1. MCIP was
+  not updated and remained at MCIPv5.4 for both CMAQv5.4 and CMAQv5.4.1.
+
+
+Do I need to update from MCIPv5.3.3 or MCIPv5.4 to work with CMAQv5.5?
+
+  Not necessarily. If you are starting new runs with CMAQv5.5, and if you do
+  not have MCIP files, then it is recommended that you use MCIPv5.5. However,
+  if you have MCIP files processed already *AND* if you are *not* using a 
+  horizontal grid spacing that is not a multiple of 1 km (e.g., 1.333 km or
+  4.25 km), then you can probably use your older MCIP files.
+
+
+I already pointed out something that needs to be corrected in MCIP, but I
+do not see the update here. What is going on?
+
+  There are a few corrections to MCIP that did not get incorporated into this
+  release due to timelines and competing priorities. They are in the queue for
+  the next release. Thank you for your patience.
+
+
+MCIP crashed, and I don't understand my error. What should I do?
+
+  Clean up the directory with your MCIP executable and compiled object (.o)
+  files by using "make clean". Then recompile with the debug options turned
+  on, ensuring that you have the "traceback" or equivalent directive for
+  your compiler. Then rerun, and you should have a more meaningful error
+  message that may point you to the subroutine and specific line of code
+  that is causing your error.
+
+
+I think there is a bug in MCIP. How can I report it?
+
+  You can use the CMAS Center Forum to report bugs, get help from the
+  community, and communicate with developers. You can use the "MCIP"
+  category (upper-left corner on the Forum) for issues that are strictly
+  related to MCIP. Before opening a new thread on the Forum, please search
+  the Forum to see if the issue has already been raised and addressed. If
+  not, please open a new thread rather than amending an existing thread.
+  https://forum.cmascenter.org 
+
+
+Where can I get more information on the CMAQ system?
+
+  Please visit https://www.epa.gov/cmaq 
+
+
+Where can I get training on how to use the CMAQ system?
+
+  The CMAS Center provides periodic training on the use and utility of the
+  CMAQ system. Please visit https://www.cmascenter.org
+
+
+Do you take user suggestions?
+
+  Yes! Please submit them via the CMAS Center Forum
+  https://forum.cmascenter.org
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 5.4 (12 September 2022)
+
+What are the changes in this release?
+
+  None. MCIPv5.4 has not been updated since the previous release (v5.3.3). Note
+  that, beginning with version v5.3.3, the versioning of MCIP is aligned with
+  the numbering used for CMAQ. Therefore, the MCIP version numbering is
+  updated with the release of CMAQv5.4.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 5.3.3 (16 June 2021)
+
+What are the changes in this release?
+
+  The changes in MCIPv5.3.3 are summarized in the "ReleaseNotes" file and
+  in greater detail in the "CHANGES" file. Note that the versioning is changed
+  with this release to align versions of MCIP with the same numbering used
+  for CMAQ.
+
+
+What happened to MCIP version 5.1?
+
+  MCIP version 5.1 was released with CMAQv5.3, but the FAQ was not updated.
+
+
+What happened to MCIP versions 5.2 and 5.3?
+
+  Those versions do not exist. After MCIPv5.1, we decided to keep the version
+  numbering for MCIP consistent with the CMAQ system to minimize confusion.
+  Accordingly, we skip from MCIPv5.1 to MCIPv5.3.3 in the public releases on
+  GitHub.
+
+
+Do I need to update from MCIPv5.1 to MCIPv5.3.3?
+
+  Maybe. There are very minor changes between these releases, but there are
+  a handful of minor bug fixes that are addressed with this release. Please
+  read the "CHANGES" file to determine if those bugs apply to your work.
+
+
+MCIP crashed, and I don't understand my error. What should I do?
+
+  Clean up the directory with your MCIP executable and compiled object (.o)
+  files by using "make clean". Then recompile with the debug options turned
+  on, ensuring that you have the "traceback" or equivalent directive for
+  your compiler. Then rerun, and you should have a more meaningful error
+  message that may point you to the subroutine and specific line of code
+  that is causing your error.
+
+
+I think there is a bug in MCIP. How can I report it?
+
+  You can use the CMAS Center Forum to report bugs, get help from the
+  community, and communicate with developers. You can use the "MCIP"
+  category (upper-left corner on the Forum) for issues that are strictly
+  related to MCIP. Before opening a new thread on the Forum, please search
+  the Forum to see if the issue has already been raised and addressed. If
+  not, please open a new thread rather than amending an existing thread.
+
+
+Where can I get more information on the CMAQ system?
+
+  Please visit www.epa.gov/cmaq.
+
+
+Where can I get training on how to use the CMAQ system?
+
+  The CMAS Center provides periodic training on the use and utility of the
+  CMAQ system. Please visit www.cmascenter.org.
+
+
+Do you take user suggestions?
+
+  Yes! Please submit them via the CMAS Center Forum.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 5.0 (20 June 2019)
+
+
+What are the changes in MCIPv5.0?
+
+  The changes in MCIPv5.0 are summarized in the "ReleaseNotes" file and in
+  greater detail in the "CHANGES" file.  You will need to use I/O API v3.1
+  or v3.2 with this release, and you will use the netCDF F90 module rather
+  than the netCDF F77 include.
+
+
+Do I need to update to MCIPv5.0?
+
+  It is entirely up to you.  Updating is required if you are using
+  ANY of the following:
+    - CMAQv5.3
+    - WRFv4.0+
+    - WRF with hybrid vertical coordinates
+
+
+Do I need to update my script from MCIPv4.5 to MCIPv5.0?
+
+  Yes.  If you want to use MCIPv5.0, you need to use the new script because the
+  input namelist has changed.
+
+
+Can I use netCDF 4 with MCIP?
+
+  Yes.
+
+
+Will MCIP work on a Mac?
+
+  Yes.  It has been tested with Intel Fortran and gfortran.
+
+
+Can I still use MM5v3 data in MCIPv5.0?
+
+  No.  It was eliminated in MCIPv5.0.
+
+
+Do I need to update to MCIPv5.0 to use CMAQv5.3?
+
+  Yes.
+
+
+If I run the two-way-coupled WRF-CMAQ system (available with CMAQv5.3), do
+I need to run MCIP?
+
+  No.  The functionality of MCIP is handled within the two-way-coupled WRF-CMAQ
+  system in AQPREP.
+
+
+Can I run MCIP on multiple processors?
+
+  No.  MCIP is not a parallel code.  Because there is so much time spent
+  reading and writing data, MCIP probably would be I/O bound and would not
+  scale well across multiple processors.
+
+
+Why do I need I/O API v3.1 or v3.2 for MCIPv5.0?
+
+  The I/O API include files PARMS3.EXT, FDESC3.EXT, and IODECL3.EXT have been
+  encapsulated in the I/O API  module M3UTILIO.  Using this module will
+  reduce user errors that had been associated with changes to I/O API parameters
+  in I/O API but not in the CMAQ system codes themselves.  It helps protect
+  users like you!
+
+
+Why do I need to use the netCDF F90 module instead of including the netCDF
+F77 include file?
+
+  MCIP relies on the F90 netCDF functions and routines rather than the
+  F77 versions.  Reading netCDF files under F90 is greatly simplified.
+
+
+How can I find out what model/version/options/MCIP I used for my MCIP output?
+
+  Check out the metadata that is included in the I/O API headers of MCIP output
+  files.  Use the command "ncdump -h <file>", and see the character field
+  FILEDESC that is part of the I/O API header (near the end).  That field has
+  been filled for MCIP since MCIPv3.3.  It is best viewed on a terminal of
+  80-character width.  It is also echoed at the end of the MCIP log file.
+
+
+I'm publishing a paper and I want to cite MCIP.  What reference should I use?
+
+  In general, the citable reference for MCIP is Otte and Pleim (2010):
+
+  Otte, T. L., and J. E. Pleim, 2010.  The Meteorology-Chemistry Interface
+     Processor (MCIP) for the CMAQ modeling system: updates through
+     MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
+
+  A DOI will also be available for CMAQv5.3 (which includes MCIPv5.0).
+
+
+Can I use the netCDF MCIP output with the rest of the CMAQ system?
+
+  Not yet.  However, you can visualize the file in Verdi 2.0 and use various
+  netCDF tools to manipulate the file.
+
+
+MCIP is not compiling properly.  Can you help?
+
+  MCIP must be compiled to include the netCDF Fortran 90 module, as well as
+  the I/O API library.  All three of these elements (MCIP, netCDF, and I/O API)
+  *MUST* be compiled with the same Fortran compiler.  That is, you cannot mix
+  and match libraries compiled with gfortran with source code compiled with
+  the Intel compiler.
+
+  The three elements must be compiled sequentially so that the same versions
+  of the libraries are used consistently.  Build netCDF first, then include
+  that version of netCDF into the compile of I/O API, then use both to build
+  MCIP.
+
+  MCIP is not a parallel code; it only runs on a single processor.  Errors in
+  the compile that are related to "mpi" mean there is a mismatch in the version
+  of the Fortran compiler used among netCDF, I/O API, and MCIP.
+
+
+Where can I get help on MCIP-related issues?
+
+  The CMAS Center hosts an online Forum to address issues related to software
+  in the CMAQ system.  The MCIP Category is dedicated to MCIP-related issues,
+  and it can be found at:  https://forum.cmascenter.org/c/mcip.
+
+  Before creating a new Topic (thread) in the MCIP Category, users are strongly
+  encouraged to search previous entries to determine if other users have
+  reported similar issues, and if a solution has been posted.
+
+  Prior to the launch of the Forum, users submitted discussion through the
+  listserv "m3user".  That listserv is deprecated in favor of the Forum.
+  However, discussions in "m3user" can be accessed and searched from the
+  archive at https://lists.unc.edu/read/?forum=m3user.
+
+
+Do you take user suggestions?
+
+  All user suggestions are considered, but not all are accepted.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 4.0 (9 September 2011)
+
+
+What are the changes in MCIPv4.0?
+
+  The changes in MCIPv4.0 are summarized in the "ReleaseNotes" file and in
+  greater detail in the "CHANGES" file.  You will need to use I/O API v3.1
+  with this release, and you will use the netCDF F90 module rather than the
+  netCDF F77 include.
+
+
+Do I need to update to MCIPv4.0?
+
+  It is entirely up to you.  Updating is strongly recommended if you are using
+  ANY of the following:
+    - WRF
+    - polar stereographic projection
+    - horizontal grid spacing of 8 km or smaller
+    - new option for albedo in CMAQv5.0 that depends on sea ice array
+
+
+Do I need to update my script from MCIPv3.6 to MCIPv4.0?
+
+  If you want to use MCIPv4.0, you need to use the new script because the
+  input namelist has changed.  There have also been some minor bug fixes in the
+  script.
+
+
+Can I use netCDF 4 with MCIP?
+
+  Yes.
+
+
+Will MCIP work on a Mac?
+
+  Yes.  It has been tested with Intel Fortran and gfortran.
+
+
+Can I still use MM5v3 data in MCIPv4.0?
+
+  Yes.
+
+
+Do I need to update to MCIPv4.0 to use CMAQv5.0?
+
+  Probably not, but it's a good idea.  See comments about v4.0 update, above.
+
+
+If I run the two-way-coupled WRF-CMAQ system (available with CMAQv5.0), do
+I need to run MCIP?
+
+  No.  The functionality of MCIP is handled within the two-way-coupled WRF-CMAQ
+  system in AQPREP.
+
+
+Why do I need I/O API v3.1 for MCIPv4.0?
+
+  The I/O API include files PARMS3.EXT, FDESC3.EXT, and IODECL3.EXT have been
+  encapsulated in the I/O API v3.1 module M3UTILIO.  Using this module will
+  reduce user errors that had been associated with changes to I/O API parameters
+  in I/O API but not in the CMAQ system codes themselves.  It helps protect
+  users like you!
+
+
+Why do I need to use the netCDF F90 module instead of including the netCDF
+F77 include file?
+
+  MCIP now relies on the F90 netCDF functions and routines rather than the
+  F77 versions.  Reading netCDF files under F90 is greatly simplified.
+
+
+Why did you change all of the error handling?
+
+  The error messages from netCDF-related errors have been made more explicit
+  to parrot back the text version of the error rather than the integer error
+  code.  In addition, removing line numbers was part of compliance with the
+  Fortran 2003 standard.
+
+
+How can I find out what model/version/options/MCIP I used for my MCIP output?
+
+  Check out the metadata that is included in the I/O API headers of MCIP output
+  files.  Use the command "ncdump -h <file>", and see the character field
+  FILEDESC that is part of the I/O API header (near the end).  That field has
+  been filled for MCIP since MCIPv3.3.  It is best viewed on a terminal of
+  80-character width.  It is also echoed at the end of the MCIP log file.
+
+
+Do you take user suggestions?
+
+  All user suggestions are considered, but not all are accepted.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.6 (19 March 2010) and Version 3.5 (29 October 2009)
+
+
+What are the changes in MCIPv3.6?
+
+The changes in MCIPv3.6 are listed briefly in the "ReleaseNotes" file and in
+greater detail in the "CHANGES" file.  Please pay particular attention to the
+NOTEs in the "ReleaseNotes" file because they describe some of the future
+changes that are anticipated for MCIP.
+
+
+Do I need to update to MCIPv3.6?
+
+It is entirely up to you.  If you are using WRFv3.1+, then updating to the
+new release of MCIP is strongly encouraged.  Also, if you are using WRF
+nests or a projection in WRF other than Lambert conformal, then you should
+use the latest code.
+
+
+Do I need to update my script from MCIPv3.4 to MCIPv3.6?
+
+There are some new user options related to toggling on/off output fields and
+for choosing a reference latitude for WRF Lambert conformal grids.  If those
+changes do not interest you, then you probably are OK with your previous
+script.  Those new user options will just be assigned default values if you
+choose not to set them via the script/namelist.
+
+
+Can I use netCDF 4 with MCIP?
+
+It appears to be working with the version of I/O API 3 that was updated
+28 October 2009.
+
+
+I'm using MM5 fields.  Did anything change that affects my runs?
+
+Not in any appreciable way, unless you want to take advantage of the additional
+choices related to output fields.  You may see small changes in rotated wind
+direction under very unique circumstances.
+
+
+Why did you make the C-staggered latitude, longitude, and map-scale factors
+show up in GRIDDOT2D for my MM5 runs when MM5 uses the B-staggered grid?
+
+Six 2D fields is a small price to pay.
+
+
+Can anything in CMAQ use the new, optional u- and v-component wind fields yet?
+
+Changes to CMAQv4.7.1 are expected in eddyx.F and edyintb.F.
+
+
+Do I need to output the u- and v-component winds on the C-staggered grid if
+I'm using MM5?
+
+No.
+
+
+Why do you need two sets of wind components right now?
+
+If you choose to output the C-staggered winds for your WRF domain, the
+B-staggered winds are still needed for plume rise.  An update to use the
+C-staggered winds has not been reconciled in SMOKE or in the meteorologically
+dependent portion of the plume rise that has been included in CMAQ.
+
+
+Can anything in CMAQ use the new, optional potential vorticity field yet?
+
+Not in the released code.
+
+
+Does anything in CMAQ use the vertical velocity field predicted by the
+meteorological model (i.e., what happens if I turn it off)?
+
+Nothing in CMAQ uses WWIND.  Your METCRO3D files will be smaller if you
+turn off WWIND.
+
+
+What extra fields do I need to turn on in the "wrfout" (history) file with
+the WRF Registry?
+
+MCIPv3.6 can make use of the following fields if they are available in the
+WRF output (and these fields are NOT part of the WRF output by default in
+WRFv3.1):  fractional land use (LANDUSEF), aerodynamic resistance (RA),
+stomatal resistance (RS), vegetation fraction in the Pleim-Xiu LSM (VEGF_PX),
+roughness length (ZNT), and inverse Monin-Obukhov length (RMOL). 
+
+
+I already have LANDUSEF in my "wrfout" (history) files.  Do I need to also
+supply the GEOGRID file?
+
+No.  The GEOGRID is a backup in case the user forgot to add LANDUSEF to the
+WRF history file via the WRF Registry.  (This is handy for groups that are
+collaborating on meteorological and air quality simulations, where the WRF
+simulations have already been conducted.)
+
+
+Do I have to use the Pleim-Xiu land-surface model in MM5/WRF to run MCIP?
+
+No.  Some of the MCIP/CMAQ physics probably work better with the Pleim-Xiu (PX)
+LSM than other land-surface models, but changes have been made to improve
+the use of MCIP and CMAQ for other LSMs.  One thing to note is that the
+mixing within the planetary boudnary layer (PBL) can be more consistent
+between MM5/WRF and CMAQ if the Asymmetric Convective Model version 2 (ACM2),
+which is commonly used with the PX LSM, is used in MM5/WRF.
+
+
+Why is there a variable to specify the reference latitude for the WRF Lambert
+conformal simulations?
+
+The notion of a "center latitude" (which is required in the I/O API used by
+CMAQ) is not available in the WRF output.  There is additional flexibility in
+how one can define simulation domains in WRF beyond what was available in MM5.
+Just going on what's available in the WRF output headers, it is impossible to
+"reconstruct" an existing MM5 domain that covers the same area under certain
+circumstances.  Several users have inquired about matching MM5 and WRF domains
+and getting the I/O API headers consistent.  (There are multiple ways of using
+the fields in the I/O API headers to represent the same domains.)  Thus, the
+option for users to hand-pick the center (or reference) latitude was created
+in MCIP.  Several users had access to this change in an unreleased code,
+MCIPv3.4.1.1, which was initially made available in December 2008.  This
+change is formally released as part of MCIPv3.6.
+
+
+How can I find out what model/version/options/MCIP I used for my MCIP output?
+
+Check out the metadata that is included in the I/O API headers of MCIP output
+files.  Use the command "ncdump -h <file>", and see the character field
+FILEDESC that is part of the I/O API header (near the end).  That field has
+been filled for MCIP since MCIPv3.3.  It is best viewed on a terminal of
+80-character width.  It is also echoed at the end of the MCIP log file.
+
+
+How can I visualize Mercator output from MCIP?  It's not working in PAVE or
+IDV,
+
+You can try VERDI, IDL, R, or GoogleEarth.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.4.1 (4 December 2008)
+
+
+What are the changes in MCIPv3.4.1?
+
+The changes in MCIPv3.4.1 are listed briefly in the "ReleaseNotes" file and in
+greater detail in the "CHANGES" file.  Please pay particular attention to the
+NOTEs in the "ReleaseNotes" file because they describe some of the future
+changes that are anticipated for MCIP.
+
+
+What was the problem with the Spatial Allocator that caused the change to
+GRIDDESC for WRF Lambert conformal between MCIPv3.4 and MCIPv3.4.1?
+
+In MCIPv3.4, the reference latitude for the GRIDDESC and the I/O API headers
+was selected arbitrarily (but conveniently) to be the first true latitude for
+Lambert conformal projections.  In the Spatial Allocator, the GIS utility
+routine, PROJ4, gives the wrong result when the reference latitude is equal
+to the first true latitude; the details have not been thoroughly investigated.
+However, to work around this issue, the reference latitude for Lambert conformal
+was arbitrarily changed to the average of the true latitudes, and the tangent
+Lambert conformal case (which would have the average of the true latitudes
+equal to the true latitudes...because there is just one) was temporarily
+prevented in MCIP.
+
+
+Why can't you just stop changing the GRIDDESC file???
+
+If there were an easy solution to map the WRF headers into the CMAQ
+system via the I/O API, we would have done it already!  (Thanks for your
+patience.)
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.4 (4 November 2008)
+
+
+What are the changes in MCIPv3.4?
+
+The changes in MCIPv3.4 are listed briefly in the "ReleaseNotes" file and in
+greater detail in the "CHANGES" file.
+
+
+Do I need MCIPv3.4 to run CMAQv4.7?
+
+Yes, particularly for the dry deposition velocity calculations in CMAQ and
+for the bi-direction flux option.
+
+
+Do I need MCIPv3.4 for WRFv3?
+
+Yes.  Some minor changes were introduced to adjust to WRFv3.  In addition,
+there are corrections in MCIP to the way the WRF grids are depicted in the
+MCIP output.  There are also changes for new physics options in WRFv3 and
+added support for the NOAH land surface model.
+
+
+My GRIDDESC file for WRF data is different from my MM5 GRIDDESC for the same
+grid.  Why?
+
+The WRF model offers additional flexibility in the way that grids are defined
+beyond what was available in MM5.  The "center latitude" in the I/O API header
+that has commonly been associated with the center of the projection in MM5 is
+not a standard input in WRF...so it is not a standard output for WRF.  In
+MCIPv3.3, an attempt was made to accommodate the flexibility in WRF's domain
+definitions, but there was an oversight that affected the downstream programs,
+so the method used in MCIPv3.3 is not correct for the CMAQ system and the
+I/O API utility routines.  Thus, in MCIPv3.4, a completely different method
+was used for WRF grids such that the "center latitude" for Lambert conformal
+projections was chosen to be the first true latitude.  This will make the
+YCENT different, as well as the XORIG and YORIG which are computed relative
+to the point at XCENT, YCENT.  [NOTE:  This solution was updated in MCIPv3.4.1
+to use the average of the true latitudes rather than the first true latitude
+for the reference point.]
+
+
+I want to use my emissions from my MM5-based project with WRF data on the same
+grid, but SMOKE keeps crashing!  What can I do?
+
+You have three options.  (1) Edit the SMOKE routines to comment out the error-
+checking on the GRIDDESC variables YCENT, XORIG, and YORIG.  (2)  Use the
+I/O API utility "m3edhdr" to edit the headers of your MCIP output files to
+adjust YCENT, XORIG, and YORIG to the MM5-based projection's values.  (3) Rerun
+the emissions with the WRF-based output.  These options should be exercised
+*VERY* carefully!
+
+
+Dry deposition velocities can be computed in CMAQ.  Do I need to compute them
+in MCIP anymore?
+
+No.  The dry deposition velocity calculations were left in MCIP for this
+release cycle so that users can convince themselves that the methodology was
+implemented consistently in MCIP and CMAQ.  Note:  The dry deposition velocity
+calculations will be removed from MCIP in the next major release.
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.3 (1 Aug 2007)
+
+
+What are the changes in MCIPv3.3?
+
+There are several scientific updates in the M3Dry dry deposition routine.  In
+addition, legacy user options (RADMdry dry deposition, recalculation of PBL
+fields, recalculation of radiation fields, input using MM5v2 format) have been
+removed.  A few minor bugs have been corrected, and some updates have been
+made for WRFv2.2.  A metadata section was added to the MCIP output files to
+improve traceability of the MCIP version and the input data sets.  Also, MCIP
+has been made more flexible with regard to near-surface fields so that land-
+surface models in addition to Pleim-Xiu (such as NOAH) can be better
+accommodated.  A few new fields have been added to output (largely to support
+the forthcoming inline dry deposition calculations in the CCTM), while some
+have been removed (most notably the diagnosed 1.5-m and 10-m temperatures).
+Consult the ReleaseNotes and CHANGES files (and the code itself!) for more
+details.
+
+
+
+Do I need to update my script to run MCIPv3.3?
+
+Yes.  The user definitions for the PBL and radiation options have been
+removed, and they are no longer valid namelist variables.
+
+
+
+What happened to the 1.5-m temperature and 10-m temperature fields?  I need
+them for emissions!
+
+The diagnosed temperatures at 1.5 m and 10 m AGL were removed from the MCIP
+output in MCIPv3.3.  These temperatures were diagnosed in MCIP using an
+algorithm that is unrelated to the PBL schemes used in the meteorological
+model, and differences between the 1.5-m temperature diagnosed in MCIP (with
+that algorithm) and the 2-m temperature diagnosed in the PBL model within
+the meteorological model can be very significant (e.g., ~5-6 deg C).  In an
+effort to keep the meteorological and air quality models as consistent as
+possible, the MCIP-diagnosed temperatures were removed in favor of the 2-m
+temperature.  Internal processes in MCIP (e.g., in the dry deposition model)
+now use 2-m temperature.  While the 2-m temperature has become a somewhat
+standard output field in the meteorological models over the past few years,
+2-m temperature is not available in "older" versions of some models; in that
+case, 2-m temperature is diagnosed in MCIP and made available in METCRO2D.
+Emissions should now use "TEMP2" rather than "TEMP1P5" and/or "TEMP10".
+
+
+
+Were other fields removed with MCIPv3.3?
+
+In addition to 1.5-m and 10-m temperature (TEMP1P5 and TEMP10, respectively),
+the inverse of the laminar boundary resistance (RBNDYI) and the total
+Jacobian at the surface have been removed because no downstream processes
+used those fields.  Also, dry deposition velocities are no longer computed
+for two chlorine species (VD_ICL1 and VD_ICL2) because they are not required
+for CB05; those species are only used in CB-IV with chlorine extensions.
+
+
+
+Are there any new fields in the MCIPv3.3 output?
+
+Yes.  If fractional land use is available in the input to MCIP, then the
+fractional land use (by category) is added to GRIDCRO2D.  In addition, 
+vegetation fraction (VEG) and leaf-area index (LAI) are output in METCRO2D for
+all runs.  Lastly, soil moisture (SOIM1 and SOIM2), soil temperature (SOIT1 and
+SOIT2), soil type (SLTYP), and canopy wetness (WR) are output if they are
+available in the input meteorology (not just for PX runs); the five soil fields
+must all be available (as a package) to appear in the output.
+
+
+
+I have sensitivity tests with different meteorological model options, and I'm
+overwriting my MCIP output files.  My metadata isn't changing, though.  What's
+wrong?
+
+The metadata will appear in the first instance of an MCIP output file.  It will
+not be updated if the file is overwritten.  The easy solution is to move or
+delete the original files and just create new MCIP files with each run.
+
+
+
+I set LDDEP=0 to compute dry deposition velocities inline in CMAQ, but I can't
+figure out how to make it work in CMAQ.  What's wrong?
+
+The option to compute dry deposition velocities inline in CMAQ is not released
+as of CMAQv4.6.  It should be released in 2008.  For now, set LDDEP=4, and
+run MCIP and CMAQ as you've always done it.
+
+
+
+My project really depends on {pick at least one of [RADMDry], [recalculated
+PBL parameters], [recalculated radiation parameters], [MM5v2-formatted data]},
+but I want to use the latest MCIP.  What can I do?
+
+The Release Notes that accompanied MCIPv3.2 (the previous release) indicated
+that these options had been targeted for removal in this release of MCIP.  In
+the time that elapsed, no users protested to keep the options available, so
+the options were removed, as promised.  You can either keep using the version
+of MCIP that you've been using, or transition to more recent science.
+
+
+
+I want to use the minimum Kz formulation in CMAQ that's been available since
+CMAQv4.5, and I'm using WRF input.  Can I do it now?
+
+Yes, as long as your WRF output file includes the field LANDUSEF (fractional
+land use), which has been made available in WRFv2.2.
+
+
+
+My MM5 run used the NOAH LSM, and my MCIPv3.3 output is different from my
+MCIPv3.2 output.  What's going on?
+
+Some new code has been added in MCIPv3.3 to better accommodate additional
+land-surface models, such as the NOAH LSM, for both MM5 and WRF.  Some
+near-surface fields that were only captured for the Pleim-Xiu land-surface
+model are now captured and used in MCIP as long as they are available in the
+meteorological model output.  Some of those fields are now in the MCIP output.
+
+
+
+It looks like MCIPv3.3 can accommodate the Pleim-Xiu land-surface model in
+WRF, but PX doesn't seem to be in my release of WRF.  What's going on?
+
+The Pleim-Xiu land-surface model is being implemented in WRF, and it should
+be available in NCAR's release of WRFv3, targeted for spring 2008.
+
+
+
+My GRIDCRO2D file is MUCH bigger with MCIPv3.3 than it had been.  Why?
+
+The fractional land use (by category) is now included in the GRIDCRO2D file
+to support the forthcoming inline dry deposition in CMAQ.
+
+
+
+The fractional land use for the urban area (LUFRAC_01) does not match the
+percent of urban area (PURB).  Is there a bug?
+
+No.  This is intentional.  The fields represent slightly different quantities.
+LUFRAC_01 is the fraction of urban area compared to all other land use
+categories such that the sum of LUFRAC_{nn} is 1.0.  PURB is the percentage
+of urban area related to the proportion of land within the cell.
+
+
+
+I'm not running CMAQ with chlorine or mercury, so I don't need those extra
+dry deposition species.  Can I turn them off in the MCIP output to save some
+disk space?
+
+No.  That option was eliminated in MCIPv3.3.  You will just get six (it was
+eight before this release) additional dry deposition species in METCRO2D.  CMAQ
+will ignore the extra fields.  If conserving disk space is important. you can
+modify MCIP so that those fields are not written to the output, 
+
+
+
+If we're already up to MCIP version 3 and beyond, then why are some of my
+directories (and other documentation) referencing "MCIP2"?
+
+This is an artifact of the developmental software configuration management
+archive in RTP.  The entry for MCIP in the archive is called "MCIP2".  It
+really does not have anything to do with the version number for the program.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.2 (26 Sept 2006)
+
+
+What are the changes in MCIPv3.2?
+
+There are several minor changes and updates for MCIPv3.2.  Most notably, the
+I/O API header variable settings for meteorology fields from the WRF-ARW are
+modified to reflect the additional capability to have the center of the coarse
+domain located elsewhere than the center of the projection, which is an option
+that is not possible with MM5.  With this change, applications of CMAQ that use
+WRF-ARW fields as input will no longer adhere to the "grid family" paradigm
+for the Models-3 I/O API, and a separate GRIDDESC file will be needed for each
+WRF-based domain.  Another noteworthy change in MCIPv3.2 is a correction to the
+"last wet time" algorithm in the M3Dry dry deposition routine for applications
+that do not use the Pleim-Xiu land-surface model in the input meteorology.  In
+addition, the polar stereographic and Mercator projection settings in the I/O
+API are updated again.  One new field, land-water mask (LWMASK), is added to
+the GRIDCRO2D file to support future work.  Finally, in MCIPv3.2, several
+legacy user options are tagged as obsolescent, and they are targeted for
+removal in the next release of MCIP.  These obsolescent options include
+RADMDry dry deposition, PBL recalculation options, radiation recalculation
+options, and processing data in MM5v2 format.  Several other minor changes
+have been made in MCIPv3.2; consult the ReleaseNotes and CHANGES files for
+additional details.
+
+
+
+I'm running the same domain for WRF and for MM5, and the GRIDDESC file has
+different numbers in it.  What's wrong?
+
+Nothing.  The different numbers will project the same domain.  In GRIDDESC
+files for MM5-based data, the XORIG and YORIG are the location of the
+lower-left corner of the domain with respect to XCENT and YCENT at the
+center of the projection (using the "grid family" paradigm).  For WRF-ARW-based
+data, XCENT and YCENT are the center of the *domain* (and not necessarily the
+center of the projection), and XORIG and YORIG are the lower-left corner with
+respect to that point.
+
+
+
+Can WRF-NMM data be processed through MCIP?
+
+Not at this time.
+
+
+
+There is no "mmheader" file with my WRF-based MCIP run.  What's wrong?
+
+Nothing.  The "mmheader" file contains the contents of the MM5 header.
+Because MM5 data are not in a "standard" format, "mmheader" is convenient.
+It's easier to put it in a separate file rather than clutter the MCIP
+log file.  The contents of the WRF header can easily be viewed by
+using "ncdump -h <file>".
+
+
+
+Are there any options in WRF-ARW that are incompatible with CMAQ?
+
+So far, just one.  The Eta/Ferrier microphysics lumps all hydrometeors into
+"total condensate", and that field is output using the same variable that
+is otherwise assigned to cloud water mixing ratio.  CMAQ currently needs a
+breakdown of the hydrometeor components, so this scheme is currently blocked
+from being processed through MCIP.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.1 (27 Feb 2006)
+
+
+What are the changes in MCIPv3.1?
+
+There are several minor changes to the code for MCIPv3.1.  The dry deposition
+velocity for elemental mercury was updated.  Also, the automated calculations
+of some grid parameters were modified for WRF so that the center of the
+projection is not restricted to a cell corner.  In addition, a minor correction
+was made for the I/O API header for data sets with Mercator projection.
+
+
+
+If I am using MCIPv3, do I need to upgrade to MCIPv3.1?
+
+Users do not need to upgrade from MCIPv3.0 to MCIPv3.1 unless the mercury
+option in CMAQ is going to be used.  Users who have WRF-ARW (formerly WRF-EM)
+data should consider upgrading to MCIPv3.1 to take advantage of minor
+corrections in the code, but this is not required if MCIPv3.0 already runs with
+the user's WRF data set.  Users who have data with Mercator projection (either
+MM5 or WRF) should upgrade to MCIPv3.1.  New users should start with MCIPv3.1.
+
+
+
+If I ran MM5 (or WRF) without the Pleim-Xiu land-surface model, can I use
+the "M3Dry" dry deposition routine in MCIP?
+
+Yes.  While "M3Dry" was specifically written to take advantage of fields that
+are available in the output from the Pleim-Xiu land-surface model, there is
+some code that creates those fields within MCIP for meteorology data sets
+that do not already have them.  This code probably could be improved, but it
+is not an impediment to using "M3Dry".
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+MCIP Version 3.0 (19 Aug 2005)
+
+
+What were the major changes in MCIPv3.0?
+
+The major change was to allow meteorology fields to be input from either
+MM5 or WRF.  There are also new optional dry deposition species for chlorine and
+mercury with the M3Dry scheme.  There is also an option to use fractional land
+use in MCIP if it is imported from an MM5v3 pre-processing file.  The detailed
+list of changes is in the file "CHANGES".
+
+
+
+I want to run MCIP with WRF model data.  What do I need to do?
+
+There are a handful of things that need to be done in WRF to run MCIP with WRF
+data.
+  1. The WRF model must be WRFv2.0 or newer.  
+  2. Must use the WRF-EM core.  (WRF namelist variable dyn_opt=2.  This is the
+     default.)  MCIPv3 does not support WRF-NMM (NCEP core).
+  3. Output must be in WRF I/O API (using NetCDF) format.  (WRF namelist
+     variable io_form_history=2.  This is the default.)
+  4. Must use non-hydrostatic dynamics in WRF.  (WRF namelist variable
+     non_hydrostatic=.true.  This is the default.)
+  5. WRF output should be hourly at most.  (WRF namelist variable
+     history_interval=60, or fewer, minutes.  The default is 180 min.)
+  6. The following 2D variables need to be added to the WRF output (history)
+     file:  UST, ALBEDO, EMISS, and ZNT.  Variables can be added to the history
+     file by adding "h" in the 8th column of the WRF Registry on the line that
+     describes the variable.
+
+Also, the water vapor mixing ratio and mixing ratios associated with the
+explicit moisture can go negative in WRF.  This is a result of the mass
+conservation and the advection scheme used in WRF.  Negative mixing ratios will
+cause problems in CMAQ.  There are two namelist variables in WRF that eliminate
+negative mixing ratios (mp_zero_out and mp_zero_out_thresh), but they are not
+invoked by default.  Users need to decide whether or not this should be
+controlled in WRF or downstream.  Either way, MCIPv3 will not permit negative
+mixing ratios to be passed to CMAQ.  In addition, a floor value of 1.0e-14 kg/kg
+has been set for water vapor mixing ratio in MCIP since negative mixing ratios
+are otherwise zeroed out in WRF.  A positive water vapor mixing ratio is
+required for the aerosol model in CMAQ.
+
+
+
+Where do I need to specify if my dataset is from MM5 or WRF?
+
+The user does not need to indicate if the input meteorology files are from
+MM5 or WRF.  MCIP automatically determines if the file is MM5 or WRF by
+trying to open the input file as a NetCDF file.  If the file can be read as
+NetCDF, MCIP assumes the input is a WRF dataset.  Otherwise, MM5 is assumed.
+When using MM5 data, it is normal to see a message in the MCIP log file that
+says, "NCOPN: : Not a netCDF file".
+
+
+
+Are there any new output fields in MCIPv3.0?
+
+One new output field is PURB, or percentage of urban area.  This field
+appears in GRIDCRO2D if an additional input file that contains fractional
+land use information (e.g., MM5's TERRAIN file) is provided for input.  PURB
+can only be generated currently for MM5v3-based MCIP runs.
+
+There are also optional dry deposition velocities in METCRO2D for 6 chlorine
+and 2 mercury species.
+
+
+
+Were any output fields eliminated in MCIPv3.0?
+
+No.
+
+
+
+I ran MCIP with WRF input data, and there is no GRIDCRO3D file.  What happened?
+
+GRIDCRO3D contains reference height fields that are relevant for non-hydrostatic
+MM5, but not for WRF.  GRIDCRO3D will not created for WRF.  Older versions of
+SMOKE have a minor dependency on this file, but a change should have been made
+in the recent release to extract WRF layer heights from METCRO3D rather than
+from GRIDCRO3D for plume rise calculations.  CMAQ does not require GRIDCRO3D.
+
+
+
+I want to run with MM5 data, and I'm having problems compiling some of the new
+routines with WRF.  Can I just shut off the WRF part of MCIPv3?
+
+No.  MCIPv3 is an integrated code for both MM5 and WRF.  The locations of the
+NetCDF library and the file "netcdf.inc" need to be verified in the Makefile
+and the code must be compiled as a total package.
+
+
+
+I ran MCIP with the options for chlorine and mercury dry deposition, but I
+don't want to run those versions of CMAQ.  Do I need to rerun MCIP?
+
+No.  There will just be 6 extra chlorine species and 2 extra mercury species
+in METCRO2D.  No other species dry deposition are affected if these options are
+turned on in MCIPv3.  The chlorine and mercury species in METCRO2D will be
+ignored.
+
+
+
+I want to run with chlorine (and mercury) but I want to use RADMDry instead
+of M3Dry.  Can I do this?
+
+No.  MCIPv3 is only set up to generate chlorine and mercury dry deposition
+velocities using M3Dry.
+
+
+
+Do I need to change my script to use MCIPv3.0?
+
+Yes.  There have been several changes to the MCIP script for MCIPv3.0.  Most
+notably, the windowing variables I0 and J0 have been renamed Y0 and X0 to make
+MCIP more general.  Also, the option to read the MM5 TERRAIN file has been added
+so that fractional land use can be processed.  The names of the environment
+variables for the output files have also been modified, and the logic
+surrounding the number of input meteorology files has been generalized.  In
+short, it is recommended that users start with a new script rather than trying
+to adapt their existing scripts to include the MCIP updates.
+
+
+
+I can't find my TERRAIN file.  Can I use a different file to provide fractional
+land use?
+
+Since the fractional land use fields appear in all of the MM5v3 preprocessing
+output files, any of the TERRAIN, REGRID, RAWINS, LITTLE_R, and MMINPUT files
+can be read into MCIP to obtain fractional land use.
+
+
+
+I'm using MM5v3 input files, and I don't have the files to provide fractional
+land use.  Can I still run CMAQ?
+
+Yes.  This is not a problem for CMAQ.  PURB supports an option to modify the
+minimum Kz in CMAQv4.5.  PURB is not required; the minimum Kz calculation will
+otherwise revert to the method used in CMAQv4.4.
+
+
+
+I already have MCIP and emissions files created for CMAQ, but I want to take
+advantage of the new minimum Kz formulation in CMAQv4.5.  Do I have to start
+over again since I don't have PURB in my GRIDCRO2D file?
+
+Fortunately, users can run MCIPv3 for one hour with the fractional land use
+input and the appropriate MM5 file to create a new GRIDCRO2D file that
+contains PURB.  This new GRIDCRO2D file can be used in place of the old
+GRIDCRO2D files for applications that are already underway.  For most users,
+the other five fields in GRIDCRO2D should be unaffected by this change.
+
+
+
+I ran WRF, and I want to use the new minimum Kz formulation in CMAQv4.5.
+Can I do this?
+[*** See update with MCIPv3.3 ***]
+
+No.  As of now, WRF does not have fractional land use fields available in the
+output.  MCIPv3 is not set up to use WRF output with an MM5 TERRAIN file (or
+other MM5 preprocessing file) to obtain the fractional land use information.
+
+
+
+I can't get I/O API 3 to work properly on my machine, and I need to run MCIP.
+What can I do?
+
+The subroutine ioparms3 (which is called from init_io.F) is the only dependency
+on I/O API 3 in MCIPv3.  If you want to use I/O API 2.2 with MCIP, modify the
+routine init_io.F by commenting out the call to ioparms3 and the variable checks
+below it (starting with the comment "Verify that the I/O API library..."). 
+Then recompile and run MCIPv3 with the I/O API 2.2 library.  You should,
+however, ensure that your I/O API library and the parameters in MCIP are
+consistent (e.g., if the maximum number of species has been increased in your
+I/O API library, then parms3_mod.F in MCIP needs to be modified to reflect this
+change).
+
+
+
+I want to use the Intel compiler on Linux.  What else do I need to do?
+
+In addition to the compiler options in the Makefile, it may be necessary to also
+set the following environment variables (noted in C-shell, below, but can be
+easily adjusted for KSH/BASH):
+
+   To reverse the order of the bytes on reading MM5 files:
+     setenv F_UFMTENDIAN big
+
+   To find the shared-object file, libcxa.so.5:
+     setenv LD_LIBRARY_PATH /path-to-your-Intel-compiler/lib
+
+   To find file ifcore_msg.cat for debugging:
+     setenv NLSPATH /path-to-your-Intel-compiler/lib/%N
+
+
+
+I don't know the layer structure of the MM5 file.  How can I find out what
+it is?
+
+There is a new option in MCIPv3 to run with all of the MM5 layers without
+specifying the structure in the script.  Users can run MCIP for the full
+MM5/WRF layer structure by setting the script variable CTMLAYs = "-1.0".
+If layer collapsing is desired, users can run MCIP for one hour with the
+previous setting for CTMLAYS to determine the structure (which will appear
+in the log file), then set the CMAQ layer structure based on the MM5/WRF
+structure.
+
+
+
+I set BTRIM = 0 to use the full extent of my MM5 files in CMAQ, but the
+output dimensions smaller by 3 in each dimension.  What happened?
+
+Actually you are getting the full extent of your MM5 files if you set
+BTRIM = 0.  The output in the METCRO2D and METCRO3D files is 3 smaller
+in each dimension, but that accounts for two things.  First, the MM5
+dimensions are in terms of dot points, while the CMAQ dimensions are in
+terms of scalar (or cross) points (i.e., cells).  The dot point dimensions
+are inherently one larger than the scalar point (e.g., cell) dimensions,
+so that accounts for one of the three.  The other two cells in each
+dimension are the one-cell picture-frame boundaries for CMAQ.  Unlike
+MM5, the CMAQ files containing the full fields (i.e., GRIDCRO2D,
+GRIDCRO3D, METCRO2D, METCRO3D) do not include the boundary cells.
+The CMAQ boundary file (METBDY3D) contains the picture frame around
+METCRO3D, and METBDY3D was filled using MM5 fields.
+
+
+
+I heard there was an option to interpolate meteorological fields to finer
+horizontal grid spacing with MCIP.  Is this true?
+
+Not anymore.  The option existed as "hidden" code in MCIPv2.3 and prior
+releases, but it had some bugs in it.  The code has been removed as of
+MCIPv3 in favor of some code optimizations.  The preferred method of creating
+fine-scale meteorology is to run the meteorology model at the desired
+horizontal grid spacing, and then process through MCIP.

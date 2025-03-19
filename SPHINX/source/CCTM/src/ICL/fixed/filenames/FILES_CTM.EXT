@@ -1,0 +1,257 @@
+
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/yoj/arc/ICL/src/fixed/filenames/FILES_CTM.EXT,v 1.4 2011/09/29 20:24:42 sjr Exp $ 
+
+! what(1) key, module and SID; SCCS file; date and time of last delta:
+! @(#)FILES_CTM.EXT     2.2 /project/mod3/ICL/src/fixed/filenames/SCCS/s.FILES_CTM.EXT 25 Jul 1997 13:38:00
+
+!.......................................................................
+! Include File  FILES3_CTM.EXT
+!
+! Contains:  Standard logical name variables set in the model executing
+!            shell environment
+ 
+! Dependent Upon:  none
+ 
+! Revision History:
+!   Prototype 5/93 by CJC
+!   Feb, Mar 96, May 97 by Jeff
+!   24 July 97, Jeff, change PARAMETER to DATA
+!   31 Oct 2003, Jeff: F90-ize
+!   16 May 2005, P.Bhave, add OCEAN input and SSEMIS output files
+!   25 July 2008, S.Roselle: removed files associated with PING
+!   13 Aug 2008, S.Napelenok, added files for ddm-3d
+!   28 Feb 2011, J.Bash, Added files for NH3 bidi and MOSAIC
+!   11 May 11 D.Wong: added files for sub-domain time series
+!   14 Aug 14 J.Young: added vdiff and grav. settling diagnostic files
+!   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used
+!   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
+!   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
+!   29 Apr 2019 S.Napelenok: removed unused isam files
+!   20 May 2019 F. Sidi    : Organized Files into input and output sections
+!   9  Jul 2019 T. Spero: added LUFRAC_CRO.
+!   17 Jul 2019 S. Roselle: replaced species-group IC and BC files with 
+!                           INIT_CONC_1 and BNDY_CONC_1
+!   13 Dec 2019 S.Napelenok: updated sensitivity files to INIT_SENS_1 and 
+!                            BNDY_SENS_1, remove REGIONS_1
+!.......................................................................
+
+      INTEGER, PARAMETER :: N_FILES = 62
+
+      CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
+      LOGICAL            IN_MODE( N_FILES )
+
+
+! CCTM Input Files:
+
+      CHARACTER( 16 ) :: GRID_DOT_2D   ! MCIP Generated File
+      CHARACTER( 16 ) :: GRID_CRO_2D   ! MCIP Generated File
+      CHARACTER( 16 ) :: GRID_CRO_3D   ! MCIP Generated File
+      CHARACTER( 16 ) :: GRID_BDY_2D   ! MCIP Generated File, Not used by CCTM anymore
+      CHARACTER( 16 ) :: LUFRAC_CRO    ! MCIP Generated File
+      CHARACTER( 16 ) :: MET_BDY_2D    ! MCIP Generated File, Not used by CCTM anymore
+      CHARACTER( 16 ) :: MET_BDY_3D    ! MCIP Generated File
+      CHARACTER( 16 ) :: MET_DOT_3D    ! MCIP Generated File 
+      CHARACTER( 16 ) :: MET_CRO_2D    ! MCIP Generated File
+      CHARACTER( 16 ) :: MET_CRO_3D    ! MCIP Generated File
+      CHARACTER( 16 ) :: OCEAN_1       ! OCEAN File
+      CHARACTER( 16 ) :: INIT_CONC_1   ! IC FILE for all Species
+      CHARACTER( 16 ) :: BNDY_CONC_1   ! BC FILE for all Species
+      CHARACTER( 16 ) :: E2C_CHEM      ! BIDI NH3 Config.
+      CHARACTER( 16 ) :: E2C_CHEM_YEST ! BIDI NH3 Config.
+      CHARACTER( 16 ) :: E2C_SOIL      ! BIDI NH3 Config.
+      CHARACTER( 16 ) :: E2C_LU        ! BIDI NH3 Config.
+
+
+! CCTM Output Files:
+
+      CHARACTER( 16 ) :: CTM_CONC_1      ! On-Hour Concentrations
+      CHARACTER( 16 ) :: CTM_VEXT_1      ! On-Hour 3D Concentration at select sites
+      CHARACTER( 16 ) :: CTM_DRY_DEP_1   ! Hourly Dry Deposition
+      CHARACTER( 16 ) :: CTM_WET_DEP_1   ! Wet Deposition from all Clouds
+      CHARACTER( 16 ) :: CTM_WET_DEP_2   ! Wet Deposition from SubGrid Clouds
+      CHARACTER( 16 ) :: CTM_SSEMIS_1    ! Sea Spray Emissions
+      CHARACTER( 16 ) :: CTM_MGEM_1      ! Marine Gas Emissions
+      CHARACTER( 16 ) :: CTM_DUST_EMIS_1 ! Dust Emissions 
+      CHARACTER( 16 ) :: CTM_ELMO_1      ! On-Hour Particle Diagnostics 
+      CHARACTER( 16 ) :: CTM_AELMO_1     ! Hourly Avg. Particle Diagnostics
+      CHARACTER( 16 ) :: CTM_LTNGDIAG_1  ! Hourly Avg Lightning NO
+      CHARACTER( 16 ) :: CTM_LTNGDIAG_2  ! Column Total Lightning NO
+      CHARACTER( 16 ) :: A_CONC_1        ! Hourly Avg. Concentrations
+      CHARACTER( 16 ) :: CTM_DEPV_DIAG   ! Dry Deposition Velocities
+      CHARACTER( 16 ) :: CTM_PT3D_DIAG   ! Point Source Emissions by Layer
+      CHARACTER( 16 ) :: CTM_RJ_1        ! 2D Surface Summary from Inline Photolysis
+      CHARACTER( 16 ) :: CTM_RJ_2        ! 3D Photolysis Rates
+      CHARACTER( 16 ) :: CTM_RJ_3        ! 3D Optical and Radiative Results from Photolysis
+      CHARACTER( 16 ) :: MEDIA_CONC      ! NH3 Concentration in Media
+      CHARACTER( 16 ) :: CTM_DEPV_MOS    ! Dry Dep Velocity
+      CHARACTER( 16 ) :: CTM_DRY_DEP_MOS ! Dry Dep
+      CHARACTER( 16 ) :: CTM_VDIFF_DIAG  ! Vertical Dispersion Diagnostic
+      CHARACTER( 16 ) :: CTM_VSED_DIAG   ! Particle Grav. Settling Velocity  
+     
+    
+! CCTM Restart Files: 
+
+      CHARACTER( 16 ) :: S_CGRID         ! 3D Inst. Concentrations
+      CHARACTER( 16 ) :: INIT_MEDC_1     ! IC FILE
+    
+
+! Process Analysis (PA) Output: 
+     
+      CHARACTER( 16 ) :: CTM_IPR_1       
+      CHARACTER( 16 ) :: CTM_IPR_2       
+      CHARACTER( 16 ) :: CTM_IPR_3       
+      CHARACTER( 16 ) :: CTM_IRR_1       ! Chem. Process Analysis
+      CHARACTER( 16 ) :: CTM_IRR_2       ! Chem. Process Analysis
+      CHARACTER( 16 ) :: CTM_IRR_3       ! Chem. Process Analysis
+ 
+
+! Two Way Output: 
+       
+      CHARACTER( 16 ) :: CTM_SD_TS ! Sub Domain Time Step
+
+
+! DDM Files:
+
+      CHARACTER( 16 ) :: INIT_SENS_1
+      CHARACTER( 16 ) :: BNDY_SENS_1
+      CHARACTER( 16 ) :: CTM_SENS_1
+      CHARACTER( 16 ) :: A_SENS_1
+      CHARACTER( 16 ) :: CTM_SWETDEP_1
+      CHARACTER( 16 ) :: CTM_SDRYDEP_1
+
+
+!.....Source Apportionment (SA) Output files that contain tagged concentrations.....
+!.....Roger Kwok, Jul 2012:
+
+      CHARACTER( 16 ) :: SA_CONC_1
+      CHARACTER( 16 ) :: SA_CGRID_1
+      CHARACTER( 16 ) :: SA_ACONC_1
+      CHARACTER( 16 ) :: SA_DD_1
+      CHARACTER( 16 ) :: SA_WD_1
+
+      DATA GRID_DOT_2D      / 'GRID_DOT_2D     ' /
+      DATA GRID_CRO_2D      / 'GRID_CRO_2D     ' /
+      DATA GRID_CRO_3D      / 'GRID_CRO_3D     ' /
+      DATA GRID_BDY_2D      / 'GRID_BDY_2D     ' /
+      DATA LUFRAC_CRO       / 'LUFRAC_CRO      ' /
+      DATA OCEAN_1          / 'OCEAN_1         ' /
+      DATA MET_BDY_2D       / 'MET_BDY_2D      ' /
+      DATA MET_BDY_3D       / 'MET_BDY_3D      ' /
+      DATA MET_DOT_3D       / 'MET_DOT_3D      ' /
+      DATA MET_CRO_2D       / 'MET_CRO_2D      ' /
+      DATA MET_CRO_3D       / 'MET_CRO_3D      ' /
+      DATA CTM_CONC_1       / 'CTM_CONC_1      ' /
+      DATA CTM_VEXT_1       / 'CTM_VEXT_1      ' /
+      DATA CTM_DRY_DEP_1    / 'CTM_DRY_DEP_1   ' /
+      DATA CTM_WET_DEP_1    / 'CTM_WET_DEP_1   ' /
+      DATA CTM_WET_DEP_2    / 'CTM_WET_DEP_2   ' /
+      DATA CTM_SSEMIS_1     / 'CTM_SSEMIS_1    ' /
+      DATA CTM_MGEM_1       / 'CTM_MGEM_1      ' /
+      DATA CTM_DUST_EMIS_1  / 'CTM_DUST_EMIS_1 ' /
+      DATA CTM_ELMO_1       / 'CTM_ELMO_1      ' /
+      DATA CTM_AELMO_1      / 'CTM_AELMO_1     ' /
+      DATA CTM_LTNGDIAG_1   / 'CTM_LTNGDIAG_1  ' /
+      DATA CTM_LTNGDIAG_2   / 'CTM_LTNGDIAG_2  ' /
+      DATA CTM_IPR_1        / 'CTM_IPR_1       ' /
+      DATA CTM_IPR_2        / 'CTM_IPR_2       ' /
+      DATA CTM_IPR_3        / 'CTM_IPR_3       ' /
+      DATA CTM_IRR_1        / 'CTM_IRR_1       ' /
+      DATA CTM_IRR_2        / 'CTM_IRR_2       ' /
+      DATA CTM_IRR_3        / 'CTM_IRR_3       ' /
+      DATA A_CONC_1         / 'A_CONC_1        ' /
+      DATA S_CGRID          / 'S_CGRID         ' /
+      DATA INIT_CONC_1      / 'INIT_CONC_1     ' /
+      DATA BNDY_CONC_1      / 'BNDY_CONC_1     ' /
+      DATA CTM_DEPV_DIAG    / 'CTM_DEPV_DIAG   ' /
+      DATA CTM_PT3D_DIAG    / 'CTM_PT3D_DIAG   ' /
+      DATA CTM_RJ_1         / 'CTM_RJ_1        ' /
+      DATA CTM_RJ_2         / 'CTM_RJ_2        ' /
+      DATA CTM_RJ_3         / 'CTM_RJ_3        ' /
+      DATA INIT_MEDC_1      / 'INIT_MEDC_1     ' /
+      DATA MEDIA_CONC       / 'MEDIA_CONC      ' /
+      DATA INIT_SENS_1      / 'INIT_SENS_1     ' /
+      DATA BNDY_SENS_1      / 'BNDY_SENS_1     ' /
+      DATA CTM_SENS_1       / 'CTM_SENS_1      ' /
+      DATA A_SENS_1         / 'A_SENS_1        ' /
+      DATA CTM_SWETDEP_1    / 'CTM_SWETDEP_1   ' /
+      DATA CTM_SDRYDEP_1    / 'CTM_SDRYDEP_1   ' /
+      DATA CTM_DEPV_MOS     / 'CTM_DEPV_MOS    ' /
+      DATA CTM_DRY_DEP_MOS  / 'CTM_DRY_DEP_MOS ' /
+      DATA E2C_CHEM         / 'E2C_CHEM        ' /
+      DATA E2C_CHEM_YEST    / 'E2C_CHEM_YEST   ' /
+      DATA E2C_SOIL         / 'E2C_SOIL        ' /
+      DATA E2C_LU           / 'E2C_LU          ' /
+      DATA CTM_SD_TS        / 'CTM_SD_TS       ' /
+      DATA CTM_VDIFF_DIAG   / 'CTM_VDIFF_DIAG  ' /
+      DATA CTM_VSED_DIAG    / 'CTM_VSED_DIAG   ' /
+      DATA  SA_CONC_1       / 'SA_CONC_1       ' /
+      DATA  SA_CGRID_1      / 'SA_CGRID_1      ' /
+      DATA  SA_ACONC_1      / 'SA_ACONC_1      ' /
+      DATA  SA_DD_1         / 'SA_DD_1         ' /
+      DATA  SA_WD_1         / 'SA_WD_1         ' /
+
+      DATA LGCL_NAME(  1 ), IN_MODE(  1 )    / 'GRID_DOT_2D     ', .TRUE. /
+      DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
+      DATA LGCL_NAME(  3 ), IN_MODE(  3 )    / 'GRID_CRO_3D     ', .TRUE. /
+      DATA LGCL_NAME(  4 ), IN_MODE(  4 )    / 'GRID_BDY_2D     ', .TRUE. /
+      DATA LGCL_NAME(  5 ), IN_MODE(  5 )    / 'LUFRAC_CRO      ', .TRUE. /
+      DATA LGCL_NAME(  6 ), IN_MODE(  6 )    / 'OCEAN_1         ', .TRUE. /
+      DATA LGCL_NAME(  7 ), IN_MODE(  7 )    / 'MET_BDY_2D      ', .TRUE. /
+      DATA LGCL_NAME(  8 ), IN_MODE(  8 )    / 'MET_BDY_3D      ', .TRUE. /
+      DATA LGCL_NAME(  9 ), IN_MODE(  9 )    / 'MET_DOT_3D      ', .TRUE. /
+      DATA LGCL_NAME( 10 ), IN_MODE( 10 )    / 'MET_CRO_2D      ', .TRUE. /
+      DATA LGCL_NAME( 11 ), IN_MODE( 11 )    / 'MET_CRO_3D      ', .TRUE. /
+      DATA LGCL_NAME( 12 ), IN_MODE( 12 )    / 'CTM_CONC_1      ', .FALSE. /
+      DATA LGCL_NAME( 13 ), IN_MODE( 13 )    / 'CTM_VEXT_1      ', .FALSE. /
+      DATA LGCL_NAME( 14 ), IN_MODE( 14 )    / 'CTM_DRY_DEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 15 ), IN_MODE( 15 )    / 'CTM_WET_DEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 16 ), IN_MODE( 16 )    / 'CTM_WET_DEP_2   ', .FALSE. /
+      DATA LGCL_NAME( 17 ), IN_MODE( 17 )    / 'CTM_SSEMIS_1    ', .FALSE. /
+      DATA LGCL_NAME( 18 ), IN_MODE( 18 )    / 'CTM_MGEM_1      ', .FALSE. /
+      DATA LGCL_NAME( 19 ), IN_MODE( 19 )    / 'CTM_DUST_EMIS_1 ', .FALSE. /
+      DATA LGCL_NAME( 20 ), IN_MODE( 20 )    / 'CTM_ELMO_1      ', .FALSE. /
+      DATA LGCL_NAME( 21 ), IN_MODE( 21 )    / 'CTM_AELMO_1     ', .FALSE. /
+      DATA LGCL_NAME( 22 ), IN_MODE( 22 )    / 'CTM_LTNGDIAG_1  ', .FALSE. /
+      DATA LGCL_NAME( 23 ), IN_MODE( 23 )    / 'CTM_LTNGDIAG_2  ', .FALSE. /
+      DATA LGCL_NAME( 24 ), IN_MODE( 24 )    / 'CTM_IPR_1       ', .FALSE. /
+      DATA LGCL_NAME( 25 ), IN_MODE( 25 )    / 'CTM_IPR_2       ', .FALSE. /
+      DATA LGCL_NAME( 26 ), IN_MODE( 26 )    / 'CTM_IPR_3       ', .FALSE. /
+      DATA LGCL_NAME( 27 ), IN_MODE( 27 )    / 'CTM_IRR_1       ', .FALSE. /
+      DATA LGCL_NAME( 28 ), IN_MODE( 28 )    / 'CTM_IRR_2       ', .FALSE. /
+      DATA LGCL_NAME( 29 ), IN_MODE( 29 )    / 'CTM_IRR_3       ', .FALSE. /
+      DATA LGCL_NAME( 30 ), IN_MODE( 30 )    / 'A_CONC_1        ', .FALSE. /
+      DATA LGCL_NAME( 31 ), IN_MODE( 31 )    / 'S_CGRID         ', .FALSE. /
+      DATA LGCL_NAME( 32 ), IN_MODE( 32 )    / 'INIT_CONC_1     ', .FALSE. /
+      DATA LGCL_NAME( 33 ), IN_MODE( 33 )    / 'BNDY_CONC_1     ', .FALSE. /
+      DATA LGCL_NAME( 34 ), IN_MODE( 34 )    / 'CTM_DEPV_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 35 ), IN_MODE( 35 )    / 'CTM_PT3D_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 36 ), IN_MODE( 36 )    / 'CTM_RJ_1        ', .FALSE. /
+      DATA LGCL_NAME( 37 ), IN_MODE( 37 )    / 'CTM_RJ_2        ', .FALSE. /
+      DATA LGCL_NAME( 38 ), IN_MODE( 38 )    / 'CTM_RJ_3        ', .FALSE. /
+      DATA LGCL_NAME( 39 ), IN_MODE( 39 )    / 'INIT_MEDC_1     ', .FALSE. /
+      DATA LGCL_NAME( 40 ), IN_MODE( 40 )    / 'MEDIA_CONC      ', .FALSE. /
+      DATA LGCL_NAME( 41 ), IN_MODE( 41 )    / 'INIT_SENS_1     ', .FALSE. /
+      DATA LGCL_NAME( 42 ), IN_MODE( 42 )    / 'BNDY_SENS_1     ', .FALSE. /
+      DATA LGCL_NAME( 43 ), IN_MODE( 43 )    / 'CTM_SENS_1      ', .FALSE. /
+      DATA LGCL_NAME( 44 ), IN_MODE( 44 )    / 'A_SENS_1        ', .FALSE. /
+      DATA LGCL_NAME( 45 ), IN_MODE( 45 )    / 'CTM_SWETDEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 46 ), IN_MODE( 46 )    / 'CTM_SDRYDEP_1   ', .FALSE. /
+      DATA LGCL_NAME( 47 ), IN_MODE( 47 )    / 'CTM_DEPV_MOS    ', .FALSE. /
+      DATA LGCL_NAME( 48 ), IN_MODE( 48 )    / 'CTM_DRY_DEP_MOS ', .FALSE. /
+      DATA LGCL_NAME( 49 ), IN_MODE( 49 )    / 'CTM_DRY_DEP_FST ', .FALSE. /
+      DATA LGCL_NAME( 50 ), IN_MODE( 50 )    / 'CTM_DEPV_FST    ', .FALSE. /
+      DATA LGCL_NAME( 51 ), IN_MODE( 51 )    / 'E2C_CHEM        ', .FALSE. /
+      DATA LGCL_NAME( 52 ), IN_MODE( 52 )    / 'E2C_CHEM_YEST   ', .FALSE. /
+      DATA LGCL_NAME( 53 ), IN_MODE( 53 )    / 'E2C_SOIL        ', .FALSE. /
+      DATA LGCL_NAME( 54 ), IN_MODE( 54 )    / 'E2C_LU          ', .FALSE. /
+      DATA LGCL_NAME( 55 ), IN_MODE( 55 )    / 'CTM_SD_TS       ', .FALSE. /
+      DATA LGCL_NAME( 56 ), IN_MODE( 56 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
+      DATA LGCL_NAME( 57 ), IN_MODE( 57 )    / 'CTM_VSED_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 58 ), IN_MODE( 58 )    / 'SA_CONC_1       ', .FALSE. /
+      DATA LGCL_NAME( 59 ), IN_MODE( 59 )    / 'SA_CGRID_1      ', .FALSE. /
+      DATA LGCL_NAME( 60 ), IN_MODE( 60 )    / 'SA_ACONC_1      ', .FALSE. /
+      DATA LGCL_NAME( 61 ), IN_MODE( 61 )    / 'SA_DD_1         ', .FALSE. /
+      DATA LGCL_NAME( 62 ), IN_MODE( 62 )    / 'SA_WD_1         ', .FALSE. /
+
+!................   end   FILES_CTM.EXT   .............................

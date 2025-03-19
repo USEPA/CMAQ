@@ -1,0 +1,754 @@
+!=======================================================================
+!  MGN_SPC.EXT  
+!  MEGAN species class
+!
+!  MEGAN v3
+!  INPUT version 300
+!
+!  History:
+!  Who          When       What
+!  ---------------------------------------------------------------------
+!  Tan          12/02/06 - Creates this file
+!  Tan          08/14/07 - Move from MEGAN v2.0 to MEGAN v2.02 with no update.
+!  Ling Huang   03/17/17 - Updated this file for MEGAN3 based on Alex Guenther's 
+!                          "Descrption Class.xlsx"
+!  Ling Huang   04/17/21 - Updated this file for MEGAN3.2 based on Alex Guenther's
+!                          "MEGAN3 Speciation32.xlsx"
+!                          Reduce 20 categories to 19 categories (combine category 7
+!                          and category 8; move category 20 (NO) to category 8)
+!======================================================================
+
+      INTEGER,PARAMETER :: N_MGN_SPC  = 19
+      CHARACTER*16   MGN_SPC(N_MGN_SPC)
+
+      DATA     MGN_SPC(  1)  / 'ISOP            '/      ! isoprene
+      DATA     MGN_SPC(  2)  / 'MBO             '/      ! MBO
+      DATA     MGN_SPC(  3)  / 'MT_PINE         '/      ! monoterpenes: pines (alpha and beta)
+      DATA     MGN_SPC(  4)  / 'MT_ACYC         '/      ! monoterpenes: acyclic, 3 = (e.g., myrcene, ocimenes)
+      DATA     MGN_SPC(  5)  / 'MT_CAMP         '/      ! monoterpenes: carene, camphene, others
+      DATA     MGN_SPC(  6)  / 'MT_SABI         '/      ! monoterpenes: sabinene, limonene, terpinenes, others
+      DATA     MGN_SPC(  7)  / 'MT_AROM         '/      ! C10 aromatic: cymenes, cymenenes & C8-C13 oxygenated (e.g. camphor)
+      DATA     MGN_SPC(  8)  / 'NO              '/      ! Nitric oxide
+      DATA     MGN_SPC(  9)  / 'SQT_HR          '/      ! Highly reactive SQT (e.g., caryophyllene)
+      DATA     MGN_SPC( 10)  / 'SQT_LR          '/      ! less reactive SQT  (e.g., longifolene, copaene) and salates
+      DATA     MGN_SPC( 11)  / 'MEOH            '/      ! methanol
+      DATA     MGN_SPC( 12)  / 'ACTO            '/      ! acetone
+      DATA     MGN_SPC( 13)  / 'ETOH            '/      ! acetaldehyde and ethanol
+      DATA     MGN_SPC( 14)  / 'ACID            '/      ! organic acids: formic acid, acetic acid, pyruvic acid
+      DATA     MGN_SPC( 15)  / 'LVOC            '/      ! C2 to C4 HC (e.g., ethene, ethane)
+      DATA     MGN_SPC( 16)  / 'OXPROD          '/      ! oxidation products: aldehydes
+      DATA     MGN_SPC( 17)  / 'STRESS          '/      ! Stress compounds (e.g., linalool)
+      DATA     MGN_SPC( 18)  / 'OTHER           '/      ! other VOC (e.g., indole, pentane, methyl bromide)
+      DATA     MGN_SPC( 19)  / 'CO              '/      ! carbon monoxide
+
+!=======================================================================
+!  SPCAT_SPC.EXT
+!  MEGAN speciated species and their MW.
+!
+!  MEGAN v3
+!  INPUT version 3
+!
+!  History:
+!  Who          When       What
+!  ---------------------------------------------------------------------
+!  Tan          12/02/06 - Creates this file
+!  Tan          08/14/07 - Move from MEGAN v2.0 to MEGAN v2.02 with no update.
+!  Ling Huang   03/14/17 - Updated for MEGAN3 based on Alex Guenther's 
+!                                         "Description Speciation.xlsx"
+!=======================================================================
+
+      INTEGER,PARAMETER :: N_SPCA_SPC = 201       ! Number of speciated species
+      CHARACTER*20   SPCA_SPC( N_SPCA_SPC )   ! speciated species name
+      REAL           SPCA_MWT( N_SPCA_SPC )   ! Mechanism species molecular weight
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! _a  = alpha, _b  = beta, _c  = cis, _al = allo,
+! _g  = gamma, _d  = delta, _t  = trans, _m  = methyl,
+! _p  = para, _o  = ortho, _e  = ene, _ol = ol ,
+! met = methyl, 2met= dimethyl, MBO = methylbutenol        ,
+! 2s  = disulfide, s   = sulfide, OXD = oxide, ACT = acetate,
+! PPPP= propenylpropyl       , DCTT= decatetraene         ,
+! COTHER= acetaldehyde       , 3met = trimethyl
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+! Isoprene
+      DATA  SPCA_SPC(  1), SPCA_MWT(  1) / 'isoprene', 68.12  /
+
+! MBO
+      DATA  SPCA_SPC(  2), SPCA_MWT(  2) / 'MBO_2m3e2ol', 84.12  /
+
+! MT_PINE
+      DATA  SPCA_SPC(  3), SPCA_MWT(  3) / 'pinene_a', 136.24  /
+      DATA  SPCA_SPC(  4), SPCA_MWT(  4) / 'pinene_b', 136.24  /
+
+! MT_ACYC
+      DATA  SPCA_SPC(  5), SPCA_MWT(  5) / 'myrcene', 136.24  /
+      DATA  SPCA_SPC(  6), SPCA_MWT(  6) / 'ocimene_al', 136.24  /
+      DATA  SPCA_SPC(  7), SPCA_MWT(  7) / 'ocimene_c_b', 136.24  /
+      DATA  SPCA_SPC(  8), SPCA_MWT(  8) / 'ocimene_t_b', 136.24  /
+
+! MT_CAMP
+      DATA  SPCA_SPC(  9), SPCA_MWT(  9) / 'bornene', 136.24  /
+      DATA  SPCA_SPC(  10), SPCA_MWT(  10) / 'camphene', 136.24  /
+      DATA  SPCA_SPC(  11), SPCA_MWT(  11) / 'carene_3', 136.24  /
+      DATA  SPCA_SPC(  12), SPCA_MWT(  12) / 'fenchene_a', 136.24  /
+      DATA  SPCA_SPC(  13), SPCA_MWT(  13) / 'fenchene_b', 136.24  /
+      DATA  SPCA_SPC(  14), SPCA_MWT(  14) / 'tricyclene', 136.24  /
+
+! MT_SABI
+      DATA  SPCA_SPC(  15), SPCA_MWT(  15) / 'limonene', 136.24  /
+      DATA  SPCA_SPC(  16), SPCA_MWT(  16) / 'phellandrene_b', 136.24  /
+      DATA  SPCA_SPC(  17), SPCA_MWT(  17) / 'phellandrene_a', 136.24  /
+      DATA  SPCA_SPC(  18), SPCA_MWT(  18) / 'sabinene', 136.24  /
+      DATA  SPCA_SPC(  19), SPCA_MWT(  19) / 'terpinene_a', 136.24  /
+      DATA  SPCA_SPC(  20), SPCA_MWT(  20) / 'terpinene_g', 136.24  /
+      DATA  SPCA_SPC(  21), SPCA_MWT(  21) / 'terpinolene', 136.24  /
+      DATA  SPCA_SPC(  22), SPCA_MWT(  22) / 'thujene_a', 136.24  /
+      DATA  SPCA_SPC(  23), SPCA_MWT(  23) / 'verbenene', 134.22  /
+
+! MT_AROM
+      DATA  SPCA_SPC(  24), SPCA_MWT(  24) / 'cymene_o', 134.22  /
+      DATA  SPCA_SPC(  25), SPCA_MWT(  25) / 'cymene_p', 134.22  /
+      DATA  SPCA_SPC(  26), SPCA_MWT(  26) / 'meta-cymenene', 132.21  /
+      DATA  SPCA_SPC(  27), SPCA_MWT(  27) / 'p-cymenene', 132.21  /
+
+! MT_OXY
+      DATA  SPCA_SPC(  28), SPCA_MWT(  28) / 'borneol', 154.25  /
+      DATA  SPCA_SPC(  29), SPCA_MWT(  29) / 'bornyl_ACT', 196.29  /
+      DATA  SPCA_SPC(  30), SPCA_MWT(  30) / 'camphor', 152.24  /
+      DATA  SPCA_SPC(  31), SPCA_MWT(  31) / 'estragole', 148.2  /
+      DATA  SPCA_SPC(  32), SPCA_MWT(  32) / 'fenchone', 152.24  /
+      DATA  SPCA_SPC(  33), SPCA_MWT(  33) / 'ionone_b', 192.3  /
+      DATA  SPCA_SPC(  34), SPCA_MWT(  34) / 'ipsenol', 154.25  /
+      DATA  SPCA_SPC(  35), SPCA_MWT(  35) / 'myrtenal', 150.22  /
+      DATA  SPCA_SPC(  36), SPCA_MWT(  36) / 'octanol', 128.21  /
+      DATA  SPCA_SPC(  37), SPCA_MWT(  37) / 'octenol_1e3ol', 128.21  /
+      DATA  SPCA_SPC(  38), SPCA_MWT(  38) / 'piperitone', 152.24  /
+      DATA  SPCA_SPC(  39), SPCA_MWT(  39) / 'terpineol_4', 154.25  /
+      DATA  SPCA_SPC(  40), SPCA_MWT(  40) / 'terpineol_a', 154.25  /
+      DATA  SPCA_SPC(  41), SPCA_MWT(  41) / 'thujone_a', 152.24  /
+      DATA  SPCA_SPC(  42), SPCA_MWT(  42) / 'thujone_b', 152.24  /
+
+! SQT_HR
+      DATA  SPCA_SPC(  43), SPCA_MWT(  43) / 'acoradiene', 204.36  /
+      DATA  SPCA_SPC(  44), SPCA_MWT(  44) / 'bergamotene_a', 204.36  /
+      DATA  SPCA_SPC(  45), SPCA_MWT(  45) / 'bergamotene_b', 204.36  /
+      DATA  SPCA_SPC(  46), SPCA_MWT(  46) / 'bisabolene_a', 204.36  /
+      DATA  SPCA_SPC(  47), SPCA_MWT(  47) / 'bisabolene_b', 204.36  /
+      DATA  SPCA_SPC(  48), SPCA_MWT(  48) / 'cadinene_d', 204.36  /
+      DATA  SPCA_SPC(  49), SPCA_MWT(  49) / 'cadinene_g', 204.36  /
+      DATA  SPCA_SPC(  50), SPCA_MWT(  50) / 'calarene', 204.36  /
+      DATA  SPCA_SPC(  51), SPCA_MWT(  51) / 'caryophyllene_b', 204.36  /
+      DATA  SPCA_SPC(  52), SPCA_MWT(  52) / 'caryophyllene_c_i', 204.36  /
+      DATA  SPCA_SPC(  53), SPCA_MWT(  53) / 'elemene_b', 204.36  /
+      DATA  SPCA_SPC(  54), SPCA_MWT(  54) / 'farnescene_a', 204.36  /
+      DATA  SPCA_SPC(  55), SPCA_MWT(  55) / 'farnescene_b', 204.36  /
+      DATA  SPCA_SPC(  56), SPCA_MWT(  56) / 'farnesol', 222.37  /
+      DATA  SPCA_SPC(  57), SPCA_MWT(  57) / 'germacrene_B', 204.36  /
+      DATA  SPCA_SPC(  58), SPCA_MWT(  58) / 'germacrene_D', 204.36  /
+      DATA  SPCA_SPC(  59), SPCA_MWT(  59) / 'humulene_a', 204.36  /
+      DATA  SPCA_SPC(  60), SPCA_MWT(  60) / 'humulene_g', 204.36  /
+      DATA  SPCA_SPC(  61), SPCA_MWT(  61) / 'muurolene_a', 204.36  /
+      DATA  SPCA_SPC(  62), SPCA_MWT(  62) / 'muurolene_g', 204.36  /
+      DATA  SPCA_SPC(  63), SPCA_MWT(  63) / 'nerolidol_c', 222.37  /
+      DATA  SPCA_SPC(  64), SPCA_MWT(  64) / 'nerolidol_t', 222.37  /
+      DATA  SPCA_SPC(  65), SPCA_MWT(  65) / 'patchoulene_b', 204.36  /
+      DATA  SPCA_SPC(  66), SPCA_MWT(  66) / 'selinene_b', 204.36  /
+      DATA  SPCA_SPC(  67), SPCA_MWT(  67) / 'selinene_d', 204.36  /
+
+! SQT_LR
+      DATA  SPCA_SPC(  68), SPCA_MWT(  68) / '2ethyl_hexyl_salate', 250.34  /
+      DATA  SPCA_SPC(  69), SPCA_MWT(  69) / 'aromadendrene', 204.36  /
+      DATA  SPCA_SPC(  70), SPCA_MWT(  70) / 'bourbonene_b', 204.36  /
+      DATA  SPCA_SPC(  71), SPCA_MWT(  71) / 'cadinol_a', 222.37  /
+      DATA  SPCA_SPC(  72), SPCA_MWT(  72) / 'cedrene_a', 204.36  /
+      DATA  SPCA_SPC(  73), SPCA_MWT(  73) / 'cedrol', 222.37  /
+      DATA  SPCA_SPC(  74), SPCA_MWT(  74) / 'copaene_a', 204.36  /
+      DATA  SPCA_SPC(  75), SPCA_MWT(  75) / 'cubebene_a', 204.36  /
+      DATA  SPCA_SPC(  76), SPCA_MWT(  76) / 'cubebene_b', 204.36  /
+      DATA  SPCA_SPC(  77), SPCA_MWT(  77) / 'gurjunene_b', 204.36  /
+      DATA  SPCA_SPC(  78), SPCA_MWT(  78) / 'homosalate', 262.35  /
+      DATA  SPCA_SPC(  79), SPCA_MWT(  79) / 'isolongifolene', 204.36  /
+      DATA  SPCA_SPC(  80), SPCA_MWT(  80) / 'kaur_16_ene', 272.47  /
+      DATA  SPCA_SPC(  81), SPCA_MWT(  81) / 'longifolene', 204.36  /
+      DATA  SPCA_SPC(  82), SPCA_MWT(  82) / 'longipinene', 204.36  /
+      DATA  SPCA_SPC(  83), SPCA_MWT(  83) / 'thujopsene', 204.36  /
+      DATA  SPCA_SPC(  84), SPCA_MWT(  84) / 'ylangene_a', 204.36  /
+      DATA  SPCA_SPC(  85), SPCA_MWT(  85) / 'zingiberene_a', 204.36  /
+      DATA  SPCA_SPC(  86), SPCA_MWT(  86) / 'copaene_b', 204.36  /
+      DATA  SPCA_SPC(  87), SPCA_MWT(  87) / 'longicyclene', 204.36  /
+
+! METOH
+      DATA  SPCA_SPC(  88), SPCA_MWT(  88) / 'methanol', 32.04  /
+
+! ACTO
+      DATA  SPCA_SPC(  89), SPCA_MWT(  89) / 'acetone', 58.08  /
+
+! ETOH
+      DATA  SPCA_SPC(  90), SPCA_MWT(  90) / 'acetaldehyde', 44.05  /
+      DATA  SPCA_SPC(  91), SPCA_MWT(  91) / 'ethanol', 46.07  /
+
+! ACID
+      DATA  SPCA_SPC(  92), SPCA_MWT(  92) / 'acetic_acid', 60.05  /
+      DATA  SPCA_SPC(  93), SPCA_MWT(  93) / 'formic_acid', 46.03  /
+      DATA  SPCA_SPC(  94), SPCA_MWT(  94) / 'pyruvic_acid', 88.06  /
+
+! LVOC
+      DATA  SPCA_SPC(  95), SPCA_MWT(  95) / '2_methylprop_1_ene', 56.11  /
+      DATA  SPCA_SPC(  96), SPCA_MWT(  96) / 'butane', 58.12  /
+      DATA  SPCA_SPC(  97), SPCA_MWT(  97) / 'butene', 56.11  /
+      DATA  SPCA_SPC(  98), SPCA_MWT(  98) / 'butene_c2', 56.11  /
+      DATA  SPCA_SPC(  99), SPCA_MWT(  99) / 'butene_t2', 56.11  /
+      DATA  SPCA_SPC(  100), SPCA_MWT(  100) / 'ethane', 30.07  /
+      DATA  SPCA_SPC(  101), SPCA_MWT(  101) / 'ethene', 28.05  /
+      DATA  SPCA_SPC(  102), SPCA_MWT(  102) / 'propane', 44.1  /
+      DATA  SPCA_SPC(  103), SPCA_MWT(  103) / 'propene', 42.08  /
+
+! OXPROD
+      DATA  SPCA_SPC(  104), SPCA_MWT(  104) / 'decanal', 156.27  /
+      DATA  SPCA_SPC(  105), SPCA_MWT(  105) / 'geranyl_acetone', 194.32  /
+      DATA  SPCA_SPC(  106), SPCA_MWT(  106) / 'met_heptenone', 126.2  /
+      DATA  SPCA_SPC(  107), SPCA_MWT(  107) / 'neryl_acetone', 194.32  /
+      DATA  SPCA_SPC(  108), SPCA_MWT(  108) / 'nonanal', 142.24  /
+      DATA  SPCA_SPC(  109), SPCA_MWT(  109) / 'nonenal', 140.23  /
+      DATA  SPCA_SPC(  110), SPCA_MWT(  110) / 'octanal', 128.21  /
+      DATA  SPCA_SPC(  111), SPCA_MWT(  111) / 'pentanal', 86.13  /
+      DATA  SPCA_SPC(  112), SPCA_MWT(  112) / 't-2-octenal', 126.2  /
+      DATA  SPCA_SPC(  113), SPCA_MWT(  113) / 'formaldehyde', 30.03  /
+      DATA  SPCA_SPC(  114), SPCA_MWT(  114) / 'oxopentanal', 100.12  /
+
+! STRESS
+      DATA  SPCA_SPC(  115), SPCA_MWT(  115) / '1_pentanol', 88.15  /
+      DATA  SPCA_SPC(  116), SPCA_MWT(  116) / '1_penten_3_one', 84.12  /
+      DATA  SPCA_SPC(  117), SPCA_MWT(  117) / '2_met_butanenitrile', 83.13  /
+      DATA  SPCA_SPC(  118), SPCA_MWT(  118) / '2_pentene', 70.13  /
+      DATA  SPCA_SPC(  119), SPCA_MWT(  119) / '3_metfuran', 82.1  /
+      DATA  SPCA_SPC(  120), SPCA_MWT(  120) / '3_metthiophene', 98.17  /
+      DATA  SPCA_SPC(  121), SPCA_MWT(  121) / '3_pentanone', 86.13  /
+      DATA  SPCA_SPC(  122), SPCA_MWT(  122) / '3_penten_2_ol', 86.13  /
+      DATA  SPCA_SPC(  123), SPCA_MWT(  123) / '4_penten_1_ol', 86.13  /
+      DATA  SPCA_SPC(  124), SPCA_MWT(  124) / '8_heptadecene', 238.46  /
+      DATA  SPCA_SPC(  125), SPCA_MWT(  125) / 'acetophenone', 120.15  /
+      DATA  SPCA_SPC(  126), SPCA_MWT(  126) / 'anisole', 108.14  /
+      DATA  SPCA_SPC(  127), SPCA_MWT(  127) / 'benzaldehyde', 106.12  /
+      DATA  SPCA_SPC(  128), SPCA_MWT(  128) / 'benzene', 78.11  /
+      DATA  SPCA_SPC(  129), SPCA_MWT(  129) / 'benzyl_benzoate', 212.25  /
+      DATA  SPCA_SPC(  130), SPCA_MWT(  130) / 'benzyl_acetate', 150.18  /
+      DATA  SPCA_SPC(  131), SPCA_MWT(  131) / 'benzyl_alcohol', 108.14  /
+      DATA  SPCA_SPC(  132), SPCA_MWT(  132) / 'chavicol', 134.18  /
+      DATA  SPCA_SPC(  133), SPCA_MWT(  133) / 'cineole_1_8', 154.25  /
+      DATA  SPCA_SPC(  134), SPCA_MWT(  134) / 'cinnamaldehyde', 132.16  /
+      DATA  SPCA_SPC(  135), SPCA_MWT(  135) / 'cinnamic_acid', 148.16  /
+      DATA  SPCA_SPC(  136), SPCA_MWT(  136) / 'coniferyl_alcohol', 180.2  /
+      DATA  SPCA_SPC(  137), SPCA_MWT(  137) / '2met_nonatriene', 150.26  /
+      DATA  SPCA_SPC(  138), SPCA_MWT(  138) / 'ethyl_cinnamate', 176.22  /
+      DATA  SPCA_SPC(  139), SPCA_MWT(  139) / 'eugenol', 164.2  /
+      DATA  SPCA_SPC(  140), SPCA_MWT(  140) / 'guaiacol', 124.14  /
+      DATA  SPCA_SPC(  141), SPCA_MWT(  141) / 'hexanal', 100.16  /
+      DATA  SPCA_SPC(  142), SPCA_MWT(  142) / 'hexanol_1', 102.18  /
+      DATA  SPCA_SPC(  143), SPCA_MWT(  143) / 'hexenal_c3', 98.14  /
+      DATA  SPCA_SPC(  144), SPCA_MWT(  144) / 'hexenal_t2', 98.14  /
+      DATA  SPCA_SPC(  145), SPCA_MWT(  145) / 'hexenol_c3', 100.16  /
+      DATA  SPCA_SPC(  146), SPCA_MWT(  146) / 'hexenyl_ACT_c3', 142.2  /
+      DATA  SPCA_SPC(  147), SPCA_MWT(  147) / 'hydrogen_cyanide', 27.03  /
+      DATA  SPCA_SPC(  148), SPCA_MWT(  148) / 'isobutyronitrile', 69.11  /
+      DATA  SPCA_SPC(  149), SPCA_MWT(  149) / 'jasmone', 164.25  /
+      DATA  SPCA_SPC(  150), SPCA_MWT(  150) / 'linalool', 154.25  /
+      DATA  SPCA_SPC(  151), SPCA_MWT(  151) / 'linalool_OXD_c', 170.25  /
+      DATA  SPCA_SPC(  152), SPCA_MWT(  152) / 'linalool_OXD_t', 170.25  /
+      DATA  SPCA_SPC(  153), SPCA_MWT(  153) / 'methacrolein', 70.09  /
+      DATA  SPCA_SPC(  154), SPCA_MWT(  154) / 'met_benzoate', 136.15  /
+      DATA  SPCA_SPC(  155), SPCA_MWT(  155) / 'met_jasmonate', 224.3  /
+      DATA  SPCA_SPC(  156), SPCA_MWT(  156) / 'met_salicylate', 152.15  /
+      DATA  SPCA_SPC(  157), SPCA_MWT(  157) / 'met_acetate', 74.08  /
+      DATA  SPCA_SPC(  158), SPCA_MWT(  158) / 'met_vinylketone', 70.09  /
+      DATA  SPCA_SPC(  159), SPCA_MWT(  159) / 'p_coumaric_acid', 164.16  /
+      DATA  SPCA_SPC(  160), SPCA_MWT(  160) / 'phenol', 94.11  /
+      DATA  SPCA_SPC(  161), SPCA_MWT(  161) / 'phenylacetaldehyde', 120.15  /
+      DATA  SPCA_SPC(  162), SPCA_MWT(  162) / 'safrole', 162.19  /
+      DATA  SPCA_SPC(  163), SPCA_MWT(  163) / 'salicylaldehyde', 122.12  /
+      DATA  SPCA_SPC(  164), SPCA_MWT(  164) / 'toluene', 92.14  /
+      DATA  SPCA_SPC(  165), SPCA_MWT(  165) / '3met_3DCTT', 218.38  /
+      DATA  SPCA_SPC(  166), SPCA_MWT(  166) / 'xylene', 106.17  /
+      DATA  SPCA_SPC(  167), SPCA_MWT(  167) / 'z2_penten_1ol', 86.13  /
+      DATA  SPCA_SPC(  168), SPCA_MWT(  168) / 'z2_penten_3ol', 86.13  /
+      DATA  SPCA_SPC(  169), SPCA_MWT(  169) / 'z3_hexen_1yl_butyrate', 170.25  /
+
+! OTHER
+      DATA  SPCA_SPC(  170), SPCA_MWT(  170) / 'butanone_2', 72.11  /
+      DATA  SPCA_SPC(  171), SPCA_MWT(  171) / 'carbon_2s', 76.14  /
+      DATA  SPCA_SPC(  172), SPCA_MWT(  172) / 'carbonyl_s', 60.08  /
+      DATA  SPCA_SPC(  173), SPCA_MWT(  173) / 'decane', 142.28  /
+      DATA  SPCA_SPC(  174), SPCA_MWT(  174) / 'diallyl_2s', 146.28  /
+      DATA  SPCA_SPC(  175), SPCA_MWT(  175) / '2met_2s', 94.2  /
+      DATA  SPCA_SPC(  176), SPCA_MWT(  176) / '2met_s', 62.14  /
+      DATA  SPCA_SPC(  177), SPCA_MWT(  177) / 'dodecene_1', 168.32  /
+      DATA  SPCA_SPC(  178), SPCA_MWT(  178) / 'heptanal', 114.19  /
+      DATA  SPCA_SPC(  179), SPCA_MWT(  179) / 'heptane', 100.2  /
+      DATA  SPCA_SPC(  180), SPCA_MWT(  180) / 'heptanone', 114.19  /
+      DATA  SPCA_SPC(  181), SPCA_MWT(  181) / 'hexane', 86.18  /
+      DATA  SPCA_SPC(  182), SPCA_MWT(  182) / 'hydrogen_s', 34.08  /
+      DATA  SPCA_SPC(  183), SPCA_MWT(  183) / 'indole', 117.15  /
+      DATA  SPCA_SPC(  184), SPCA_MWT(  184) / 'methane', 16.04  /
+      DATA  SPCA_SPC(  185), SPCA_MWT(  185) / 'met_bromide', 94.94  /
+      DATA  SPCA_SPC(  186), SPCA_MWT(  186) / 'met_chloride', 50.49  /
+      DATA  SPCA_SPC(  187), SPCA_MWT(  187) / 'met_iodide', 141.94  /
+      DATA  SPCA_SPC(  188), SPCA_MWT(  188) / 'met_mercaptan', 48.11  /
+      DATA  SPCA_SPC(  189), SPCA_MWT(  189) / 'met_propenyl_2s', 120.24  /
+      DATA  SPCA_SPC(  190), SPCA_MWT(  190) / 'MBO_3m2e1ol', 86.13  /
+      DATA  SPCA_SPC(  191), SPCA_MWT(  191) / 'MBO_3m3e1ol', 86.13  /
+      DATA  SPCA_SPC(  192), SPCA_MWT(  192) / 'naphthalene', 128.17  /
+      DATA  SPCA_SPC(  193), SPCA_MWT(  193) / 'pentane', 72.15  /
+      DATA  SPCA_SPC(  194), SPCA_MWT(  194) / 'PPPP_2s', 148.29  /
+      DATA  SPCA_SPC(  195), SPCA_MWT(  195) / 'santene', 122.21  /
+      DATA  SPCA_SPC(  196), SPCA_MWT(  196) / 'skatole', 131.18  /
+      DATA  SPCA_SPC(  197), SPCA_MWT(  197) / 'terpinyl_ACT_a', 196.29  /
+      DATA  SPCA_SPC(  198), SPCA_MWT(  198) / 'tetradecene_1', 196.38  /
+      DATA  SPCA_SPC(  199), SPCA_MWT(  199) / 'undecane', 156.31  /
+
+! CO 
+      DATA  SPCA_SPC(  200), SPCA_MWT(  200) / 'carbon_monoxide', 28.01  /
+
+! NO
+      DATA  SPCA_SPC(  201), SPCA_MWT(  201) / 'nitric_OXD', 30.01  /
+
+!=======================================================================
+!  MAP_MGN20T201.EXT
+!  This include file contains conversion table for MEGAN species to
+!  201 species
+!
+!  MEGAN v3
+!  INPUT version 3
+!
+!  History:
+!  Who          When       What
+!  ---------------------------------------------------------------------
+!  Tan          12/02/06 - Creates this file
+!  Tan          08/14/07 - Move from MEGAN v2.0 to MEGAN v2.02 with no update.
+!  Ling Huang   03/14/17 - Updated for MEGAN3 based on Alex Guenther's
+!                                         "Description Speciation.xlsx"
+!=======================================================================
+
+      INTEGER,PARAMETER :: N_SMAP_SPC = 201   ! Number of map species
+
+      CHARACTER*16   SPCA_NAM( N_SMAP_SPC )   ! speciated species name
+      INTEGER        SPCA_MAP( N_SMAP_SPC )   ! speciated species name
+                                              ! mapped to SPCAT_SPC.EXT
+      CHARACTER*16   MG20_NAM( N_SMAP_SPC )   ! MEGAN species
+      INTEGER        MG20_MAP( N_SMAP_SPC )   ! MEGAN species mapped to
+                                              ! MGN_SPC.EXT
+      REAL           EFFS_ALL( N_SMAP_SPC )   ! speciated species fraction
+                                              ! to MEGAN species
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! _a  = alpha, _b  = beta, _c  = cis, _al = allo,
+! _g  = gamma, _d  = delta, _t  = trans, _m  = methyl,
+! _p  = para, _o  = ortho, _e  = ene, _ol = ol ,
+! met = methyl, 2met= dimethyl, MBO = methylbutenol        ,
+! 2s  = disulfide, s   = sulfide, OXD = oxide, ACT = acetate,
+! PPPP= propenylpropyl       , DCTT= decatetraene         ,
+! COTHER= acetaldehyde       , 3met = trimethhyl
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+      DATA SPCA_NAM( 1), SPCA_MAP( 1), MG20_NAM( 1), MG20_MAP( 1), EFFS_ALL( 1)
+     &     /'isoprene',   1   ,'ISOP',    1,     1   /
+      DATA SPCA_NAM( 2), SPCA_MAP( 2), MG20_NAM( 2), MG20_MAP( 2), EFFS_ALL( 2)
+     &     /'MBO_2m3e2ol',   2   ,'MBO',    2,     1   /
+      DATA SPCA_NAM( 3), SPCA_MAP( 3), MG20_NAM( 3), MG20_MAP( 3), EFFS_ALL( 3)
+     &     /'pinene_a',   3   ,'MT_PINE',    3,     1   /
+      DATA SPCA_NAM( 4), SPCA_MAP( 4), MG20_NAM( 4), MG20_MAP( 4), EFFS_ALL( 4)
+     &     /'myrcene',   5   ,'MT_ACYC',    4,     0.5   /
+      DATA SPCA_NAM( 5), SPCA_MAP( 5), MG20_NAM( 5), MG20_MAP( 5), EFFS_ALL( 5)
+     &     /'ocimene_al',   6   ,'MT_ACYC',    4,     0.01   /
+      DATA SPCA_NAM( 6), SPCA_MAP( 6), MG20_NAM( 6), MG20_MAP( 6), EFFS_ALL( 6)
+     &     /'ocimene_c_b',   7   ,'MT_ACYC',    4,     0.09   /
+      DATA SPCA_NAM( 7), SPCA_MAP( 7), MG20_NAM( 7), MG20_MAP( 7), EFFS_ALL( 7)
+     &     /'ocimene_t_b',   8   ,'MT_ACYC',    4,     0.4   /
+      DATA SPCA_NAM( 8), SPCA_MAP( 8), MG20_NAM( 8), MG20_MAP( 8), EFFS_ALL( 8)
+     &     /'pinene_b',   4   ,'MT_CAMP',    5,     0.33   /
+      DATA SPCA_NAM( 9), SPCA_MAP( 9), MG20_NAM( 9), MG20_MAP( 9), EFFS_ALL( 9)
+     &     /'camphene',   10   ,'MT_CAMP',    5,     0.18   /
+      DATA SPCA_NAM( 10), SPCA_MAP( 10), MG20_NAM( 10), MG20_MAP( 10), EFFS_ALL( 10)
+     &     /'bornene',   9   ,'MT_CAMP',    5,     0.005   /
+      DATA SPCA_NAM( 11), SPCA_MAP( 11), MG20_NAM( 11), MG20_MAP( 11), EFFS_ALL( 11)
+     &     /'fenchene_a',   12   ,'MT_CAMP',    5,     0.005   /
+      DATA SPCA_NAM( 12), SPCA_MAP( 12), MG20_NAM( 12), MG20_MAP( 12), EFFS_ALL( 12)
+     &     /'carene_3',   11   ,'MT_CAMP',    5,     0.2   /
+      DATA SPCA_NAM( 13), SPCA_MAP( 13), MG20_NAM( 13), MG20_MAP( 13), EFFS_ALL( 13)
+     &     /'fenchene_b',   13   ,'MT_CAMP',    5,     0.005   /
+      DATA SPCA_NAM( 14), SPCA_MAP( 14), MG20_NAM( 14), MG20_MAP( 14), EFFS_ALL( 14)
+     &     /'tricyclene',   14   ,'MT_CAMP',    5,     0.02   /
+      DATA SPCA_NAM( 15), SPCA_MAP( 15), MG20_NAM( 15), MG20_MAP( 15), EFFS_ALL( 15)
+     &     /'thujene_a',   22   ,'MT_CAMP',    5,     0.04   /
+      DATA SPCA_NAM( 16), SPCA_MAP( 16), MG20_NAM( 16), MG20_MAP( 16), EFFS_ALL( 16)
+     &     /'sabinene',   18   ,'MT_CAMP',    5,     0.14   /
+      DATA SPCA_NAM( 17), SPCA_MAP( 17), MG20_NAM( 17), MG20_MAP( 17), EFFS_ALL( 17)
+     &     /'terpineol_a',   40   ,'MT_CAMP',    5,     0.05   /
+      DATA SPCA_NAM( 18), SPCA_MAP( 18), MG20_NAM( 18), MG20_MAP( 18), EFFS_ALL( 18)
+     &     /'terpineol_4',   39   ,'MT_CAMP',    5,     0.02   /
+      DATA SPCA_NAM( 19), SPCA_MAP( 19), MG20_NAM( 19), MG20_MAP( 19), EFFS_ALL( 19)
+     &     /'terpinyl_ACT_a',   197   ,'MT_CAMP',    5,     0.005   /
+      DATA SPCA_NAM( 20), SPCA_MAP( 20), MG20_NAM( 20), MG20_MAP( 20), EFFS_ALL( 20)
+     &     /'phellandrene_a',   17   ,'MT_SABI',    6,     0.06   /
+      DATA SPCA_NAM( 21), SPCA_MAP( 21), MG20_NAM( 21), MG20_MAP( 21), EFFS_ALL( 21)
+     &     /'terpinene_g',   20   ,'MT_SABI',    6,     0.09   /
+      DATA SPCA_NAM( 22), SPCA_MAP( 22), MG20_NAM( 22), MG20_MAP( 22), EFFS_ALL( 22)
+     &     /'terpinene_a',   19   ,'MT_SABI',    6,     0.07   /
+      DATA SPCA_NAM( 23), SPCA_MAP( 23), MG20_NAM( 23), MG20_MAP( 23), EFFS_ALL( 23)
+     &     /'limonene',   15   ,'MT_SABI',    6,     0.6   /
+      DATA SPCA_NAM( 24), SPCA_MAP( 24), MG20_NAM( 24), MG20_MAP( 24), EFFS_ALL( 24)
+     &     /'phellandrene_b',   16   ,'MT_SABI',    6,     0.1   /
+      DATA SPCA_NAM( 25), SPCA_MAP( 25), MG20_NAM( 25), MG20_MAP( 25), EFFS_ALL( 25)
+     &     /'terpinolene',   21   ,'MT_SABI',    6,     0.075   /
+      DATA SPCA_NAM( 26), SPCA_MAP( 26), MG20_NAM( 26), MG20_MAP( 26), EFFS_ALL( 26)
+     &     /'verbenene',   23   ,'MT_SABI',    6,     0.005   /
+      DATA SPCA_NAM( 27), SPCA_MAP( 27), MG20_NAM( 27), MG20_MAP( 27), EFFS_ALL( 27)
+     &     /'cymene_p',   25   ,'MT_AROM',    7,     0.2   /
+      DATA SPCA_NAM( 28), SPCA_MAP( 28), MG20_NAM( 28), MG20_MAP( 28), EFFS_ALL( 28)
+     &     /'cymene_o',   24   ,'MT_AROM',    7,     0.07   /
+      DATA SPCA_NAM( 29), SPCA_MAP( 29), MG20_NAM( 29), MG20_MAP( 29), EFFS_ALL( 29)
+     &     /'meta-cymenene',   26   ,'MT_AROM',    7,     0.02   /
+      DATA SPCA_NAM( 30), SPCA_MAP( 30), MG20_NAM( 30), MG20_MAP( 30), EFFS_ALL( 30)
+     &     /'p-cymenene',   27   ,'MT_AROM',    7,     0.05   /
+      DATA SPCA_NAM( 31), SPCA_MAP( 31), MG20_NAM( 31), MG20_MAP( 31), EFFS_ALL( 31)
+     &     /'camphor',   30   ,'MT_AROM',    7,     0.08   /
+      DATA SPCA_NAM( 32), SPCA_MAP( 32), MG20_NAM( 32), MG20_MAP( 32), EFFS_ALL( 32)
+     &     /'bornyl_ACT',   29   ,'MT_AROM',    7,     0.02   /
+      DATA SPCA_NAM( 33), SPCA_MAP( 33), MG20_NAM( 33), MG20_MAP( 33), EFFS_ALL( 33)
+     &     /'piperitone',   38   ,'MT_AROM',    7,     0.01   /
+      DATA SPCA_NAM( 34), SPCA_MAP( 34), MG20_NAM( 34), MG20_MAP( 34), EFFS_ALL( 34)
+     &     /'estragole',   31   ,'MT_AROM',    7,     0.02   /
+      DATA SPCA_NAM( 35), SPCA_MAP( 35), MG20_NAM( 35), MG20_MAP( 35), EFFS_ALL( 35)
+     &     /'borneol',   28   ,'MT_AROM',    7,     0.05   /
+      DATA SPCA_NAM( 36), SPCA_MAP( 36), MG20_NAM( 36), MG20_MAP( 36), EFFS_ALL( 36)
+     &     /'thujone_b',   42   ,'MT_AROM',    7,     0.02   /
+      DATA SPCA_NAM( 37), SPCA_MAP( 37), MG20_NAM( 37), MG20_MAP( 37), EFFS_ALL( 37)
+     &     /'thujone_a',   41   ,'MT_AROM',    7,     0.03   /
+      DATA SPCA_NAM( 38), SPCA_MAP( 38), MG20_NAM( 38), MG20_MAP( 38), EFFS_ALL( 38)
+     &     /'linalool',   150   ,'MT_AROM',    7,     0.2   /
+      DATA SPCA_NAM( 39), SPCA_MAP( 39), MG20_NAM( 39), MG20_MAP( 39), EFFS_ALL( 39)
+     &     /'santene',   195   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 40), SPCA_MAP( 40), MG20_NAM( 40), MG20_MAP( 40), EFFS_ALL( 40)
+     &     /'coniferyl_alcohol',   136   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 41), SPCA_MAP( 41), MG20_NAM( 41), MG20_MAP( 41), EFFS_ALL( 41)
+     &     /'cineole_1_8',   133   ,'MT_AROM',    7,     0.2   /
+      DATA SPCA_NAM( 42), SPCA_MAP( 42), MG20_NAM( 42), MG20_MAP( 42), EFFS_ALL( 42)
+     &     /'myrtenal',   35   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 43), SPCA_MAP( 43), MG20_NAM( 43), MG20_MAP( 43), EFFS_ALL( 43)
+     &     /'fenchone',   32   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 44), SPCA_MAP( 44), MG20_NAM( 44), MG20_MAP( 44), EFFS_ALL( 44)
+     &     /'ionone_b',   33   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 45), SPCA_MAP( 45), MG20_NAM( 45), MG20_MAP( 45), EFFS_ALL( 45)
+     &     /'ipsenol',   34   ,'MT_AROM',    7,     0.005   /
+      DATA SPCA_NAM( 46), SPCA_MAP( 46), MG20_NAM( 46), MG20_MAP( 46), EFFS_ALL( 46)
+     &     /'carbon_monoxide',   200   ,'CO',    19,     1   /
+      DATA SPCA_NAM( 47), SPCA_MAP( 47), MG20_NAM( 47), MG20_MAP( 47), EFFS_ALL( 47)
+     &     /'caryophyllene_b',   51   ,'SQT_HR',    9,     0.5   /
+      DATA SPCA_NAM( 48), SPCA_MAP( 48), MG20_NAM( 48), MG20_MAP( 48), EFFS_ALL( 48)
+     &     /'caryophyllene_c_i',   52   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 49), SPCA_MAP( 49), MG20_NAM( 49), MG20_MAP( 49), EFFS_ALL( 49)
+     &     /'cadinene_d',   48   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 50), SPCA_MAP( 50), MG20_NAM( 50), MG20_MAP( 50), EFFS_ALL( 50)
+     &     /'cadinene_d',   48   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 51), SPCA_MAP( 51), MG20_NAM( 51), MG20_MAP( 51), EFFS_ALL( 51)
+     &     /'bisabolene_b',   47   ,'SQT_HR',    9,     0.02   /
+      DATA SPCA_NAM( 52), SPCA_MAP( 52), MG20_NAM( 52), MG20_MAP( 52), EFFS_ALL( 52)
+     &     /'farnescene_a',   54   ,'SQT_HR',    9,     0.05   /
+      DATA SPCA_NAM( 53), SPCA_MAP( 53), MG20_NAM( 53), MG20_MAP( 53), EFFS_ALL( 53)
+     &     /'patchoulene_b',   65   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 54), SPCA_MAP( 54), MG20_NAM( 54), MG20_MAP( 54), EFFS_ALL( 54)
+     &     /'elemene_b',   53   ,'SQT_HR',    9,     0.01   /
+      DATA SPCA_NAM( 55), SPCA_MAP( 55), MG20_NAM( 55), MG20_MAP( 55), EFFS_ALL( 55)
+     &     /'nerolidol_c',   63   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 56), SPCA_MAP( 56), MG20_NAM( 56), MG20_MAP( 56), EFFS_ALL( 56)
+     &     /'farnesol',   56   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 57), SPCA_MAP( 57), MG20_NAM( 57), MG20_MAP( 57), EFFS_ALL( 57)
+     &     /'humulene_a',   59   ,'SQT_HR',    9,     0.1   /
+      DATA SPCA_NAM( 58), SPCA_MAP( 58), MG20_NAM( 58), MG20_MAP( 58), EFFS_ALL( 58)
+     &     /'muurolene_a',   61   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 59), SPCA_MAP( 59), MG20_NAM( 59), MG20_MAP( 59), EFFS_ALL( 59)
+     &     /'bergamotene_a',   44   ,'SQT_HR',    9,     0.04   /
+      DATA SPCA_NAM( 60), SPCA_MAP( 60), MG20_NAM( 60), MG20_MAP( 60), EFFS_ALL( 60)
+     &     /'germacrene_B',   57   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 61), SPCA_MAP( 61), MG20_NAM( 61), MG20_MAP( 61), EFFS_ALL( 61)
+     &     /'selinene_b',   66   ,'SQT_HR',    9,     0.08   /
+      DATA SPCA_NAM( 62), SPCA_MAP( 62), MG20_NAM( 62), MG20_MAP( 62), EFFS_ALL( 62)
+     &     /'calarene',   50   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 63), SPCA_MAP( 63), MG20_NAM( 63), MG20_MAP( 63), EFFS_ALL( 63)
+     &     /'farnescene_b',   55   ,'SQT_HR',    9,     0.05   /
+      DATA SPCA_NAM( 64), SPCA_MAP( 64), MG20_NAM( 64), MG20_MAP( 64), EFFS_ALL( 64)
+     &     /'acoradiene',   43   ,'SQT_HR',    9,     0.01   /
+      DATA SPCA_NAM( 65), SPCA_MAP( 65), MG20_NAM( 65), MG20_MAP( 65), EFFS_ALL( 65)
+     &     /'humulene_g',   60   ,'SQT_HR',    9,     0.01   /
+      DATA SPCA_NAM( 66), SPCA_MAP( 66), MG20_NAM( 66), MG20_MAP( 66), EFFS_ALL( 66)
+     &     /'muurolene_g',   62   ,'SQT_HR',    9,     0.03   /
+      DATA SPCA_NAM( 67), SPCA_MAP( 67), MG20_NAM( 67), MG20_MAP( 67), EFFS_ALL( 67)
+     &     /'germacrene_D',   58   ,'SQT_HR',    9,     0.02   /
+      DATA SPCA_NAM( 68), SPCA_MAP( 68), MG20_NAM( 68), MG20_MAP( 68), EFFS_ALL( 68)
+     &     /'cadinene_g',   49   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 69), SPCA_MAP( 69), MG20_NAM( 69), MG20_MAP( 69), EFFS_ALL( 69)
+     &     /'nerolidol_t',   64   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 70), SPCA_MAP( 70), MG20_NAM( 70), MG20_MAP( 70), EFFS_ALL( 70)
+     &     /'bergamotene_b',   45   ,'SQT_HR',    9,     0.02   /
+      DATA SPCA_NAM( 71), SPCA_MAP( 71), MG20_NAM( 71), MG20_MAP( 71), EFFS_ALL( 71)
+     &     /'bisabolene_a',   46   ,'SQT_HR',    9,     0.005   /
+      DATA SPCA_NAM( 72), SPCA_MAP( 72), MG20_NAM( 72), MG20_MAP( 72), EFFS_ALL( 72)
+     &     /'cedrol',   73   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 73), SPCA_MAP( 73), MG20_NAM( 73), MG20_MAP( 73), EFFS_ALL( 73)
+     &     /'homosalate',   78   ,'SQT_LR',    10,     0.15   /
+      DATA SPCA_NAM( 74), SPCA_MAP( 74), MG20_NAM( 74), MG20_MAP( 74), EFFS_ALL( 74)
+     &     /'2ethyl_hexyl_salate',   68   ,'SQT_LR',    10,     0.08   /
+      DATA SPCA_NAM( 75), SPCA_MAP( 75), MG20_NAM( 75), MG20_MAP( 75), EFFS_ALL( 75)
+     &     /'cedrene_a',   72   ,'SQT_LR',    10,     0.03   /
+      DATA SPCA_NAM( 76), SPCA_MAP( 76), MG20_NAM( 76), MG20_MAP( 76), EFFS_ALL( 76)
+     &     /'thujopsene',   83   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 77), SPCA_MAP( 77), MG20_NAM( 77), MG20_MAP( 77), EFFS_ALL( 77)
+     &     /'longifolene',   81   ,'SQT_LR',    10,     0.15   /
+      DATA SPCA_NAM( 78), SPCA_MAP( 78), MG20_NAM( 78), MG20_MAP( 78), EFFS_ALL( 78)
+     &     /'cadinol_a',   71   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 79), SPCA_MAP( 79), MG20_NAM( 79), MG20_MAP( 79), EFFS_ALL( 79)
+     &     /'zingiberene_a',   85   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 80), SPCA_MAP( 80), MG20_NAM( 80), MG20_MAP( 80), EFFS_ALL( 80)
+     &     /'isolongifolene',   79   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 81), SPCA_MAP( 81), MG20_NAM( 81), MG20_MAP( 81), EFFS_ALL( 81)
+     &     /'longicyclene',   87   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 82), SPCA_MAP( 82), MG20_NAM( 82), MG20_MAP( 82), EFFS_ALL( 82)
+     &     /'copaene_a',   74   ,'SQT_LR',    10,     0.2   /
+      DATA SPCA_NAM( 83), SPCA_MAP( 83), MG20_NAM( 83), MG20_MAP( 83), EFFS_ALL( 83)
+     &     /'bourbonene_b',   70   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 84), SPCA_MAP( 84), MG20_NAM( 84), MG20_MAP( 84), EFFS_ALL( 84)
+     &     /'longipinene',   82   ,'SQT_LR',    10,     0.03   /
+      DATA SPCA_NAM( 85), SPCA_MAP( 85), MG20_NAM( 85), MG20_MAP( 85), EFFS_ALL( 85)
+     &     /'cubebene_b',   76   ,'SQT_LR',    10,     0.02   /
+      DATA SPCA_NAM( 86), SPCA_MAP( 86), MG20_NAM( 86), MG20_MAP( 86), EFFS_ALL( 86)
+     &     /'ylangene_a',   84   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 87), SPCA_MAP( 87), MG20_NAM( 87), MG20_MAP( 87), EFFS_ALL( 87)
+     &     /'cubebene_a',   75   ,'SQT_LR',    10,     0.05   /
+      DATA SPCA_NAM( 88), SPCA_MAP( 88), MG20_NAM( 88), MG20_MAP( 88), EFFS_ALL( 88)
+     &     /'copaene_b',   86   ,'SQT_LR',    10,     0.03   /
+      DATA SPCA_NAM( 89), SPCA_MAP( 89), MG20_NAM( 89), MG20_MAP( 89), EFFS_ALL( 89)
+     &     /'kaur_16_ene',   80   ,'SQT_LR',    10,     0.15   /
+      DATA SPCA_NAM( 90), SPCA_MAP( 90), MG20_NAM( 90), MG20_MAP( 90), EFFS_ALL( 90)
+     &     /'gurjunene_b',   77   ,'SQT_LR',    10,     0.01   /
+      DATA SPCA_NAM( 91), SPCA_MAP( 91), MG20_NAM( 91), MG20_MAP( 91), EFFS_ALL( 91)
+     &     /'aromadendrene',   69   ,'SQT_LR',    10,     0.02   /
+      DATA SPCA_NAM( 92), SPCA_MAP( 92), MG20_NAM( 92), MG20_MAP( 92), EFFS_ALL( 92)
+     &     /'methanol',   88   ,'MEOH',    11,     1   /
+      DATA SPCA_NAM( 93), SPCA_MAP( 93), MG20_NAM( 93), MG20_MAP( 93), EFFS_ALL( 93)
+     &     /'acetone',   89   ,'ACTO',    12,     1   /
+      DATA SPCA_NAM( 94), SPCA_MAP( 94), MG20_NAM( 94), MG20_MAP( 94), EFFS_ALL( 94)
+     &     /'ethanol',   91   ,'ETOH',    13,     0.5   /
+      DATA SPCA_NAM( 95), SPCA_MAP( 95), MG20_NAM( 95), MG20_MAP( 95), EFFS_ALL( 95)
+     &     /'acetaldehyde',   90   ,'ETOH',    13,     0.5   /
+      DATA SPCA_NAM( 96), SPCA_MAP( 96), MG20_NAM( 96), MG20_MAP( 96), EFFS_ALL( 96)
+     &     /'formic_acid',   93   ,'ACID',    14,     0.8   /
+      DATA SPCA_NAM( 97), SPCA_MAP( 97), MG20_NAM( 97), MG20_MAP( 97), EFFS_ALL( 97)
+     &     /'acetic_acid',   92   ,'ACID',    14,     0.19   /
+      DATA SPCA_NAM( 98), SPCA_MAP( 98), MG20_NAM( 98), MG20_MAP( 98), EFFS_ALL( 98)
+     &     /'pyruvic_acid',   94   ,'ACID',    14,     0.01   /
+      DATA SPCA_NAM( 99), SPCA_MAP( 99), MG20_NAM( 99), MG20_MAP( 99), EFFS_ALL( 99)
+     &     /'ethane',   100   ,'LVOC',    15,     0.18   /
+      DATA SPCA_NAM( 100), SPCA_MAP( 100), MG20_NAM( 100), MG20_MAP( 100), EFFS_ALL( 100)
+     &     /'ethene',   101   ,'LVOC',    15,     0.36   /
+      DATA SPCA_NAM( 101), SPCA_MAP( 101), MG20_NAM( 101), MG20_MAP( 101), EFFS_ALL( 101)
+     &     /'propane',   102   ,'LVOC',    15,     0.12   /
+      DATA SPCA_NAM( 102), SPCA_MAP( 102), MG20_NAM( 102), MG20_MAP( 102), EFFS_ALL( 102)
+     &     /'butane',   96   ,'LVOC',    15,     0.005   /
+      DATA SPCA_NAM( 103), SPCA_MAP( 103), MG20_NAM( 103), MG20_MAP( 103), EFFS_ALL( 103)
+     &     /'butene',   97   ,'LVOC',    15,     0.03   /
+      DATA SPCA_NAM( 104), SPCA_MAP( 104), MG20_NAM( 104), MG20_MAP( 104), EFFS_ALL( 104)
+     &     /'propene',   103   ,'LVOC',    15,     0.28   /
+      DATA SPCA_NAM( 105), SPCA_MAP( 105), MG20_NAM( 105), MG20_MAP( 105), EFFS_ALL( 105)
+     &     /'2_methylprop_1_ene',   95   ,'LVOC',    15,     0.01   /
+      DATA SPCA_NAM( 106), SPCA_MAP( 106), MG20_NAM( 106), MG20_MAP( 106), EFFS_ALL( 106)
+     &     /'butene_c2',   98   ,'LVOC',    15,     0.01   /
+      DATA SPCA_NAM( 107), SPCA_MAP( 107), MG20_NAM( 107), MG20_MAP( 107), EFFS_ALL( 107)
+     &     /'butene_t2',   99   ,'LVOC',    15,     0.005   /
+      DATA SPCA_NAM( 108), SPCA_MAP( 108), MG20_NAM( 108), MG20_MAP( 108), EFFS_ALL( 108)
+     &     /'formaldehyde',   113   ,'OXPROD',    16,     0.9   /
+      DATA SPCA_NAM( 109), SPCA_MAP( 109), MG20_NAM( 109), MG20_MAP( 109), EFFS_ALL( 109)
+     &     /'pentanal',   111   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 110), SPCA_MAP( 110), MG20_NAM( 110), MG20_MAP( 110), EFFS_ALL( 110)
+     &     /'heptanal',   178   ,'OTHER',    18,     0.005   /
+      DATA SPCA_NAM( 111), SPCA_MAP( 111), MG20_NAM( 111), MG20_MAP( 111), EFFS_ALL( 111)
+     &     /'met_heptenone',   106   ,'OXPROD',    16,     0.01   /
+      DATA SPCA_NAM( 112), SPCA_MAP( 112), MG20_NAM( 112), MG20_MAP( 112), EFFS_ALL( 112)
+     &     /'decanal',   104   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 113), SPCA_MAP( 113), MG20_NAM( 113), MG20_MAP( 113), EFFS_ALL( 113)
+     &     /'octanal',   110   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 114), SPCA_MAP( 114), MG20_NAM( 114), MG20_MAP( 114), EFFS_ALL( 114)
+     &     /'nonanal',   108   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 115), SPCA_MAP( 115), MG20_NAM( 115), MG20_MAP( 115), EFFS_ALL( 115)
+     &     /'oxopentanal',   114   ,'OXPROD',    16,     0.03   /
+      DATA SPCA_NAM( 116), SPCA_MAP( 116), MG20_NAM( 116), MG20_MAP( 116), EFFS_ALL( 116)
+     &     /'nonenal',   109   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 117), SPCA_MAP( 117), MG20_NAM( 117), MG20_MAP( 117), EFFS_ALL( 117)
+     &     /'t-2-octenal',   112   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 118), SPCA_MAP( 118), MG20_NAM( 118), MG20_MAP( 118), EFFS_ALL( 118)
+     &     /'geranyl_acetone',   105   ,'OXPROD',    16,     0.02   /
+      DATA SPCA_NAM( 119), SPCA_MAP( 119), MG20_NAM( 119), MG20_MAP( 119), EFFS_ALL( 119)
+     &     /'neryl_acetone',   107   ,'OXPROD',    16,     0.005   /
+      DATA SPCA_NAM( 120), SPCA_MAP( 120), MG20_NAM( 120), MG20_MAP( 120), EFFS_ALL( 120)
+     &     /'hexanal',   141   ,'STRESS',    17,     0.06   /
+      DATA SPCA_NAM( 121), SPCA_MAP( 121), MG20_NAM( 121), MG20_MAP( 121), EFFS_ALL( 121)
+     &     /'guaiacol',   140   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 122), SPCA_MAP( 122), MG20_NAM( 122), MG20_MAP( 122), EFFS_ALL( 122)
+     &     /'eugenol',   139   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 123), SPCA_MAP( 123), MG20_NAM( 123), MG20_MAP( 123), EFFS_ALL( 123)
+     &     /'phenylacetaldehyde',   161   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 124), SPCA_MAP( 124), MG20_NAM( 124), MG20_MAP( 124), EFFS_ALL( 124)
+     &     /'anisole',   126   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 125), SPCA_MAP( 125), MG20_NAM( 125), MG20_MAP( 125), EFFS_ALL( 125)
+     &     /'ethyl_cinnamate',   138   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 126), SPCA_MAP( 126), MG20_NAM( 126), MG20_MAP( 126), EFFS_ALL( 126)
+     &     /'cinnamaldehyde',   134   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 127), SPCA_MAP( 127), MG20_NAM( 127), MG20_MAP( 127), EFFS_ALL( 127)
+     &     /'cinnamic_acid',   135   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 128), SPCA_MAP( 128), MG20_NAM( 128), MG20_MAP( 128), EFFS_ALL( 128)
+     &     /'jasmone',   149   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 129), SPCA_MAP( 129), MG20_NAM( 129), MG20_MAP( 129), EFFS_ALL( 129)
+     &     /'chavicol',   132   ,'STRESS',    17,     0.02   /
+      DATA SPCA_NAM( 130), SPCA_MAP( 130), MG20_NAM( 130), MG20_MAP( 130), EFFS_ALL( 130)
+     &     /'salicylaldehyde',   163   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 131), SPCA_MAP( 131), MG20_NAM( 131), MG20_MAP( 131), EFFS_ALL( 131)
+     &     /'p_coumaric_acid',   159   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 132), SPCA_MAP( 132), MG20_NAM( 132), MG20_MAP( 132), EFFS_ALL( 132)
+     &     /'linalool_OXD_c',   151   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 133), SPCA_MAP( 133), MG20_NAM( 133), MG20_MAP( 133), EFFS_ALL( 133)
+     &     /'linalool_OXD_t',   152   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 134), SPCA_MAP( 134), MG20_NAM( 134), MG20_MAP( 134), EFFS_ALL( 134)
+     &     /'2met_nonatriene',   137   ,'STRESS',    17,     0.05   /
+      DATA SPCA_NAM( 135), SPCA_MAP( 135), MG20_NAM( 135), MG20_MAP( 135), EFFS_ALL( 135)
+     &     /'3met_3DCTT',   165   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 136), SPCA_MAP( 136), MG20_NAM( 136), MG20_MAP( 136), EFFS_ALL( 136)
+     &     /'1_pentanol',   115   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 137), SPCA_MAP( 137), MG20_NAM( 137), MG20_MAP( 137), EFFS_ALL( 137)
+     &     /'benzene',   128   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 138), SPCA_MAP( 138), MG20_NAM( 138), MG20_MAP( 138), EFFS_ALL( 138)
+     &     /'hydrogen_cyanide',   147   ,'STRESS',    17,     0.05   /
+      DATA SPCA_NAM( 139), SPCA_MAP( 139), MG20_NAM( 139), MG20_MAP( 139), EFFS_ALL( 139)
+     &     /'isobutyronitrile',   148   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 140), SPCA_MAP( 140), MG20_NAM( 140), MG20_MAP( 140), EFFS_ALL( 140)
+     &     /'methacrolein',   153   ,'STRESS',    17,     0.05   /
+      DATA SPCA_NAM( 141), SPCA_MAP( 141), MG20_NAM( 141), MG20_MAP( 141), EFFS_ALL( 141)
+     &     /'met_vinylketone',   158   ,'STRESS',    17,     0.05   /
+      DATA SPCA_NAM( 142), SPCA_MAP( 142), MG20_NAM( 142), MG20_MAP( 142), EFFS_ALL( 142)
+     &     /'met_acetate',   157   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 143), SPCA_MAP( 143), MG20_NAM( 143), MG20_MAP( 143), EFFS_ALL( 143)
+     &     /'met_benzoate',   154   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 144), SPCA_MAP( 144), MG20_NAM( 144), MG20_MAP( 144), EFFS_ALL( 144)
+     &     /'safrole',   162   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 145), SPCA_MAP( 145), MG20_NAM( 145), MG20_MAP( 145), EFFS_ALL( 145)
+     &     /'3_pentanone',   121   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 146), SPCA_MAP( 146), MG20_NAM( 146), MG20_MAP( 146), EFFS_ALL( 146)
+     &     /'acetophenone',   125   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 147), SPCA_MAP( 147), MG20_NAM( 147), MG20_MAP( 147), EFFS_ALL( 147)
+     &     /'benzyl_alcohol',   131   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 148), SPCA_MAP( 148), MG20_NAM( 148), MG20_MAP( 148), EFFS_ALL( 148)
+     &     /'benzaldehyde',   127   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 149), SPCA_MAP( 149), MG20_NAM( 149), MG20_MAP( 149), EFFS_ALL( 149)
+     &     /'toluene',   164   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 150), SPCA_MAP( 150), MG20_NAM( 150), MG20_MAP( 150), EFFS_ALL( 150)
+     &     /'phenol',   160   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 151), SPCA_MAP( 151), MG20_NAM( 151), MG20_MAP( 151), EFFS_ALL( 151)
+     &     /'2_pentene',   118   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 152), SPCA_MAP( 152), MG20_NAM( 152), MG20_MAP( 152), EFFS_ALL( 152)
+     &     /'hexanol_1',   142   ,'STRESS',    17,     0.02   /
+      DATA SPCA_NAM( 153), SPCA_MAP( 153), MG20_NAM( 153), MG20_MAP( 153), EFFS_ALL( 153)
+     &     /'met_salicylate',   156   ,'STRESS',    17,     0.09   /
+      DATA SPCA_NAM( 154), SPCA_MAP( 154), MG20_NAM( 154), MG20_MAP( 154), EFFS_ALL( 154)
+     &     /'benzyl_benzoate',   129   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 155), SPCA_MAP( 155), MG20_NAM( 155), MG20_MAP( 155), EFFS_ALL( 155)
+     &     /'benzyl_acetate',   130   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 156), SPCA_MAP( 156), MG20_NAM( 156), MG20_MAP( 156), EFFS_ALL( 156)
+     &     /'hexenal_t2',   144   ,'STRESS',    17,     0.05   /
+      DATA SPCA_NAM( 157), SPCA_MAP( 157), MG20_NAM( 157), MG20_MAP( 157), EFFS_ALL( 157)
+     &     /'3_metthiophene',   120   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 158), SPCA_MAP( 158), MG20_NAM( 158), MG20_MAP( 158), EFFS_ALL( 158)
+     &     /'4_penten_1_ol',   123   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 159), SPCA_MAP( 159), MG20_NAM( 159), MG20_MAP( 159), EFFS_ALL( 159)
+     &     /'hexenol_c3',   145   ,'STRESS',    17,     0.1   /
+      DATA SPCA_NAM( 160), SPCA_MAP( 160), MG20_NAM( 160), MG20_MAP( 160), EFFS_ALL( 160)
+     &     /'3_metfuran',   119   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 161), SPCA_MAP( 161), MG20_NAM( 161), MG20_MAP( 161), EFFS_ALL( 161)
+     &     /'met_jasmonate',   155   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 162), SPCA_MAP( 162), MG20_NAM( 162), MG20_MAP( 162), EFFS_ALL( 162)
+     &     /'xylene',   166   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 163), SPCA_MAP( 163), MG20_NAM( 163), MG20_MAP( 163), EFFS_ALL( 163)
+     &     /'z2_penten_1ol',   167   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 164), SPCA_MAP( 164), MG20_NAM( 164), MG20_MAP( 164), EFFS_ALL( 164)
+     &     /'1_penten_3_one',   116   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 165), SPCA_MAP( 165), MG20_NAM( 165), MG20_MAP( 165), EFFS_ALL( 165)
+     &     /'hexenyl_ACT_c3',   146   ,'STRESS',    17,     0.09   /
+      DATA SPCA_NAM( 166), SPCA_MAP( 166), MG20_NAM( 166), MG20_MAP( 166), EFFS_ALL( 166)
+     &     /'3_penten_2_ol',   122   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 167), SPCA_MAP( 167), MG20_NAM( 167), MG20_MAP( 167), EFFS_ALL( 167)
+     &     /'hexenal_c3',   143   ,'STRESS',    17,     0.1   /
+      DATA SPCA_NAM( 168), SPCA_MAP( 168), MG20_NAM( 168), MG20_MAP( 168), EFFS_ALL( 168)
+     &     /'indole',   183   ,'STRESS',    17,     0.01   /
+      DATA SPCA_NAM( 169), SPCA_MAP( 169), MG20_NAM( 169), MG20_MAP( 169), EFFS_ALL( 169)
+     &     /'8_heptadecene',   124   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 170), SPCA_MAP( 170), MG20_NAM( 170), MG20_MAP( 170), EFFS_ALL( 170)
+     &     /'z3_hexen_1yl_butyrate',   169   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 171), SPCA_MAP( 171), MG20_NAM( 171), MG20_MAP( 171), EFFS_ALL( 171)
+     &     /'2_met_butanenitrile',   117   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 172), SPCA_MAP( 172), MG20_NAM( 172), MG20_MAP( 172), EFFS_ALL( 172)
+     &     /'z2_penten_3ol',   168   ,'STRESS',    17,     0.005   /
+      DATA SPCA_NAM( 173), SPCA_MAP( 173), MG20_NAM( 173), MG20_MAP( 173), EFFS_ALL( 173)
+     &     /'methane',   184   ,'OTHER',    18,     0.15   /
+      DATA SPCA_NAM( 174), SPCA_MAP( 174), MG20_NAM( 174), MG20_MAP( 174), EFFS_ALL( 174)
+     &     /'met_bromide',   185   ,'OTHER',    18,     0.03   /
+      DATA SPCA_NAM( 175), SPCA_MAP( 175), MG20_NAM( 175), MG20_MAP( 175), EFFS_ALL( 175)
+     &     /'met_chloride',   186   ,'OTHER',    18,     0.15   /
+      DATA SPCA_NAM( 176), SPCA_MAP( 176), MG20_NAM( 176), MG20_MAP( 176), EFFS_ALL( 176)
+     &     /'met_iodide',   187   ,'OTHER',    18,     0.22   /
+      DATA SPCA_NAM( 177), SPCA_MAP( 177), MG20_NAM( 177), MG20_MAP( 177), EFFS_ALL( 177)
+     &     /'met_mercaptan',   188   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 178), SPCA_MAP( 178), MG20_NAM( 178), MG20_MAP( 178), EFFS_ALL( 178)
+     &     /'octenol_1e3ol',   37   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 179), SPCA_MAP( 179), MG20_NAM( 179), MG20_MAP( 179), EFFS_ALL( 179)
+     &     /'octanol',   36   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 180), SPCA_MAP( 180), MG20_NAM( 180), MG20_MAP( 180), EFFS_ALL( 180)
+     &     /'carbon_2s',   171   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 181), SPCA_MAP( 181), MG20_NAM( 181), MG20_MAP( 181), EFFS_ALL( 181)
+     &     /'2met_s',   176   ,'OTHER',    18,     0.1   /
+      DATA SPCA_NAM( 182), SPCA_MAP( 182), MG20_NAM( 182), MG20_MAP( 182), EFFS_ALL( 182)
+     &     /'butanone_2',   170   ,'OTHER',    18,     0.07   /
+      DATA SPCA_NAM( 183), SPCA_MAP( 183), MG20_NAM( 183), MG20_MAP( 183), EFFS_ALL( 183)
+     &     /'skatole',   196   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 184), SPCA_MAP( 184), MG20_NAM( 184), MG20_MAP( 184), EFFS_ALL( 184)
+     &     /'naphthalene',   192   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 185), SPCA_MAP( 185), MG20_NAM( 185), MG20_MAP( 185), EFFS_ALL( 185)
+     &     /'pentane',   193   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 186), SPCA_MAP( 186), MG20_NAM( 186), MG20_MAP( 186), EFFS_ALL( 186)
+     &     /'heptanone',   180   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 187), SPCA_MAP( 187), MG20_NAM( 187), MG20_MAP( 187), EFFS_ALL( 187)
+     &     /'hexane',   181   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 188), SPCA_MAP( 188), MG20_NAM( 188), MG20_MAP( 188), EFFS_ALL( 188)
+     &     /'dodecene_1',   177   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 189), SPCA_MAP( 189), MG20_NAM( 189), MG20_MAP( 189), EFFS_ALL( 189)
+     &     /'decane',   173   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 190), SPCA_MAP( 190), MG20_NAM( 190), MG20_MAP( 190), EFFS_ALL( 190)
+     &     /'heptane',   179   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 191), SPCA_MAP( 191), MG20_NAM( 191), MG20_MAP( 191), EFFS_ALL( 191)
+     &     /'carbonyl_s',   172   ,'OTHER',    18,     0.03   /
+      DATA SPCA_NAM( 192), SPCA_MAP( 192), MG20_NAM( 192), MG20_MAP( 192), EFFS_ALL( 192)
+     &     /'MBO_3m2e1ol',   190   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 193), SPCA_MAP( 193), MG20_NAM( 193), MG20_MAP( 193), EFFS_ALL( 193)
+     &     /'2met_2s',   175   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 194), SPCA_MAP( 194), MG20_NAM( 194), MG20_MAP( 194), EFFS_ALL( 194)
+     &     /'MBO_3m3e1ol',   191   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 195), SPCA_MAP( 195), MG20_NAM( 195), MG20_MAP( 195), EFFS_ALL( 195)
+     &     /'undecane',   199   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 196), SPCA_MAP( 196), MG20_NAM( 196), MG20_MAP( 196), EFFS_ALL( 196)
+     &     /'tetradecene_1',   198   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 197), SPCA_MAP( 197), MG20_NAM( 197), MG20_MAP( 197), EFFS_ALL( 197)
+     &     /'diallyl_2s',   174   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 198), SPCA_MAP( 198), MG20_NAM( 198), MG20_MAP( 198), EFFS_ALL( 198)
+     &     /'PPPP_2s',   194   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 199), SPCA_MAP( 199), MG20_NAM( 199), MG20_MAP( 199), EFFS_ALL( 199)
+     &     /'met_propenyl_2s',   189   ,'OTHER',    18,     0.01   /
+      DATA SPCA_NAM( 200), SPCA_MAP( 200), MG20_NAM( 200), MG20_MAP( 200), EFFS_ALL( 200)
+     &     /'hydrogen_s',   182   ,'OTHER',    18,     0.05   /
+      DATA SPCA_NAM( 201), SPCA_MAP( 201), MG20_NAM( 201), MG20_MAP( 201), EFFS_ALL( 201)
+     &    / 'nitric_OXD',     201     , 'NO ',  8 ,   1   /

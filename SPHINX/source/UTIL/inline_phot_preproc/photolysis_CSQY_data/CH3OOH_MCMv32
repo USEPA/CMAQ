@@ -1,0 +1,46 @@
+CH3OOH_MCMv32
+!methyl peroxide (CH3OOH) absorption spectrum (1 bar, 298 K)
+!IUPAC 2005 Recommendation
+!http://www.iupac-kinetic.ch.cam.ac.uk
+!Cross-section and Quantum yield
+!G. L. Vaghjiani and A. R. Ravishankara, J. Geophys. Res. 94, 3487 (1989)
+!G. L. Vaghjiani and A. R. Ravishankara, J. Chem. Phys. 92, 996 (1990)
+!
+!phi (CH3O + OH) = unity at wavelengths > 290 nm
+!
+!wavelength (nm) sigma qy
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+210.0 31.2E-20 1.000 
+215.0 20.9E-20 1.000 
+220.0 15.4E-20 1.000 
+225.0 12.2E-20 1.000 
+230.0 9.62E-20 1.000 
+235.0 7.61E-20 1.000 
+240.0 6.05E-20 1.000 
+245.0 4.88E-20 1.000 
+250.0 3.98E-20 1.000 
+255.0 3.23E-20 1.000 
+260.0 2.56E-20 1.000 
+265.0 2.11E-20 1.000 
+270.0 1.70E-20 1.000 
+275.0 1.39E-20 1.000 
+280.0 1.09E-20 1.000 
+285.0 8.63E-21 1.000 
+290.0 6.91E-21 1.000 
+295.0 5.51E-21 1.000 
+300.0 4.13E-21 1.000 
+305.0 3.13E-21 1.000 
+310.0 2.39E-21 1.000 
+315.0 1.82E-21 1.000 
+320.0 1.37E-21 1.000 
+325.0 1.05E-21 1.000 
+330.0 7.90E-22 1.000 
+335.0 6.10E-22 1.000 
+340.0 4.70E-22 1.000 
+345.0 3.50E-22 1.000 
+350.0 2.70E-22 1.000 
+355.0 2.10E-22 1.000 
+360.0 1.60E-22 1.000 
+365.0 1.20E-22 1.000 

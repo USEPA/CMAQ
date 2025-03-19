@@ -1,0 +1,26 @@
+&TR_nml
+
+TR_SPECIES_DATA = 
+
+!SPECIES ,MOLWT ,IC  ,IC_FAC  ,BC   ,BC_FAC ,DRYDEP SURR,FAC ,WET-SCAV SURR  ,FAC ,TR2AE SURR,TR2AQ SURR,ADVC  ,DIFF  ,DDEP  ,WDEP  ,CONC  
+'ADV_25' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_26' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_27' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_28' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_29' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_30' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_31' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_32' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_33' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_34' ,1.0   ,''  ,-1      ,''   ,-1     ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'TRN_25' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_26' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_27' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_28' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_29' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_30' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_31' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_32' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_33' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_34' ,1.0   ,''  ,-1      ,''   ,-1     ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes'
+/

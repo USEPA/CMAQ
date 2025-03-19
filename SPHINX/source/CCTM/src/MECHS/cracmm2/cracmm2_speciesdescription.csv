@@ -1,0 +1,219 @@
+Species,Description
+ACD,Acetaldehyde 
+ACE,Acetylene 
+ACO3,Acetyl peroxy radicals
+ACRO,Acrolein
+ACT,Acetone
+ACTP,Peroxy radicals formed from ACT
+ADCN,Aromatic-NO3 adduct from PHEN
+ADDC,Aromatic-HO adduct from CSL
+ALD,C3 and higher aldehydes
+API,Alpha-pinenes and other cyclic terpenes with one double bond
+APINP1,Peroxy radicals from API+NO3 that do not undergo autoxidation
+APINP2,Peroxy radicals from API+NO3 that undergo autoxidation
+APIP1,Peroxy radicals from API+OH that do not undergo autoxidation
+APIP2,Peroxy radicals from API+OH that undergo autoxidation
+BAL1,Peroxy radicals formed from BALD 
+BAL2,Peroxy radicals formed from BALD 
+BALD,Benzaldehyde and other aromatic aldehydes
+BALP,Peroxy radicals formed from BALD 
+BDE13,1;3-butadiene
+BDE13P,Peroxy radicals from BDE13
+BEN,Benzene
+BENP,Peroxy radicals formed from benzene
+CHO,Phenoxy radical formed from CSL
+CO,Carbon monoxide
+CSL,Cresol and other hydroxy substituted aromatics 
+DCB1,Unsaturated dicarbonyls
+DCB2,Unsaturated dicarbonyls
+DCB3,Unsaturated dicarbonyls
+EBZ,Ethylbenzene
+EBZP,Peroxy radicals from EBZ
+ECH4,Methane
+ELHOM,Extremely-low volatility highly oxygenated molecules from terpenes
+EOH,Ethanol
+ETE,ethene 
+ETEG,Ethylene glycol
+ETEP,Peroxy radicals formed from ETE
+ETH,ethane 
+ETHP,Peroxy radicals formed from ethane and other species 
+FURAN,Furans and other dienes
+FURANO2,Peroxy radicals from FURAN oxidation
+FURANONE,Ring-retaining ketone product from FURAN oxidation
+GLY,Glyoxal and glycoaldehydes 
+H2O2,Hydrogen peroxide
+HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
+HC10P,Peroxy radicals formed from HC10 
+HC10P2,Hydroxy peroxy radicals from HC10P alkoxy product
+HC3,Alkanes and other species with HO rate constant less than 3.4x10-12 cm3 s-1 
+HC3P,Peroxy radicals formed from HC3
+HC5,Alkanes and other species with HO rate constant between 3.4x10-12 and 6.8x10-12 cm3 s-1 
+HC5P,Peroxy radicals formed from HC5
+HCHO,Formaldehyde 
+HKET,Hydroxy ketone 
+HNO3,Nitric acid
+HNO4,Pernitric acid 
+HO,Hydroxy radical
+HO2,Hydroperoxy radical
+HOM,Highly oxygenated molecules from terpenes
+HONIT,Second generation monoterpene nitrates
+HONO,Nitrous acid 
+IEPOX,isoprene epoxydiols 
+IEPOXP,IEPOX intermediate (tracking species)
+INALD,Isoprene nitrates
+INO2,Isoprene nitrate-derived peroxy radicals
+IPX,Isoprene tetrafunctional compounds
+ISHP,Beta-hydroxy hydroperoxides from ISOP+HO2
+ISO,Isoprene 
+ISON,Beta-hydroxyalkylnitrates from ISOP+NO alkylnitrates from ISO+NO3
+ISOP,Peroxy radicals formed from ISO+HO 
+KET,ketones
+KETP,Peroxy radicals formed from KET
+LIM,d-limonene and other cyclic diene-terpenes 
+LIMAL,Limonene aldehyde and similar LIM-derived aldehydes
+LIMALP,Peroxy radicals from LIMAL
+LIMNP1,Peroxy radicals from LIM+NO3 that do not undergo autoxidation
+LIMNP2,Peroxy radicals from LIM+NO3 that undergo autoxidation
+LIMP1,Peroxy radicals from LIM+OH that do not undergo autoxidation
+LIMP2,Peroxy radicals from LIM+OH that undergo autoxidation
+MACP,Peroxy radicals formed from MACR+HO
+MACR,methacrolein and other C4 aldehydes 
+MAHP,Hydroperoxides from MACP+HO2 
+MCP,Peroxy radical formed from MACR + HO which does not form MPAN
+MCT,Methyl catechol
+MCTO,Alkoxy radical formed from MCT+HO and MCT+NO3
+MCTP,Radical formed fro MCT+O3 reaction 
+MEK,Methyl ethyl ketone
+MEKP,Peroxy radicals formed from MEK
+MGLY,Methylglyoxal and other alpha-carbonyl aldehydes 
+MO2,Methyl peroxy radical
+MOH,Methanol 
+MPAN,Peroxymethacryloylnitrate and other higher peroxyacylnitrates from isoprene oxidation
+MVK,Methyl vinyl ketone
+MVKP,Peroxy radicals formed from MVK
+N2O5,Dinitrogen pentoxide 
+NAPH,Naphthalene and other PAHs
+NAPHP,Peroxy radicals from NAPH oxidation
+NO,Nitric oxide 
+NO2,Nitrogen dioxide 
+NO3,Nitrogen trioxide
+O1D,Excited state oxygen atom; O(1D) 
+O3,Ozone
+O3P,Ground state oxygen atom; O(3P)
+OLI,Internal alkenes 
+OLIP,Peroxy radicals formed from OLI
+OLND,NO3-alkene adduct reacting via decomposition 
+OLNN,NO3-alkene adduct reacting to form carbonitrates + HO2 
+OLT,Terminal alkenes 
+OLTP,Peroxy radicals formed from OLT
+ONIT,Organic nitrates
+OP1,Methyl hydrogen peroxide 
+OP2,Higher organic peroxides 
+OP3,Semivolatile organic peroxide
+OPB,Terpene-derived peroxides
+ORA1,Formic acid
+ORA2,Acetic acid and higher acids 
+ORAP,Peroxy radical formed from ORA2 + HO reaction
+PAA,Peroxyacetic acids and higher analogs
+PAN,Peroxyacetyl nitrate and higher saturated PANs 
+PHEN,phenol and benzene diols
+PINAL,Pinonaldehyde and similar APIN-derived aldehydes
+PINALP,Peroxy radicals from PINAL oxidation
+PPN,Peroxypropionyl nitrate
+PROG,Propylene glyocol and other 3 carbon dialcohols
+RCO3,Higher saturated acyl peroxy radicals
+ROCIOXY,Intermediate volatility oxygenated ROC species (directly emitted)
+ROCN1ALK,Alkane-like ROC species with C* of 10-1 ug/m3
+ROCN1OXY1,Oxygenated ROC species with C* of 10-1 ug/m3 and O:C of 0.1
+ROCN1OXY3,Oxygenated ROC species with C* of 10-1 ug/m3 and O:C of 0.3
+ROCN1OXY6,Oxygenated ROC species with C* of 10-1 ug/m3 and O:C of 0.6
+ROCN2ALK,Alkane-like ROC species with C* of 10-2 ug/m3
+ROCN2OXY2,Oxygenated ROC species with C* of 10-1 ug/m3 and O:C of 0.2
+ROCN2OXY4,Oxygenated ROC species with C* of 10-2 ug/m3 and O:C of 0.4
+ROCN2OXY8,Oxygenated ROC species with C* of 10-2 ug/m3 and O:C of 0.8
+ROCP0ALK,Alkane-like ROC species with C* of 1 ug/m3
+ROCP0OXY2,Oxygenated ROC species with C* of 1 ug/m3 and O:C of 0.2
+ROCP0OXY4,Oxygenated ROC species with C* of 1 ug/m3 and O:C of 0.4
+ROCP1ALK,Alkane-like ROC species with C* of 10 ug/m3
+ROCP1ALKP,Peroxy radicals from ROCP1ALK oxidation
+ROCP1ALKP2,Hydroxy peroxy radicals from ROCP1ALK alkoxy product
+ROCP1OXY1,Oxygenated ROC species with C* of 10 ug/m3 and O:C of 0.1
+ROCP1OXY3,Oxygenated ROC species with C* of 10 ug/m3 and O:C of 0.3
+ROCP2ALK,Alkane-like ROC species with C* of 10+2 ug/m3
+ROCP2ALKP,Peroxy radicals from ROCP2ALK oxidation
+ROCP2ALKP2,Hydroxy peroxy radicals from ROCP2ALK alkoxy product
+ROCP2OXY2,Oxygenated ROC species with C* of 10+2 ug/m3 and O:C of 0.2
+ROCP3ALK,Alkane-like ROC species with C* of 10+3 ug/m3
+ROCP3ALKP,Peroxy radicals from ROCP3ALK oxidation
+ROCP3ALKP2,Hydroxy peroxy radicals from ROCP3ALK alkoxy product
+ROCP3OXY2,Oxygenated ROC species with C* of 10+3 ug/m3 and O:C of 0.2
+ROCP4ALK,Alkane-like ROC species with C* of 10+4 ug/m3
+ROCP4ALKP,Peroxy radicals from ROCP4ALK oxidation
+ROCP4ALKP2,Hydroxy peroxy radicals from ROCP4ALK alkoxy product
+ROCP4OXY2,Oxygenated ROC species with C* of 10+4 ug/m3 and O:C of 0.2
+ROCP5ALK,Alkane-like ROC species with C* of 10+5 ug/m3
+ROCP5ALKP,Peroxy radicals from ROCP5ALK oxidation
+ROCP5ALKP2,Hydroxy peroxy radicals from ROCP5ALK alkoxy product
+ROCP5ARO,Aromatic ROC species with C* of 10+5 ug/m3
+ROCP5AROP,Peroxy radicals from ROCP5ARO oxidation
+ROCP5OXY1,Oxygenated ROC species with C* of 10+5 ug/m3 and O:C of 0.1
+ROCP6ALK,Alkane-like ROC species with C* of 10+6 ug/m3
+ROCP6ALKP,Peroxy radicals from ROCP6ALK oxidation
+ROCP6ALKP2,Hydroxy peroxy radicals from ROCP6ALK alkoxy product
+ROCP6ARO,Aromatic ROC species with C* of 10+6 ug/m3
+ROCP6AROP,Peroxy radicals from ROCP6ARO oxidation
+ROCP6OXY1,Oxygenated ROC species with C* of 10+6 ug/m3 and O:C of 0.1
+ROH,C3 and higher alcohols 
+SESQ,Sesquiterpenes 
+SESQNRO2,Peroxy radicals from SESQ reaction with nitrate radicals
+SESQRO2,Peroxy radicals from SESQ reaction with OH
+SLOWROC,Slowly reacting ROC with kOH< 3.5x10-13 cm3 s-1 
+SO2,Sulfur dioxide
+STY,Styrene
+STYP,Peroxy radicals from STY
+SULF,Sulfuric acid
+SULRXN,Precursor of Aerosol Sulfate (tracking species) 
+TOL,Toluene 
+TOLP,Peroxy radicals formed from TOL
+TRPN,First generation monoterpene nitrates
+UALD,Unsaturated aldehydes
+UALP,Peroxy radicals formed from UALD 
+XO2,Accounts for addition NO to NO2 conversions (tracking species)
+XYL,Xylenes and other volatile aromatics 
+XYLP,Peroxy radicals formed from XYL
+HCL,Hydrochloric acid
+NH3,Ammonia
+ASO4,Total sulfur IV as sulfate
+ANH4,Ammonium ion
+ANO3,Nitrate ion
+ASOAT,An empirical SOA
+AGLY,SOA from reactive uptake of glyoxal on particles
+AORGC,SOA from cloud processing of GLY and MGLY
+AEC,Elemental carbon
+AOTHR,Primary unspeciated fine PM
+AFE,Iron ion
+AAL,Aluminum ion
+ASI,Silicon
+ATI,Titanium
+ACA,Calcium ion
+AMG,Magnesium ion
+AK,Potassium ion
+AMN,Manganese ion
+ACORS,Primary unspeciated coarse PM
+ASOIL,Lumped crustal species
+AORGH2O,Water associated with particulate organic compounds
+AH2O,Water associated with particulate inorganic compounds
+AH3OP,Hydronium ion tracer
+ANA,Sodium ion
+ACL,Chloride ion
+ASEACAT,Sea spray cations
+APOC,Primary organic carbon (legacy)
+APNCOM,Primary non-carbon organic matter (legacy)
+AISO3NOS,Non-sulfated SOA from IEPOX uptake
+AISO3OS,Organosulfate SOA from IEPOX uptake
+AISO4,Multifunctional product from heterogeneous uptake of IPX
+AISO5,Multifunctional product from heterogeneous uptake of INALD
+NUM,Number of particles
+SRF,Surface area of particles
+ATRPN,SOA from TRPN
+AHONIT,SOA from HONIT

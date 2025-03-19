@@ -1,0 +1,1190 @@
+       SUBROUTINE WR_GP2
+
+C**********************************************************************
+C
+C  FUNCTION: Create source code for the hrgp2 subroutine in EBI
+C
+C  PRECONDITIONS: None
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Created by Jerry Gipson, February, 2004
+C
+C**********************************************************************
+      USE ENV_VARS
+      USE GLOBAL_DATA
+
+      IMPLICIT NONE
+
+C..INCLUDES: 
+      INCLUDE SUBST_IOPARMS        ! IOAPI parameters
+      INCLUDE SUBST_IODECL         ! IOAPI declarations
+      INCLUDE SUBST_GC_SPC         ! Mechanism gas-phase species
+      INCLUDE SUBST_RXCMMN         ! Mechanism data
+      
+C..ARGUMENTS: None
+
+C..PARAMETERS:
+      INTEGER, PARAMETER   ::  GRPNO = 2
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER   JUNIT      ! gets unit no.
+      INTEGER   INDEX1     ! find position of string in list
+
+C..SAVED LOCAL VARIABLES: None
+ 
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER(  16 )  ::    PNAME = 'WR_GP2'     ! Program name
+      CHARACTER( 256 )  ::    MSG                  ! Message text
+      CHARACTER( 100 )  ::    LINEIN               ! Input line
+      CHARACTER(  CL )  ::    SPOUT                ! Ouput species
+      CHARACTER(  16 )  ::    SPEC     
+      CHARACTER( 256 )  ::    FNAME                ! Name of file to open
+      CHARACTER(  72 )  ::    CLINE                ! Line of c's
+      CHARACTER( 100 )  ::    LINOUT
+      CHARACTER( 100 )  ::    RXOUT
+      CHARACTER( 100 )  ::    BLANK_LINE
+      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  6 )  ::    COUT                 ! Output coefficient
+      CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
+   
+
+      INTEGER  :: E1, E2       ! end pos of string
+      INTEGER  :: IND          ! array index
+      INTEGER  :: IIN          ! Unit no. of input file
+      INTEGER  :: IOUT         ! Unit no. of output file
+      INTEGER  :: LOGDEV       ! Unit no. of logdev
+      INTEGER  :: N, S, P, R   ! Loop indices
+      INTEGER  :: NR           ! No. of reactants
+      INTEGER  :: NPOS         ! Reaction index
+      INTEGER  :: RPOS1        !
+      INTEGER  :: RPOS2        !
+      INTEGER  :: PPOS1        !
+      INTEGER  :: PPOS2        !
+
+
+
+      LOGICAL  :: LFIRST
+      LOGICAL  :: LRXN1
+
+
+      REAL     :: COEFF
+
+      REAL     :: ROH
+      REAL     :: RHO2
+      REAL     :: POH
+      REAL     :: PHO2
+
+      REAL     :: RHONO
+      REAL     :: PHONO
+      REAL     :: RHNO4
+      REAL     :: PHNO4
+
+      
+
+C**********************************************************************
+
+      DO N = 1, 72
+        CLINE( N : N ) = 'c'
+      ENDDO
+
+      DO N = 1, 100
+        BLANK_LINE( N : N ) = ' '
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Open ouput file and code template 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LOGDEV = INIT3()
+
+      E1 = LEN_TRIM( OUTPATH )
+
+      FNAME = OUTPATH( 1 : E1 ) // '/hrg2.F' 
+
+      IOUT = JUNIT()
+
+      OPEN( UNIT = IOUT, FILE = FNAME, ERR = 9000 )
+
+
+      IIN = JUNIT()
+
+      E1 = LEN_TRIM( TMPLPATH )
+
+      FNAME = TMPLPATH( 1 : E1 ) // '/hrg2.F' 
+
+      OPEN( UNIT = IIN, FILE = FNAME, ERR = 9000 )
+
+
+      IF( LWR_COPY ) CALL WR_COPYRT( IOUT )
+
+      IF( LWR_CVS_HDR ) CALL WR_CVSHDR( IOUT )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Read, modify, and write 1st section of code from template
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+  100 CONTINUE
+
+      READ( IIN, 92000, END = 1000 ) LINEIN
+
+      IF( LINEIN( 1 : 2 ) .EQ. 'R1' ) THEN
+
+         WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+
+         GO TO 100
+
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R2' ) THEN
+
+         WRITE( IOUT, 93020 ) CR_DATE( 1 : LEN_TRIM( CR_DATE ) )
+
+         GO TO 100
+            
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'S1' ) THEN
+
+         GO TO 1000
+
+      ELSE
+
+         WRITE( IOUT, 92000 ) LINEIN( 1 : LEN_TRIM( LINEIN ) )
+
+         GO TO 100
+
+      ENDIF
+
+ 1000 CONTINUE
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do O1D section
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92020 )
+      WRITE( IOUT, 94000 )
+
+
+c..get all reactions in which O1D is reacting
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+         IF ( IRR( N, 1 ) .NE. O1D ) CYCLE   ! Skip Rxns w/ Lo1d=0
+
+         COEFF = 1.0
+
+         NPOS  = 20
+         RPOS1 = O1D
+         RPOS2 = 0
+         PPOS1 = 0
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'O1D_S', 'O1D', O1D, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+      WRITE( IOUT, 92000 )
+
+
+c..get reaction(s) producing OH from O1D
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+         IF ( IRR( N, 1 ) .NE. O1D .OR. IRR( N, 4 ) .NE. OH ) CYCLE 
+
+         COEFF = SC( N, 1 )
+
+         NPOS  = 20
+         RPOS1 = O1D
+         RPOS2 = 0
+         PPOS1 = OH
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'OH_S', 'O1D', O1D, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+c..write the the final line 
+      WRITE( IOUT, 92000 )
+      LINOUT = '      OH_S  = OH_S / O1D_S'
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+c..get reaction(s) producing HO2 from O1D
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+         IF ( IRR( N, 1 ) .NE. O1D .OR. IRR( N, 4 ) .NE. HO2 ) CYCLE 
+
+         COEFF = SC( N, 1 )
+
+         NPOS  = 20
+         RPOS1 = O1D
+         RPOS2 = 0
+         PPOS1 = HO2
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'HO2_S', 'O1D', O1D, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+c..write the the final line 
+      IF( E1 .GT. 2)THEN
+          print*,e1,'xx', LINOUT( 1 : E1 )
+          WRITE( IOUT, 92000 )
+          LINOUT = '      HO2_S  = HO2_S / O1D_S'
+          E1 = LEN_TRIM( LINOUT )
+          WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+      ENDIF
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R4_5 computation ( Production of OH from reactions of HO2 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R4_5 includes OH production from the following reactions:    
+c      a) those in which OH is produced form HO2 (include only
+c         equivalent amounts of loss and production)
+c
+c    Hence,
+c
+c   {aOH +} bHO2 {+ X} = cOH + dHO2
+c      if c le a  ==> Poh = 0, so R4_5 coeff = 0
+c      if c gt a  ==> Poh > 0 
+c         if b le d ==> Lho2 = 0, so R4_5 coeff = 0
+c         if b gt d ==> Lho2 > 0, so
+c            if b-d > c-a ==> Lho2 > Poh, so R4_5 coeff = c-a
+c            if b-d = c-a ==> Lho2 = Poh, so R4_5 coeff = c-a
+c            if b-d < c-a ==> Lho2 < Poh, so R4_5 coeff = b-d
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c..Write the section header
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94020 )
+
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..find the rxns to include and set the coefficient
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,  'R', OH,  N )
+         CALL SUM_COEFF( RHO2, 'R', HO2,  N )
+         CALL SUM_COEFF( POH,  'P', OH,   N )
+         CALL SUM_COEFF( PHO2, 'P', HO2,  N )
+
+         IF( POH  .LE. ROH  ) CYCLE                ! Skip if Poh=0 
+
+         IF( RHO2 .LE. PHO2 ) CYCLE                ! Skip if Lho2=0
+
+         IF( RHO2 - PHO2 .GE. POH - ROH ) THEN
+            COEFF =  POH - ROH                     ! for Lho2 >= Poh
+         ELSE
+            COEFF = RHO2 - PHO2                    ! for Lho2 < Poh
+         ENDIF
+
+         IF( COEFF .EQ. 0.0 ) CYCLE
+
+c..call routine to create output line & write it
+         NPOS = 20
+         RPOS1 = HO2
+         RPOS2 = OH
+         PPOS1 = OH
+         PPOS2 = HO2
+         CALL BLD_OUTLINE( 'LFREQ', 'R4_5', 'HO2', HO2, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO  
+
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( A )' ) '      R4_5  = R4_5 * DTC'
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R4_19 computation ( Production of OH from reactions of HONO )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R4_19 includes OH production from the following reaction:    
+c       a) HONO=OH+NO
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94040 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Skip reactions other than HONO=OH+NO or HONO=NO+OH
+         IF( IRR( N, 1 ) .NE. HONO ) CYCLE
+         IF( ( IRR( N, 4 ) .NE. OH .OR. IRR( N, 5 ) .NE. NO ) .AND.
+     &       ( IRR( N, 5 ) .NE. OH .OR. IRR( N, 4 ) .NE. NO ) ) CYCLE
+
+         COEFF = 1.0
+
+c..call routine to create output line & write it
+         NPOS = 20
+         RPOS1 = HONO
+         RPOS2 = 0
+         PPOS1 = OH
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'R4_19', 'HONO', HONO, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO  
+
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( A )' ) '      R4_19 = R4_19 * DTC'
+
+
+   
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  P4 computation ( Production of OH )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    P4 includes OH production terms from the following reactions:    
+c      a) those in which OH is produced & HO2 & HONO are NOT reactants
+c      b) those in which OH is produced and HO2 is consumed and the 
+c         OH production rate exceeds the HO2 loss rate (excess amount only)
+c
+c    Hence,
+c
+c    {aOH +} bHO2 {+ X} = cOH + dHO2
+c      if c le a  ==> Poh=o, so P1 coeff = 0 
+c      if c gt a  ==> Poh > 0, so
+c         if b le d  ==> Lho2 = 0, so P4 coeff = c-a
+c         if b gt d  ==> Lho2 > 0, so
+c            if b-d > c-a ==> Lho2 > Poh, so P4 coeff = 0
+c            if b-d = c-a ==> Lho2 = Poh, so P4 coeff = 0
+c            if b-d < c-a ==> Lho2 < Poh, so P4 coeff = (c-a) - (b-d)
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94060 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Determine the reactions to include & get coefficients for the prod terms
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,  'R', OH,   N )
+         CALL SUM_COEFF( RHO2, 'R', HO2,  N )
+         CALL SUM_COEFF( POH,  'P', OH,   N )
+         CALL SUM_COEFF( PHO2, 'P', HO2,  N )
+
+         IF( POH .LE. ROH ) CYCLE                      ! Skip rxns with Poh=0
+
+         IF( IRR( N, 1 ) .EQ. HONO .AND.               ! Skip HONO=OH+NO rxn
+     &       POH .GT. 0.0 ) CYCLE 
+
+         IF( RHO2 .LE. PHO2 ) THEN                     ! Rxns with Lho2=0
+            COEFF = POH - ROH                                        
+         ELSEIF( RHO2 - PHO2 .LT. POH - ROH  ) THEN    ! Rxns w/ Lho2 < Poh 
+            COEFF = ( POH - ROH ) - ( RHO2 - PHO2 )
+         ENDIF                
+
+
+         IF( COEFF .EQ. 0.0 ) CYCLE           
+
+c..call routine to create output line & write it
+         NPOS = 30
+         RPOS1 = HO2
+         RPOS2 = OH
+         PPOS1 = OH
+         PPOS2 = HO2
+         CALL BLD_OUTLINE( 'RXRAT', 'P4', '   ', 0, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         IF( E1 .LT. 2)CYCLE
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+      SPOUT = ADJUSTL( GC_SPC( OH ) )
+      E1 = LEN_TRIM( SPOUT )
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( 3A )' ) '      P4 = YC0( ', SPOUT( 1 : E1 ),
+     &       ' ) + P4 * DTC'
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R5_4 computation ( Production of HO2 from reactions of OH )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R5_4 includes OH production from the following reactions:    
+c      a) those in which HO2 is produced from OH (include only
+c         equivalent amounts of loss and production)  
+c
+c    Hence,
+c
+c   aOH {+ bHO2} {+ X} = cOH + dHO2
+c      if d le b  ==> Pho2 = 0, so R5_4 coeff = 0
+c      if d gt b  ==> Pho2 > 0 
+c         if a le c ==> Loh = 0, so R5_4 coeff = 0
+c         if c gt a ==> Loh > 0, so
+c            if d-b > a-c ==> Pho2 > Loh, so R4_5 coeff = a-c
+c            if d-b = a-c ==> Pho2 = Loh, so R4_5 coeff = a-c
+c            if d-b < a-c ==> Pho2 < Loh, so R4_5 coeff = d-b
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c..Write the section header
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94080 )
+
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..find the rxns to include and set the coefficient
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,  'R', OH,  N )
+         CALL SUM_COEFF( RHO2, 'R', HO2,  N )
+         CALL SUM_COEFF( POH,  'P', OH,   N )
+         CALL SUM_COEFF( PHO2, 'P', HO2,  N )
+
+         IF( PHO2 .LE. RHO2 ) CYCLE                ! Skip if Pho2=0 
+
+         IF( ROH  .LE. POH  ) CYCLE                ! Skip if Loh=0
+
+         IF( PHO2 - RHO2 .GE. ROH - POH ) THEN
+            COEFF =  ROH - POH                     ! for Pho2 >= Loh
+         ELSE
+            COEFF = PHO2 - RHO2                    ! for Pho2 < Loh
+         ENDIF
+
+         IF( COEFF .EQ. 0.0 ) CYCLE
+
+c..call routine to create output line & write it
+         NPOS = 20
+         RPOS1 = OH
+         RPOS2 = HO2
+         PPOS1 = HO2
+         PPOS2 = OH
+         CALL BLD_OUTLINE( 'LFREQ', 'R5_4', 'OH', OH, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO  
+
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( A )' ) '      R5_4  = R5_4 * DTC'
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R5_21 computation ( Production of HO2 from reactions of HNO4 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R5_21 includes OH production from the following reaction:    
+c       a) those in which HO2 is produced form the raction of HNO4
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94100 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..find the rxns to include and set the coefficient
+         COEFF = 0.0
+         CALL SUM_COEFF( RHNO4, 'R', HNO4,  N )
+         CALL SUM_COEFF( PHO2,  'P', HO2,   N )
+
+         IF( RHNO4 .LE. 0.0 .OR. PHO2 .LE. 0.0 ) CYCLE  ! Skip if Pho2=0 or
+                                                        ! Lhno4=0
+         COEFF = MIN( PHO2, RHNO4 )
+
+c..call routine to create output line & write it
+         NPOS = 20
+         RPOS1 = HNO4
+         RPOS2 = 0
+         PPOS1 = HO2
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'R5_21', 'HNO4', HNO4, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO  
+
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( A )' ) '      R5_21 = R5_21 * DTC'
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  P5 computation ( Production of HO2 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    P5 includes OH production terms from the following reactions:    
+c      a) those in which HO2 is produced & OH & HNO4 are NOT reactants
+c      b) those in which HO2 is produced and OH is consumed and the 
+c         HO2 production rate exceeds the OH loss rate (excess amount only)
+c      c) those in which HO2 is produced and HNO4 is consumed and the 
+c         HO2 production rate exceeds the HNO4 loss rate (excess amount only)
+c
+c    Hence,
+c
+c    {aOH +} bHO2 {+ X} = cOH + dHO2
+c      if d le b  ==> Pho2=o, so P5 coeff = 0 
+c      if d gt b  ==> Pho2 > 0, so
+c         if a le c  ==> Loh = 0, so P5 coeff = d-b
+c         if a gt c  ==> Loh > 0, so
+c            if d-b > a-c ==> Pho2 > Loh, so P5 coeff = (d-b)-(a-c)
+c            if d-b = a-c ==> Pho2 = Loh, so P5 coeff = 0
+c            if d-b < a-c ==> Pho2 < Loh, so P5 coeff = 0
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94120 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Determine the reactions to include & get coefficients for the prod terms
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,   'R', OH,    N )
+         CALL SUM_COEFF( RHO2,  'R', HO2,   N )
+         CALL SUM_COEFF( RHNO4, 'R', HNO4,  N )
+         CALL SUM_COEFF( POH,   'P', OH,    N )
+         CALL SUM_COEFF( PHO2,  'P', HO2,   N )
+
+         IF( PHO2 .LE. RHO2 ) CYCLE                     ! Skip rxns with Pho2=0
+
+         IF( RHNO4 .GT. 0.0 ) THEN
+            IF( RHO2 .GT. RHNO4 ) COEFF = RHO2 - RHNO4  ! Rxns w/ Ph02>Lhno4
+         ELSE
+            IF( ROH .LE. POH ) THEN                     ! Rxns w/ Ph02>0 & Loh=0
+               COEFF = PHO2 - RHO2 
+            ELSEIF( PHO2 - RHO2 .GT. ROH - POH ) THEN
+               COEFF = ( PHO2 - RHO2 ) - ( ROH - POH )  !Rxns w/ Pho2>0 & Loh>0
+            ENDIF                                       ! and Pho2 > Loh
+         ENDIF
+
+
+         IF( COEFF .EQ. 0.0 ) CYCLE           
+
+c..call routine to create output line & write it
+         NPOS = 30
+         RPOS1 = HO2
+         RPOS2 = OH
+         PPOS1 = HO2
+         PPOS2 = OH
+         CALL BLD_OUTLINE( 'RXRAT', 'P5', '   ', 0, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         IF( E1 .LT. 2)CYCLE
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+      SPOUT = ADJUSTL( GC_SPC( HO2 ) )
+      E1 = LEN_TRIM( SPOUT )
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, '( 3A )' ) '      P5 = YC0( ', SPOUT( 1 : E1 ),
+     &       ' ) + P5 * DTC'
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R19_4 computation ( Production of HONO from reactions of OH )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R19_4 includes HONO production from the following reaction:    
+c       a) OH+NO=HONO
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94140 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Find OH+NO=HONO Rxn
+         IF( ( IRR( N, 1 ) .EQ. OH .AND. IRR( N, 2 ) .EQ. NO .AND.
+     &         IRR( N, 4 ) .EQ. HONO ) .OR.
+     &       ( IRR( N, 1 ) .EQ. NO .AND. IRR( N, 2 ) .EQ. OH .AND.
+     &         IRR( N, 4 ) .EQ. HONO ) ) 
+     &     WRITE( RNUM, '(I3)' ) N
+        
+
+      ENDDO  
+
+      SPOUT = ADJUSTL( GC_SPC( NO ) )
+      LINOUT = '      R19_4 =   RKI( ' // RNUM // ' ) * YC( ' //
+     &    SPOUT // ' ) * DTC      ! OH+NO=HONO'
+
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  P19 computation ( Production of HONO )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    P19 includes HONO production terms from the following reactions:    
+c      a) all that produce HONO except OH+NO=HONO
+c      NOTE: there may be non in some mechanisms
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94160 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Determine the reactions to include & get coefficients for the prod terms
+         COEFF = 0.0
+         CALL SUM_COEFF( RHONO, 'R', HONO, N )
+         CALL SUM_COEFF( PHONO, 'P', HONO, N )
+
+         IF( PHONO .LE. RHONO ) CYCLE                ! Skip rxns with Phono=0
+
+!        Skip OH+NO=HONO Rxn
+         IF( IRR( N, 1 ) .EQ. OH .AND. IRR( N, 2 ) .EQ. NO .OR.
+     &       IRR( N, 1 ) .EQ. NO .AND. IRR( N, 2 ) .EQ. OH )
+     &     CYCLE          
+
+         COEFF = PHONO                               ! Rxns w/ Phono>0
+
+         IF( COEFF .EQ. 0.0 ) CYCLE           
+
+c..call routine to create output line & write it
+         NPOS = 30
+         RPOS1 = OH
+         RPOS2 = NO
+         PPOS1 = HONO
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'RXRAT', 'P19', '   ', 0, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+      IF( LRXN1 ) THEN
+         SPOUT = ADJUSTL( GC_SPC( HONO ) )
+         E1 = LEN_TRIM( SPOUT )
+         LINOUT = '      P19   = YC0( ' // SPOUT( 1 : E1 ) //  ' )'
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+      ELSE
+         SPOUT = ADJUSTL( GC_SPC( HONO ) )
+         E1 = LEN_TRIM( SPOUT )
+         WRITE( IOUT, 92000 )    
+         WRITE( IOUT, '( 3A )' ) '      P19 = YC0( ', SPOUT( 1 : E1 ),
+     &          ' ) + P19 * DTC'
+      ENDIF
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  R21_5 computation ( Production of HNO4 from reactions of HO2 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    R21_5 includes HONO production from the following reaction:    
+c       a) HO2+NO2=HNO4
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      E1 = LEN_TRIM( GC_SPC( HNO4 ) )
+      E2 = LEN_TRIM( GC_SPC( HO2 ) )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94180 ) GC_SPC( HNO4 )( 1 : E1 ), GC_SPC( HO2 )( 1 : E2 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Find OH+NO=HONO Rxn
+         IF( ( IRR( N, 1 ) .EQ. HO2 .AND. IRR( N, 2 ) .EQ. NO2 .AND.
+     &         IRR( N, 4 ) .EQ. HNO4 ) .OR.
+     &       ( IRR( N, 1 ) .EQ. NO2 .AND. IRR( N, 2 ) .EQ. HO2 .AND.
+     &         IRR( N, 4 ) .EQ. HNO4 ) ) 
+     &     WRITE( RNUM, '(I3)' ) N
+        
+
+      ENDDO  
+
+      SPOUT = ADJUSTL( GC_SPC( NO2 ) )
+      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YC( ' //
+     &    SPOUT // ' ) * DTC      ! HO2+NO2=HNO4'
+
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 )    
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  P21 computation ( Production of HNO4 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    P19 includes HONO production terms from the following reactions:    
+c      a) all that produce HNO4 except HO2+NO2=HNO4
+c      NOTE: Usually none
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      E1 = LEN_TRIM( GC_SPC( HNO4 ) )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94200 ) GC_SPC( HNO4 )( 1 : E1 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+
+c..Determine the reactions to include & get coefficients for the prod terms
+         COEFF = 0.0
+         CALL SUM_COEFF( RHNO4, 'R', HNO4, N )
+         CALL SUM_COEFF( PHNO4, 'P', HNO4, N )
+
+         IF( PHNO4 .LE. RHNO4 ) CYCLE                ! Skip rxns with Phno4=0
+
+!        Skip HO2+NO2=HNO4 Rxn
+         IF( IRR( N, 1 ) .EQ. HO2 .AND. IRR( N, 2 ) .EQ. NO2 .OR.
+     &       IRR( N, 1 ) .EQ. NO2 .AND. IRR( N, 2 ) .EQ. HO2 )
+     &     CYCLE          
+
+         COEFF = PHNO4                               ! Rxns w/ Phono>0
+
+         IF( COEFF .EQ. 0.0 ) CYCLE           
+
+c..call routine to create output line & write it
+         NPOS = 30
+         RPOS1 = OH
+         RPOS2 = NO
+         PPOS1 = HONO
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'RXRAT', 'P21', '   ', 0, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+
+      IF( LRXN1 ) THEN
+         SPOUT = ADJUSTL( GC_SPC( HNO4 ) )
+         E1 = LEN_TRIM( SPOUT )
+         LINOUT = '      P21   =   YC0( ' // SPOUT( 1 : E1 ) // ' )' 
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+      ELSE
+         WRITE( IOUT, 92000 )    
+         SPOUT = ADJUSTL( GC_SPC( HNO4 ) )
+         E1 = LEN_TRIM( SPOUT )
+         WRITE( IOUT, '( 3A )' ) '      P21 = YC0( ', SPOUT( 1 : E1 ),
+     &          ' ) + P21 * DTC'
+      ENDIF
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  L4 computation ( Loss of OH )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    L4 includes the following OH loss terms:
+c      a) loss from reactions in which HO2 or HONO is not produced
+c      b) in reactions in which HO2 is produced, the amount of OH lost
+c         in excess of the amount of HO2 formed
+c
+c    Hence,
+c
+c    aOH {+ bHO2} {+ X} = cOH + dHO2
+c      if a le c  ==> Loh = 0, so L4 coeff =0
+c      if a gt c  ==> Loh > 0, so
+c         if d le b  ==> Pho2 = 0 so L4 coeff = (a-c)
+c         if d gt b  ==> Pho2 > 0, so 
+c            if a-c le d-b  ==> Loh < Pho2, so L4 coeff = 0
+c            if a-c gt d-b  ==> Loh > Pho2, so L4 coeff = (a-c)-(d-b)
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      E1 = LEN_TRIM( GC_SPC( OH ) )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94220 ) GC_SPC( OH )( 1 : E1 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS         
+
+c..Determine the rxn to include & get the coefficient for the loss term
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,  'R', OH,  N )
+         CALL SUM_COEFF( RHO2, 'R', HO2, N )
+         CALL SUM_COEFF( POH,  'P', OH,  N )
+         CALL SUM_COEFF( PHO2, 'P', HO2, N )
+
+         IF( ROH .LE. POH ) CYCLE                     ! Skip rxns w/ Loh=0
+
+         IF( IRR( N, 4 ) .EQ. HONO .AND.              ! Skip OH+NO=HONO rxn
+     &      ROH .GT. 0.0 ) CYCLE 
+         
+         IF( PHO2 .LE. RHO2 )   COEFF = ROH - POH     ! Rxns w/ Loh > 0 &
+                                                      ! Pho2 = 0
+         IF( PHO2 .GT. RHO2 .AND.
+     &       ROH - POH  .GT.  PHO2 - RHO2 )           ! Rxns w/ Loh > 0 &
+     &      COEFF =  ROH - POH - ( PHO2 - RHO2 )      ! Pho2 > 0
+
+         IF( COEFF .EQ. 0.0 ) CYCLE
+
+c..call routine to create output line & write it
+         NPOS  = 20
+         RPOS1 = OH
+         RPOS2 = HO2
+         PPOS1 = HO2
+         PPOS2 = OH
+         CALL BLD_OUTLINE( 'LFREQ', 'L4', 'OH', OH, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+       
+      WRITE( IOUT, 92000 )    
+      LINOUT = '      L4    = 1.0 + L4 * DTC + R5_4 + R19_4'
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  L5 computation ( Loss of HO2 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    L5 includes the following HO2 loss terms:
+c      a) loss from reactions in which HO2 or HNO4 is not produced
+c           EXCEPTION: HO2+HO2=H2O2
+c      b) in reactions in which OH is produced, the amount of HO2 lost
+c         in excess of the amount of OH formed
+c
+c    Hence,
+c
+c    aOH {+ bHO2} {+ X} = cOH + dHO2
+c      if b le d  ==> Lho2 = 0, so L5 coeff =0
+c      if b gt d  ==> Lho2 > 0, so
+c         if c le a  ==> Poh = 0 so L5 coeff = (a-c)
+c         if c gt a  ==> Poh > 0, so 
+c            if b-d le c-a  ==> Lho2 < Poh, so L5 coeff = 0
+c            if b-d gt c-a  ==> Lho2 > Poh, so L5 coeff = (b-d)-(c-a)
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SPOUT = GC_SPC( HO2 )
+      E1 = LEN_TRIM( SPOUT )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94240 ) SPOUT( 1 : E1 ), SPOUT( 1 : E1 ), SPOUT( 1 : E1 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS         
+
+c..Determine the rxn to include & get the coefficient for the loss term
+         COEFF = 0.0
+         CALL SUM_COEFF( ROH,  'R', OH,  N )
+         CALL SUM_COEFF( RHO2, 'R', HO2, N )
+         CALL SUM_COEFF( POH,  'P', OH,  N )
+         CALL SUM_COEFF( PHO2, 'P', HO2, N )
+
+         IF( RHO2 .LE. PHO2 ) CYCLE                   ! Skip rxns w/ Lho2=0
+
+         IF( IRR( N, 4 ) .EQ. HNO4 .AND.              ! Skip HO2+NO2=HNO4 rxn
+     &      RHO2 .GT. 0.0 ) CYCLE 
+         
+         IF( RHO2 .GE. 2.0 ) CYCLE                    ! Skip HO2+HO2 rxns
+
+         IF( POH .LE. ROH )   COEFF = RHO2 - PHO2     ! Rxns w/ Lho2 > 0 &
+                                                      ! Poh = 0
+         IF( POH .GT. ROH .AND.
+     &       RHO2 - PHO2  .GT.  POH - ROH )           ! Rxns w/ Loh > 0 &
+     &      COEFF =  RHO2 - PHO2 - ( POH - ROH )      ! Pho2 > 0 & Lho2>Poh
+
+         IF( COEFF .EQ. 0.0 ) CYCLE
+
+c..call routine to create output line & write it
+         NPOS  = 20
+         RPOS1 = HO2
+         RPOS2 = OH
+         PPOS1 = OH
+         PPOS2 = HO2
+         CALL BLD_OUTLINE( 'LFREQ', 'L5', 'HO2', HO2, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+       
+      WRITE( IOUT, 92000 )    
+      LINOUT = '      L5    = 1.0 + L5 * DTC + R4_5 + R21_5'
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  L19 computation ( Loss of HONO )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    L19 includes the following HONO loss terms:
+c      a) loss from reactions in which OH is not produced
+c
+c    Hence,
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SPOUT = GC_SPC( HONO )
+      E1 = LEN_TRIM( SPOUT )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94260 ) SPOUT( 1 : E1 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS         
+
+c..Determine the rxn to include & get the coefficient for the loss term
+         COEFF = 0.0
+         CALL SUM_COEFF( RHONO, 'R', HONO,  N )
+         CALL SUM_COEFF( POH,   'P', OH,    N )
+
+      
+
+         IF( RHONO .LE. 0.0 ) CYCLE                   ! Skip rxns w/ Lhono=0
+         
+         IF( POH .GT. 0.0 ) CYCLE                     ! Skip rxn w/ Poh>0
+
+         COEFF = RHONO
+
+c..call routine to create output line & write it
+         NPOS  = 20
+         RPOS1 = HONO
+         RPOS2 = OH
+         PPOS1 = OH
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'L19', 'HONO', HONO, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+       
+      WRITE( IOUT, 92000 )    
+      LINOUT = '      L19   = 1.0 + L19 * DTC + R4_19'
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  L21 computation ( Loss of HNO4 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C    L21 includes the following HNO4 loss terms:
+c      a) loss from reactions in which HO2 is not produced
+c      b) in reactions in which HO2 is produced, the amount of HNO4 lost
+c         in excess of the amount of HO2 formed
+c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SPOUT = GC_SPC( HNO4 )
+      E1 = LEN_TRIM( SPOUT )
+      WRITE( IOUT, 92000 )
+      WRITE( IOUT, 94280 ) SPOUT( 1 : E1 )
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS         
+
+c..Determine the rxn to include & get the coefficient for the loss term
+         COEFF = 0.0
+         CALL SUM_COEFF( RHNO4, 'R', HNO4,  N )
+         CALL SUM_COEFF( PHO2,  'P', HO2,   N )
+
+         IF( RHNO4 .LE. 0.0 ) CYCLE          ! Skip rxns w/ Lhno4=0
+         
+         IF( PHO2 .GE. RHNO4 ) CYCLE         ! Skip rxn w/ Pho2>Lhno4
+
+         COEFF = RHNO4 - PHO2                ! Excess amount of HNO4 lost
+
+c..call routine to create output line & write it
+         NPOS  = 20
+         RPOS1 = HNO4
+         RPOS2 = HO2
+         PPOS1 = HO2
+         PPOS2 = 0
+         CALL BLD_OUTLINE( 'LFREQ', 'L21', 'HNO4', HNO4, COEFF, N, GRPNO,  
+     &        NPOS, LINOUT, LRXN1, RPOS1, RPOS2, PPOS1, PPOS2 )
+
+         LRXN1 = .FALSE.
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ENDDO
+       
+      WRITE( IOUT, 92000 )    
+      LINOUT = '      L21   = 1.0 + L21 * DTC + R5_21'
+      E1 = LEN_TRIM( LINOUT )
+      WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Continue reading template section
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+c..finish reading skipped section of template (i.e., code between S1 markers)
+  200 CONTINUE
+
+      READ( IIN, 92000, END = 300 ) LINEIN
+
+      IF( LINEIN( 1 : 2 ) .EQ. 'S1' ) GO TO 300
+
+      GO TO 200
+
+  300 CONTINUE
+
+c..Build line for the A term (coefficient of [HO2]**2 )
+      LINOUT = '      A = 2.0 * ( RKI( '
+      E1 = LEN_TRIM( LINOUT ) + 1
+      LRXN1 = .TRUE.
+      DO N = 1, NRXNS
+         IF( IRR( N, 1 ) .NE. HO2 .OR. IRR( N, 2 ) .NE. HO2 ) CYCLE
+         WRITE( RNUM, '(I3)' ) N
+         IF( LRXN1 ) THEN
+            LINOUT = LINOUT( 1 : E1 ) // RNUM // ' )'
+            E1 = LEN_TRIM( LINOUT )
+            LRXN1 = .FALSE.
+         ELSE
+            LINOUT = LINOUT( 1 : E1 ) // ' + RKI( ' // RNUM // ' )'
+            E1 = LEN_TRIM( LINOUT )
+         ENDIF
+      ENDDO
+      LINOUT = LINOUT( 1 : E1 ) // ' ) * DTC'
+
+  400 CONTINUE
+
+      READ( IIN, 92000, END = 2000 ) LINEIN
+
+      IF( LINEIN( 1 : 2 ) .EQ. 'R3' ) THEN
+
+         WRITE( IOUT, 95000) GC_SPC( HO2 )( 1 : LEN_TRIM( GC_SPC( HO2 ) ) )
+
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R4' ) THEN
+
+         E1 = LEN_TRIM( LINOUT )
+         WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
+
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R5' ) THEN
+ 
+         WRITE( IOUT, 95020) GC_SPC( HO2 )( 1 : LEN_TRIM( GC_SPC( HO2 ) ) )
+
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R6' ) THEN
+ 
+         WRITE( IOUT, 95040) GC_SPC( OH )( 1 : LEN_TRIM( GC_SPC( OH ) ) ),
+     &                 GC_SPC( HO2 )( 1 : LEN_TRIM( GC_SPC( HO2 ) ) )
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R7' ) THEN
+ 
+         WRITE( IOUT, 95060) GC_SPC( HNO4 )( 1 : LEN_TRIM( GC_SPC( HNO4 ) ) ),
+     &                 GC_SPC( HO2  )( 1 : LEN_TRIM( GC_SPC( HO2  ) ) )
+
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R8' ) THEN
+ 
+         WRITE( IOUT, 95080) GC_SPC( HONO )( 1 : LEN_TRIM( GC_SPC( HONO ) ) ),
+     &                 GC_SPC( OH  )( 1 : LEN_TRIM( GC_SPC( OH  ) ) )
+
+      ELSE
+
+         WRITE( IOUT, 92000 ) LINEIN( 1 : LEN_TRIM( LINEIN ) )
+
+      ENDIF
+
+      GO TO 400
+ 
+2000  CONTINUE
+
+
+      CLOSE( IIN )
+
+      CLOSE( IOUT )
+
+      RETURN 
+
+ 9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
+
+      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+       
+92000 FORMAT( A )
+92020 FORMAT( / )
+
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
+
+94000 FORMAT( 
+     & 'c..stoichiometric coefficient for production of OH from O3 via O1D' )
+
+94020 FORMAT(
+     & 'c..Production of HO from HO2 (r4,5 terms )' )
+
+94040 FORMAT(
+     & 'c..Production of HO from HONO (r4,19 terms )' )
+
+94060 FORMAT( 
+     & 'c..Remaining HO production' )
+
+94080 FORMAT( 
+     & 'c..Production of HO2 from OH ( r5,4 terms )' )
+
+94100 FORMAT( 
+     & 'c..Production of HO2 from HNO4 (r5,21 term )' )
+
+94120 FORMAT( 
+     & 'c..Remaining HO2 production terms' )
+
+94140 FORMAT( 
+     & 'c..Production of HONO from OH (r19,4 terms )' )
+
+94160 FORMAT( 
+     & 'c..Remaining HONO production terms' )
+
+94180 FORMAT( 
+     & 'c..Production of ', A, ' from ', A, ' (r21,5 term )' )
+
+94200 FORMAT( 
+     & 'c..Remaining ', A, ' production terms' )
+
+94220 FORMAT( 
+     & 'c..', A, ' loss terms not in R5_4 & R19_4' )
+
+94240 FORMAT( 
+     & 'c..', A, ' loss terms not included in R4_5 & R21_5',
+     & ' (except for ', A, '+', A, ' )' )
+
+94260 FORMAT( 
+     & 'c..', A, ' loss terms not included in R4_19' )
+
+94280 FORMAT( 
+     & 'c..', A, ' loss terms not inluded in R5_21' )
+
+95000 FORMAT( 
+     & 'c..solve quadratic equation for ', A )
+
+95020 FORMAT( 
+     & '      YCP( ', A, ' ) = MAX( Q / A , -C / Q  )' )
+
+95040 FORMAT( 
+     & '      YCP( ', A, ' ) = ( ( P4 + R4_5 * YCP( ', A, 
+     & ' ) ) * L19 + R4_19 * P19 ) * T1' )
+
+95060 FORMAT( 
+     & '      YCP( ', A, ' ) = ( P21 + R21_5 * YCP( ', A, 
+     & ' ) ) * L21_INV' )
+
+95080 FORMAT( 
+     & '      YCP( ', A, ' ) = ( P19 + R19_4 * YCP( ', A, 
+     & ' ) ) / L19' )
+
+      END
+
+

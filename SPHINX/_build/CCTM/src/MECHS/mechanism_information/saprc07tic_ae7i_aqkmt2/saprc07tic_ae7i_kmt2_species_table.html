@@ -1,0 +1,1913 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>&lt;no title&gt; &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'CCTM/src/MECHS/mechanism_information/saprc07tic_ae7i_aqkmt2/saprc07tic_ae7i_kmt2_species_table';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/CCTM/src/MECHS/mechanism_information/saprc07tic_ae7i_aqkmt2/saprc07tic_ae7i_kmt2_species_table.html" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../DOCS/Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">&lt;no title&gt;</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p><strong>The GC namelist for saprc07tic_ae7i_aq has the following gas phase species.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Definition</strong></p></th>
+<th class="head"><p><strong>Definition</strong></p></th>
+<th class="head"><p><strong>Explicit or Lumped</strong></p></th>
+<th class="head"><p><strong>Molecular Weight</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ACETONE</p></td>
+<td><p>Acetone</p></td>
+<td><p>E</p></td>
+<td><p>58.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>ACETYLENE</p></td>
+<td><p>Acetylene</p></td>
+<td><p>E</p></td>
+<td><p>26.04</p></td>
+</tr>
+<tr class="row-even"><td><p>ACRO_PRIMARY</p></td>
+<td><p>Acrolein emissions tracer</p></td>
+<td><p>E</p></td>
+<td><p>56.06</p></td>
+</tr>
+<tr class="row-odd"><td><p>ACROLEIN</p></td>
+<td><p>Acrolein</p></td>
+<td><p>E</p></td>
+<td><p>56.06</p></td>
+</tr>
+<tr class="row-even"><td><p>AFG1</p></td>
+<td><p>Lumped photoreactive monounsaturated dicarbonyl aromatic fragmentation products that photolyze to form radicals</p></td>
+<td><p>L</p></td>
+<td><p>98.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>AFG2</p></td>
+<td><p>Lumped photoreactive monounsaturated dicarbonyl aromatic fragmentation products that photolyze to form non-radical products</p></td>
+<td><p>L</p></td>
+<td><p>98.1</p></td>
+</tr>
+<tr class="row-even"><td><p>AFG3</p></td>
+<td><p>Lumped diunsaturatred dicarbonyl aromatic fragmentation product.</p></td>
+<td><p>L</p></td>
+<td><p>124.14</p></td>
+</tr>
+<tr class="row-odd"><td><p>ALK1</p></td>
+<td><p>Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 2 and 5 x 102 ppm-1 min-1.  (Primarily ethane)</p></td>
+<td><p>L</p></td>
+<td><p>30.07</p></td>
+</tr>
+<tr class="row-even"><td><p>ALK2</p></td>
+<td><p>Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 5 x 102 and 2.5 x 103 ppm-1 min-1. (Primarily propane and acetylene)</p></td>
+<td><p>L</p></td>
+<td><p>36.73</p></td>
+</tr>
+<tr class="row-odd"><td><p>ALK3</p></td>
+<td><p>Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 2.5 x 103 and 5 x 103 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>58.61</p></td>
+</tr>
+<tr class="row-even"><td><p>ALK4</p></td>
+<td><p>Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 5 x 103 and 1 x 104 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>77.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>ALK5</p></td>
+<td><p>Alkanes and other non-aromatic compounds that react only with OH, and have kOH greater than 1 x 104 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>118.89</p></td>
+</tr>
+<tr class="row-even"><td><p>APIN</p></td>
+<td><p>a-pinene</p></td>
+<td><p>E</p></td>
+<td><p>136.23</p></td>
+</tr>
+<tr class="row-odd"><td><p>ARO1</p></td>
+<td><p>Aromatics with kOH &lt; 2x104 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>95.16</p></td>
+</tr>
+<tr class="row-even"><td><p>ARO2MN</p></td>
+<td><p>ARO2 minus naphthalene</p></td>
+<td><p>L</p></td>
+<td><p>118.72</p></td>
+</tr>
+<tr class="row-odd"><td><p>BACL</p></td>
+<td><p>Biacetyl</p></td>
+<td><p>E</p></td>
+<td><p>86.09</p></td>
+</tr>
+<tr class="row-even"><td><p>BALD</p></td>
+<td><p>Aromatic aldehydes (e.g., benzaldehyde)</p></td>
+<td><p>L</p></td>
+<td><p>106.13</p></td>
+</tr>
+<tr class="row-odd"><td><p>BENZENE</p></td>
+<td><p>Benzene</p></td>
+<td><p>E</p></td>
+<td><p>78.11</p></td>
+</tr>
+<tr class="row-even"><td><p>BENZRO2</p></td>
+<td><p>Peroxy radical tracer from Benzene and OH reaction used to produce aerosol material</p></td>
+<td><p>E</p></td>
+<td><p>159.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>BUTADIENE13</p></td>
+<td><p>1,3-butadiene</p></td>
+<td><p>E</p></td>
+<td><p>54.09</p></td>
+</tr>
+<tr class="row-even"><td><p>BZCO3</p></td>
+<td><p>Peroxyacyl radical formed from Aromatic Aldehydes</p></td>
+<td><p>L</p></td>
+<td><p>137.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>BZO</p></td>
+<td><p>Phenoxy Radicals</p></td>
+<td><p>L</p></td>
+<td><p>93</p></td>
+</tr>
+<tr class="row-even"><td><p>CCHO_PRIMARY</p></td>
+<td><p>Acetaldehyde Emissions Tracer</p></td>
+<td><p>E</p></td>
+<td><p>44.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>CCHO</p></td>
+<td><p>Acetaldehyde</p></td>
+<td><p>E</p></td>
+<td><p>44.05</p></td>
+</tr>
+<tr class="row-even"><td><p>CCOOH</p></td>
+<td><p>Acetic Acid. Also used for peroxyacetic acid in Carter</p></td>
+<td><p>E</p></td>
+<td><p>60.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>CCOOOH</p></td>
+<td><p>Proposed for Peroxyacetic Acid</p></td>
+<td><p>E</p></td>
+<td><p>76</p></td>
+</tr>
+<tr class="row-even"><td><p>CL</p></td>
+<td><p>Chlorine atoms</p></td>
+<td><p>E</p></td>
+<td><p>35.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CL2</p></td>
+<td><p>Chlorine molecules</p></td>
+<td><p>E</p></td>
+<td><p>70</p></td>
+</tr>
+<tr class="row-even"><td><p>CLACET</p></td>
+<td><p>Chloroacetone (and other alpha-chloro ketones that are assumed to be similarly photoreactive)</p></td>
+<td><p>L</p></td>
+<td><p>92.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CLCCHO</p></td>
+<td><p>Chloroacetaldehyde (and other alpha-chloro aldehydes that are assumed to be similarly photoreactive)</p></td>
+<td><p>L</p></td>
+<td><p>78.5</p></td>
+</tr>
+<tr class="row-even"><td><p>CLCHO</p></td>
+<td><p>Formyl Chloride (assumed to be unreactive)</p></td>
+<td><p>E</p></td>
+<td><p>64.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CLNO</p></td>
+<td><p>Nitrosyl Chloride</p></td>
+<td><p>E</p></td>
+<td><p>65.5</p></td>
+</tr>
+<tr class="row-even"><td><p>CLNO2</p></td>
+<td><p>Nitryl Chloride</p></td>
+<td><p>E</p></td>
+<td><p>81.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CLO</p></td>
+<td><p>Chlorine Monoxide Radicals</p></td>
+<td><p>E</p></td>
+<td><p>51.5</p></td>
+</tr>
+<tr class="row-even"><td><p>CLONO</p></td>
+<td><p>Nitrous Hypochloride</p></td>
+<td><p>E</p></td>
+<td><p>81.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>CLONO2</p></td>
+<td><p>Chlorine Nitrate</p></td>
+<td><p>E</p></td>
+<td><p>97.45</p></td>
+</tr>
+<tr class="row-even"><td><p>CO</p></td>
+<td><p>Carbon Monoxide</p></td>
+<td><p>E</p></td>
+<td><p>28.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>CO2</p></td>
+<td><p>Carbon Dioxide</p></td>
+<td><p>E</p></td>
+<td><p>44.01</p></td>
+</tr>
+<tr class="row-even"><td><p>COOH</p></td>
+<td><p>Methyl Hydroperoxide</p></td>
+<td><p>E</p></td>
+<td><p>48.04</p></td>
+</tr>
+<tr class="row-odd"><td><p>CRES</p></td>
+<td><p>Phenols and Cresols</p></td>
+<td><p>L</p></td>
+<td><p>108.14</p></td>
+</tr>
+<tr class="row-even"><td><p>DHMOB</p></td>
+<td><p>dihydroxy carbonyl from HC5</p></td>
+<td><p>L</p></td>
+<td><p>132.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>DIBOO</p></td>
+<td><p>peroxy radical from isoprene + OH</p></td>
+<td><p>L</p></td>
+<td><p>133.1</p></td>
+</tr>
+<tr class="row-even"><td><p>ETHENE</p></td>
+<td><p>Ethene</p></td>
+<td><p>E</p></td>
+<td><p>28.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>ETHLN</p></td>
+<td><p>ethanal nitrate</p></td>
+<td><p>E</p></td>
+<td><p>105</p></td>
+</tr>
+<tr class="row-even"><td><p>ETOH</p></td>
+<td><p>Ethanol</p></td>
+<td><p>E</p></td>
+<td><p>46.07</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLY</p></td>
+<td><p>Glyoxal</p></td>
+<td><p>E</p></td>
+<td><p>58.04</p></td>
+</tr>
+<tr class="row-even"><td><p>HACET</p></td>
+<td><p>Hydroxyacetone</p></td>
+<td><p>E</p></td>
+<td><p>74.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>HC5</p></td>
+<td><p>hydroxy carbonyl alkenes from isoprene</p></td>
+<td><p>L</p></td>
+<td><p>100.1</p></td>
+</tr>
+<tr class="row-even"><td><p>HC5OO</p></td>
+<td><p>peroxy radical from HC5</p></td>
+<td><p>L</p></td>
+<td><p>149.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>HCHO_PRIMARY</p></td>
+<td><p>Formaldehyde Emission Tracer</p></td>
+<td><p>E</p></td>
+<td><p>30.03</p></td>
+</tr>
+<tr class="row-even"><td><p>HCHO</p></td>
+<td><p>Formaldehyde</p></td>
+<td><p>E</p></td>
+<td><p>30.03</p></td>
+</tr>
+<tr class="row-odd"><td><p>HCL</p></td>
+<td><p>Hydrochloric acid</p></td>
+<td><p>E</p></td>
+<td><p>36.5</p></td>
+</tr>
+<tr class="row-even"><td><p>HCOCO3</p></td>
+<td><p>acylperoxy radicals from glyoxal</p></td>
+<td><p>L</p></td>
+<td><p>89</p></td>
+</tr>
+<tr class="row-odd"><td><p>HCOOH</p></td>
+<td><p>Formic Acid</p></td>
+<td><p>E</p></td>
+<td><p>46.03</p></td>
+</tr>
+<tr class="row-even"><td><p>HNO3</p></td>
+<td><p>Nitric Acid</p></td>
+<td><p>E</p></td>
+<td><p>63.02</p></td>
+</tr>
+<tr class="row-odd"><td><p>HNO4</p></td>
+<td><p>Peroxynitric Acid</p></td>
+<td><p>E</p></td>
+<td><p>79.02</p></td>
+</tr>
+<tr class="row-even"><td><p>HO2</p></td>
+<td><p>Hydroperoxide Radicals</p></td>
+<td><p>E</p></td>
+<td><p>33.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>HO2H</p></td>
+<td><p>Hydrogen Peroxide</p></td>
+<td><p>E</p></td>
+<td><p>34.01</p></td>
+</tr>
+<tr class="row-even"><td><p>HOCCHO</p></td>
+<td><p>Glycolaldehyde</p></td>
+<td><p>E</p></td>
+<td><p>60.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>HOCL</p></td>
+<td><p>HOCl</p></td>
+<td><p>E</p></td>
+<td><p>52.5</p></td>
+</tr>
+<tr class="row-even"><td><p>HONO</p></td>
+<td><p>Nitrous Acid</p></td>
+<td><p>E</p></td>
+<td><p>47.02</p></td>
+</tr>
+<tr class="row-odd"><td><p>HPALD</p></td>
+<td><p>hydroperoxymethyl-butenals</p></td>
+<td><p>L</p></td>
+<td><p>116.12</p></td>
+</tr>
+<tr class="row-even"><td><p>IEPOX</p></td>
+<td><p>dihydroxyepoxides</p></td>
+<td><p>L</p></td>
+<td><p>118.13</p></td>
+</tr>
+<tr class="row-odd"><td><p>IEPOXOO</p></td>
+<td><p>peroxy radical from IEPOX</p></td>
+<td><p>L</p></td>
+<td><p>149.12</p></td>
+</tr>
+<tr class="row-even"><td><p>IEPOXP</p></td>
+<td><p>peroxy radical from IEPOX</p></td>
+<td><p>L</p></td>
+<td><p>118.13</p></td>
+</tr>
+<tr class="row-odd"><td><p>IHMML</p></td>
+<td><p>Methacrylic acid epoxide</p></td>
+<td><p>L</p></td>
+<td><p>102</p></td>
+</tr>
+<tr class="row-even"><td><p>IHMMLP</p></td>
+<td><p>Methacrylic acid epoxide</p></td>
+<td><p>L</p></td>
+<td><p>102</p></td>
+</tr>
+<tr class="row-odd"><td><p>IMACO3</p></td>
+<td><p>Peroxyacyl radicals formed from methacrolein + OH abstraction channel</p></td>
+<td><p>L</p></td>
+<td><p>101.08</p></td>
+</tr>
+<tr class="row-even"><td><p>IMAE</p></td>
+<td><p>Methacryloyl peroxy nitrate</p></td>
+<td><p>E</p></td>
+<td><p>102</p></td>
+</tr>
+<tr class="row-odd"><td><p>IMAEP</p></td>
+<td><p>Methacryloyl peroxy nitrate</p></td>
+<td><p>E</p></td>
+<td><p>102</p></td>
+</tr>
+<tr class="row-even"><td><p>IMAPAN</p></td>
+<td><p>Methacrylicperoxy acid</p></td>
+<td><p>E</p></td>
+<td><p>147.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>IMPAA</p></td>
+<td><p>Peroxyacyl radicals formed from methacrolein + OH abstraction channel</p></td>
+<td><p>L</p></td>
+<td><p>102.08</p></td>
+</tr>
+<tr class="row-even"><td><p>IPRD</p></td>
+<td><p>Lumped isoprene product species</p></td>
+<td><p>L</p></td>
+<td><p>100.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISOPNB</p></td>
+<td><p>beta-hydroxy isoprene nitrates</p></td>
+<td><p>L</p></td>
+<td><p>147.1</p></td>
+</tr>
+<tr class="row-even"><td><p>ISOPND</p></td>
+<td><p>delta-hydroxy isoprene nitrates</p></td>
+<td><p>L</p></td>
+<td><p>147.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISOPNN</p></td>
+<td><p>second generation isoprene dinitrate from NO3 reaction</p></td>
+<td><p>L</p></td>
+<td><p>226</p></td>
+</tr>
+<tr class="row-even"><td><p>ISOPNOOB</p></td>
+<td><p>peroxy radical from ISOPNB</p></td>
+<td><p>L</p></td>
+<td><p>196.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISOPNOOD</p></td>
+<td><p>peroxy radical from ISOPND</p></td>
+<td><p>L</p></td>
+<td><p>196.1</p></td>
+</tr>
+<tr class="row-even"><td><p>ISOPO2</p></td>
+<td><p>peroxy radical from isoprene + OH</p></td>
+<td><p>L</p></td>
+<td><p>117.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISOPOOH</p></td>
+<td><p>hydroxyhydroperoxides from ISOPO2</p></td>
+<td><p>L</p></td>
+<td><p>118.1</p></td>
+</tr>
+<tr class="row-even"><td><p>ISOPRENE</p></td>
+<td><p>Isoprene</p></td>
+<td><p>E</p></td>
+<td><p>68.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISOPRXN</p></td>
+<td><p>SOA precursor compounds from isoprene</p></td>
+<td><p>L</p></td>
+<td><p>68</p></td>
+</tr>
+<tr class="row-even"><td><p>MACO3</p></td>
+<td><p>Peroxyacyl radicals formed from methacrolein and other acroleins.</p></td>
+<td><p>L</p></td>
+<td><p>101.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>MACR</p></td>
+<td><p>Methacrolein</p></td>
+<td><p>E</p></td>
+<td><p>70.09</p></td>
+</tr>
+<tr class="row-even"><td><p>MACRN</p></td>
+<td><p>methacrolein nitrate</p></td>
+<td><p>E</p></td>
+<td><p>149.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>MACROO</p></td>
+<td><p>peroxy radical from MACR</p></td>
+<td><p>L</p></td>
+<td><p>119.1</p></td>
+</tr>
+<tr class="row-even"><td><p>MAPAN</p></td>
+<td><p>PAN analogue formed from Methacrolein</p></td>
+<td><p>L</p></td>
+<td><p>147.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>MECO3</p></td>
+<td><p>Acetyl Peroxy Radicals</p></td>
+<td><p>L</p></td>
+<td><p>75.04</p></td>
+</tr>
+<tr class="row-even"><td><p>MEK</p></td>
+<td><p>Ketones and other non-aldehyde oxygenated products which react with OH radicals faster than 5 x 10-13 but slower than 5 x 10-12 cm3 molec-2 sec-1. (Based on mechanism for methyl ethyl ketone).</p></td>
+<td><p>L</p></td>
+<td><p>72.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>MEO2</p></td>
+<td><p>Methyl Peroxy Radicals</p></td>
+<td><p>L</p></td>
+<td><p>47.03</p></td>
+</tr>
+<tr class="row-even"><td><p>MEOH</p></td>
+<td><p>Methanol</p></td>
+<td><p>E</p></td>
+<td><p>32.04</p></td>
+</tr>
+<tr class="row-odd"><td><p>MGLY</p></td>
+<td><p>Methyl Glyoxal</p></td>
+<td><p>E</p></td>
+<td><p>72.07</p></td>
+</tr>
+<tr class="row-even"><td><p>MTNO3</p></td>
+<td><p>monoterpene(TERP)-derived organic nitrates (exluding alpha-pinene)</p></td>
+<td><p>L</p></td>
+<td><p>231</p></td>
+</tr>
+<tr class="row-odd"><td><p>MVK</p></td>
+<td><p>Methyl Vinyl Ketone</p></td>
+<td><p>E</p></td>
+<td><p>70.09</p></td>
+</tr>
+<tr class="row-even"><td><p>MVKN</p></td>
+<td><p>methylvinylketone nitrate</p></td>
+<td><p>E</p></td>
+<td><p>149.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>MVKOO</p></td>
+<td><p>peroxy radical from MVK</p></td>
+<td><p>L</p></td>
+<td><p>119.1</p></td>
+</tr>
+<tr class="row-even"><td><p>MXYL</p></td>
+<td><p>m-xylene</p></td>
+<td><p>E</p></td>
+<td><p>106.17</p></td>
+</tr>
+<tr class="row-odd"><td><p>N2O5</p></td>
+<td><p>Nitrogen Pentoxide</p></td>
+<td><p>E</p></td>
+<td><p>108.02</p></td>
+</tr>
+<tr class="row-even"><td><p>NAPHTHAL</p></td>
+<td><p>naphthalene</p></td>
+<td><p>E</p></td>
+<td><p>128.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>NISOPO2</p></td>
+<td><p>peroxy radical from isoprene + NO3</p></td>
+<td><p>E</p></td>
+<td><p>162.1</p></td>
+</tr>
+<tr class="row-even"><td><p>NISOPOOH</p></td>
+<td><p>hydroperoxide from NISOPO2</p></td>
+<td><p>E</p></td>
+<td><p>163.13</p></td>
+</tr>
+<tr class="row-odd"><td><p>NIT1</p></td>
+<td><p>C5 carbonyl nitrates</p></td>
+<td><p>L</p></td>
+<td><p>145.1</p></td>
+</tr>
+<tr class="row-even"><td><p>NIT1NO3OOA</p></td>
+<td><p>acyl peroxy radical from NIT1 + NO3 (abstraction of aldehydic H)</p></td>
+<td><p>L</p></td>
+<td><p>176.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>NIT1NO3OOB</p></td>
+<td><p>peroxy radical from NIT1 + NO3 (addition to double bond)</p></td>
+<td><p>L</p></td>
+<td><p>239.1</p></td>
+</tr>
+<tr class="row-even"><td><p>NIT1OHOO</p></td>
+<td><p>peroxy radical from NIT1 + OH</p></td>
+<td><p>L</p></td>
+<td><p>194.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>NO</p></td>
+<td><p>Nitric Oxide</p></td>
+<td><p>E</p></td>
+<td><p>30.01</p></td>
+</tr>
+<tr class="row-even"><td><p>NO2</p></td>
+<td><p>Nitrogen Dioxide</p></td>
+<td><p>E</p></td>
+<td><p>46.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>NO3</p></td>
+<td><p>Nitrate Radical</p></td>
+<td><p>E</p></td>
+<td><p>62.01</p></td>
+</tr>
+<tr class="row-even"><td><p>NPHE</p></td>
+<td><p>Nitrophenols</p></td>
+<td><p>E</p></td>
+<td><p>139.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>O1D</p></td>
+<td><p>Excited Oxygen Atoms</p></td>
+<td><p>E</p></td>
+<td><p>16</p></td>
+</tr>
+<tr class="row-even"><td><p>O3</p></td>
+<td><p>Ozone</p></td>
+<td><p>E</p></td>
+<td><p>48</p></td>
+</tr>
+<tr class="row-odd"><td><p>O3P</p></td>
+<td><p>Ground State Oxygen Atoms</p></td>
+<td><p>E</p></td>
+<td><p>16</p></td>
+</tr>
+<tr class="row-even"><td><p>OH</p></td>
+<td><p>Hydroxyl Radicals</p></td>
+<td><p>E</p></td>
+<td><p>17.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>OLE1</p></td>
+<td><p>Alkenes (other than ethene) with kOH &lt; 7x104 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>72.34</p></td>
+</tr>
+<tr class="row-even"><td><p>OLE2</p></td>
+<td><p>Alkenes with kOH &gt; 7x104 ppm-1 min-1.</p></td>
+<td><p>L</p></td>
+<td><p>75.78</p></td>
+</tr>
+<tr class="row-odd"><td><p>OXYL</p></td>
+<td><p>o-xylene</p></td>
+<td><p>E</p></td>
+<td><p>106.17</p></td>
+</tr>
+<tr class="row-even"><td><p>PAHRO2</p></td>
+<td><p>PAH hydroxyperoxy radicals</p></td>
+<td><p>L</p></td>
+<td><p>187.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>PAN</p></td>
+<td><p>Peroxy Acetyl Nitrate</p></td>
+<td><p>E</p></td>
+<td><p>121.05</p></td>
+</tr>
+<tr class="row-even"><td><p>PAN2</p></td>
+<td><p>PPN and other higher alkyl PAN analogues</p></td>
+<td><p>L</p></td>
+<td><p>135.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>PBZN</p></td>
+<td><p>PAN analogues formed from Aromatic Aldehydes</p></td>
+<td><p>L</p></td>
+<td><p>183.13</p></td>
+</tr>
+<tr class="row-even"><td><p>PRD2</p></td>
+<td><p>Ketones and other non-aldehyde oxygenated products which react with OH radicals faster than 5 x 10-12 cm3 molec-2 sec-1.</p></td>
+<td><p></p></td>
+<td><p>116.16</p></td>
+</tr>
+<tr class="row-odd"><td><p>PROPENE</p></td>
+<td><p>propene</p></td>
+<td><p>L</p></td>
+<td><p>42.08</p></td>
+</tr>
+<tr class="row-even"><td><p>PROPNN</p></td>
+<td><p>propanone nitrate from isoprene + OH</p></td>
+<td><p>L</p></td>
+<td><p>119.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>PXYL</p></td>
+<td><p>p-xylene</p></td>
+<td><p>E</p></td>
+<td><p>106.17</p></td>
+</tr>
+<tr class="row-even"><td><p>PYRUACD</p></td>
+<td><p>Pyruvic Acid</p></td>
+<td><p>E</p></td>
+<td><p>88.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>R6OOH</p></td>
+<td><p>Lumped organic hydroperoxides with 5 or more carbons (other than those formed following OH addition to aromatic rings, which is reprsented separately). Mechanism based on that estimated for 3-hexyl hydroperoxide.</p></td>
+<td><p>L</p></td>
+<td><p>118.17</p></td>
+</tr>
+<tr class="row-even"><td><p>RAOOH</p></td>
+<td><p>Organic hydroperoxides formed following OH addition to aromatic rings, which is reprsented separately because of their probable role in SOA formation. Mechanism based on two isomers expected to be formed in the m-xylene system.</p></td>
+<td><p>L</p></td>
+<td><p>188.18</p></td>
+</tr>
+<tr class="row-odd"><td><p>RCHO</p></td>
+<td><p>Lumped C3+ Aldehydes (mechanism based on propionaldehyde)</p></td>
+<td><p>L</p></td>
+<td><p>58.08</p></td>
+</tr>
+<tr class="row-even"><td><p>RCO3</p></td>
+<td><p>Peroxy Propionyl and higher peroxy acyl Radicals</p></td>
+<td><p>L</p></td>
+<td><p>89.07</p></td>
+</tr>
+<tr class="row-odd"><td><p>RCOOH</p></td>
+<td><p>Higher organic acids and, in Carter, peroxy acids (mechanism based on propionic acid).</p></td>
+<td><p>L</p></td>
+<td><p>74.08</p></td>
+</tr>
+<tr class="row-even"><td><p>RCOOOH</p></td>
+<td><p>Proposed Higher organic peroxy acids</p></td>
+<td><p>L</p></td>
+<td><p>74.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>RNO3</p></td>
+<td><p>Lumped Organic Nitrates</p></td>
+<td><p>L</p></td>
+<td><p>147.18</p></td>
+</tr>
+<tr class="row-even"><td><p>RNO3I</p></td>
+<td><p>Lumped Organic Nitrates from isoprene</p></td>
+<td><p>L</p></td>
+<td><p>147.18</p></td>
+</tr>
+<tr class="row-odd"><td><p>RO2C</p></td>
+<td><p>Peroxy Radical Operator representing NO to NO2 and NO3 to NO2 conversions, and the effects of peroxy radical reactions on acyl peroxy and other peroxy radicals.</p></td>
+<td><p>L</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>RO2XC</p></td>
+<td><p>Peroxy Radical Operator representing NO consumption (used in conjunction with organic nitrate formation), and the effects of peroxy radical reactions on NO3, acyl peroxy radicals, and other peroxy radicals.</p></td>
+<td><p>L</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ROOH</p></td>
+<td><p>Lumped organic hydroperoxides with 2-4 carbons. Mechanism based on that estimated for n-propyl hydroperoxide.</p></td>
+<td><p></p></td>
+<td><p>76.1</p></td>
+</tr>
+<tr class="row-even"><td><p>SESQ</p></td>
+<td><p>Sesquiterpenes</p></td>
+<td><p>L</p></td>
+<td><p>204.35</p></td>
+</tr>
+<tr class="row-odd"><td><p>SESQRXN</p></td>
+<td><p>Precursor of Sesquiterpenes Aerosol Material</p></td>
+<td><p>L</p></td>
+<td><p>204.35</p></td>
+</tr>
+<tr class="row-even"><td><p>SO2</p></td>
+<td><p>Sulfur Dioxide</p></td>
+<td><p>E</p></td>
+<td><p>64.06</p></td>
+</tr>
+<tr class="row-odd"><td><p>SOAALK</p></td>
+<td><p>Alkanes that produce aerosol material</p></td>
+<td><p>L</p></td>
+<td><p>112</p></td>
+</tr>
+<tr class="row-even"><td><p>SULF</p></td>
+<td><p>Sulfates (SO3 or H2SO4)</p></td>
+<td><p>L</p></td>
+<td><p>98.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>SULRXN</p></td>
+<td><p>Precursor of Aerosol Sulfate</p></td>
+<td><p>L</p></td>
+<td><p>98.08</p></td>
+</tr>
+<tr class="row-even"><td><p>SVAVB1</p></td>
+<td><p>low volatility organic gas from oxidation of anthropogenic VOCs</p></td>
+<td><p>L</p></td>
+<td><p>179.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVAVB2</p></td>
+<td><p>semivolatile organic gas from oxidation of anthropogenic VOCs</p></td>
+<td><p>L</p></td>
+<td><p>169.0</p></td>
+</tr>
+<tr class="row-even"><td><p>SVAVB3</p></td>
+<td><p>semivolatile organic gas from oxidation of anthropogenic VOCs</p></td>
+<td><p>L</p></td>
+<td><p>158.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVAVB4</p></td>
+<td><p>semivolatile organic gas from oxidation of anthropogenic VOCs</p></td>
+<td><p>L</p></td>
+<td><p>198.0</p></td>
+</tr>
+<tr class="row-even"><td><p>TBUO</p></td>
+<td><p>t-Butoxy Radicals</p></td>
+<td><p>L</p></td>
+<td><p>73</p></td>
+</tr>
+<tr class="row-odd"><td><p>TERP</p></td>
+<td><p>Terpenes</p></td>
+<td><p>L</p></td>
+<td><p>136.24</p></td>
+</tr>
+<tr class="row-even"><td><p>TERPNRO2</p></td>
+<td><p>TERP+NO3 peroxy radical</p></td>
+<td><p>L</p></td>
+<td><p>197</p></td>
+</tr>
+<tr class="row-odd"><td><p>TMBENZ124</p></td>
+<td><p>1,2,4-trimethyl benzene</p></td>
+<td><p>E</p></td>
+<td><p>120.19</p></td>
+</tr>
+<tr class="row-even"><td><p>TOLRO2</p></td>
+<td><p>Peroxy Radical tracker from TOLUENE and ARO1 reactions with OH; an aerosol precursor</p></td>
+<td><p>L</p></td>
+<td><p>172.14</p></td>
+</tr>
+<tr class="row-odd"><td><p>TOLUENE</p></td>
+<td><p>toluene</p></td>
+<td><p>E</p></td>
+<td><p>92.14</p></td>
+</tr>
+<tr class="row-even"><td><p>TRPRXN</p></td>
+<td><p>Precursor of Terpene Aerosol Material</p></td>
+<td><p>E</p></td>
+<td><p>136</p></td>
+</tr>
+<tr class="row-odd"><td><p>xACETONE</p></td>
+<td><p>ACETONE production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>58.08</p></td>
+</tr>
+<tr class="row-even"><td><p>xACROLEIN</p></td>
+<td><p>ACROLEIN production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>56.06</p></td>
+</tr>
+<tr class="row-odd"><td><p>xAFG1</p></td>
+<td><p>AFG1 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>98.1</p></td>
+</tr>
+<tr class="row-even"><td><p>xAFG2</p></td>
+<td><p>AFG2 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>98.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>xAFG3</p></td>
+<td><p>AFG3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>124.74</p></td>
+</tr>
+<tr class="row-even"><td><p>xBACL</p></td>
+<td><p>BACL production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>86.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>xBALD</p></td>
+<td><p>BALD production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>106.13</p></td>
+</tr>
+<tr class="row-even"><td><p>xCCHO</p></td>
+<td><p>CCHO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>44.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>xCL</p></td>
+<td><p>Cl production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>35.5</p></td>
+</tr>
+<tr class="row-even"><td><p>xCLACET</p></td>
+<td><p>CLACET production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>92.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>xCLCCHO</p></td>
+<td><p>CLCCHO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>78.5</p></td>
+</tr>
+<tr class="row-even"><td><p>xCO</p></td>
+<td><p>CO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>28.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>xGLY</p></td>
+<td><p>GLY production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p></p></td>
+<td><p>58.04</p></td>
+</tr>
+<tr class="row-even"><td><p>xHCHO</p></td>
+<td><p>HCHO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>30.03</p></td>
+</tr>
+<tr class="row-odd"><td><p>xHO2</p></td>
+<td><p>Formation of HO2 from alkoxy radicals formed in peroxy radical reactions with NO and NO3 (100% yields) and RO2 (50% yields)</p></td>
+<td><p>L</p></td>
+<td><p>33.01</p></td>
+</tr>
+<tr class="row-even"><td><p>xHOCCHO</p></td>
+<td><p>HOCCHO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>60.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>xIPRD</p></td>
+<td><p>IPRD production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>100.12</p></td>
+</tr>
+<tr class="row-even"><td><p>xMACO3</p></td>
+<td><p>MACO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>101.08</p></td>
+</tr>
+<tr class="row-odd"><td><p>xMACR</p></td>
+<td><p>MACR production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>70.09</p></td>
+</tr>
+<tr class="row-even"><td><p>xMECO3</p></td>
+<td><p>MECO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>75.04</p></td>
+</tr>
+<tr class="row-odd"><td><p>xMEK</p></td>
+<td><p>MEK production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>72.11</p></td>
+</tr>
+<tr class="row-even"><td><p>xMEO2</p></td>
+<td><p>MEO2 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>47.03</p></td>
+</tr>
+<tr class="row-odd"><td><p>xMGLY</p></td>
+<td><p>MGLY production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>72.07</p></td>
+</tr>
+<tr class="row-even"><td><p>xMTNO3</p></td>
+<td><p>MGLY production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>231</p></td>
+</tr>
+<tr class="row-odd"><td><p>xMVK</p></td>
+<td><p>MVK production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>70.09</p></td>
+</tr>
+<tr class="row-even"><td><p>xNO2</p></td>
+<td><p>NO2 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>46.01</p></td>
+</tr>
+<tr class="row-odd"><td><p>xOH</p></td>
+<td><p>OH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>17.01</p></td>
+</tr>
+<tr class="row-even"><td><p>xPROD2</p></td>
+<td><p>PROD2 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>116.16</p></td>
+</tr>
+<tr class="row-odd"><td><p>xRCHO</p></td>
+<td><p>RCHO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>58.08</p></td>
+</tr>
+<tr class="row-even"><td><p>xRCO3</p></td>
+<td><p>RCO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>89.07</p></td>
+</tr>
+<tr class="row-odd"><td><p>xRNO3</p></td>
+<td><p>RNO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>147.18</p></td>
+</tr>
+<tr class="row-even"><td><p>xTBUO</p></td>
+<td><p>TBUO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>73</p></td>
+</tr>
+<tr class="row-odd"><td><p>XYLRO2</p></td>
+<td><p>Peroxy Radical tracker from xylene and ARO2 reactions with OH;an aerosol precursor</p></td>
+<td><p>L</p></td>
+<td><p>187.17</p></td>
+</tr>
+<tr class="row-even"><td><p>yR6OOH</p></td>
+<td><p>R6OOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>118.17</p></td>
+</tr>
+<tr class="row-odd"><td><p>yRAOOH</p></td>
+<td><p>RAOOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>188.18</p></td>
+</tr>
+<tr class="row-even"><td><p>yROOH</p></td>
+<td><p>ROOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>76.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>zMTNO3</p></td>
+<td><p>ROOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>231</p></td>
+</tr>
+<tr class="row-even"><td><p>zRNO3</p></td>
+<td><p>RNO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)</p></td>
+<td><p>L</p></td>
+<td><p>147.18</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The AE namelist for saprc07tic_ae7i_aq has the following aerosol species.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Model Species</strong></p></th>
+<th class="head"><p><strong>Definition</strong></p></th>
+<th class="head"><p><strong>Molecular Weight</strong></p></th>
+<th class="head"><p><strong>Explicit or Lumped</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>AAL</p></td>
+<td><p>Aluminum</p></td>
+<td><p>27</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>AAVB1</p></td>
+<td><p>low volatility organic particulate matter from oxidation of anthropogenic VOCs</p></td>
+<td><p>198.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AAVB2</p></td>
+<td><p>semivolailte organic particulate matter from oxidation of anthropogenic VOCs</p></td>
+<td><p>179.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AAVB3</p></td>
+<td><p>semivolailte organic particulate matter from oxidation of anthropogenic VOCs</p></td>
+<td><p>169.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AAVB4</p></td>
+<td><p>semivolailte organic particulate matter from oxidation of anthropogenic VOCs</p></td>
+<td><p>158.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ACA</p></td>
+<td><p>Calcium</p></td>
+<td><p>40.1</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>ACL</p></td>
+<td><p>Chloride</p></td>
+<td><p>35.5</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>ADIM</p></td>
+<td><p>IEPOX-derived organosulfate from IEPOX uptake onto particles</p></td>
+<td><p>248.23</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ACORS</p></td>
+<td><p>Anthropogenic Coarse-mode particle mass</p></td>
+<td><p>100.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AEC</p></td>
+<td><p>Elemental Carbon</p></td>
+<td><p>12</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AFE</p></td>
+<td><p>Iron</p></td>
+<td><p>55.8</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>AGLY</p></td>
+<td><p>Glyoxal and methylglyoxal SOA produced in aqueous aerosol material</p></td>
+<td><p>66.4</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AH2O</p></td>
+<td><p>Water</p></td>
+<td><p>18</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>AH3OP</p></td>
+<td><p>Hydronium Ion</p></td>
+<td><p>19</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AIEOS</p></td>
+<td><p>2-methyltetrols from IEPOX uptake onto particles</p></td>
+<td><p>216.2</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AIETET</p></td>
+<td><p>Hydroxymethyl-methyl-a-lactone</p></td>
+<td><p>136.15</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AIMGA</p></td>
+<td><p>IEPOX-derived oligomers from IEPOX uptake onto particles</p></td>
+<td><p>120.1</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AIMOS</p></td>
+<td><p>2-methylglyceric acid from MAE+HMML uptake onto particles</p></td>
+<td><p>200.16</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AISO1</p></td>
+<td><p>Semivolatile SOA Product from Isoprene</p></td>
+<td><p>132.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AISO2</p></td>
+<td><p>High-Volatility SOA Product from Isoprene</p></td>
+<td><p>133.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AISO3</p></td>
+<td><p>Acid-catalyzed Isoprene Epoxydiol SOA</p></td>
+<td><p>168.2</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AISOPNN</p></td>
+<td><p>SOA from isoprene dinitrates (C*=8.9 ug/m3)</p></td>
+<td><p>226</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AIVPO1</p></td>
+<td><p>Intermediate Volatility Primary Organic Compounds</p></td>
+<td><p>266</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AK</p></td>
+<td><p>Potassium</p></td>
+<td><p>39.1</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>ALVOO1</p></td>
+<td><p>Low Volatility Oxidized Combustion Organic Compounds</p></td>
+<td><p>136</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ALVOO2</p></td>
+<td><p>Low Volatility Oxidized Combustion Organic Compounds</p></td>
+<td><p>136</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ALVPO1</p></td>
+<td><p>Low Volatility Primary Organic Compounds</p></td>
+<td><p>218</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMG</p></td>
+<td><p>Magnesium</p></td>
+<td><p>24.3</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AMN</p></td>
+<td><p>Manganese</p></td>
+<td><p>54.9</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMT1</p></td>
+<td><p>low volatility particulate matter from monoterpene photoxidation, C*=0.01 ug/m3</p></td>
+<td><p>200.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AMT2</p></td>
+<td><p>low volatility particulate matter from monoterpene photoxidation, C*=0.1 ug/m3</p></td>
+<td><p>300.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMT3</p></td>
+<td><p>semivolailte particulate matter from monoterpene photoxidation, C*=1 ug/m3</p></td>
+<td><p>186.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AMT4</p></td>
+<td><p>semivolatile particulate matter from monoterpene photoxidation, C*=10 ug/m3</p></td>
+<td><p>184.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMT5</p></td>
+<td><p>semivolatile particulate matter from monoterpene photoxidation, C*=100 ug/m3</p></td>
+<td><p>170.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AMT6</p></td>
+<td><p>semivolatile particulate matter from monoterpene photoxidation, C*=1000 ug/m3</p></td>
+<td><p>168.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMTNO3</p></td>
+<td><p>semivolatile organic nitrates from monoterpene oxidation</p></td>
+<td><p>231.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AMTHYD</p></td>
+<td><p>organic pseudo-hydrolysis accretion product from monoterpene organic nitrates (AMTNO3J)</p></td>
+<td><p>168.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ANA</p></td>
+<td><p>Sodium</p></td>
+<td><p>23</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>ANH4</p></td>
+<td><p>Ammonium</p></td>
+<td><p>18</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>ANO3</p></td>
+<td><p>Nitrate</p></td>
+<td><p>62</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AOLGA</p></td>
+<td><p>Oligomer products of anthropogenic SOA compounds</p></td>
+<td><p>206.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AOLGB</p></td>
+<td><p>Oligomer products of biogenic SOA compounds</p></td>
+<td><p>248.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>AORGC</p></td>
+<td><p>Glyoxal and Methylglyoxal SOA</p></td>
+<td><p>177.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>AORGH2O</p></td>
+<td><p>Water associated with organic species of particulate matter</p></td>
+<td><p>18.0</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>AOTHR</p></td>
+<td><p>Other Particulate Mass</p></td>
+<td><p>200</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>APCSO</p></td>
+<td><p>Potential Combustion SOA</p></td>
+<td><p>170</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>APNCOM</p></td>
+<td><p>Non-Carbon Organic Matter associated with APOC</p></td>
+<td><p>220.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>APOC</p></td>
+<td><p>Primary Organic Carbon</p></td>
+<td><p>220.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ASEACAT</p></td>
+<td><p>Sea spray cations</p></td>
+<td><p>23.75</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASI</p></td>
+<td><p>Silicon</p></td>
+<td><p>28.1</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>ASO4</p></td>
+<td><p>Sulfate</p></td>
+<td><p>96</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASOIL</p></td>
+<td><p>Lumped crustal species</p></td>
+<td><p>100.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ASQT</p></td>
+<td><p>Semivolatile SOA Product from Sesquiterpenes</p></td>
+<td><p>273.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASVOO1</p></td>
+<td><p>Semivolatile Oxidized Combustion Organic Compounds</p></td>
+<td><p>135</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ASVOO2</p></td>
+<td><p>Semivolatile Oxidized Combustion Organic Compounds</p></td>
+<td><p>135</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASVOO3</p></td>
+<td><p>Semivolatile Oxidized Combustion Organic Compounds</p></td>
+<td><p>134</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ASVPO1</p></td>
+<td><p>Semivolatile Primary Organic Compounds</p></td>
+<td><p>230</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASVPO2</p></td>
+<td><p>Semivolatile Primary Organic Compounds</p></td>
+<td><p>241</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>ASVPO3</p></td>
+<td><p>Semivolatile Primary Organic Compounds</p></td>
+<td><p>253</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>ATI</p></td>
+<td><p>Titanium</p></td>
+<td><p>47.9</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>NUMACC</p></td>
+<td><p>Accum. Mode Number Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>NUMAIT</p></td>
+<td><p>Aitken Mode Number Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-even"><td><p>NUMCOR</p></td>
+<td><p>Coarse Mode Number Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>SRFACC</p></td>
+<td><p>Accum. Mode Surface Area Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-even"><td><p>SRFAIT</p></td>
+<td><p>Aitken Mode Surface Area Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+<tr class="row-odd"><td><p>SRFCOR</p></td>
+<td><p>Coarse Mode Surface Area Conc</p></td>
+<td><p>NA</p></td>
+<td><p>NA</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.</p>
+<p><strong>The NR namelist for saprc07tic_ae7i_aq has the following gas phase species.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Model Species</strong></p></th>
+<th class="head"><p><strong>Definition</strong></p></th>
+<th class="head"><p><strong>Molecular Weight</strong></p></th>
+<th class="head"><p><strong>Explicit or Lumped</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>LVPCSOG</p></td>
+<td><p>surrogate SOA precursor gas for combustion/anthropogenic sources</p></td>
+<td><p>170.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>NH3</p></td>
+<td><p>ammonia</p></td>
+<td><p>17.0</p></td>
+<td><p>E</p></td>
+</tr>
+<tr class="row-even"><td><p>SVMT1</p></td>
+<td><p>low volatility gas from monoterpene photoxidation</p></td>
+<td><p>300.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVMT2</p></td>
+<td><p>low volatility gas from monoterpene photoxidation</p></td>
+<td><p>200.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>SVMT3</p></td>
+<td><p>semivolatile gas from monoterpene photoxidation</p></td>
+<td><p>186.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVMT4</p></td>
+<td><p>semivolatile gas from monoterpene photoxidation</p></td>
+<td><p>184.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>SVMT5</p></td>
+<td><p>semivolatile gas from monoterpene photoxidation</p></td>
+<td><p>170.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVMT6</p></td>
+<td><p>semivolatile gas from monoterpene photoxidation</p></td>
+<td><p>168.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>SVISO1</p></td>
+<td><p>semivolatile gas of secondary aerosol material from isoprene</p></td>
+<td><p>132.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-odd"><td><p>SVISO2</p></td>
+<td><p>semivolatile gas of secondary aerosol material from isoprene</p></td>
+<td><p>133.0</p></td>
+<td><p>L</p></td>
+</tr>
+<tr class="row-even"><td><p>SVSQT</p></td>
+<td><p>semivolatile gas of secondary aerosol material from sesquiterpenes</p></td>
+<td><p>273.0</p></td>
+<td><p>L</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,723 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Create CMAQ-Ready File from Shapefile &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'PYTOOLS/shp2cmaq/README';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/PYTOOLS/shp2cmaq/README.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Create CMAQ-Ready File from Shapefile</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="create-cmaq-ready-file-from-shapefile">
+<h1>Create CMAQ-Ready File from Shapefile<a class="headerlink" href="#create-cmaq-ready-file-from-shapefile" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>author: Barron H. Henderson
+date: 2020-04-25
+updated: 2024-04-24
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>This Notebook uses geopandas and cmaqsatproc to create IOAPI-like files for
+CMAQ. The overall process requires a shapefile with attributes and a GRIDDESC
+file. It produces variables that specify grid cell fractional coverage by each
+unique value of a specified attribute. It also produces total and dominant
+attribute variables. The total specifies the fraction coverage of any
+attribute. The dominant variable specifies which attribute has the largest
+area coverage.</p>
+<p>Two special notes:</p>
+<ol class="arabic simple">
+<li><p>It is possible to output an overlap weighted variable. For example, the
+population weighted by the fraction of a polygon’s area in a grid cell.</p></li>
+<li><p>In python, you can pass in a geopandas.GeoDataFrame instead of the path
+to a shapefile. This is useful when you want to add custom attributes
+before processing.</p></li>
+</ol>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<section id="census-state-boundaries-for-12us1-domain">
+<h3>Census State Boundaries for 12US1 Domain<a class="headerlink" href="#census-state-boundaries-for-12us1-domain" title="Link to this heading">#</a></h3>
+<p>The US Census state boundary shapefile has Polygons for each state with the
+STUSPS attribute. With attrkey set to STUSPS, the notebook will create a
+variable for each unique value of STUSPS (e.g, AL, AK, AR, … WV, WY) with
+the fractional area covered by that state. It will also create a
+variable STUSPS_DOM that uses numeric codes (in alphabetic order) to
+identify which STUSPS has the largest coverage of that cell. And, it will
+include a variable STUSPS_TOT with the total coverage of any STUSPS.</p>
+<ol class="arabic simple">
+<li><p>Download</p>
+<ul class="simple">
+<li><p>https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip</p></li>
+<li><p>If url doesn’t work, download from census.gov</p></li>
+</ul>
+</li>
+<li><p>Run tool:</p></li>
+</ol>
+<p>From SHELL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>shp2cmaq.py<span class="w"> </span>cb_2022_us_state_500k.zip<span class="w"> </span>STUSPS<span class="w"> </span>12US1
+</pre></div>
+</div>
+<p>In python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shp2cmaq</span> <span class="kn">import</span> <span class="n">shp2cmaq</span>
+<span class="n">shp2cmaq</span><span class="p">(</span><span class="s1">&#39;cb_2022_us_state_500k.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;STUSPS&#39;</span><span class="p">,</span> <span class="s1">&#39;12US1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="natural-earth-countries-for-hemispheric-domain">
+<h3>Natural Earth Countries for Hemispheric Domain<a class="headerlink" href="#natural-earth-countries-for-hemispheric-domain" title="Link to this heading">#</a></h3>
+<p>The Natural Earth countries shapefile (administrative-level 0) has Polygons
+with the country identifier attribute ADM0_A3. The notebook will create a
+variable for each unique value of ADM0_A3 (e.g, USA, MEX, CAN). It will also
+create a variable (ADM0_A3_DOM) that uses numeric codes (in alphabetic order)
+to identify which ADM0_A3 has the largest coverage of that cell. And, it will
+include a variable ADM0_A3_TOT with the total coverage of any ADM0_A3.</p>
+<ol class="arabic simple">
+<li><p>Download</p>
+<ul class="simple">
+<li><p>https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip</p></li>
+<li><p>If url doesn’t work, download from naturalearth.org</p></li>
+</ul>
+</li>
+<li><p>Run tool:</p></li>
+</ol>
+<p>From SHELL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>shp2cmaq.py<span class="w"> </span>ne_10m_admin_0_countries.zip<span class="w"> </span>ADM0_A3<span class="w"> </span>108NHEMI2
+</pre></div>
+</div>
+<p>In python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shp2cmaq</span> <span class="kn">import</span> <span class="n">shp2cmaq</span>
+<span class="n">shp2cmaq</span><span class="p">(</span><span class="s1">&#39;ne_110m_admin_0_countries.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;ADM0_A3&#39;</span><span class="p">,</span> <span class="s1">&#39;108NHEMI2&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="natural-earth-state-province-level-for-36us3">
+<h3>Natural Earth State/Province Level for 36US3<a class="headerlink" href="#natural-earth-state-province-level-for-36us3" title="Link to this heading">#</a></h3>
+<p>The Natural Earth countries shapefile (administrative-level 1) has Polygons
+with the state/provice identifier attribute iso_3166_2. The notebook will
+create a variable for each unique value of iso_3166_2. It will also
+create a variable (iso_3166_2) that uses numeric codes (in alphabetic order)
+to identify which iso_3166_2_DOM has the largest coverage of that cell. And,
+it will include a variable iso_3166_2_TOT with the total coverage of any
+iso_3166_2.</p>
+<ol class="arabic simple">
+<li><p>Download</p>
+<ul class="simple">
+<li><p>https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip</p></li>
+<li><p>If url doesn’t work, download from naturalearth.org</p></li>
+</ul>
+</li>
+<li><p>Run tool:</p></li>
+</ol>
+<p>From SHELL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>shp2cmaq.py<span class="w"> </span>ne_10m_admin_1_states_provinces.zip<span class="w"> </span>iso_3166_2<span class="w"> </span>36US3
+</pre></div>
+</div>
+<p>In python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shp2cmaq</span> <span class="kn">import</span> <span class="n">shp2cmaq</span>
+<span class="n">shp2cmaq</span><span class="p">(</span><span class="s1">&#39;ne_10m_admin_1_states_provinces.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;iso_3166_2&#39;</span><span class="p">,</span> <span class="s1">&#39;36US3&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="overlap-weighted-variable">
+<h3>Overlap Weighted Variable<a class="headerlink" href="#overlap-weighted-variable" title="Link to this heading">#</a></h3>
+<p>shp2cmaq can also output a weighted area. For example, if you have population
+by state, each cell will be assigned a fraction of each state’s population.
+The fraction will be equal to the fraction of the state’s area that is in that
+grid cell. Obviously, populations are not uniformaly distributed across states
+by area. The finer the geography used, the better assumption that is.</p>
+<p>Steps:</p>
+<ol class="arabic simple">
+<li><p>Go to censusreporter.org.</p></li>
+<li><p>Create a map of total population (B01003001) by state.</p></li>
+<li><p>Download the map as a zipped shapefile.</p></li>
+<li><p>Unzip the shapefile.</p></li>
+<li><p>Run the tool:</p></li>
+</ol>
+<p>From SHELL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>shp2cmaq.py<span class="w"> </span>--srckey<span class="o">=</span>B01003001<span class="w"> </span>acs2022_5yr_B01003_04000US21/acs2022_5yr_B01003_04000US21.shp<span class="w"> </span>geoid<span class="w"> </span>36US3
+</pre></div>
+</div>
+<p>In python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shp2cmaq</span> <span class="kn">import</span> <span class="n">shp2cmaq</span>
+<span class="n">shppath</span> <span class="o">=</span> <span class="s1">&#39;acs2022_5yr_B01003_04000US21/acs2022_5yr_B01003_04000US21.shp&#39;</span>
+<span class="n">shp2cmaq</span><span class="p">(</span><span class="n">shppath</span><span class="p">,</span> <span class="s1">&#39;geoid&#39;</span><span class="p">,</span> <span class="s1">&#39;36US3&#39;</span><span class="p">,</span> <span class="n">srckey</span><span class="o">=</span><span class="s1">&#39;B01003001&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-geodataframe">
+<h3>Custom GeoDataFrame<a class="headerlink" href="#custom-geodataframe" title="Link to this heading">#</a></h3>
+<p>This example of a custom dataframe builds on the “Census State Boundaries for
+12US1 Domain” example. It starts by opening the shapefile, but then adds a
+custom attribute. In this example, the custom attribute is the climate region.
+Climate region is derived from the postal abbreviation. The area overlap of
+each region should be the same as adding the variables from states in the
+example from which this is derived (e.g., CLIMREG_W = STUSPS_CA + STUSPS_NV).</p>
+<p>This is a trivial example, but illustrates a general capability.</p>
+<ol class="arabic simple">
+<li><p>Download</p>
+<ul class="simple">
+<li><p>https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_state_500k.zip</p></li>
+<li><p>If url doesn’t work, download from census.gov</p></li>
+</ul>
+</li>
+<li><p>Run tool:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">shp2cmaq</span> <span class="kn">import</span> <span class="n">shp2cmaq</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+
+
+<span class="n">regions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;NW&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;OR&#39;</span><span class="p">,</span> <span class="s1">&#39;WA&#39;</span><span class="p">,</span> <span class="s1">&#39;ID&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;NV&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;NRP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MT&#39;</span><span class="p">,</span> <span class="s1">&#39;WY&#39;</span><span class="p">,</span> <span class="s1">&#39;ND&#39;</span><span class="p">,</span> <span class="s1">&#39;SD&#39;</span><span class="p">,</span> <span class="s1">&#39;NE&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;SW&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;UT&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">,</span> <span class="s1">&#39;CO&#39;</span><span class="p">,</span> <span class="s1">&#39;NM&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;KS&#39;</span><span class="p">,</span> <span class="s1">&#39;OK&#39;</span><span class="p">,</span> <span class="s1">&#39;TX&#39;</span><span class="p">,</span> <span class="s1">&#39;AR&#39;</span><span class="p">,</span> <span class="s1">&#39;LA&#39;</span><span class="p">,</span> <span class="s1">&#39;MS&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;UMW&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MN&#39;</span><span class="p">,</span> <span class="s1">&#39;IA&#39;</span><span class="p">,</span> <span class="s1">&#39;WI&#39;</span><span class="p">,</span> <span class="s1">&#39;MI&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;OV&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;MO&#39;</span><span class="p">,</span> <span class="s1">&#39;IL&#39;</span><span class="p">,</span> <span class="s1">&#39;IN&#39;</span><span class="p">,</span> <span class="s1">&#39;OH&#39;</span><span class="p">,</span> <span class="s1">&#39;KY&#39;</span><span class="p">,</span> <span class="s1">&#39;TN&#39;</span><span class="p">,</span> <span class="s1">&#39;WV&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;SE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;VA&#39;</span><span class="p">,</span> <span class="s1">&#39;NC&#39;</span><span class="p">,</span> <span class="s1">&#39;SC&#39;</span><span class="p">,</span> <span class="s1">&#39;GA&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">,</span> <span class="s1">&#39;FL&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;NE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;PA&#39;</span><span class="p">,</span> <span class="s1">&#39;NY&#39;</span><span class="p">,</span> <span class="s1">&#39;VT&#39;</span><span class="p">,</span> <span class="s1">&#39;NH&#39;</span><span class="p">,</span> <span class="s1">&#39;ME&#39;</span><span class="p">,</span> <span class="s1">&#39;MA&#39;</span><span class="p">,</span> <span class="s1">&#39;RI&#39;</span><span class="p">,</span> <span class="s1">&#39;CT&#39;</span><span class="p">,</span> <span class="s1">&#39;NJ&#39;</span><span class="p">,</span> <span class="s1">&#39;DE&#39;</span><span class="p">,</span> <span class="s1">&#39;MD&#39;</span><span class="p">,</span> <span class="s1">&#39;DC&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;OTHER&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;AK&#39;</span><span class="p">,</span> <span class="s1">&#39;AS&#39;</span><span class="p">,</span> <span class="s1">&#39;HI&#39;</span><span class="p">,</span> <span class="s1">&#39;PR&#39;</span><span class="p">,</span> <span class="s1">&#39;VI&#39;</span><span class="p">,</span> <span class="s1">&#39;GU&#39;</span><span class="p">,</span> <span class="s1">&#39;MP&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">st2reg</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">reg</span><span class="p">,</span> <span class="n">sts</span> <span class="ow">in</span> <span class="n">regions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">sts</span><span class="p">:</span>
+        <span class="n">st2reg</span><span class="p">[</span><span class="n">st</span><span class="p">]</span> <span class="o">=</span> <span class="n">reg</span>
+
+
+<span class="n">shpf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;cb_2022_us_state_500k.zip&#39;</span><span class="p">)</span>
+<span class="n">shpf</span><span class="p">[</span><span class="s1">&#39;CLIMREG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shpf</span><span class="p">[</span><span class="s1">&#39;STUSPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">st2reg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;UNKNOWN&quot;</span><span class="p">))</span>
+<span class="n">shp2cmaq</span><span class="p">(</span><span class="n">shpf</span><span class="p">,</span> <span class="s1">&#39;CLIMREG&#39;</span><span class="p">,</span> <span class="s1">&#39;12US1&#39;</span><span class="p">,</span> <span class="n">outpath</span><span class="o">=</span><span class="s1">&#39;CLIMREG.12US1.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#census-state-boundaries-for-12us1-domain">Census State Boundaries for 12US1 Domain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#natural-earth-countries-for-hemispheric-domain">Natural Earth Countries for Hemispheric Domain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#natural-earth-state-province-level-for-36us3">Natural Earth State/Province Level for 36US3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlap-weighted-variable">Overlap Weighted Variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-geodataframe">Custom GeoDataFrame</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

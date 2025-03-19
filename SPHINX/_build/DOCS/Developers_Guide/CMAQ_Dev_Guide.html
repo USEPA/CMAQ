@@ -1,0 +1,866 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Developers’ Guide for the Community Multiscale Air Quality (CMAQ) Modeling System &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Developers_Guide/CMAQ_Dev_Guide';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Developers_Guide/CMAQ_Dev_Guide.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><strong>Developers’ Guide for the Community Multiscale Air Quality (CMAQ) Modeling System</strong></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="developers-guide-for-the-community-multiscale-air-quality-cmaq-modeling-system">
+<h1><strong>Developers’ Guide for the Community Multiscale Air Quality (CMAQ) Modeling System</strong><a class="headerlink" href="#developers-guide-for-the-community-multiscale-air-quality-cmaq-modeling-system" title="Link to this heading">#</a></h1>
+<p><strong>Consistent with CMAQ model version 5.3 (2019 Release)</strong></p>
+<p>Prepared in cooperation with the:<br />
+    <em><strong>Community Modeling and Analysis System</strong></em><br />
+    Institute for the Environment<br />
+    University of North Carolina at Chapel Hill<br />
+    Chapel Hill, NC</p>
+<section id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Link to this heading">#</a></h2>
+<p>The information in this Developer Guide has been funded wholly or in part by the United States Environmental Protection Agency. The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document is currently being edited and reviewed by the Community Modeling and Analysis System Center. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.</p>
+</section>
+</section>
+<section id="motivation">
+<h1>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">#</a></h1>
+<p>The evolution and robustness of CMAQ depends on contributions from the vibrant CMAS community. The development team at EPA is excited to work with potential contributors and integrate community submissions into the CMAQ code base. In order to facilitate this process, we describe in this document our development process and how external developers may submit new code features.<br />
+The information contained here should be read prior to starting a project within the CMAQ framework. Instructions are tailored for external developers but can also be used by developers in the CMAS-Center or within EPA.</p>
+</section>
+<section id="summary-of-developer-workflow">
+<h1>Summary of Developer Workflow<a class="headerlink" href="#summary-of-developer-workflow" title="Link to this heading">#</a></h1>
+<p>The public CMAQ release repository is located on GitHub (<a class="github reference external" href="https://github.com/USEPA/CMAQ" rel="noreferrer" target="_blank">USEPA/CMAQ <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>). Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. Users can use the watch and star buttons on the public CMAQ release repository page to be notified of updates and changes. Developers interested in submitting code changes should read this Developer Guide and then contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting a code change (CMAQ_Team&#64;epa.gov).</p>
+<p>In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the <a class="reference internal" href="Code_Management.html"><span class="std std-doc">code management instructions</span></a>.  Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission.</p>
+<p>To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.3, 5.2.1, 5.2, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.</p>
+<p>Once a feature or bug fix branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, the developer may submit a pull request from their local feature or bug fix branch of their fork of the CMAQ repository on Github to the CMAQ public repository. This process is described in the Nuts and Bolts section below, and in the following <a class="reference external" href="https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github" rel="noreferrer" target="_blank">tutorial <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, which also provides instructions on how to keep a fork up to date with changes on the public release repository.</p>
+<p>Contributions will undergo a thorough code review within EPA before being incorporated in the next model release. Depending on the size, scope, and importance of the contribution, the CMAQ development team may or may not agree to support the update through future releases. Decisions regarding ongoing support will be made on a case-by-case basis with input from the developer who submits the contribution.
+The following sections outline the CMAQ code development and review process in greater detail.</p>
+</section>
+<section id="development-life-cycle">
+<h1>Development Life-cycle<a class="headerlink" href="#development-life-cycle" title="Link to this heading">#</a></h1>
+<section id="public-release-versions">
+<h2>Public Release Versions<a class="headerlink" href="#public-release-versions" title="Link to this heading">#</a></h2>
+<p>CMAQ uses a number versioning system for each release version branch, with major and minor increments. For example, in the case of hypothetical version 14.0 the first number (major version) and second number (minor version) refer to a stable release version. The minor version (second number) of CMAQ increments when one or many new science developments have been adopted.
+Although these changes may significantly affect model results, the model will still be generally compatible with inputs developed for versions of the same major number. The major version (first number) of CMAQ increments when significant development changes to the code base have been adopted such that backward compatibility or comparability is no longer expected. Modifications to the publically released version without increment are prohibited in order to ensure consistency among published literature referring to a particular model version.
+In between published releases the development team may publish solutions to model bugs and issues in the public repository under the folder <a class="reference external" href="https://github.com/lizadams/CMAQ/tree/main/DOCS/Known_Issues" rel="noreferrer" target="_blank">DOCS/Known_Issues <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>. The README located in this folder describes existing known issues, their scope and impact, and how they may be solved.</p>
+</section>
+<section id="development-versions">
+<h2>Development Versions<a class="headerlink" href="#development-versions" title="Link to this heading">#</a></h2>
+<p>Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. The purpose of releasing the development version to the public is to give community members:</p>
+<ul class="simple">
+<li><p>a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.</p></li>
+<li><p>a role in helping to test, troubleshoot, and debug the unofficial code before the stable release.</p></li>
+<li><p>an opportunity to comment on the code improvements made in the new version.</p></li>
+<li><p>the ability to take advantage of improvements for preliminary studies of their own interest.</p></li>
+<li><p>a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.</p></li>
+</ul>
+<p>The unofficial (or <em><strong>beta</strong></em>) version of the code will first be vetted internally and then released generally 6 months in advance of the corresponding stable CMAQ release; this period is known as the <em>beta-phase</em>. At this time, EPA will announce the deadline for community contributions. This deadline will be chosen in order to balance both the time needed by developers to submit their contributions and the time needed by EPA to incorporate submissions before public release. Version numbering for the beta series will append the letter ‘b’ and an incrementing number to the expected version number of the stable release. The number of beta versions is variable among releases. For example, before the hypothetical release of CMAQv14.3 the following series of version numbers could be expected:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>v14.3.b0  (First tested internal EPA version)  
+v14.3.b1  (Release to public after minor changes)  
+v14.3.b2  (....incremental testing, ....)  
+v14.3.b3  (....bug squashing, and  ...)  
+v14.3.b4  (....documentation updates...)  
+v14.3     (Stable Public Release)  
+</pre></div>
+</div>
+<p>As stated previously, the “Known Issues” section of the documentation will be continually updated as problems are identified in the released code-base. These updates will not be implemented in the default model code and so the version numbering will in general, not increment between public releases. The instrumented versions of the code (e.g. DDM, ISAM, STM, etc) should be released with the stable version.</p>
+</section>
+</section>
+<section id="making-contributions">
+<h1>Making Contributions<a class="headerlink" href="#making-contributions" title="Link to this heading">#</a></h1>
+<section id="get-in-touch">
+<h2>Get in touch<a class="headerlink" href="#get-in-touch" title="Link to this heading">#</a></h2>
+<p>Community members with an idea for a code contribution are encouraged to contact the EPA development team well before the <em>beta-phase</em> in order to plan appropriately for the testing and inclusion of the contribution. The EPA team may be interested in knowing information including but not limited to the following:</p>
+<ul class="simple">
+<li><p>What science module or bug do you intend to address? What work do you intend to contribute to CMAQ?</p></li>
+<li><p>Are you comfortable with the development strategy including code consistency, benchmarking, configuration testing, compiler testing, model output validation, documentation and merging?</p></li>
+<li><p>Are you able to provide ongoing support and technical guidance for your proposed contribution?</p></li>
+</ul>
+</section>
+<section id="nuts-and-bolts">
+<h2>Nuts and Bolts<a class="headerlink" href="#nuts-and-bolts" title="Link to this heading">#</a></h2>
+<p>As described above, the CMAQ development process follows a “Forking Workflow.” Atlassian has provided a helpful <a class="reference external" href="https://www.atlassian.com/git/tutorials/comparing-workflows#forking-workflow" rel="noreferrer" target="_blank">explanation <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>. Developers should follow the guidance at <a class="reference external" href="https://help.github.com/" rel="noreferrer" target="_blank">GitHub Help <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> and <a class="reference external" href="https://www.atlassian.com/git/tutorials/what-is-version-control" rel="noreferrer" target="_blank">Atlassian <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> in order to:</p>
+<ul class="simple">
+<li><p>fork the CMAQ repo: https://help.github.com/articles/fork-a-repo/#platform-linux</p></li>
+<li><p>clone their newly-created fork: https://help.github.com/articles/cloning-a-repository/#platform-linux</p></li>
+<li><p>create a feature branch: https://www.atlassian.com/git/tutorials/using-branches</p></li>
+<li><p>add and commit changes to the new feature branch: https://www.atlassian.com/git/tutorials/saving-changes</p></li>
+<li><p>push the feature branch to the forked repo: https://help.github.com/articles/pushing-to-a-remote/</p></li>
+<li><p>submit a pull request to the public CMAQ repo: https://help.github.com/articles/creating-a-pull-request-from-a-fork/</p></li>
+</ul>
+<p>Developers should run and test their contribution before submitting the pull request so that the results of the test can be included in the documentation of the pull request.</p>
+</section>
+<section id="code-review">
+<h2>Code Review<a class="headerlink" href="#code-review" title="Link to this heading">#</a></h2>
+<p>CMAQ Developers at EPA will review all code submissions in order to ensure code stability and consistency, and prevent degradation of model performance. After review, the EPA team will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid outright rejection, we urge developers to contact the EPA team early in the development process and maintain contact throughout to help ensure the submission is compatible with the CMAQ code base and is a robust addition.</p>
+<section id="code-consistency">
+<h3>Code Consistency<a class="headerlink" href="#code-consistency" title="Link to this heading">#</a></h3>
+<p>Please refer to the <a class="reference internal" href="Code_Management.html"><span class="std std-doc">code management instructions</span></a>.
+Examples of small, but important guidelines include:</p>
+<ul class="simple">
+<li><p>Eliminate global memory references (across modules). In other words, no common blocks across modules, no hidden data paths, and no “back doors.”</p></li>
+<li><p>All subroutines should be named in a manner which prevents namespace conflicts.</p></li>
+<li><p>In general, variable names should be self-descriptive (e.g. NCELLS rather than N).</p></li>
+<li><p>Use the Fortran declaration IMPLICIT NONE to maintain some control on typographic errors and undefined variables. The use of IMPLICIT NONE forces the developer to declare all internal variables. This is standard in Fortran 90.</p></li>
+<li><p>In general, it is expected that MKS units are used for input and output variables, as these units have been standardized throughout the CMAQ system. If you use alternative units, please document this exhaustively.</p></li>
+</ul>
+</section>
+<section id="benchmark-testing">
+<h3>Benchmark Testing<a class="headerlink" href="#benchmark-testing" title="Link to this heading">#</a></h3>
+<p>Dataset: The U.S. EPA Southeast US 12km domain July 1-14, 2016 testing dataset is provided with the CMAQv5.3 Release. This dataset is distributed for benchmarking and testing the model installation. It is available from CMAS; please go to https://www.epa.gov/cmaq/cmaq-inputs-and-test-case-data for instructions on how to download the test dataset.</p>
+<p>Before making code changes, developers should test multiple compilers (if they have access to them; see the following section on <strong>Compiler Tests</strong>), multiple processor configurations, and single processor configuration runs for a single simulation day to verify their results match the previous stable release, and/or that their results are computationally and physically reasonable. After implementing their code changes, developers should repeat these tests and share the results as part of the pull request documentation.</p>
+<section id="compiler-tests">
+<h4>Compiler Tests<a class="headerlink" href="#compiler-tests" title="Link to this heading">#</a></h4>
+<p>Compiler tests use the default benchmark configuration with different compilers and MPI configurations. It is important for the user community that CMAQ always compile with Intel Fortran, Gnu Fortran and Portland Group Fortran compilers. If a developer has access to more than one compiler, it is critical that they test all of them. Some errors will cause different behaviors depending on the choice of compiler and may not be detectable with all of the compilers. See appendix 1 for an example of a Compiler Test.</p>
+</section>
+<section id="model-performance-tests">
+<h4>Model Performance Tests<a class="headerlink" href="#model-performance-tests" title="Link to this heading">#</a></h4>
+<p>Configuration tests use one compiler to test the impact of a model change on results. See appendix 2 for an example of important information to collect when testing science options. The developer should consider submitting similar information with their pull request.</p>
+<p>Several tools exist to document the effects of compiler choice and code change on model results. Examples include:
+<strong>m3diff -</strong> Quantify min, max, mean differences between two different model runs
+<strong>VERDI -</strong> Create absolute difference plots for multiple variables, timesteps, layers (see spatial differences)<br />
+In addition, we recommend utilizing <strong>1:1 Scatter Plots</strong> to demonstrate the differences between two model runs in a concise layout.</p>
+</section>
+</section>
+<section id="documentation-requirements">
+<h3>Documentation Requirements<a class="headerlink" href="#documentation-requirements" title="Link to this heading">#</a></h3>
+<p>Documentation is of course an integral part of the integration of any contribution into the CMAQ code base. The following documentation products are helpful for expediting the review and integration process:</p>
+<ul class="simple">
+<li><p>A Release Note written by the developer which describes the motivation, algorithm and impacts of the contribution is required to ensure proper documentation of CMAQ.</p></li>
+<li><p>If the contribution is a new feature, developers are encouraged to publish its use in a peer-reviewed journal before submitting it to the CMAQ Public Repository.</p></li>
+</ul>
+<p><em>CMAQ Documentation Resources:</em><br />
+Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/main/DOCS. Materials include:</p>
+<ul class="simple">
+<li><p>User Guide which describes code structure and regular operation of the model.</p></li>
+<li><p>Release Notes describing code improvements relevant for this model release.</p></li>
+<li><p>Tutorials that give specific instructions for common tasks like running CMAQ or adding chemical tracers.</p></li>
+</ul>
+</section>
+</section>
+<section id="ongoing-support">
+<h2>Ongoing Support<a class="headerlink" href="#ongoing-support" title="Link to this heading">#</a></h2>
+<p>Depending on the size, scope, and importance of the contribution, the CMAQ development team may or may not have the resources to support it through future releases. For example, bug fixes and minor, but helpful, changes to the existing code will likely be incorporated into the general code base and supported. Large code additions, like a new process module or an instrumented version of CMAQ may require more effort to support than can be provided by resources of the EPA Office of Research and Development. However, if the feature is particularly of interest for the CMAQ user community, it may be supported. Decisions regarding ongoing support will be made on a case-by-case basis.</p>
+</section>
+</section>
+<section id="copyright-information">
+<h1>Copyright Information<a class="headerlink" href="#copyright-information" title="Link to this heading">#</a></h1>
+<p>Contact EPA (CMAQ_Team&#64;epa.gov) with questions and concerns.</p>
+<p>CMAQ Developer Guide (c) 2019</p>
+</section>
+<section id="appendix">
+<h1>Appendix<a class="headerlink" href="#appendix" title="Link to this heading">#</a></h1>
+<section id="appendix-1-compiler-tests">
+<h2>Appendix 1: Compiler Tests<a class="headerlink" href="#appendix-1-compiler-tests" title="Link to this heading">#</a></h2>
+<p>Compiler flags:</p>
+<ul class="simple">
+<li><p>PGI: -Mfixed -O3 -Mextend</p></li>
+<li><p>GCC: -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32</p></li>
+<li><p>Intel: -fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise -fp-model source -shared-intel -openmp</p></li>
+</ul>
+<section id="compilation-testing-manifest-table-example">
+<h3>Compilation Testing Manifest Table (Example)<a class="headerlink" href="#compilation-testing-manifest-table-example" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Scenario</strong></p></th>
+<th class="head"><p><strong>Compiler</strong></p></th>
+<th class="head"><p><strong>netCDF</strong></p></th>
+<th class="head"><p><strong>I/O API</strong></p></th>
+<th class="head"><p><strong>MPI YN (#P)</strong></p></th>
+<th class="head"><p><strong>MPI</strong></p></th>
+<th class="head"><p><strong>CMAQv5.1 Timing (hh:mm:ss)</strong></p></th>
+<th class="head"><p><strong>CMAQv5.2 Timing (hh:mm:ss)</strong></p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Gfortran Serial</p></td>
+<td><p>Gfort version 4.8.1</p></td>
+<td><p>4.3.3</p></td>
+<td><p>3.1</p></td>
+<td><p>N</p></td>
+<td><p>N/A</p></td>
+<td><p>8:19:51</p></td>
+<td><p>7:35:30</p></td>
+<td><p>UNC module gcc/4.8.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gfortran mvapich</p></td>
+<td><p>Gfort version 4.8.1</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>Y (16)</p></td>
+<td><p>mvapich2 1.7</p></td>
+<td><p>0:45:55</p></td>
+<td><p>0:42:40</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Intel Serial</p></td>
+<td><p>Intel Fortran version 16.2.0</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>N</p></td>
+<td><p>N/A</p></td>
+<td><p>6:01:42</p></td>
+<td><p>5:10:16</p></td>
+<td><p>UNC module intel/16.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel OpenMPI (EPA Config)</p></td>
+<td><p>Intel Fortran v15.0.0</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>Y (16)</p></td>
+<td><p>openMPI 1.42</p></td>
+<td><p>0:34:27</p></td>
+<td><p></p></td>
+<td><p>UNC module openmpi_intel/15.0</p></td>
+</tr>
+<tr class="row-even"><td><p>Intel OpenMPI</p></td>
+<td><p>Intel Fortran v16.2.0</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>Y (16)</p></td>
+<td><p>openMPI 1.4.2</p></td>
+<td><p>0:35:29</p></td>
+<td><p></p></td>
+<td><p>UNC module openmpi_intel/16.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel mvapich2</p></td>
+<td><p>Intel Fortran v16.2.0</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>Y (16)</p></td>
+<td><p>mvapich2 1.7</p></td>
+<td><p>0:36:34</p></td>
+<td><p></p></td>
+<td><p>UNC module mvapich2_intel/16.2</p></td>
+</tr>
+<tr class="row-even"><td><p>Portland Serial</p></td>
+<td><p>PGI Fortran v16.1</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>N</p></td>
+<td><p>N/A</p></td>
+<td><p>7:33:36</p></td>
+<td><p>6:26:31</p></td>
+<td><p>UNC module pgi/16.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Portland OpenMPI</p></td>
+<td><p>PGI Fortran v15.7</p></td>
+<td><p>4.3.2</p></td>
+<td><p>3.1</p></td>
+<td><p>Y (16)</p></td>
+<td><p>openMPI 1.4.2</p></td>
+<td><p>0:40:20</p></td>
+<td><p>0:36:16</p></td>
+<td><p>UNC module openmpi_pgi/15.7</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="appendix-2-model-performance-test-metadata">
+<h2>Appendix 2: Model Performance Test Metadata<a class="headerlink" href="#appendix-2-model-performance-test-metadata" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Scenario</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+<th class="head"><p><strong>Mechanism</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+<th class="head"><p><strong>Timing (16PE) hh:mm:ss</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Benchmark Case</p></td>
+<td><p>Online emissions processing, inline photolysis, inline lightning from MCIP RC, no windblown dust, surface HONO, bidirectional NH3 and Hg, no potential vorticity scaling</p></td>
+<td><p>cb05e51_ae6_aq</p></td>
+<td><p>Done; LTNGNO InLine, LTNGPARM = N, LOG_START = 2.0</p></td>
+<td><p>0:40:20</p></td>
+</tr>
+<tr class="row-odd"><td><p>MOSAIC</p></td>
+<td><p>Benchmark case with MOSAIC and additional stomatal flux files activated</p></td>
+<td><p>cb05e51_ae6_aq</p></td>
+<td><p>Done. set CTM_MOSAIC = Y; set CTM_FST = Y</p></td>
+<td><p>0:44:02</p></td>
+</tr>
+<tr class="row-even"><td><p>Dust</p></td>
+<td><p>Benchmark case with dust, including new MODIS FP input</p></td>
+<td><p>cb05e51_ae6_aq</p></td>
+<td><p>Done. setenv CTM_WB_DUST Y; setenv CTM_ERODE_AGLAND Y; setenv CTM_WBDUST_BELD BELD3</p></td>
+<td><p>0:38:28</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hourly NLDN</p></td>
+<td><p>Benchmark with lightning NOx calculated using hourly bNLDN strikes</p></td>
+<td><p>cb05e51_ae6_aq</p></td>
+<td><p>Done; LTNGNO InLine, LTNGPARM = Y, USE_NLDN Y</p></td>
+<td><p>0:40:18</p></td>
+</tr>
+<tr class="row-even"><td><p>POA Sensitivity</p></td>
+<td><p>Benchmark with new POA mechanism</p></td>
+<td><p>cb05e51_ae6nvPOA_aq</p></td>
+<td><p>Done</p></td>
+<td><p>0:34:42</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#"><strong>Developers’ Guide for the Community Multiscale Air Quality (CMAQ) Modeling System</strong></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disclaimer">Disclaimer</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">Motivation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-developer-workflow">Summary of Developer Workflow</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#development-life-cycle">Development Life-cycle</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-release-versions">Public Release Versions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-versions">Development Versions</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#making-contributions">Making Contributions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-in-touch">Get in touch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nuts-and-bolts">Nuts and Bolts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-review">Code Review</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code-consistency">Code Consistency</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#benchmark-testing">Benchmark Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#compiler-tests">Compiler Tests</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#model-performance-tests">Model Performance Tests</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-requirements">Documentation Requirements</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ongoing-support">Ongoing Support</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#copyright-information">Copyright Information</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#appendix">Appendix</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#appendix-1-compiler-tests">Appendix 1: Compiler Tests</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation-testing-manifest-table-example">Compilation Testing Manifest Table (Example)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#appendix-2-model-performance-test-metadata">Appendix 2: Model Performance Test Metadata</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

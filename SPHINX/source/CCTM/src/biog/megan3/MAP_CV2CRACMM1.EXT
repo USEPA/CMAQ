@@ -1,0 +1,1427 @@
+C=======================================================================
+C  MAP_CV2CRACMM1.EXT
+C  This include file contains conversion table for 201 speciated species
+C  to CRACMM1 (CMAQ) species
+C
+C  MEGAN v3
+C
+C  History:
+C  Who          When       What
+C  ---------------------------------------------------------------------
+C  Jeff Willison 05/17/2022 - Created for MEGANv3.2 in CMAQ
+C=======================================================================
+
+      CHARACTER*16   MAP_CRACMM1MECH
+      PARAMETER     (MAP_CRACMM1MECH = 'CRACMM1          ')
+
+      INTEGER        N_CRACMM1
+      PARAMETER     (N_CRACMM1 = (200))        ! Number of map species
+
+      CHARACTER*16   SPMH_NAM_CRACMM1( N_CRACMM1 )   ! speciated species name
+      INTEGER        SPMH_MAP_CRACMM1( N_CRACMM1 )   ! speciated species index
+                                                   ! mapped to SPC_NOCONVER.EXT
+      CHARACTER*16   MECH_NAM_CRACMM1( N_CRACMM1 )   ! mechanism species
+      INTEGER        MECH_MAP_CRACMM1( N_CRACMM1 )   ! mechanism species mapped
+
+      REAL           CONV_FAC_CRACMM1( N_CRACMM1 )   ! conversion factor
+
+
+       DATA SPMH_NAM_CRACMM1( 1) , SPMH_MAP_CRACMM1(1)     
+     &    / 'isoprene  ',  1        / 
+       DATA MECH_NAM_CRACMM1(1 )  , MECH_MAP_CRACMM1( 1)  
+     &    / 'ISO    ', 1     /  
+       DATA CONV_FAC_CRACMM1( 1)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 2) , SPMH_MAP_CRACMM1(2)     
+     &    / 'MBO_2m3e2ol  ',  2        / 
+       DATA MECH_NAM_CRACMM1(2 )  , MECH_MAP_CRACMM1( 2)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 2)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 3) , SPMH_MAP_CRACMM1(3)     
+     &    / 'pinene_a  ',  3        / 
+       DATA MECH_NAM_CRACMM1(3 )  , MECH_MAP_CRACMM1( 3)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 3)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 4) , SPMH_MAP_CRACMM1(4)     
+     &    / 'pinene_b  ',  4        / 
+       DATA MECH_NAM_CRACMM1(4 )  , MECH_MAP_CRACMM1( 4)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 4)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 5) , SPMH_MAP_CRACMM1(5)     
+     &    / 'myrcene  ',  5        / 
+       DATA MECH_NAM_CRACMM1(5 )  , MECH_MAP_CRACMM1( 5)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 5)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 6) , SPMH_MAP_CRACMM1(6)     
+     &    / 'ocimene_al  ',  6        / 
+       DATA MECH_NAM_CRACMM1(6 )  , MECH_MAP_CRACMM1( 6)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 6)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 7) , SPMH_MAP_CRACMM1(7)     
+     &    / 'ocimene_c_b  ',  7        / 
+       DATA MECH_NAM_CRACMM1(7 )  , MECH_MAP_CRACMM1( 7)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 7)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 8) , SPMH_MAP_CRACMM1(8)     
+     &    / 'ocimene_t_b  ',  8        / 
+       DATA MECH_NAM_CRACMM1(8 )  , MECH_MAP_CRACMM1( 8)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 8)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 9) , SPMH_MAP_CRACMM1(9)     
+     &    / 'bornene  ',  9        / 
+       DATA MECH_NAM_CRACMM1(9 )  , MECH_MAP_CRACMM1( 9)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 9)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 10) , SPMH_MAP_CRACMM1(10)     
+     &    / 'camphene  ',  10        / 
+       DATA MECH_NAM_CRACMM1(10 )  , MECH_MAP_CRACMM1( 10)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 10)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 11) , SPMH_MAP_CRACMM1(11)     
+     &    / 'carene_3  ',  11        / 
+       DATA MECH_NAM_CRACMM1(11 )  , MECH_MAP_CRACMM1( 11)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 11)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 12) , SPMH_MAP_CRACMM1(12)     
+     &    / 'fenchene_a  ',  12        / 
+       DATA MECH_NAM_CRACMM1(12 )  , MECH_MAP_CRACMM1( 12)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 12)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 13) , SPMH_MAP_CRACMM1(13)     
+     &    / 'fenchene_b  ',  13        / 
+       DATA MECH_NAM_CRACMM1(13 )  , MECH_MAP_CRACMM1( 13)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 13)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 14) , SPMH_MAP_CRACMM1(14)     
+     &    / 'tricyclene  ',  14        / 
+       DATA MECH_NAM_CRACMM1(14 )  , MECH_MAP_CRACMM1( 14)  
+     &    / 'HC3    ', 5     /  
+       DATA CONV_FAC_CRACMM1( 14)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 15) , SPMH_MAP_CRACMM1(15)     
+     &    / 'limonene  ',  15        / 
+       DATA MECH_NAM_CRACMM1(15 )  , MECH_MAP_CRACMM1( 15)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 15)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 16) , SPMH_MAP_CRACMM1(16)     
+     &    / 'phellandrene_b  ',  16        / 
+       DATA MECH_NAM_CRACMM1(16 )  , MECH_MAP_CRACMM1( 16)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 16)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 17) , SPMH_MAP_CRACMM1(17)     
+     &    / 'phellandrene_a  ',  17        / 
+       DATA MECH_NAM_CRACMM1(17 )  , MECH_MAP_CRACMM1( 17)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 17)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 18) , SPMH_MAP_CRACMM1(18)     
+     &    / 'sabinene  ',  18        / 
+       DATA MECH_NAM_CRACMM1(18 )  , MECH_MAP_CRACMM1( 18)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 18)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 19) , SPMH_MAP_CRACMM1(19)     
+     &    / 'terpinene_a  ',  19        / 
+       DATA MECH_NAM_CRACMM1(19 )  , MECH_MAP_CRACMM1( 19)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 19)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 20) , SPMH_MAP_CRACMM1(20)     
+     &    / 'terpinene_g  ',  20        / 
+       DATA MECH_NAM_CRACMM1(20 )  , MECH_MAP_CRACMM1( 20)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 20)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 21) , SPMH_MAP_CRACMM1(21)     
+     &    / 'terpinolene  ',  21        / 
+       DATA MECH_NAM_CRACMM1(21 )  , MECH_MAP_CRACMM1( 21)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 21)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 22) , SPMH_MAP_CRACMM1(22)     
+     &    / 'thujene_a  ',  22        / 
+       DATA MECH_NAM_CRACMM1(22 )  , MECH_MAP_CRACMM1( 22)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 22)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 23) , SPMH_MAP_CRACMM1(23)     
+     &    / 'verbenene  ',  23        / 
+       DATA MECH_NAM_CRACMM1(23 )  , MECH_MAP_CRACMM1( 23)  
+     &    / 'FURAN    ', 6     /  
+       DATA CONV_FAC_CRACMM1( 23)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 24) , SPMH_MAP_CRACMM1(24)     
+     &    / 'cymene_o  ',  24        / 
+       DATA MECH_NAM_CRACMM1(24 )  , MECH_MAP_CRACMM1( 24)  
+     &    / 'XYE    ', 7     /  
+       DATA CONV_FAC_CRACMM1( 24)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 25) , SPMH_MAP_CRACMM1(25)     
+     &    / 'cymene_p  ',  25        / 
+       DATA MECH_NAM_CRACMM1(25 )  , MECH_MAP_CRACMM1( 25)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 25)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 26) , SPMH_MAP_CRACMM1(26)     
+     &    / 'meta-cymenene  ',  26        / 
+       DATA MECH_NAM_CRACMM1(26 )  , MECH_MAP_CRACMM1( 26)  
+     &    / 'XYE    ', 7     /  
+       DATA CONV_FAC_CRACMM1( 26)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 27) , SPMH_MAP_CRACMM1(27)     
+     &    / 'p-cymenene  ',  27        / 
+       DATA MECH_NAM_CRACMM1(27 )  , MECH_MAP_CRACMM1( 27)  
+     &    / 'XYM    ', 9     /  
+       DATA CONV_FAC_CRACMM1( 27)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 28) , SPMH_MAP_CRACMM1(28)     
+     &    / 'borneol  ',  28        / 
+       DATA MECH_NAM_CRACMM1(28 )  , MECH_MAP_CRACMM1( 28)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 28)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 29) , SPMH_MAP_CRACMM1(29)     
+     &    / 'bornyl_ACT  ',  29        / 
+       DATA MECH_NAM_CRACMM1(29 )  , MECH_MAP_CRACMM1( 29)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 29)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 30) , SPMH_MAP_CRACMM1(30)     
+     &    / 'camphor  ',  30        / 
+       DATA MECH_NAM_CRACMM1(30 )  , MECH_MAP_CRACMM1( 30)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 30)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 31) , SPMH_MAP_CRACMM1(31)     
+     &    / 'estragole  ',  31        / 
+       DATA MECH_NAM_CRACMM1(31 )  , MECH_MAP_CRACMM1( 31)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 31)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 32) , SPMH_MAP_CRACMM1(32)     
+     &    / 'fenchone  ',  32        / 
+       DATA MECH_NAM_CRACMM1(32 )  , MECH_MAP_CRACMM1( 32)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 32)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 33) , SPMH_MAP_CRACMM1(33)     
+     &    / 'ionone_b  ',  33        / 
+       DATA MECH_NAM_CRACMM1(33 )  , MECH_MAP_CRACMM1( 33)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 33)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 34) , SPMH_MAP_CRACMM1(34)     
+     &    / 'ipsenol  ',  34        / 
+       DATA MECH_NAM_CRACMM1(34 )  , MECH_MAP_CRACMM1( 34)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 34)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 35) , SPMH_MAP_CRACMM1(35)     
+     &    / 'myrtenal  ',  35        / 
+       DATA MECH_NAM_CRACMM1(35 )  , MECH_MAP_CRACMM1( 35)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 35)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 36) , SPMH_MAP_CRACMM1(36)     
+     &    / 'octanol  ',  36        / 
+       DATA MECH_NAM_CRACMM1(36 )  , MECH_MAP_CRACMM1( 36)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 36)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 37) , SPMH_MAP_CRACMM1(37)     
+     &    / 'octenol_1e3ol  ',  37        / 
+       DATA MECH_NAM_CRACMM1(37 )  , MECH_MAP_CRACMM1( 37)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 37)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 38) , SPMH_MAP_CRACMM1(38)     
+     &    / 'piperitone  ',  38        / 
+       DATA MECH_NAM_CRACMM1(38 )  , MECH_MAP_CRACMM1( 38)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 38)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 39) , SPMH_MAP_CRACMM1(39)     
+     &    / 'terpineol_4  ',  39        / 
+       DATA MECH_NAM_CRACMM1(39 )  , MECH_MAP_CRACMM1( 39)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 39)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 40) , SPMH_MAP_CRACMM1(40)     
+     &    / 'terpineol_a  ',  40        / 
+       DATA MECH_NAM_CRACMM1(40 )  , MECH_MAP_CRACMM1( 40)  
+     &    / 'API    ', 3     /  
+       DATA CONV_FAC_CRACMM1( 40)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 41) , SPMH_MAP_CRACMM1(41)     
+     &    / 'thujone_a  ',  41        / 
+       DATA MECH_NAM_CRACMM1(41 )  , MECH_MAP_CRACMM1( 41)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 41)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 42) , SPMH_MAP_CRACMM1(42)     
+     &    / 'thujone_b  ',  42        / 
+       DATA MECH_NAM_CRACMM1(42 )  , MECH_MAP_CRACMM1( 42)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 42)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 43) , SPMH_MAP_CRACMM1(43)     
+     &    / 'acoradiene  ',  43        / 
+       DATA MECH_NAM_CRACMM1(43 )  , MECH_MAP_CRACMM1( 43)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 43)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 44) , SPMH_MAP_CRACMM1(44)     
+     &    / 'bergamotene_a  ',  44        / 
+       DATA MECH_NAM_CRACMM1(44 )  , MECH_MAP_CRACMM1( 44)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 44)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 45) , SPMH_MAP_CRACMM1(45)     
+     &    / 'bergamotene_b  ',  45        / 
+       DATA MECH_NAM_CRACMM1(45 )  , MECH_MAP_CRACMM1( 45)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 45)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 46) , SPMH_MAP_CRACMM1(46)     
+     &    / 'bisabolene_a  ',  46        / 
+       DATA MECH_NAM_CRACMM1(46 )  , MECH_MAP_CRACMM1( 46)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 46)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 47) , SPMH_MAP_CRACMM1(47)     
+     &    / 'bisabolene_b  ',  47        / 
+       DATA MECH_NAM_CRACMM1(47 )  , MECH_MAP_CRACMM1( 47)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 47)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 48) , SPMH_MAP_CRACMM1(48)     
+     &    / 'cadinene_d  ',  48        / 
+       DATA MECH_NAM_CRACMM1(48 )  , MECH_MAP_CRACMM1( 48)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 48)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 49) , SPMH_MAP_CRACMM1(49)     
+     &    / 'cadinene_g  ',  49        / 
+       DATA MECH_NAM_CRACMM1(49 )  , MECH_MAP_CRACMM1( 49)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 49)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 50) , SPMH_MAP_CRACMM1(50)     
+     &    / 'calarene  ',  50        / 
+       DATA MECH_NAM_CRACMM1(50 )  , MECH_MAP_CRACMM1( 50)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 50)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 51) , SPMH_MAP_CRACMM1(51)     
+     &    / 'caryophyllene_b  ',  51        / 
+       DATA MECH_NAM_CRACMM1(51 )  , MECH_MAP_CRACMM1( 51)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 51)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 52) , SPMH_MAP_CRACMM1(52)     
+     &    / 'caryophyllene_c_i  ',  52        / 
+       DATA MECH_NAM_CRACMM1(52 )  , MECH_MAP_CRACMM1( 52)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 52)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 53) , SPMH_MAP_CRACMM1(53)     
+     &    / 'elemene_b  ',  53        / 
+       DATA MECH_NAM_CRACMM1(53 )  , MECH_MAP_CRACMM1( 53)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 53)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 54) , SPMH_MAP_CRACMM1(54)     
+     &    / 'farnescene_a  ',  54        / 
+       DATA MECH_NAM_CRACMM1(54 )  , MECH_MAP_CRACMM1( 54)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 54)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 55) , SPMH_MAP_CRACMM1(55)     
+     &    / 'farnescene_b  ',  55        / 
+       DATA MECH_NAM_CRACMM1(55 )  , MECH_MAP_CRACMM1( 55)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 55)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 56) , SPMH_MAP_CRACMM1(56)     
+     &    / 'farnesol  ',  56        / 
+       DATA MECH_NAM_CRACMM1(56 )  , MECH_MAP_CRACMM1( 56)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 56)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 57) , SPMH_MAP_CRACMM1(57)     
+     &    / 'germacrene_B  ',  57        / 
+       DATA MECH_NAM_CRACMM1(57 )  , MECH_MAP_CRACMM1( 57)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 57)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 58) , SPMH_MAP_CRACMM1(58)     
+     &    / 'germacrene_D  ',  58        / 
+       DATA MECH_NAM_CRACMM1(58 )  , MECH_MAP_CRACMM1( 58)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 58)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 59) , SPMH_MAP_CRACMM1(59)     
+     &    / 'humulene_a  ',  59        / 
+       DATA MECH_NAM_CRACMM1(59 )  , MECH_MAP_CRACMM1( 59)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 59)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 60) , SPMH_MAP_CRACMM1(60)     
+     &    / 'humulene_g  ',  60        / 
+       DATA MECH_NAM_CRACMM1(60 )  , MECH_MAP_CRACMM1( 60)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 60)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 61) , SPMH_MAP_CRACMM1(61)     
+     &    / 'muurolene_a  ',  61        / 
+       DATA MECH_NAM_CRACMM1(61 )  , MECH_MAP_CRACMM1( 61)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 61)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 62) , SPMH_MAP_CRACMM1(62)     
+     &    / 'muurolene_g  ',  62        / 
+       DATA MECH_NAM_CRACMM1(62 )  , MECH_MAP_CRACMM1( 62)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 62)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 63) , SPMH_MAP_CRACMM1(63)     
+     &    / 'nerolidol_c  ',  63        / 
+       DATA MECH_NAM_CRACMM1(63 )  , MECH_MAP_CRACMM1( 63)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 63)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 64) , SPMH_MAP_CRACMM1(64)     
+     &    / 'nerolidol_t  ',  64        / 
+       DATA MECH_NAM_CRACMM1(64 )  , MECH_MAP_CRACMM1( 64)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 64)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 65) , SPMH_MAP_CRACMM1(65)     
+     &    / 'patchoulene_b  ',  65        / 
+       DATA MECH_NAM_CRACMM1(65 )  , MECH_MAP_CRACMM1( 65)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 65)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 66) , SPMH_MAP_CRACMM1(66)     
+     &    / 'selinene_b  ',  66        / 
+       DATA MECH_NAM_CRACMM1(66 )  , MECH_MAP_CRACMM1( 66)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 66)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 67) , SPMH_MAP_CRACMM1(67)     
+     &    / 'selinene_d  ',  67        / 
+       DATA MECH_NAM_CRACMM1(67 )  , MECH_MAP_CRACMM1( 67)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 67)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 68) , SPMH_MAP_CRACMM1(68)     
+     &    / '2ethyl_hexyl_salate  ',  68        / 
+       DATA MECH_NAM_CRACMM1(68 )  , MECH_MAP_CRACMM1( 68)  
+     &    / 'VROCP2ALK    ', 14     /  
+       DATA CONV_FAC_CRACMM1( 68)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 69) , SPMH_MAP_CRACMM1(69)     
+     &    / 'aromadendrene  ',  69        / 
+       DATA MECH_NAM_CRACMM1(69 )  , MECH_MAP_CRACMM1( 69)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 69)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 70) , SPMH_MAP_CRACMM1(70)     
+     &    / 'bourbonene_b  ',  70        / 
+       DATA MECH_NAM_CRACMM1(70 )  , MECH_MAP_CRACMM1( 70)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 70)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 71) , SPMH_MAP_CRACMM1(71)     
+     &    / 'cadinol_a  ',  71        / 
+       DATA MECH_NAM_CRACMM1(71 )  , MECH_MAP_CRACMM1( 71)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 71)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 72) , SPMH_MAP_CRACMM1(72)     
+     &    / 'cedrene_a  ',  72        / 
+       DATA MECH_NAM_CRACMM1(72 )  , MECH_MAP_CRACMM1( 72)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 72)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 73) , SPMH_MAP_CRACMM1(73)     
+     &    / 'cedrol  ',  73        / 
+       DATA MECH_NAM_CRACMM1(73 )  , MECH_MAP_CRACMM1( 73)  
+     &    / 'VROCP5ALK    ', 15     /  
+       DATA CONV_FAC_CRACMM1( 73)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 74) , SPMH_MAP_CRACMM1(74)     
+     &    / 'copaene_a  ',  74        / 
+       DATA MECH_NAM_CRACMM1(74 )  , MECH_MAP_CRACMM1( 74)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 74)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 75) , SPMH_MAP_CRACMM1(75)     
+     &    / 'cubebene_a  ',  75        / 
+       DATA MECH_NAM_CRACMM1(75 )  , MECH_MAP_CRACMM1( 75)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 75)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 76) , SPMH_MAP_CRACMM1(76)     
+     &    / 'cubebene_b  ',  76        / 
+       DATA MECH_NAM_CRACMM1(76 )  , MECH_MAP_CRACMM1( 76)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 76)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 77) , SPMH_MAP_CRACMM1(77)     
+     &    / 'gurjunene_b  ',  77        / 
+       DATA MECH_NAM_CRACMM1(77 )  , MECH_MAP_CRACMM1( 77)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 77)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 78) , SPMH_MAP_CRACMM1(78)     
+     &    / 'homosalate  ',  78        / 
+       DATA MECH_NAM_CRACMM1(78 )  , MECH_MAP_CRACMM1( 78)  
+     &    / 'VROCP1ALK    ', 16     /  
+       DATA CONV_FAC_CRACMM1( 78)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 79) , SPMH_MAP_CRACMM1(79)     
+     &    / 'isolongifolene  ',  79        / 
+       DATA MECH_NAM_CRACMM1(79 )  , MECH_MAP_CRACMM1( 79)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 79)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 80) , SPMH_MAP_CRACMM1(80)     
+     &    / 'kaur_16_ene  ',  80        / 
+       DATA MECH_NAM_CRACMM1(80 )  , MECH_MAP_CRACMM1( 80)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 80)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 81) , SPMH_MAP_CRACMM1(81)     
+     &    / 'longifolene  ',  81        / 
+       DATA MECH_NAM_CRACMM1(81 )  , MECH_MAP_CRACMM1( 81)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 81)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 82) , SPMH_MAP_CRACMM1(82)     
+     &    / 'longipinene  ',  82        / 
+       DATA MECH_NAM_CRACMM1(82 )  , MECH_MAP_CRACMM1( 82)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 82)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 83) , SPMH_MAP_CRACMM1(83)     
+     &    / 'thujopsene  ',  83        / 
+       DATA MECH_NAM_CRACMM1(83 )  , MECH_MAP_CRACMM1( 83)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 83)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 84) , SPMH_MAP_CRACMM1(84)     
+     &    / 'ylangene_a  ',  84        / 
+       DATA MECH_NAM_CRACMM1(84 )  , MECH_MAP_CRACMM1( 84)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 84)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 85) , SPMH_MAP_CRACMM1(85)     
+     &    / 'zingiberene_a  ',  85        / 
+       DATA MECH_NAM_CRACMM1(85 )  , MECH_MAP_CRACMM1( 85)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 85)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 86) , SPMH_MAP_CRACMM1(86)     
+     &    / 'copaene_b  ',  86        / 
+       DATA MECH_NAM_CRACMM1(86 )  , MECH_MAP_CRACMM1( 86)  
+     &    / 'SESQ    ', 12     /  
+       DATA CONV_FAC_CRACMM1( 86)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 87) , SPMH_MAP_CRACMM1(87)     
+     &    / 'longicyclene  ',  87        / 
+       DATA MECH_NAM_CRACMM1(87 )  , MECH_MAP_CRACMM1( 87)  
+     &    / 'VROCP4ALK    ', 17     /  
+       DATA CONV_FAC_CRACMM1( 87)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 88) , SPMH_MAP_CRACMM1(88)     
+     &    / 'methanol  ',  88        / 
+       DATA MECH_NAM_CRACMM1(88 )  , MECH_MAP_CRACMM1( 88)  
+     &    / 'MOH    ', 18     /  
+       DATA CONV_FAC_CRACMM1( 88)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 89) , SPMH_MAP_CRACMM1(89)     
+     &    / 'acetone  ',  89        / 
+       DATA MECH_NAM_CRACMM1(89 )  , MECH_MAP_CRACMM1( 89)  
+     &    / 'ACT    ', 19     /  
+       DATA CONV_FAC_CRACMM1( 89)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 90) , SPMH_MAP_CRACMM1(90)     
+     &    / 'acetaldehyde  ',  90        / 
+       DATA MECH_NAM_CRACMM1(90 )  , MECH_MAP_CRACMM1( 90)  
+     &    / 'ACD    ', 20     /  
+       DATA CONV_FAC_CRACMM1( 90)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 91) , SPMH_MAP_CRACMM1(91)     
+     &    / 'ethanol  ',  91        / 
+       DATA MECH_NAM_CRACMM1(91 )  , MECH_MAP_CRACMM1( 91)  
+     &    / 'EOH    ', 21     /  
+       DATA CONV_FAC_CRACMM1( 91)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 92) , SPMH_MAP_CRACMM1(92)     
+     &    / 'acetic_acid  ',  92        / 
+       DATA MECH_NAM_CRACMM1(92 )  , MECH_MAP_CRACMM1( 92)  
+     &    / 'ORA2    ', 22     /  
+       DATA CONV_FAC_CRACMM1( 92)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 93) , SPMH_MAP_CRACMM1(93)     
+     &    / 'formic_acid  ',  93        / 
+       DATA MECH_NAM_CRACMM1(93 )  , MECH_MAP_CRACMM1( 93)  
+     &    / 'ORA1    ', 23     /  
+       DATA CONV_FAC_CRACMM1( 93)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 94) , SPMH_MAP_CRACMM1(94)     
+     &    / 'pyruvic_acid  ',  94        / 
+       DATA MECH_NAM_CRACMM1(94 )  , MECH_MAP_CRACMM1( 94)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 94)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 95) , SPMH_MAP_CRACMM1(95)     
+     &    / '2_methylprop_1_ene  ',  95        / 
+       DATA MECH_NAM_CRACMM1(95 )  , MECH_MAP_CRACMM1( 95)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 95)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 96) , SPMH_MAP_CRACMM1(96)     
+     &    / 'butane  ',  96        / 
+       DATA MECH_NAM_CRACMM1(96 )  , MECH_MAP_CRACMM1( 96)  
+     &    / 'HC3    ', 5     /  
+       DATA CONV_FAC_CRACMM1( 96)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 97) , SPMH_MAP_CRACMM1(97)     
+     &    / 'butene  ',  97        / 
+       DATA MECH_NAM_CRACMM1(97 )  , MECH_MAP_CRACMM1( 97)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 97)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 98) , SPMH_MAP_CRACMM1(98)     
+     &    / 'butene_c2  ',  98        / 
+       DATA MECH_NAM_CRACMM1(98 )  , MECH_MAP_CRACMM1( 98)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 98)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 99) , SPMH_MAP_CRACMM1(99)     
+     &    / 'butene_t2  ',  99        / 
+       DATA MECH_NAM_CRACMM1(99 )  , MECH_MAP_CRACMM1( 99)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 99)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 100) , SPMH_MAP_CRACMM1(100)     
+     &    / 'ethane  ',  100        / 
+       DATA MECH_NAM_CRACMM1(100 )  , MECH_MAP_CRACMM1( 100)  
+     &    / 'ETH    ', 25     /  
+       DATA CONV_FAC_CRACMM1( 100)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 101) , SPMH_MAP_CRACMM1(101)     
+     &    / 'ethene  ',  101        / 
+       DATA MECH_NAM_CRACMM1(101 )  , MECH_MAP_CRACMM1( 101)  
+     &    / 'ETE    ', 26     /  
+       DATA CONV_FAC_CRACMM1( 101)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 102) , SPMH_MAP_CRACMM1(102)     
+     &    / 'propane  ',  102        / 
+       DATA MECH_NAM_CRACMM1(102 )  , MECH_MAP_CRACMM1( 102)  
+     &    / 'HC3    ', 5     /  
+       DATA CONV_FAC_CRACMM1( 102)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 103) , SPMH_MAP_CRACMM1(103)     
+     &    / 'propene  ',  103        / 
+       DATA MECH_NAM_CRACMM1(103 )  , MECH_MAP_CRACMM1( 103)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 103)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 104) , SPMH_MAP_CRACMM1(104)     
+     &    / 'decanal  ',  104        / 
+       DATA MECH_NAM_CRACMM1(104 )  , MECH_MAP_CRACMM1( 104)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 104)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 105) , SPMH_MAP_CRACMM1(105)     
+     &    / 'geranyl_acetone  ',  105        / 
+       DATA MECH_NAM_CRACMM1(105 )  , MECH_MAP_CRACMM1( 105)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 105)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 106) , SPMH_MAP_CRACMM1(106)     
+     &    / 'met_heptenone  ',  106        / 
+       DATA MECH_NAM_CRACMM1(106 )  , MECH_MAP_CRACMM1( 106)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 106)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 107) , SPMH_MAP_CRACMM1(107)     
+     &    / 'neryl_acetone  ',  107        / 
+       DATA MECH_NAM_CRACMM1(107 )  , MECH_MAP_CRACMM1( 107)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 107)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 108) , SPMH_MAP_CRACMM1(108)     
+     &    / 'nonanal  ',  108        / 
+       DATA MECH_NAM_CRACMM1(108 )  , MECH_MAP_CRACMM1( 108)  
+     &    / 'VROCIOXY    ', 10     /  
+       DATA CONV_FAC_CRACMM1( 108)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 109) , SPMH_MAP_CRACMM1(109)     
+     &    / 'nonenal  ',  109        / 
+       DATA MECH_NAM_CRACMM1(109 )  , MECH_MAP_CRACMM1( 109)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 109)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 110) , SPMH_MAP_CRACMM1(110)     
+     &    / 'octanal  ',  110        / 
+       DATA MECH_NAM_CRACMM1(110 )  , MECH_MAP_CRACMM1( 110)  
+     &    / 'ALD    ', 27     /  
+       DATA CONV_FAC_CRACMM1( 110)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 111) , SPMH_MAP_CRACMM1(111)     
+     &    / 'pentanal  ',  111        / 
+       DATA MECH_NAM_CRACMM1(111 )  , MECH_MAP_CRACMM1( 111)  
+     &    / 'ALD    ', 27     /  
+       DATA CONV_FAC_CRACMM1( 111)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 112) , SPMH_MAP_CRACMM1(112)     
+     &    / 't-2-octenal  ',  112        / 
+       DATA MECH_NAM_CRACMM1(112 )  , MECH_MAP_CRACMM1( 112)  
+     &    / 'UALD    ', 28     /  
+       DATA CONV_FAC_CRACMM1( 112)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 113) , SPMH_MAP_CRACMM1(113)     
+     &    / 'formaldehyde  ',  113        / 
+       DATA MECH_NAM_CRACMM1(113 )  , MECH_MAP_CRACMM1( 113)  
+     &    / 'HCHO    ', 29     /  
+       DATA CONV_FAC_CRACMM1( 113)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 114) , SPMH_MAP_CRACMM1(114)     
+     &    / 'oxopentanal  ',  114        / 
+       DATA MECH_NAM_CRACMM1(114 )  , MECH_MAP_CRACMM1( 114)  
+     &    / 'MGLY    ', 30     /  
+       DATA CONV_FAC_CRACMM1( 114)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 115) , SPMH_MAP_CRACMM1(115)     
+     &    / '1_pentanol  ',  115        / 
+       DATA MECH_NAM_CRACMM1(115 )  , MECH_MAP_CRACMM1( 115)  
+     &    / 'ROH    ', 31     /  
+       DATA CONV_FAC_CRACMM1( 115)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 116) , SPMH_MAP_CRACMM1(116)     
+     &    / '1_penten_3_one  ',  116        / 
+       DATA MECH_NAM_CRACMM1(116 )  , MECH_MAP_CRACMM1( 116)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 116)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 117) , SPMH_MAP_CRACMM1(117)     
+     &    / '2_met_butanenitrile  ',  117        / 
+       DATA MECH_NAM_CRACMM1(117 )  , MECH_MAP_CRACMM1( 117)  
+     &    / 'HC3    ', 5     /  
+       DATA CONV_FAC_CRACMM1( 117)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 118) , SPMH_MAP_CRACMM1(118)     
+     &    / '2_pentene  ',  118        / 
+       DATA MECH_NAM_CRACMM1(118 )  , MECH_MAP_CRACMM1( 118)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 118)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 119) , SPMH_MAP_CRACMM1(119)     
+     &    / '3_metfuran  ',  119        / 
+       DATA MECH_NAM_CRACMM1(119 )  , MECH_MAP_CRACMM1( 119)  
+     &    / 'FURAN    ', 6     /  
+       DATA CONV_FAC_CRACMM1( 119)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 120) , SPMH_MAP_CRACMM1(120)     
+     &    / '3_metthiophene  ',  120        / 
+       DATA MECH_NAM_CRACMM1(120 )  , MECH_MAP_CRACMM1( 120)  
+     &    / 'FURAN    ', 6     /  
+       DATA CONV_FAC_CRACMM1( 120)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 121) , SPMH_MAP_CRACMM1(121)     
+     &    / '3_pentanone  ',  121        / 
+       DATA MECH_NAM_CRACMM1(121 )  , MECH_MAP_CRACMM1( 121)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 121)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 122) , SPMH_MAP_CRACMM1(122)     
+     &    / '3_penten_2_ol  ',  122        / 
+       DATA MECH_NAM_CRACMM1(122 )  , MECH_MAP_CRACMM1( 122)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 122)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 123) , SPMH_MAP_CRACMM1(123)     
+     &    / '4_penten_1_ol  ',  123        / 
+       DATA MECH_NAM_CRACMM1(123 )  , MECH_MAP_CRACMM1( 123)  
+     &    / 'OLT    ', 2     /  
+       DATA CONV_FAC_CRACMM1( 123)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 124) , SPMH_MAP_CRACMM1(124)     
+     &    / '8_heptadecene  ',  124        / 
+       DATA MECH_NAM_CRACMM1(124 )  , MECH_MAP_CRACMM1( 124)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 124)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 125) , SPMH_MAP_CRACMM1(125)     
+     &    / 'acetophenone  ',  125        / 
+       DATA MECH_NAM_CRACMM1(125 )  , MECH_MAP_CRACMM1( 125)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 125)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 126) , SPMH_MAP_CRACMM1(126)     
+     &    / 'anisole  ',  126        / 
+       DATA MECH_NAM_CRACMM1(126 )  , MECH_MAP_CRACMM1( 126)  
+     &    / 'XYM    ', 9     /  
+       DATA CONV_FAC_CRACMM1( 126)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 127) , SPMH_MAP_CRACMM1(127)     
+     &    / 'benzaldehyde  ',  127        / 
+       DATA MECH_NAM_CRACMM1(127 )  , MECH_MAP_CRACMM1( 127)  
+     &    / 'BALD    ', 32     /  
+       DATA CONV_FAC_CRACMM1( 127)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 128) , SPMH_MAP_CRACMM1(128)     
+     &    / 'benzene  ',  128        / 
+       DATA MECH_NAM_CRACMM1(128 )  , MECH_MAP_CRACMM1( 128)  
+     &    / 'BEN    ', 33     /  
+       DATA CONV_FAC_CRACMM1( 128)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 129) , SPMH_MAP_CRACMM1(129)     
+     &    / 'benzyl_benzoate  ',  129        / 
+       DATA MECH_NAM_CRACMM1(129 )  , MECH_MAP_CRACMM1( 129)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 129)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 130) , SPMH_MAP_CRACMM1(130)     
+     &    / 'benzyl_acetate  ',  130        / 
+       DATA MECH_NAM_CRACMM1(130 )  , MECH_MAP_CRACMM1( 130)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 130)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 131) , SPMH_MAP_CRACMM1(131)     
+     &    / 'benzyl_alcohol  ',  131        / 
+       DATA MECH_NAM_CRACMM1(131 )  , MECH_MAP_CRACMM1( 131)  
+     &    / 'CSL    ', 34     /  
+       DATA CONV_FAC_CRACMM1( 131)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 132) , SPMH_MAP_CRACMM1(132)     
+     &    / 'chavicol  ',  132        / 
+       DATA MECH_NAM_CRACMM1(132 )  , MECH_MAP_CRACMM1( 132)  
+     &    / 'CSL    ', 34     /  
+       DATA CONV_FAC_CRACMM1( 132)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 133) , SPMH_MAP_CRACMM1(133)     
+     &    / 'cineole_1_8  ',  133        / 
+       DATA MECH_NAM_CRACMM1(133 )  , MECH_MAP_CRACMM1( 133)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 133)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 134) , SPMH_MAP_CRACMM1(134)     
+     &    / 'cinnamaldehyde  ',  134        / 
+       DATA MECH_NAM_CRACMM1(134 )  , MECH_MAP_CRACMM1( 134)  
+     &    / 'BALD    ', 32     /  
+       DATA CONV_FAC_CRACMM1( 134)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 135) , SPMH_MAP_CRACMM1(135)     
+     &    / 'cinnamic_acid  ',  135        / 
+       DATA MECH_NAM_CRACMM1(135 )  , MECH_MAP_CRACMM1( 135)  
+     &    / 'VROCP2ALK    ', 14     /  
+       DATA CONV_FAC_CRACMM1( 135)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 136) , SPMH_MAP_CRACMM1(136)     
+     &    / 'coniferyl_alcohol  ',  136        / 
+       DATA MECH_NAM_CRACMM1(136 )  , MECH_MAP_CRACMM1( 136)  
+     &    / 'VROCP1ALK    ', 16     /  
+       DATA CONV_FAC_CRACMM1( 136)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 137) , SPMH_MAP_CRACMM1(137)     
+     &    / '2met_nonatriene  ',  137        / 
+       DATA MECH_NAM_CRACMM1(137 )  , MECH_MAP_CRACMM1( 137)  
+     &    / 'FURAN    ', 6     /  
+       DATA CONV_FAC_CRACMM1( 137)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 138) , SPMH_MAP_CRACMM1(138)     
+     &    / 'ethyl_cinnamate  ',  138        / 
+       DATA MECH_NAM_CRACMM1(138 )  , MECH_MAP_CRACMM1( 138)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 138)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 139) , SPMH_MAP_CRACMM1(139)     
+     &    / 'eugenol  ',  139        / 
+       DATA MECH_NAM_CRACMM1(139 )  , MECH_MAP_CRACMM1( 139)  
+     &    / 'CSL    ', 34     /  
+       DATA CONV_FAC_CRACMM1( 139)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 140) , SPMH_MAP_CRACMM1(140)     
+     &    / 'guaiacol  ',  140        / 
+       DATA MECH_NAM_CRACMM1(140 )  , MECH_MAP_CRACMM1( 140)  
+     &    / 'CSL    ', 34     /  
+       DATA CONV_FAC_CRACMM1( 140)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 141) , SPMH_MAP_CRACMM1(141)     
+     &    / 'hexanal  ',  141        / 
+       DATA MECH_NAM_CRACMM1(141 )  , MECH_MAP_CRACMM1( 141)  
+     &    / 'ALD    ', 27     /  
+       DATA CONV_FAC_CRACMM1( 141)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 142) , SPMH_MAP_CRACMM1(142)     
+     &    / 'hexanol_1  ',  142        / 
+       DATA MECH_NAM_CRACMM1(142 )  , MECH_MAP_CRACMM1( 142)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 142)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 143) , SPMH_MAP_CRACMM1(143)     
+     &    / 'hexenal_c3  ',  143        / 
+       DATA MECH_NAM_CRACMM1(143 )  , MECH_MAP_CRACMM1( 143)  
+     &    / 'UALD    ', 28     /  
+       DATA CONV_FAC_CRACMM1( 143)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 144) , SPMH_MAP_CRACMM1(144)     
+     &    / 'hexenal_t2  ',  144        / 
+       DATA MECH_NAM_CRACMM1(144 )  , MECH_MAP_CRACMM1( 144)  
+     &    / 'UALD    ', 28     /  
+       DATA CONV_FAC_CRACMM1( 144)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 145) , SPMH_MAP_CRACMM1(145)     
+     &    / 'hexenol_c3  ',  145        / 
+       DATA MECH_NAM_CRACMM1(145 )  , MECH_MAP_CRACMM1( 145)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 145)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 146) , SPMH_MAP_CRACMM1(146)     
+     &    / 'hexenyl_ACT_c3  ',  146        / 
+       DATA MECH_NAM_CRACMM1(146 )  , MECH_MAP_CRACMM1( 146)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 146)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 147) , SPMH_MAP_CRACMM1(147)     
+     &    / 'hydrogen_cyanide  ',  147        / 
+       DATA MECH_NAM_CRACMM1(147 )  , MECH_MAP_CRACMM1( 147)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 147)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 148) , SPMH_MAP_CRACMM1(148)     
+     &    / 'isobutyronitrile  ',  148        / 
+       DATA MECH_NAM_CRACMM1(148 )  , MECH_MAP_CRACMM1( 148)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 148)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 149) , SPMH_MAP_CRACMM1(149)     
+     &    / 'jasmone  ',  149        / 
+       DATA MECH_NAM_CRACMM1(149 )  , MECH_MAP_CRACMM1( 149)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 149)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 150) , SPMH_MAP_CRACMM1(150)     
+     &    / 'linalool  ',  150        / 
+       DATA MECH_NAM_CRACMM1(150 )  , MECH_MAP_CRACMM1( 150)  
+     &    / 'LIM    ', 4     /  
+       DATA CONV_FAC_CRACMM1( 150)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 151) , SPMH_MAP_CRACMM1(151)     
+     &    / 'linalool_OXD_c  ',  151        / 
+       DATA MECH_NAM_CRACMM1(151 )  , MECH_MAP_CRACMM1( 151)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 151)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 152) , SPMH_MAP_CRACMM1(152)     
+     &    / 'linalool_OXD_t  ',  152        / 
+       DATA MECH_NAM_CRACMM1(152 )  , MECH_MAP_CRACMM1( 152)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 152)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 153) , SPMH_MAP_CRACMM1(153)     
+     &    / 'methacrolein  ',  153        / 
+       DATA MECH_NAM_CRACMM1(153 )  , MECH_MAP_CRACMM1( 153)  
+     &    / 'MACR    ', 37     /  
+       DATA CONV_FAC_CRACMM1( 153)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 154) , SPMH_MAP_CRACMM1(154)     
+     &    / 'met_benzoate  ',  154        / 
+       DATA MECH_NAM_CRACMM1(154 )  , MECH_MAP_CRACMM1( 154)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 154)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 155) , SPMH_MAP_CRACMM1(155)     
+     &    / 'met_jasmonate  ',  155        / 
+       DATA MECH_NAM_CRACMM1(155 )  , MECH_MAP_CRACMM1( 155)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 155)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 156) , SPMH_MAP_CRACMM1(156)     
+     &    / 'met_salicylate  ',  156        / 
+       DATA MECH_NAM_CRACMM1(156 )  , MECH_MAP_CRACMM1( 156)  
+     &    / 'CSL    ', 34     /  
+       DATA CONV_FAC_CRACMM1( 156)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 157) , SPMH_MAP_CRACMM1(157)     
+     &    / 'met_acetate  ',  157        / 
+       DATA MECH_NAM_CRACMM1(157 )  , MECH_MAP_CRACMM1( 157)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 157)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 158) , SPMH_MAP_CRACMM1(158)     
+     &    / 'met_vinylketone  ',  158        / 
+       DATA MECH_NAM_CRACMM1(158 )  , MECH_MAP_CRACMM1( 158)  
+     &    / 'MVK    ', 38     /  
+       DATA CONV_FAC_CRACMM1( 158)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 159) , SPMH_MAP_CRACMM1(159)     
+     &    / 'p_coumaric_acid  ',  159        / 
+       DATA MECH_NAM_CRACMM1(159 )  , MECH_MAP_CRACMM1( 159)  
+     &    / 'VROCP1ALK    ', 16     /  
+       DATA CONV_FAC_CRACMM1( 159)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 160) , SPMH_MAP_CRACMM1(160)     
+     &    / 'phenol  ',  160        / 
+       DATA MECH_NAM_CRACMM1(160 )  , MECH_MAP_CRACMM1( 160)  
+     &    / 'PHEN    ', 39     /  
+       DATA CONV_FAC_CRACMM1( 160)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 161) , SPMH_MAP_CRACMM1(161)     
+     &    / 'phenylacetaldehyde  ',  161        / 
+       DATA MECH_NAM_CRACMM1(161 )  , MECH_MAP_CRACMM1( 161)  
+     &    / 'BALD    ', 32     /  
+       DATA CONV_FAC_CRACMM1( 161)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 162) , SPMH_MAP_CRACMM1(162)     
+     &    / 'safrole  ',  162        / 
+       DATA MECH_NAM_CRACMM1(162 )  , MECH_MAP_CRACMM1( 162)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 162)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 163) , SPMH_MAP_CRACMM1(163)     
+     &    / 'salicylaldehyde  ',  163        / 
+       DATA MECH_NAM_CRACMM1(163 )  , MECH_MAP_CRACMM1( 163)  
+     &    / 'BALD    ', 32     /  
+       DATA CONV_FAC_CRACMM1( 163)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 164) , SPMH_MAP_CRACMM1(164)     
+     &    / 'toluene  ',  164        / 
+       DATA MECH_NAM_CRACMM1(164 )  , MECH_MAP_CRACMM1( 164)  
+     &    / 'TOL    ', 40     /  
+       DATA CONV_FAC_CRACMM1( 164)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 165) , SPMH_MAP_CRACMM1(165)     
+     &    / '3met_3DCTT  ',  165        / 
+       DATA MECH_NAM_CRACMM1(165 )  , MECH_MAP_CRACMM1( 165)  
+     &    / 'FURAN    ', 6     /  
+       DATA CONV_FAC_CRACMM1( 165)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 166) , SPMH_MAP_CRACMM1(166)     
+     &    / 'xylene  ',  166        / 
+       DATA MECH_NAM_CRACMM1(166 )  , MECH_MAP_CRACMM1( 166)  
+     &    / 'XYM    ', 9     /  
+       DATA CONV_FAC_CRACMM1( 166)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 167) , SPMH_MAP_CRACMM1(167)     
+     &    / 'z2_penten_1ol  ',  167        / 
+       DATA MECH_NAM_CRACMM1(167 )  , MECH_MAP_CRACMM1( 167)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 167)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 168) , SPMH_MAP_CRACMM1(168)     
+     &    / 'z2_penten_3ol  ',  168        / 
+       DATA MECH_NAM_CRACMM1(168 )  , MECH_MAP_CRACMM1( 168)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 168)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 169) , SPMH_MAP_CRACMM1(169)     
+     &    / 'z3_hexen_1yl_butyrate  ',  169        / 
+       DATA MECH_NAM_CRACMM1(169 )  , MECH_MAP_CRACMM1( 169)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 169)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 170) , SPMH_MAP_CRACMM1(170)     
+     &    / 'butanone_2  ',  170        / 
+       DATA MECH_NAM_CRACMM1(170 )  , MECH_MAP_CRACMM1( 170)  
+     &    / 'MEK    ', 41     /  
+       DATA CONV_FAC_CRACMM1( 170)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 171) , SPMH_MAP_CRACMM1(171)     
+     &    / 'carbon_2s  ',  171        / 
+       DATA MECH_NAM_CRACMM1(171 )  , MECH_MAP_CRACMM1( 171)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 171)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 172) , SPMH_MAP_CRACMM1(172)     
+     &    / 'carbonyl_s  ',  172        / 
+       DATA MECH_NAM_CRACMM1(172 )  , MECH_MAP_CRACMM1( 172)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 172)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 173) , SPMH_MAP_CRACMM1(173)     
+     &    / 'decane  ',  173        / 
+       DATA MECH_NAM_CRACMM1(173 )  , MECH_MAP_CRACMM1( 173)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 173)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 174) , SPMH_MAP_CRACMM1(174)     
+     &    / 'diallyl_2s  ',  174        / 
+       DATA MECH_NAM_CRACMM1(174 )  , MECH_MAP_CRACMM1( 174)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 174)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 175) , SPMH_MAP_CRACMM1(175)     
+     &    / '2met_2s  ',  175        / 
+       DATA MECH_NAM_CRACMM1(175 )  , MECH_MAP_CRACMM1( 175)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 175)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 176) , SPMH_MAP_CRACMM1(176)     
+     &    / '2met_s  ',  176        / 
+       DATA MECH_NAM_CRACMM1(176 )  , MECH_MAP_CRACMM1( 176)  
+     &    / 'HC5    ', 42     /  
+       DATA CONV_FAC_CRACMM1( 176)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 177) , SPMH_MAP_CRACMM1(177)     
+     &    / 'dodecene_1  ',  177        / 
+       DATA MECH_NAM_CRACMM1(177 )  , MECH_MAP_CRACMM1( 177)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 177)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 178) , SPMH_MAP_CRACMM1(178)     
+     &    / 'heptanal  ',  178        / 
+       DATA MECH_NAM_CRACMM1(178 )  , MECH_MAP_CRACMM1( 178)  
+     &    / 'ALD    ', 27     /  
+       DATA CONV_FAC_CRACMM1( 178)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 179) , SPMH_MAP_CRACMM1(179)     
+     &    / 'heptane  ',  179        / 
+       DATA MECH_NAM_CRACMM1(179 )  , MECH_MAP_CRACMM1( 179)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 179)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 180) , SPMH_MAP_CRACMM1(180)     
+     &    / 'heptanone  ',  180        / 
+       DATA MECH_NAM_CRACMM1(180 )  , MECH_MAP_CRACMM1( 180)  
+     &    / 'KET    ', 11     /  
+       DATA CONV_FAC_CRACMM1( 180)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 181) , SPMH_MAP_CRACMM1(181)     
+     &    / 'hexane  ',  181        / 
+       DATA MECH_NAM_CRACMM1(181 )  , MECH_MAP_CRACMM1( 181)  
+     &    / 'HC5    ', 42     /  
+       DATA CONV_FAC_CRACMM1( 181)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 182) , SPMH_MAP_CRACMM1(182)     
+     &    / 'indole  ',  183        / 
+       DATA MECH_NAM_CRACMM1(182 )  , MECH_MAP_CRACMM1( 182)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 182)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 183) , SPMH_MAP_CRACMM1(183)     
+     &    / 'methane  ',  184        / 
+       DATA MECH_NAM_CRACMM1(183 )  , MECH_MAP_CRACMM1( 183)  
+     &    / 'ECH4    ', 44     /  
+       DATA CONV_FAC_CRACMM1( 183)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 184) , SPMH_MAP_CRACMM1(184)     
+     &    / 'met_bromide  ',  185        / 
+       DATA MECH_NAM_CRACMM1(184 )  , MECH_MAP_CRACMM1( 184)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 184)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 185) , SPMH_MAP_CRACMM1(185)     
+     &    / 'met_chloride  ',  186        / 
+       DATA MECH_NAM_CRACMM1(185 )  , MECH_MAP_CRACMM1( 185)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 185)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 186) , SPMH_MAP_CRACMM1(186)     
+     &    / 'met_iodide  ',  187        / 
+       DATA MECH_NAM_CRACMM1(186 )  , MECH_MAP_CRACMM1( 186)  
+     &    / 'SLOWROC    ', 36     /  
+       DATA CONV_FAC_CRACMM1( 186)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 187) , SPMH_MAP_CRACMM1(187)     
+     &    / 'met_mercaptan  ',  188        / 
+       DATA MECH_NAM_CRACMM1(187 )  , MECH_MAP_CRACMM1( 187)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 187)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 188) , SPMH_MAP_CRACMM1(188)     
+     &    / 'met_propenyl_2s  ',  189        / 
+       DATA MECH_NAM_CRACMM1(188 )  , MECH_MAP_CRACMM1( 188)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 188)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 189) , SPMH_MAP_CRACMM1(189)     
+     &    / 'MBO_3m2e1ol  ',  190        / 
+       DATA MECH_NAM_CRACMM1(189 )  , MECH_MAP_CRACMM1( 189)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 189)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 190) , SPMH_MAP_CRACMM1(190)     
+     &    / 'MBO_3m3e1ol  ',  191        / 
+       DATA MECH_NAM_CRACMM1(190 )  , MECH_MAP_CRACMM1( 190)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 190)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 191) , SPMH_MAP_CRACMM1(191)     
+     &    / 'naphthalene  ',  192        / 
+       DATA MECH_NAM_CRACMM1(191 )  , MECH_MAP_CRACMM1( 191)  
+     &    / 'NAPH    ', 45     /  
+       DATA CONV_FAC_CRACMM1( 191)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 192) , SPMH_MAP_CRACMM1(192)     
+     &    / 'pentane  ',  193        / 
+       DATA MECH_NAM_CRACMM1(192 )  , MECH_MAP_CRACMM1( 192)  
+     &    / 'HC5    ', 42     /  
+       DATA CONV_FAC_CRACMM1( 192)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 193) , SPMH_MAP_CRACMM1(193)     
+     &    / 'PPPP_2s  ',  194        / 
+       DATA MECH_NAM_CRACMM1(193 )  , MECH_MAP_CRACMM1( 193)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 193)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 194) , SPMH_MAP_CRACMM1(194)     
+     &    / 'santene  ',  195        / 
+       DATA MECH_NAM_CRACMM1(194 )  , MECH_MAP_CRACMM1( 194)  
+     &    / 'OLI    ', 24     /  
+       DATA CONV_FAC_CRACMM1( 194)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 195) , SPMH_MAP_CRACMM1(195)     
+     &    / 'skatole  ',  196        / 
+       DATA MECH_NAM_CRACMM1(195 )  , MECH_MAP_CRACMM1( 195)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 195)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 196) , SPMH_MAP_CRACMM1(196)     
+     &    / 'terpinyl_ACT_a  ',  197        / 
+       DATA MECH_NAM_CRACMM1(196 )  , MECH_MAP_CRACMM1( 196)  
+     &    / 'VROCP6ARO    ', 8     /  
+       DATA CONV_FAC_CRACMM1( 196)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 197) , SPMH_MAP_CRACMM1(197)     
+     &    / 'tetradecene_1  ',  198        / 
+       DATA MECH_NAM_CRACMM1(197 )  , MECH_MAP_CRACMM1( 197)  
+     &    / 'VROCP5ARO    ', 13     /  
+       DATA CONV_FAC_CRACMM1( 197)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 198) , SPMH_MAP_CRACMM1(198)     
+     &    / 'undecane  ',  199        / 
+       DATA MECH_NAM_CRACMM1(198 )  , MECH_MAP_CRACMM1( 198)  
+     &    / 'HC10    ', 35     /  
+       DATA CONV_FAC_CRACMM1( 198)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 199) , SPMH_MAP_CRACMM1(199)     
+     &    / 'carbon_monoxide  ',  200       / 
+       DATA MECH_NAM_CRACMM1(199 )  , MECH_MAP_CRACMM1( 199)  
+     &    / 'CO         ', 46     /  
+       DATA CONV_FAC_CRACMM1( 199)   
+     &    / 1      /
+
+       DATA SPMH_NAM_CRACMM1( 200) , SPMH_MAP_CRACMM1(200)     
+     &    / 'nitric_OXD  ',  201        / 
+       DATA MECH_NAM_CRACMM1(200 )  , MECH_MAP_CRACMM1( 200)  
+     &    / 'NO    ', 43     /  
+       DATA CONV_FAC_CRACMM1( 200)   
+     &    / 1      /

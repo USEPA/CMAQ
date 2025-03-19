@@ -1,0 +1,116 @@
+MEK_MCMv32
+!CH3C(O)C2H5 (2-butanone, methyl ethyl ketone (MEK)) photolysis cross-sections @ 1 bar, 298 K
+!MEK  --> CH3CO + C2H5  
+!
+!IUPAC 2005 Recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P8_CH3COC2H5+hv.pdf
+!Dated Dec. 2005  
+! Cross-Section: 
+!   R. D. Martinez, A. A. Buitrago, N. W. Howell, C. H. Hearn, and J. A. Joens, Atmos. Env. 26A, 785 (1992)   
+!
+! Photolysis QY (CH3CO + C2H5):  
+!   Average of the optimised QY used in the evaluation of the MCM and SAPRC-99 using chamber data: 
+!   phi1 (CH3CO + C2H5) = 0.16 from 275 to 380 nm (1 bar, 298K) based on MCM 
+!   evaluation against chamber experiments for ozone (Pinho et al., 2005) but 
+!   IUPAC 2005 recommendation set phi1 equal to 0.34 from 275 to 380 nm.!
+!
+!   1.  Carter, 2000. Documentation of the SAPRC-99
+!       chemical mechanism for VOC reactivity assessment. Final
+!       Report to California Air Resources Board Contract 92-329
+!       and Contract 95-308, Air Pollution Research Center and
+!       College of Engineering Center for Environmental Research
+!       and Technology University of California Riverside,
+!       California.
+!    2.  Pinho et al., Atmos Env, 39(7), 1303-1322 (2005)
+!
+!wvl(nm) XC(cm2) phi1
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+202.0 1.41E-20 0.1600
+206.0 1.92E-21 0.1600
+210.0 1.60E-21 0.1600
+214.0 1.83E-21 0.1600
+218.0 2.25E-21 0.1600
+222.0 2.90E-21 0.1600
+226.0 3.91E-21 0.1600
+230.0 5.34E-21 0.1600
+234.0 7.42E-21 0.1600
+238.0 1.03E-20 0.1600
+242.0 1.41E-20 0.1600
+246.0 1.89E-20 0.1600
+250.0 2.45E-20 0.1600
+254.0 3.09E-20 0.1600
+258.0 3.74E-20 0.1600
+262.0 4.39E-20 0.1600
+266.0 4.96E-20 0.1600
+270.0 5.40E-20 0.1600
+274.0 5.68E-20 0.1600
+278.0 5.77E-20 0.1600
+280.0 5.74E-20 0.1600
+281.0 5.72E-20 0.1600
+282.0 5.68E-20 0.1600
+283.0 5.62E-20 0.1600
+284.0 5.54E-20 0.1600
+285.0 5.44E-20 0.1600
+286.0 5.35E-20 0.1600
+287.0 5.26E-20 0.1600
+288.0 5.17E-20 0.1600
+289.0 5.06E-20 0.1600
+292.0 4.60E-20 0.1600
+293.0 4.42E-20 0.1600
+294.0 4.24E-20 0.1600
+295.0 4.08E-20 0.1600
+296.0 3.93E-20 0.1600
+297.0 3.79E-20 0.1600
+298.0 3.65E-20 0.1600
+299.0 3.48E-20 0.1600
+300.0 3.30E-20 0.1600
+301.0 3.10E-20 0.1600
+302.0 2.89E-20 0.1600
+303.0 2.69E-20 0.1600
+304.0 2.50E-20 0.1600
+305.0 2.33E-20 0.1600
+306.0 2.17E-20 0.1600
+307.0 2.02E-20 0.1600
+308.0 1.88E-20 0.1600
+309.0 1.73E-20 0.1600
+310.0 1.58E-20 0.1600
+311.0 1.42E-20 0.1600
+312.0 1.28E-20 0.1600
+313.0 1.14E-20 0.1600
+314.0 1.01E-20 0.1600
+315.0 8.96E-21 0.1600
+316.0 7.94E-21 0.1600
+317.0 6.97E-21 0.1600
+318.0 6.11E-21 0.1600
+319.0 5.31E-21 0.1600
+320.0 4.57E-21 0.1600
+321.0 3.89E-21 0.1600
+324.0 2.29E-21 0.1600
+325.0 1.89E-21 0.1600
+326.0 1.56E-21 0.1600
+327.0 1.29E-21 0.1600
+328.0 1.05E-21 0.1600
+329.0 8.50E-22 0.1600
+330.0 6.70E-22 0.1600
+331.0 5.40E-22 0.1600
+332.0 4.20E-22 0.1600
+333.0 3.30E-22 0.1600
+334.0 2.50E-22 0.1600
+335.0 2.00E-22 0.1600
+336.0 1.40E-22 0.1600
+337.0 1.10E-22 0.1600
+338.0 8.00E-23 0.1600
+339.0 7.00E-23 0.1600
+340.0 5.00E-23 0.1600
+341.0 5.00E-23 0.1600
+342.0 3.00E-23 0.1600
+343.0 3.00E-23 0.1600
+344.0 2.00E-23 0.1600
+345.0 1.00E-23 0.1600
+346.0 1.00E-23 0.1600
+347.0 0.00E+00 0.1600
+348.0 1.00E-23 0.1600
+349.0 0.00E+00 0.1600
+350.0 0.00E+00 0.1600
