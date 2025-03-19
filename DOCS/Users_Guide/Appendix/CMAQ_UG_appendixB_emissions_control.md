@@ -419,7 +419,7 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT -->  
 
 [link_B.3]: ../../../PYTOOLS/shp2cmaq/
 [link_B.1_misc]: ../../../CCTM/src/util/util/CMAQ_Control_Misc.nml
@@ -427,7 +427,7 @@ CMAQv5.5 User's Guide <br>
 [link_B.1_desid]: ../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
 [link_B.3_aero]:  ../../../CCTM/src/aero/aero6/AERO_DATA.F
 
-[](hardcode_links)  
+<!-- END_OF_COMMENT -->
 
 [link_B.3]: https://github.com/USEPA/CMAQ/blob/main/PYTOOLS/shp2cmaq/ 
 [link_B.1_misc]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/util/util/CMAQ_Control_Misc.nml

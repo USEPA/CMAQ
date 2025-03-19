@@ -1,6 +1,8 @@
+# Chemistry
+
 This page contains links to Wiki pages describing current and past changes to the Chemical components in CMAQ. 
 
-### Gas Phase Chemistry Changes
+### Chemistry Changes
    * [Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM)](./CMAQ-Release-Notes:-Chemistry:-Community-Regional-Atmospheric-Chemistry-Multiphase-Mechanism-(CRACMM).md)  
    * [Carbon Bond 6 Mechanism (CB6)](./CMAQ-Release-Notes:-Chemistry:-Carbon-Bond-6-Mechanism-(CB6).md)
    * [Carbon Bond 6 Mechanism (CB6) with Detailed Marine Halogen Chemistry](./CMAQ-Release-Notes:-Chemistry:-Carbon-Bond-6-Mechanism-(CB6)-with-Detailed-Marine-Halogen-Chemistry.md)

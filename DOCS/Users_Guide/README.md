@@ -21,6 +21,7 @@ CMAQ_UG_ch11_ISAM.md
 CMAQ_UG_ch12_sulfur_tracking.md
 CMAQ_UG_ch13_WRF-CMAQ.md
 CMAQ_UG_ch14_MPAS-CMAQ.md
+Appendix <./Appendix/README.md>
 ```
 END_OF_COMMENT
 -->

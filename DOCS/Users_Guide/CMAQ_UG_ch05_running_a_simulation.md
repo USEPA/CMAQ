@@ -144,7 +144,7 @@ cd $CMAQ_HOME/CCTM/scripts
 source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
 
-The bldit script invokes the CMAQ utility program [bldmake](../../UTIL/bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
+The bldit script invokes the CMAQ utility program [bldmake][link_5_bldmake], which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
 cd BLD_CCTM_v54_[compiler][version]
@@ -470,3 +470,11 @@ See the [CMAQ Installation and Benchmarking Tutorial](Tutorials/CMAQ_UG_tutorial
 CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
+
+<!-- START_OF_COMMENT -->
+
+[link_5_bldmake]: ../../UTIL/bldmake/README.md
+
+<!-- END_OF_COMMENT -->
+
+[link_5_bldmake]:  https://github.com/USEPA/CMAQ/blob/main/UTIL/bldmake/README.md

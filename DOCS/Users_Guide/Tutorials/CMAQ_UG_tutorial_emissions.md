@@ -359,7 +359,7 @@ Without the precaution in place, adding relationships for ALL surrogates to ALL 
 ### 16. Miscellaneous Notes
 In the default emissions mapping configuration, sulfuric acid (SULF) mass is mapped to ASO4 (particulate sulfate). If these emissions are perturbed directly or as part of a broader sector- or region-wide scaling, it is recommended to confirm specifically that these emissions have been scaled as desired. For example, if a family named 'SOX' is defined that includes 'SO2' and 'SULF' and then 'SOX' is specified as the CMAQ species in a scaling rule, then the 'SULF' to 'ASO4' mapping would not be detected.
 
-<!--
+<!-- START_OF_COMMENT -->
 [link_emtut_1]: ../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml
 [link_emtut_2]: ../../../CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml
 [link_emtut_3]: ../../../CCTM/scripts/run_cctm_cracmm_2019_12US1_CRACMM2_EPA2019.csh#L420
@@ -367,8 +367,7 @@ In the default emissions mapping configuration, sulfuric acid (SULF) mass is map
 [link_emtut_5]: ../../../PREP/shp2cmaq/README.md
 [link_emtut_6]: ../../../CCTM/src/util/util/CMAQ_Control_Misc.nml
 
-END_OF_COMMENT
--->
+<!-- END_OF_COMMENT -->
 
 [link_emtut_1]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/emis/emis/CMAQ_Control_DESID.nml
 [link_emtut_2]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cracmm2/CMAQ_Control_DESID_cracmm2.nml

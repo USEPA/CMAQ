@@ -396,12 +396,12 @@ git push dev_push_repo newchem
 You should now be able to see these changes in Github online.
 
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT -->  
 
 [link_1]: ../../../UTIL/chemmech/
 [link_2]: ../../../UTIL/create_ebi/
 
-[](hardcode_links)  
+<!-- END_OF_COMMENT -->
 
 [link_1]: https://github.com/USEPA/CMAQ/blob/main/UTIL/chemmech/
 [link_2]: https://github.com/USEPA/CMAQ/blob/main/UTIL/create_ebi/ 

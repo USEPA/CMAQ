@@ -261,10 +261,10 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
-[](relative_links_start)  
+<!-- START_OF_COMMENT -->
 
 [link_11_pdf]: ./Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf 
 
-[](hardcode_links)  
+<!-- END_OF_COMMENT -->
 
 [link_11_pdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf

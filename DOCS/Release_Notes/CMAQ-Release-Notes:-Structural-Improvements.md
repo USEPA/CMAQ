@@ -1,3 +1,5 @@
+# Structural Improvements
+
 ### GNU build flag update to enable compilation with GNU versions 10+
 [Fahim Sidi](mailto:sidi.fahim@epa.gov), U.S. Environmental Protection Agency    
 **Type of update**: Bug Fix  
