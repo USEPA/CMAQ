@@ -20,6 +20,7 @@ There are many resources available for learning about the CMAQ system.  This tab
 |... find data files with CMAQ estimates of air pollutants including toxics and deposition | [CMAQ Data](#cmaq_data) section below|
 |... contribute code to the CMAQ repository | Contacting [the CMAQ Team](mailto:CMAQ_Team@epa.gov) to learn more|
 |... share model data with the CMAQ user community | [Data submission form](https://docs.google.com/forms/d/1lH6UdllyVvD-ISATfPxMqwe3Xr6n2ed6AiGkEspxVag/) for the CMAS Center Data Warehouse| 
+|... use the CMAQ logo in a presentation | [CMAQ logo graphics files](Logos/README.md) are in the public domain and available to download|
 
 
 <a id=cmaq_data></a>
