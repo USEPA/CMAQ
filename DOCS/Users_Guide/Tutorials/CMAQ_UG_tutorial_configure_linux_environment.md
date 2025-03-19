@@ -58,11 +58,11 @@ The following support software are required for compiling and running CMAQ.
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) building netCDF4 libraries that enable compression with INTEL compiler 
 
-     | intel 18.2   |    script |
+     | intel 20.2   |    script |
      |  ----              |  ------     |
-     | netCDF | [intel_18.2_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_for_nc4_compression.csh) |
-     | I/O API | [intel_18.2_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_for_nc4_compression.csh) |                          
-     | CMAQv5.5 |[intel_18.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
+     | netCDF | [intel_20.2_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_netcdf_for_nc4_compression.csh) |
+     | I/O API | [intel_20.2_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_ioapi_for_nc4_compression.csh) |                          
+     | CMAQv5.5 |[intel_20.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
 
 
      | intel 2024   |    script |
