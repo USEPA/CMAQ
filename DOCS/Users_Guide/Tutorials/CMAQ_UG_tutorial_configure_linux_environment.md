@@ -72,7 +72,7 @@ The following support software are required for compiling and running CMAQ.
      | CMAQv5.5 | [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
 
 note, please review the tutorials prior to attempting to use the install scripts, as the CMAQ install script need to be edited for your local path prior to use.<br>
-Recommend use of environment modules to manage the library versions.<br>
+Use environment modules to manage the different library versions.<br>
 
 
 
