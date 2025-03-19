@@ -759,3 +759,5 @@ run_combine.csh
 ```
 sbatch run_combine.csh
 ```
+
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md).
