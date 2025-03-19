@@ -9,6 +9,7 @@ There are many resources available for learning about the CMAQ system.  This tab
 |... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://github.com/USEPA/CRACMM/blob/main/README.md), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
 |... upgrade to the latest version of CMAQ but I'm not sure how my workflow and results will be impacted | [Release Frequently Asked Questions](./Release_FAQ/README.md) |
 |... see what code changes have happened in a specific section of the model in the last several years | [CMAQ Release Notes](./Release_Notes/README.md)|
+|... see what bugfixes are available for the most recent release | [Change log for CMAQ Bugfix branch](CMAQ-Bugfix-Branch.md)|
 |... start running the model but I'm am not sure where to start | [User's Guide Chapters 2-5](./Users_Guide/README.md) and the [CMAQ Benchmark Tutorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)|
 |... run a new simulation but I need model inputs |[CMAQ Data](#cmaq_data) section below|
 |... run a simulation using CMAQ code from the EPA's EQUATES project | [EQUATES Benchmark GitHub repository](https://github.com/lizadams/EQUATES_BENCHMARK)|
