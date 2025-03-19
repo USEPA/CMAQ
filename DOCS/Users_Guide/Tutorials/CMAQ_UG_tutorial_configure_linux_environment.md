@@ -34,7 +34,7 @@ Tutorials for building libraries and CMAQ
 
    - Building netCDF and I/O API libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md))
 
-     | Install script using gcc 11.4           |   script  | 
+     | gcc 11.4           |   script  | 
      |  ----              |  ------     |
      | netCDF    | [gcc_11.4_install_netcdf_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) |
      | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
@@ -42,7 +42,7 @@ Tutorials for building libraries and CMAQ
 
    - Building netCDF and I/O API libraries that disable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md))
 
-     | Intall script using intel 18.2   |    script |
+     | intel 18.2   |    script |
      |  ----              |  ------     |
      | netCDF | [intel_18.2_install_netcdf_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_classic.csh) |
      | I/O API | [intel_18.2_install_ioapi_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh) |                         
@@ -50,7 +50,7 @@ Tutorials for building libraries and CMAQ
 
    - Building netCDF4 and I/O API libraries that enable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)) 
 
-     | Intall script using intel 18.2   |    script |
+     | intel 18.2   |    script |
      |  ----              |  ------     |
      | netCDF | [gcc_11.4_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [gcc_11.4_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh) |                          
@@ -58,14 +58,14 @@ Tutorials for building libraries and CMAQ
 
    - Building netCDF4 libraries that enable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)) 
 
-     | Intall script using intel 18.2   |    script |
+     | intel 18.2   |    script |
      |  ----              |  ------     |
      | netCDF | [intel_18.2_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [intel_18.2_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_for_nc4_compression.csh) |                          
      | CMAQv5.5 |[intel_18.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_18.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
 
 
-     | Intall script using intel 2024   |    script |
+     | intel 2024   |    script |
      |  ----              |  ------     |
      | netCDF | [intel_2024_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [intel_2024_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh) |
