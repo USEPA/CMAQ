@@ -6,7 +6,7 @@ There are many resources available for learning about the CMAQ system.  This tab
 |:--------------|:----|
 |... learn about CMAQ's purpose, history and design, as well as see a sample of CMAQ applications. | [US EPA CMAQ Website](https://www.epa.gov/cmaq)|
 |... find an overview of the CMAQ system including software requirements, inputs, configuration options, outputs, and analysis tools| [CMAQ's comprehensive User's Guide](./Users_Guide/README.md)|
-|... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://github.com/USEPA/CRACMM/blob/main/README.md), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
+|... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://usepa.github.io/CRACMM), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
 |... upgrade to the latest version of CMAQ but I'm not sure how my workflow and results will be impacted | [Release Frequently Asked Questions](./Release_FAQ/README.md) |
 |... see what code changes have happened in a specific section of the model in the last several years | [CMAQ Release Notes](./Release_Notes/README.md)|
 |... see what bugfixes are available for the most recent release | [Change log for CMAQ Bugfix branch](CMAQ-Bugfix-Branch.md)|
