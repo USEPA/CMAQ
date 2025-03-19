@@ -32,7 +32,7 @@ The following support software are required for compiling and running CMAQ.
 ## Tutorials and scripts for building libraries and CMAQ
 
 
-   - Building netCDF and I/O API libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md))
+   - [Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) building netCDF and I/O API libraries that disable compression with GNU compiler 
 
      | gcc 11.4           |   script  | 
      |  ----              |  ------     |
@@ -40,7 +40,7 @@ The following support software are required for compiling and running CMAQ.
      | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
      | CMAQv5.5  | [gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh) |
 
-   - Building netCDF and I/O API libraries that disable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md))
+   - [Tutorial](CMAQ_UG_tutorial_build_library_intel.md) building netCDF and I/O API libraries that disable compression with INTEL compiler 
 
      | intel 18.2   |    script |
      |  ----              |  ------     |
@@ -48,7 +48,7 @@ The following support software are required for compiling and running CMAQ.
      | I/O API | [intel_18.2_install_ioapi_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh) |                         
      | CMAQv5.5 | [intel_18.2_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_cmaq55_cb6r5_m3dry_classic.csh) |
 
-   - Building netCDF4 and I/O API libraries that enable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)) 
+   - [Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) Building netCDF4 and I/O API libraries that enable compression with GNU compiler 
 
      | intel 18.2   |    script |
      |  ----              |  ------     |
@@ -56,7 +56,7 @@ The following support software are required for compiling and running CMAQ.
      | I/O API | [gcc_11.4_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh) |                          
      | CMAQv5.5 | [gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh) |
 
-   - Building netCDF4 libraries that enable compression with INTEL compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)) 
+   - [Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) building netCDF4 libraries that enable compression with INTEL compiler 
 
      | intel 18.2   |    script |
      |  ----              |  ------     |
