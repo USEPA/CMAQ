@@ -22,6 +22,7 @@ cd $BUILD/../CMAQ_REPO_v55/
 # Change CMAQ_HOME to a local directory
    #This will remove # from the start of line 102 or add it if it wasn't already there:
       sed -i '19s/^#/\n/; 19s/^[^\n]/#&/; 19s/^\n//' bldit_project.csh
+   # EDIT this path to specify the BUILD directory set above 
       sed -i '20i set CMAQ_HOME = /21dayscratch/scr/l/i/lizadams/test/openmpi_intel_classic' bldit_project.csh
 
 set CMAQ_HOME = $BUILD/../openmpi_intel_classic
@@ -33,7 +34,9 @@ mkdir $BUILD/../openmpi_intel_classic
 module load openmpi_3.1.4/intel_18.2
  # edit config_cmaq.csh to specify the library locations
  cd $BUILD/../openmpi_intel_classic/
+ # EDIT this path to specify the location of the BUILD directory set above
  sed -i '144i \       setenv BUILD /21dayscratch/scr/l/i/lizadams/test/LIBRARIES_intel_classic' config_cmaq.csh
+ # EDIT this path to specify the location of the mpirun path, find using which mpirun after loading the openmpi module 
  sed -i '145i \       setenv OPENMPI /nas/longleaf/apps-dogwood/mpi/intel_18.2/openmpi_3.1.4/' config_cmaq.csh
  sed -i 's@ioapi_inc_intel@$BUILD\/ioapi-3.2\/ioapi\/fixed_src@g' config_cmaq.csh
  sed -i 's@ioapi_lib_intel@$BUILD\/ioapi-3.2\/Linux2_x86_64ifort@g' config_cmaq.csh
@@ -48,7 +51,7 @@ module load openmpi_3.1.4/intel_18.2
  #edit the config_cmaq.csh to add extra libraries
  sed -i 's@-lnetcdf\"  #@-lnetcdf \"  #@g'  config_cmaq.csh
  sed -i -e 's/mpiifort/mpifort/g' config_cmaq.csh
-cd $BUILD/../openmpi_intel_classic/CCTM/scripts/
+cd ${CMAQ_HOME}/CCTM/scripts/
  cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry.csh
  # Add extra libs to support nc4 compression in config_cmaq.csh
  #  -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl
