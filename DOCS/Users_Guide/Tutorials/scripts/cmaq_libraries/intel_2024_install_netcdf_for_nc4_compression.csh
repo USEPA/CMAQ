@@ -232,8 +232,6 @@ cd  ${INSTDIR}
 
 # install test
    cd $INSTDIR/bin
-   ls h5diff
-   whereis h5diff
-   nc-config --version
-   nf-config --version
+   ./nc-config --version
+   ./nf-config --version
    #ncxx4-config --version

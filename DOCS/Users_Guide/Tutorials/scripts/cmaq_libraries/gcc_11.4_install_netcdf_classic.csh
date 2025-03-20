@@ -78,6 +78,6 @@ unsetenv F90FLAGS
 
 # check version that has been installed
    cd $INSTDIR/bin
-   nc-config --version
-   nf-config --version
+   ./nc-config --version
+   ./nf-config --version
    #   ncxx4-config --version
