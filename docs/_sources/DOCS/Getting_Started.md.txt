@@ -6,9 +6,10 @@ There are many resources available for learning about the CMAQ system.  This tab
 |:--------------|:----|
 |... learn about CMAQ's purpose, history and design, as well as see a sample of CMAQ applications. | [US EPA CMAQ Website](https://www.epa.gov/cmaq)|
 |... find an overview of the CMAQ system including software requirements, inputs, configuration options, outputs, and analysis tools| [CMAQ's comprehensive User's Guide](./Users_Guide/README.md)|
-|... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://github.com/USEPA/CRACMM/blob/main/README.md), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
+|... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://usepa.github.io/CRACMM), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
 |... upgrade to the latest version of CMAQ but I'm not sure how my workflow and results will be impacted | [Release Frequently Asked Questions](./Release_FAQ/README.md) |
 |... see what code changes have happened in a specific section of the model in the last several years | [CMAQ Release Notes](./Release_Notes/README.md)|
+|... see what bugfixes are available for the most recent release | [Change log for CMAQ Bugfix branch](CMAQ-Bugfix-Branch.md)|
 |... start running the model but I'm am not sure where to start | [User's Guide Chapters 2-5](./Users_Guide/README.md) and the [CMAQ Benchmark Tutorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)|
 |... run a new simulation but I need model inputs |[CMAQ Data](#cmaq_data) section below|
 |... run a simulation using CMAQ code from the EPA's EQUATES project | [EQUATES Benchmark GitHub repository](https://github.com/lizadams/EQUATES_BENCHMARK)|
@@ -20,11 +21,12 @@ There are many resources available for learning about the CMAQ system.  This tab
 |... find data files with CMAQ estimates of air pollutants including toxics and deposition | [CMAQ Data](#cmaq_data) section below|
 |... contribute code to the CMAQ repository | Contacting [the CMAQ Team](mailto:CMAQ_Team@epa.gov) to learn more|
 |... share model data with the CMAQ user community | [Data submission form](https://docs.google.com/forms/d/1lH6UdllyVvD-ISATfPxMqwe3Xr6n2ed6AiGkEspxVag/) for the CMAS Center Data Warehouse| 
+|... use the CMAQ logo in a presentation | [CMAQ logo graphics files](Logos/README.md) are in the public domain and available to download|
 
 
 <a id=cmaq_data></a>
 ### Where to find CMAQ data
-* [CMAQ test case data](https://github.com/USEPA/CMAQ/blob/main/README.md#cmaq-test-cases)
+* [CMAQ test case data](Test_Case_Data.md)
 * [The CMAS Center Data Warehouse](https://dataverse.unc.edu/dataverse/cmascenter) cataloges publicly-available CMAQ-ready input files for a range of years and domains
 * Meteorology, emissions, and CMAQ air pollutant and deposition estimates from the EPA's Air Quality Time Series (EQUATES) Project are available for 2002-2019
   * [EQUATES Metadata and DOI](https://doi.org/10.15139/S3/F2KJSK)
