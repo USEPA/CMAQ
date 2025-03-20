@@ -35,9 +35,9 @@ mkdir $BUILD/../openmpi_intel
  # edit config_cmaq.csh to specify the library locations
  cd $BUILD/../openmpi_intel/
  # EDIT this path to specify the location of the BUILD directory set above
- sed -i '144i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES' config_cmaq.csh
+ sed -i '81i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES' config_cmaq.csh
  # EDIT this path to specify the location of the mpirun path, find using which mpirun after loading the openmpi module 
- sed -i '145i \       setenv OPENMPI /nas/longleaf/apps-dogwood/mpi/intel_18.2/openmpi_3.1.4/' config_cmaq.csh
+ sed -i '82i \       setenv OPENMPI /nas/longleaf/apps-dogwood/mpi/intel_18.2/openmpi_3.1.4/' config_cmaq.csh
  sed -i 's@ioapi_inc_intel@$BUILD\/ioapi-3.2\/ioapi\/fixed_src@g' config_cmaq.csh
  sed -i 's@ioapi_lib_intel@$BUILD\/ioapi-3.2\/Linux2_x86_64gfort@g' config_cmaq.csh
  sed -i 's@netcdf_lib_intel@$BUILD\/lib@g' config_cmaq.csh
