@@ -72,8 +72,13 @@ The following support software are required for compiling and running CMAQ.
      | CMAQv5.5 | [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
 
 note, please review the tutorials prior to attempting to use the install scripts, as the CMAQ install script need to be edited for your local path.<br>
-Use environment modules to manage the different library versions.<br>
 
+## Use custom environment modules or LMOD to manage the different library versions.<br>
+
+Adding the libraries locations to the LD_LIBRARY_PATH, PATH, MANPATH and other environment variables can be managed using custom modules.
+
+[Custom Modules using environment modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
+[Custom Modules using Lmod](https://lmod.readthedocs.io/en/latest/)
 
 
 
