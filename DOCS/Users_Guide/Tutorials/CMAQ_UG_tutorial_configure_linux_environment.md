@@ -76,8 +76,9 @@ note, please review the tutorials prior to attempting to use the install scripts
 ## Use custom environment modules or LMOD to manage the different library versions.<br>
 
 Adding the libraries locations to the LD_LIBRARY_PATH, PATH, MANPATH and other environment variables can be managed using custom modules.
-
+<br>
 [Custom Modules using environment modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
+<br>
 [Custom Modules using Lmod](https://lmod.readthedocs.io/en/latest/)
 
 
