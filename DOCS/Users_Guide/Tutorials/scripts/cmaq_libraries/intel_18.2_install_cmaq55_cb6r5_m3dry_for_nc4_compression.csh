@@ -7,7 +7,7 @@
 # To find the openmpi path, search for mpirun, and then look for the include and lib directories
 # > which mpirun
 setenv BUILD $cwd/LIBRARIES_intel
-setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64gfort
+setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64ifort
 setenv NETCDF_DIR $BUILD/lib
 setenv NETCDFF_DIR $BUILD/lib
 # Load the OPENMPI module 
@@ -26,7 +26,7 @@ cd $BUILD/../CMAQ_REPO_v55/
    #This will remove # from the start of line 102 or add it if it wasn't already there:
       sed -i '19s/^#/\n/; 19s/^[^\n]/#&/; 19s/^\n//' bldit_project.csh
    # EDIT this path to specify the BUILD directory set above 
-      sed -i '20i set CMAQ_HOME = /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/openmpi_intel' bldit_project.csh
+      sed -i '20i set CMAQ_HOME = /21dayscratch/scr/l/i/lizadams/test_nc4/openmpi_intel' bldit_project.csh
 
 set CMAQ_HOME = $BUILD/../openmpi_intel
 mkdir $BUILD/../openmpi_intel
@@ -35,11 +35,11 @@ mkdir $BUILD/../openmpi_intel
  # edit config_cmaq.csh to specify the library locations
  cd $BUILD/../openmpi_intel/
  # EDIT this path to specify the location of the BUILD directory set above
- sed -i '81i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES' config_cmaq.csh
+ sed -i '81i \       setenv BUILD /21dayscratch/scr/l/i/lizadams/test_nc4/LIBRARIES_intel' config_cmaq.csh
  # EDIT this path to specify the location of the mpirun path, find using which mpirun after loading the openmpi module 
  sed -i '82i \       setenv OPENMPI /nas/longleaf/apps-dogwood/mpi/intel_18.2/openmpi_3.1.4/' config_cmaq.csh
  sed -i 's@ioapi_inc_intel@$BUILD\/ioapi-3.2\/ioapi\/fixed_src@g' config_cmaq.csh
- sed -i 's@ioapi_lib_intel@$BUILD\/ioapi-3.2\/Linux2_x86_64gfort@g' config_cmaq.csh
+ sed -i 's@ioapi_lib_intel@$BUILD\/ioapi-3.2\/Linux2_x86_64ifort@g' config_cmaq.csh
  sed -i 's@netcdf_lib_intel@$BUILD\/lib@g' config_cmaq.csh
  sed -i 's@netcdf_inc_intel@$BUILD\/include@g' config_cmaq.csh
  sed -i 's@netcdff_lib_intel@$BUILD\/lib@g' config_cmaq.csh
@@ -50,6 +50,7 @@ mkdir $BUILD/../openmpi_intel
  sed -i '172i \       setenv myLINK_FLAG -qopenmp' config_cmaq.csh
  #edit the config_cmaq.csh to add extra libraries
  sed -i 's@-lnetcdf\"  #@-lnetcdf -lcurl -lhdf5 -lhdf5_hl \"  #@g'  config_cmaq.csh
+ sed -i -e 's/mpiifort/mpifort/g' config_cmaq.csh
 cd $CMAQ_HOME/CCTM/scripts/
  cp bldit_cctm.csh bldit_cctmv55_cb6r5_m3dry.csh
  # Add extra libs to support nc4 compression in config_cmaq.csh

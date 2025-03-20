@@ -7,7 +7,7 @@
 # To find the openmpi path, search for mpirun, and then look for the include and lib directories
 # > which mpirun
 setenv BUILD $cwd/LIBRARIES_intel
-setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64gfort
+setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64ifort
 setenv NETCDF_DIR $BUILD/lib
 setenv NETCDFF_DIR $BUILD/lib
 setenv OPENMPI /nas/sycamore/apps/openmpi/5.0.5-intel/
