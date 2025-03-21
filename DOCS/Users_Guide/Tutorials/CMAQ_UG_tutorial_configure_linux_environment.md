@@ -44,3 +44,12 @@ We recommend using the intel compiler to build netCDF with compression (bullet 1
   - Building netCDF4 and I/O API libraries that disable compression with Intel - 18.2 compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel.md) | [netCDF Script](./scripts/cmaq_libraries/intel_18.2_install_netcdf_classic.csh) | [I/O API Script](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh))
   
   - Building netCDF4 and I/O API libraries that disable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) | [netCDF Script](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) | [I/O API Script](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh))                    
+
+
+## Use custom environment modules or LMOD to manage the different library versions.<br>
+
+Adding the libraries locations to the LD_LIBRARY_PATH, PATH, MANPATH and other environment variables can be managed using custom modules.
+<br>
+[Custom Modules using environment modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
+<br>
+[Custom Modules using Lmod](https://lmod.readthedocs.io/en/latest/)
