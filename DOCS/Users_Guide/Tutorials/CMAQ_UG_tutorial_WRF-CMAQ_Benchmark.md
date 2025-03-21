@@ -2,29 +2,11 @@
 
 **Purpose**: This guide describes how to install and run the WRF-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the WRF-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
-Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](../CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program components.
+Users are highly encouraged to work through the [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md) and [WRF Installation Guide](https://www2.mmm.ucar.edu/wrf/users/) to familiarize themselves with the individuals program components.
 
-The following support software are required for compiling and running WRF-CMAQ.  
+## System Checks 
 
-1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
-2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/netcdf-c/current/) and [netCDF-Fortran](https://docs.unidata.ucar.edu/netcdf-fortran/current/)
-4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828 without OpenMP support**
-5. [C-Shell](https://github.com/tcsh-org/tcsh) 
-
-**Note: if you have not installed the above libraries, please see the tutorials available here: 
-[Build libraries and CMAQ](CMAQ_UG_tutorial_configure_linux_environment.md)
-
-(need to use the compressed netCDF4 library build to run the benchmark case)
-https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc_support_nc4.md
-
-The suggested hardware requirements for running the CMAQ Northeast Benchmark case on a Linux workstation are:
-
-1. Linux environment with a 16 processors
-2. 16 GB RAM
-3. 400 GB hard drive storage
-
+CMAQ requires a specific hardware and software configuration. To learn about these requirements, please refer to the tutorial on [preparing your compute environment for CMAQ simulations](CMAQ_UG_tutorial_configure_linux_environment.md).
 
 ## Installing WRF-CMAQ ##
 
