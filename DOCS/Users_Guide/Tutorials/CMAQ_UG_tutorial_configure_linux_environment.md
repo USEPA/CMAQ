@@ -29,7 +29,11 @@ The following support software are required for compiling and running CMAQ.
 5. Latest release of [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html). 
 6. [I/O API](https://github.com/cjcoats/ioapi-3.2).
 
-## Tutorials and scripts for building libraries and CMAQ
+## Tutorials and scripts for building netCDF and I/O API libraries for CMAQ
+
+The following set of tutorials provide step by step instructions on how to install netCDF and I/O API software using various compilers. We recommend building netCDF with compression. If this is not possible on your system, we provide instructions to build netCDF without compression. 
+
+We also provide shell scripts that install these libraries that include commands to install the libraires from source. This will require edits to specify where the libraries should be installed. We recommend looking at the tutorials before using the shell scripts.
 
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) building netCDF and I/O API libraries that disable compression with GNU compiler 
@@ -38,7 +42,7 @@ The following support software are required for compiling and running CMAQ.
      |  ----              |  ------     |
      | netCDF    | [gcc_11.4_install_netcdf_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) |
      | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
-     | CMAQv5.5  | [gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh) |
+    
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_intel.md) building netCDF and I/O API libraries that disable compression with INTEL compiler 
 
@@ -46,7 +50,6 @@ The following support software are required for compiling and running CMAQ.
      |  ----              |  ------     |
      | netCDF | [intel_18.2_install_netcdf_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_classic.csh) |
      | I/O API | [intel_18.2_install_ioapi_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh) |                         
-     | CMAQv5.5 | [intel_18.2_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_cmaq55_cb6r5_m3dry_classic.csh) |
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) Building netCDF4 and I/O API libraries that enable compression with GNU compiler 
 
@@ -54,7 +57,7 @@ The following support software are required for compiling and running CMAQ.
      |  ----              |  ------     |
      | netCDF | [gcc_11.4_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [gcc_11.4_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh) |                          
-     | CMAQv5.5 | [gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_classic.csh) |
+     
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) building netCDF4 libraries that enable compression with INTEL compiler 
 
@@ -62,16 +65,16 @@ The following support software are required for compiling and running CMAQ.
      |  ----              |  ------     |
      | netCDF | [intel_20.2_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [intel_20.2_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_ioapi_for_nc4_compression.csh) |                          
-     | CMAQv5.5 |[intel_20.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_20.2_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
+     
 
 
      | intel 2024   |    script |
      |  ----              |  ------     |
      | netCDF | [intel_2024_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [intel_2024_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh) |
-     | CMAQv5.5 | [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) |
+    
 
-note, please review the tutorials prior to attempting to use the install scripts, as the CMAQ install script need to be edited for your local path.<br>
+
 
 ## Use custom environment modules or LMOD to manage the different library versions.<br>
 
