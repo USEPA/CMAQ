@@ -31,32 +31,17 @@ The following support software are required for compiling and running CMAQ.
 
 ## Tutorials and scripts for building netCDF and I/O API libraries for CMAQ
 
-The following set of tutorials provide step by step instructions on how to install netCDF and I/O API software using various compilers. We recommend building netCDF with compression. If this is not possible on your system, we provide instructions to build netCDF without compression. 
+The following set of tutorials provide step by step instructions on how to install netCDF and I/O API software using various compilers. We also provide shell scripts that include commands to install the libraires from source. The scripts will require edits to specify where the libraries should be installed. We recommend looking at the tutorials before using the shell scripts.
 
-We also provide shell scripts that install these libraries that include commands to install the libraires from source. This will require edits to specify where the libraries should be installed. We recommend looking at the tutorials before using the shell scripts.
+We recommend using the intel compiler to build netCDF with compression (bullet 1 or 2). If this is not possible on your system, we provide other options (bullets 3 - 4). 
 
+  - Building netCDF4 and I/O API libraries that enable compression with Intel - 20.2 compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [netCDF Script](./scripts/cmaq_libraries/intel_20.2_install_netcdf_for_nc4_compression.csh) | [I/O API Script](./scripts/cmaq_libraries/intel_20.2_install_ioapi_for_nc4_compression.csh))
+  
+  - Building netCDF4 and I/O API libraries that enable compression with Intel - 2024 compiler ([Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) | [netCDF Script](./scripts/cmaq_libraries/intel_20.2_install_netcdf_for_nc4_compression.csh) | [I/O API Script](./scripts/cmaq_libraries/intel_20.2_install_ioapi_for_nc4_compression.csh))
 
-   - [Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) building netCDF and I/O API libraries that disable compression with GNU compiler 
+  - Building netCDF4 and I/O API libraries that enable compression with GNU compiler ([Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) | [netCDF Script](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh) | [I/O API Script](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh))
 
-     | gcc 11.4           |   script  | 
-     |  ----              |  ------     |
-     | netCDF    | [gcc_11.4_install_netcdf_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) |
-     | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
-    
-
-   - [Tutorial](CMAQ_UG_tutorial_build_library_intel.md) building netCDF and I/O API libraries that disable compression with INTEL compiler 
-
-     | intel 18.2   |    script |
-     |  ----              |  ------     |
-     | netCDF | [intel_18.2_install_netcdf_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_classic.csh) |
-     | I/O API | [intel_18.2_install_ioapi_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh) |                         
-
-   - [Tutorial](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) Building netCDF4 and I/O API libraries that enable compression with GNU compiler 
-
-     | intel 18.2   |    script |
-     |  ----              |  ------     |
-     | netCDF | [gcc_11.4_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh) |
-     | I/O API | [gcc_11.4_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh) |                          
+                        
      
 
    - [Tutorial](CMAQ_UG_tutorial_build_library_intel_support_nc4.md) building netCDF4 libraries that enable compression with INTEL compiler 
@@ -72,17 +57,19 @@ We also provide shell scripts that install these libraries that include commands
      |  ----              |  ------     |
      | netCDF | [intel_2024_install_netcdf_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh) |
      | I/O API | [intel_2024_install_ioapi_for_nc4_compression.csh](./scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh) |
+
+     
+   - [Tutorial](CMAQ_UG_tutorial_build_library_gcc.md) building netCDF and I/O API libraries that disable compression with GNU compiler 
+
+     | GNU 11.4           |   script  | 
+     |  ----              |  ------     |
+     | netCDF    | [gcc_11.4_install_netcdf_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_netcdf_classic.csh) |
+     | I/O API   | [gcc_11.4_install_ioapi_classic.csh](./scripts/cmaq_libraries/gcc_11.4_install_ioapi_classic.csh) | 
     
 
+   - [Tutorial](CMAQ_UG_tutorial_build_library_intel.md) building netCDF and I/O API libraries that disable compression with INTEL compiler 
 
-
-## Use custom environment modules or LMOD to manage the different library versions.<br>
-
-Adding the libraries locations to the LD_LIBRARY_PATH, PATH, MANPATH and other environment variables can be managed using custom modules.
-<br>
-[Custom Modules using environment modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
-<br>
-[Custom Modules using Lmod](https://lmod.readthedocs.io/en/latest/)
-
-
-
+     | intel 18.2   |    script |
+     |  ----              |  ------     |
+     | netCDF | [intel_18.2_install_netcdf_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_netcdf_classic.csh) |
+     | I/O API | [intel_18.2_install_ioapi_classic.csh](./scripts/cmaq_libraries/intel_18.2_install_ioapi_classic.csh) |                         
