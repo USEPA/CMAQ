@@ -7,7 +7,7 @@
 # To find the openmpi path, search for mpirun, and then look for the include and lib directories
 # > which mpirun
 setenv BUILD $cwd/LIBRARIES_intel
-setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64gfort
+setenv IOAPI_DIR $BUILD/ioapi-3.2/Linux2_x86_64ifort
 setenv NETCDF_DIR $BUILD/lib
 setenv NETCDFF_DIR $BUILD/lib
 setenv OPENMPI /nas/sycamore/apps/openmpi/5.0.5-intel/
@@ -33,8 +33,8 @@ module load openmpi_5.0.5/intel_2024.2.1
 
  # edit config_cmaq.csh to specify the library locations
  cd $BUILD/../openmpi_intel/
- sed -i '144i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel' config_cmaq.csh
- sed -i '145i \       setenv OPENMPI /nas/sycamore/apps/openmpi/5.0.5-intel/' config_cmaq.csh
+ sed -i '81i \       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel' config_cmaq.csh
+ sed -i '82i \       setenv OPENMPI /nas/sycamore/apps/openmpi/5.0.5-intel/' config_cmaq.csh
  sed -i 's@ioapi_inc_intel@$BUILD\/ioapi-3.2\/ioapi\/fixed_src@g' config_cmaq.csh
  sed -i 's@ioapi_lib_intel@$BUILD\/ioapi-3.2\/Linux2_x86_64ifx@g' config_cmaq.csh
  sed -i 's@netcdf_lib_intel@$BUILD\/lib@g' config_cmaq.csh

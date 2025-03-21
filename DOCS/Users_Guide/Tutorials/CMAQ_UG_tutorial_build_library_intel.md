@@ -343,7 +343,7 @@ ls -rlt m3xtract
 ```
 cd ../ioapi
 make 'HOME=[your_install_path]/LIBRARIES' clean
-
+```
 
 13. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
 

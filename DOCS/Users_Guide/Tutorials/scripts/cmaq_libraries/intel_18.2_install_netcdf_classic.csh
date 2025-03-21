@@ -2,21 +2,22 @@
 set echo
 
 #
-#  Install used tcsh and gcc/gfortran version 11.4.1 and openmpi
+#  Install used tcsh and intel version 18.2 and openmpi
+#  for classic version of netCDF library 
 #
 
-module load openmpi_5.0.5/gcc_11.4.1
+module load openmpi_3.1.4/intel_18.2
    /bin/tcsh --version
-   gcc --version
-   gfortran --version
+   ifort --version
+   icc --version
    module list | grep openmpi
    which mpirun
    
 # compilers
-setenv SERIAL_FC gfortran
-setenv SERIAL_F77 gfortran
-setenv SERIAL_CC gcc
-setenv SERIAL_CXX g++
+setenv SERIAL_FC ifort
+setenv SERIAL_F77 ifort
+setenv SERIAL_CC icc
+setenv SERIAL_CXX icpc
 setenv MPI_FC mpifort
 setenv MPI_F77 mpifort
 setenv MPI_CC mpicc
@@ -40,8 +41,8 @@ unsetenv F90FLAGS
 #  Set directory for CMAQ Libraries 
 #  -------------------
 
-   mkdir -p $cwd/LIBRARIES_gcc_disable-dap
-   setenv INSTDIR $cwd/LIBRARIES_gcc_disable-dap
+   mkdir -p $cwd/LIBRARIES_intel_classic
+   setenv INSTDIR $cwd/LIBRARIES_intel_classic
 
 #  ---------------------------
 #  Download and build netCDF-C
@@ -53,7 +54,7 @@ unsetenv F90FLAGS
    setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv CPPFLAGS "-I${INSTDIR}/include"
    ./configure --disable-netcdf-4 --disable-shared --disable-dap --prefix=$INSTDIR
-   make -j 4 |& tee  make.gcc.log
+   make -j 4 |& tee  make.intel.log
    make install
 #  ---------------------------------
 #  Download and build netCDF-Fortran
@@ -64,6 +65,8 @@ unsetenv F90FLAGS
    tar xvf v4.5.3.tar.gz
    cd netcdf-fortran-4.5.3
    #cd netcdf-fortran-4.4.5
+   # Edit configure to remove -qversion
+   sed -i -e 's/-qversion//g'
    ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
    setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv CPPFLAGS "-I${INSTDIR}/include"
@@ -73,8 +76,8 @@ unsetenv F90FLAGS
    setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv LD_LIBRARY_PATH ${INSTDIR}/lib:${LD_LIBRARY_PATH}
    ./configure --disable-shared --disable-zstandard-plugin --disable-netcdf-4 -prefix=$INSTDIR
-   make |& tee make.gcc.log 
-   make install |& tee make.gcc.log
+   make |& tee make.intel.log 
+   make install |& tee make.intel.log
 
 # check version that has been installed
    cd $INSTDIR/bin
