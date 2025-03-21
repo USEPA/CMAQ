@@ -27,7 +27,7 @@ The following support software are required for compiling and running CMAQ.
 3. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 4. Latest release of [netCDF-C](https://docs.unidata.ucar.edu/nug/current/getting_and_building_netcdf.html).
 5. Latest release of [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html). 
-6. [I/O API](https://github.com/cjcoats/ioapi-3.2).
+6. [I/O API version 3.2 **tagged 20200828**](https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828).
 
 ## Tutorials and scripts for building netCDF and I/O API libraries for CMAQ
 
