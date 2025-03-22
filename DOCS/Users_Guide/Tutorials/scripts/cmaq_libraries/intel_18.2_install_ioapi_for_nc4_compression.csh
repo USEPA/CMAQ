@@ -33,7 +33,7 @@ set echo
    cp $BASEDIR/ioapi/Makefile.$CPLMODE  ${BASEDIR}/ioapi/Makefile
    cp ${BASEDIR}/m3tools/Makefile.$CPLMODE  ${BASEDIR}/m3tools/Makefile
    # Modify to specify the path of the netcdf libraries
-   sed -i 's/\-lnetcdff/\-L\$\{HOME\}\/lib \-lnetcdff \-lnetcdf \-lhdf5_hl \-lhdf5 \-lm \-lz \-lcurl/g' ${BASEDIR}/m3tools/Makefile
+   sed -i 's/\-lnetcdff/\-L\$\{HOME\}\/lib \-lnetcdff \-lnetcdf \-lhdf5_hl \-lhdf5  \-lm \-lz \-lsz /g' ${BASEDIR}/m3tools/Makefile
    # need updated Makefile to include ‘-DIOAPI_NCF4=1’ to the MFLAGS make-variable to avoid multiple definition of `nf_get_vara_int64_’
    # Makefile can be edited to use these options instead of the default options
    #    VFLAG  = -DVERSION='3.2-nocpl-ncf4'
