@@ -26,5 +26,10 @@ There are many resources available for learning about the CMAQ system.  This tab
 |... share model data with the CMAQ user community | [Data submission form](https://docs.google.com/forms/d/1lH6UdllyVvD-ISATfPxMqwe3Xr6n2ed6AiGkEspxVag/) for the CMAS Center Data Warehouse| 
 
 
- 
+<!-- START_OF_COMMENT -->
+
+[link_chemmech_tables]: ../CCTM/src/MECHS/README.md
+
+<!-- END_OF_COMMENT -->
+
 [link_chemmech_tables]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/README.md

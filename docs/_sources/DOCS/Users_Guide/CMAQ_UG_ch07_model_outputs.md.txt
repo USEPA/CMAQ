@@ -370,5 +370,10 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
- 
+<!-- START_OF_COMMENT -->
+
+[link_7_nml]: ../../CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  
+
+<!-- END_OF_COMMENT -->
+
 [link_7_nml]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  

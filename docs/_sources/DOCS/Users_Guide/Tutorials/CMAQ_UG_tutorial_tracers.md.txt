@@ -246,5 +246,10 @@ Further details on how to change and customize the emissions control file to the
 
 In the CMAQ run script, replace the default tracer namelist file `Species_Table_TR_0.nml` with the custom tracer namelist file created in STEP 1 and new DESID namelist file created in STEP 2 (if needed). Also replace the original input files (initial conditions, boundary conditions, and/or emissions) with the modified input files created in Step 3.
 
- 
+<!-- START_OF_COMMENT -->
+
+[link_1]: ../../../POST/combine/
+
+<!-- END_OF_COMMENT -->
+
 [link_1]: https://github.com/USEPA/CMAQ/blob/main/POST/combine/ 

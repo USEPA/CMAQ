@@ -419,7 +419,16 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
- 
+<!-- START_OF_COMMENT -->  
+
+[link_B.3]: ../../../PYTOOLS/shp2cmaq/
+[link_B.1_misc]: ../../../CCTM/src/util/util/CMAQ_Control_Misc.nml
+[link_B.1_desis]: ../../../CCTM/src/emis/emis/CMAQ_Control_DESID.nml
+[link_B.1_desid]: ../../../CCTM/src/MECHS/cb6r5_ae7_aq/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
+[link_B.3_aero]:  ../../../CCTM/src/aero/aero6/AERO_DATA.F
+
+<!-- END_OF_COMMENT -->
+
 [link_B.3]: https://github.com/USEPA/CMAQ/blob/main/PYTOOLS/shp2cmaq/ 
 [link_B.1_misc]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/util/util/CMAQ_Control_Misc.nml
 [link_B.1_desis]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/emis/emis/CMAQ_Control_DESID.nml

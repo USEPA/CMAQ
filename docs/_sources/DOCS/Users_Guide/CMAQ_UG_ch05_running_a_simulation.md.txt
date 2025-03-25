@@ -471,5 +471,10 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
- 
+<!-- START_OF_COMMENT -->
+
+[link_5_bldmake]: ../../UTIL/bldmake/README.md
+
+<!-- END_OF_COMMENT -->
+
 [link_5_bldmake]:  https://github.com/USEPA/CMAQ/blob/main/UTIL/bldmake/README.md

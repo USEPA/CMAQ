@@ -16,9 +16,11 @@ A series of short tutorials provide practical examples of how to set up and run 
   - [Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](CMAQ_UG_tutorial_HCMAQ_IC_BC.md)
   - [Modifying a CMAQ Chemical Mechanism](CMAQ_UG_tutorial_chemicalmechanism.md)
 
- ```{toctree}
+<!--
+```{toctree}
 :hidden:
 CMAQ_UG_tutorial_configure_linux_environment.md
 CMAQ_UG_tutorial_running_benchmarks.md
 ```
- 
+END_OF_COMMENT
+-->
