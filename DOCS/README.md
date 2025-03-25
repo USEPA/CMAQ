@@ -16,7 +16,7 @@ The following documents are available for each CMAQ release:
 
 - **[Tutorials](Users_Guide/Tutorials/README.md)**: A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system.
 
-- **[Test Case Data](Test_Case_Data.md)**: CMAQ input and output test case data for the latest release are available from the CMAS Data Warehouse.
+- **[CMAQ Data](CMAQ_Data.md)**: Links to CMAQ test case data for the latest release, CMAQ-ready input files for multiple domains/years, and CMAQ estimates of air pollutants and deposition. 
 
 - **[Chemical Mechanism Tables](../CCTM/src/MECHS/README.md)**: Tables of model species and chemical reactions in each chemical mechanism available in the most recently released version of CMAQ.
 

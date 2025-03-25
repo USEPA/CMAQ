@@ -44,7 +44,7 @@ Load the environment modules for gcc and openmpi
 module load openmpi_5.0.5/gcc_11.4.1
 ```
 
-## Create directory for libraries
+**Create directory for libraries**
 
 ```
 #change directories to the location where you would like to install MPAS-CMAQ
@@ -52,7 +52,7 @@ mkdir -p $cwd/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1
 cd $cwd/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1
 ```
 
-## Obtain and run libraries install script
+**Obtain and run libraries install script**
 
 ```
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/mpas-cmaq_libraries/iolib_installation_gcc11.4.1.sh
@@ -62,13 +62,13 @@ chmod 755 iolib_installation_gcc11.4.1.sh
 ./iolib_installation_gcc11.4.1.sh |& tee ./iolib_installation_gcc11.4.1.log
 ```
 
-## Review the log file to verify that the libraries were installed successfully
+**Review the log file to verify that the libraries were installed successfully**
 
 ```
 grep -i error iolib_installation_gcc11.4.1.log
 ```
 
-### Verify the libraries are installed
+**Verify the libraries are installed**
 
 ```
 ls lib/*
@@ -107,13 +107,13 @@ module load openmpi_5.0.5/gcc_11.4.1
 ```
 
 
-### Add the following command to your .cshrc, then logout and log back in.
+Add the following command to your .cshrc, then logout and log back in.
 
 ```
 module use --append /work/users/l/i/lizadams/MPAS-CMAQ/build/Modules/modulefiles
 ```
 
-## Load Private Environment Modules ##
+**Load Private Environment Modules**
 
 ```
 ## check that your private module can be found
@@ -124,9 +124,11 @@ module load mpas-cmaq-iolib/gcc-11.4.1
 module list
 ```
 
-## Build MPAS-CMAQ - these instructions follow the [MPAS-CMAQ User Manual][link_MPAS_PDF]
+## Build MPAS-CMAQ
 
-## Clone the MPAS-CMAQ Branch from the USEPA GitHub Repository
+These instructions follow the [MPAS-CMAQ User Manual](https://github.com/USEPA/CMAQ/blob/MPAS-CMAQ/DOCS/Users_Guide/PDF/MPAS-CMAQ.pdf)
+
+### Clone the MPAS-CMAQ Branch
 
 ```
 mkdir MPAS-CMAQ
@@ -134,7 +136,7 @@ cd MPAS-CMAQ
 git clone -b MPAS_CMAQ https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-## Building and running in a user-specified directory outside of the repository
+**Building and running in a user-specified directory outside of the repository**
 
 In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
 
@@ -149,7 +151,7 @@ Now execute the script.
 ```
 
 
-### Configuring the MPAS-CMAQ Build Environment
+### Configure the MPAS-CMAQ Build Environment
 
 ```
 cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
@@ -157,7 +159,7 @@ cd [your_install_path]/MPAS-CMAQ/CMAQ_5.5/CCTM/scripts
 ./bldit_cctm.csh gcc |& tee ./bldit_cctm.log
 ```
 
-### Review Makefile created for MPAS-CMAQ
+**Review Makefile created for MPAS-CMAQ**
 
 Note that the config_cmaq.csh compiler settings are not utilized in the Makefile that is created by running the bldit_cctm.csh script.
 
@@ -170,7 +172,7 @@ Successful execution of this script creates a BLD* directory with CMAQ code and 
 
 If this step fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
-### Change directories to the top level MPAS-CMAQ directory
+**Change directories to the top level MPAS-CMAQ directory**
 
 ```
 cd /your-path/MPAS-CMAQ
@@ -183,7 +185,7 @@ git clone -b MPAS7.0 git@github.com:USEPA/MPAS.git MPAS
 cd MPAS
 ```
 
-### Copy the CMAQ build directory from the previous section to the MPAS src/core atmosphere directory and re-name it "cmaq."
+**Copy the CMAQ build directory from the previous section to the MPAS src/core atmosphere directory and re-name it "cmaq."**
 
 ```
 cp -rp ../CMAQ_5.5/CCTM/scripts/BLD_CCTM_v55_gcc_cracmm2_m3dry/ ./src/core_atmosphere/cmaq
@@ -210,7 +212,7 @@ make[1]: Leaving directory '/work/users/l/i/lizadams/MPAS-CMAQ/MPAS'
 make: *** [Makefile:214: gfortran] Error 2
 ```
 
-### Recommend commending out -lpio from the Makefile at line 462 and setting the PIO environment variable
+**Recommend commending out -lpio from the Makefile at line 462 and setting the PIO environment variable**
 
 
 ```
@@ -226,13 +228,13 @@ Set the following environment variable to allow the pio libraries to be found
 ```
 
 
-### Recompile MPAS
+**Recompile MPAS**
 
 ```
 make gfortran CORE=atmosphere USE_PIO2=true
 ```
 
-### Examine the log for additional errors
+**Examine the log for additional errors**
 
 
 ```
@@ -272,14 +274,14 @@ vi /work/users/l/i/lizadams/MPAS-CMAQ/MPAS/src/core_atmosphere/physics/Makefile
 #replace -traceback with -fbacktrace
 ```
 
-### Recompile
+**Recompile**
 
 ```
 make gfortran CORE=atmosphere USE_PIO2=true
 ```
 
 
-### Another error
+**Another error**
 
 
 ```
@@ -294,7 +296,7 @@ vi MPAS/Makefile
 "FFLAGS_OPT = -O3 -m64 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-invalid-boz -fallow-argument-mismatch"
 ```
 
-### Another error
+**Another error**
 
 ```
 module_sf_pxlsm.F:430:34:
@@ -315,7 +317,7 @@ Error: Nonnegative width required in format string at (1)
 ```
 
 
-### change the format i to i2:
+**change the format i to i2:**
 
 ```
 
@@ -328,7 +330,7 @@ Error: Nonnegative width required in format string at (1)
 
 see https://stackoverflow.com/questions/11037954/error-nonnegative-width-required-in-format-string-at-1
 
-### Error
+**Error**
 
 ```
 mio_gather_data_mod.F90:1100:34:
@@ -352,7 +354,7 @@ vi Makefile
  DBG  = -Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace -fallow-argument-mismatch
 ```
 
-### Error
+**Error**
 
 ```
 mpif90 -O3 -m64 -o atmosphere_model driver/*.o -L. -ldycore -lops -lframework -L/work/users/l/i/lizadams/MPAS-CMAQ/build/LIBRARIES_gcc11.4.1//lib -lpiof -lpioc -I./external/esmf_time_f90 -L./external/esmf_time_f90 -lesmf_time
@@ -379,8 +381,9 @@ ls -rlt atmosphere_model
 ```
 
 
-### Install the MPAS-CMAQ reference input benchmark data using the aws command line
+### Install the MPAS-CMAQ input data
 
+Use the AWS command line to download data from the following s3 bucket:
 <a href="https://mpas-cmaq.s3.amazonaws.com/index.html">MPAS-CMAQ S3 Bucket</a>
 
 
@@ -394,7 +397,7 @@ aws s3 --no-sign-request cp --recursive --region=us-east-1 --dryrun s3://mpas-cm
 
 The input files for the MPAS-CMAQ benchmark case are provided in the 120_uniform directory . Output MPAS-CMAQ files associated with the sample run script for the coupled MPAS-CMAQ model in this release package are also available.
 
-## Link input files
+### Link input files
 
 It may be helpful aggregate all input  les into a common directory by linking to their full paths.  mkdir links
 
@@ -405,7 +408,7 @@ ln -s [full/path/to/cmaq_inputs/emissions/one_day/*] .
 ln -s [full/path/to//cmaq_inputs/other/*] .
 ```
 
-## Running the MPAS-CMAQ model
+### Run MPAS-CMAQ
 
 One sample run scripts is provided (MPAS/run/run.csh)
 
@@ -502,7 +505,9 @@ tail -n 8 log.atmosphere.0000.out
 ```
 
 
-### Compare the output to what is available on the S3 bucket
+### Compare the output 
+
+Download data from s3 bucket to and compare to your results.
 
     ```
      cd $CMAQ_DATA

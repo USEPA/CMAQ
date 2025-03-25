@@ -6,11 +6,16 @@ This guide helps you to find and report errors to the CMAS Center Forum and foll
 ## Building CMAQ
 ### Prerequisite: Build Libraries and CMAQ using gcc or intel compilers
 Follow the CMAQ Build Tutorials for the appropriate compiler: 
-Uncompressed netCDF-4 library builds:
-* [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
-* [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md)
-Compressed netCDF-4 Library builds:
-* [Building CMAQ using netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+
+### Uncompressed netCDF library builds:<br>
+
+* [Building CMAQ classic libraries for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
+* [Building CMAQ classic libraries for Intel](CMAQ_UG_tutorial_build_library_intel.md)
+
+### Compressed netCDF-4 Library builds:<br>
+
+* [Building CMAQ libraries netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+* [Building CMAQ using netCDF-4 compression for Intel](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
 
 ### Verify that an executable was created
 ```
@@ -241,7 +246,9 @@ error while loading shared libraries  …  cannot open shared object file …
 
 ```
 
-### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
+### Upload additional files 
+
+Click on the up arrow icon in the menu underneath the Create New Topic Title including:
 * your run script
 * standard out log file
 * per-processor log file that contains the error message.

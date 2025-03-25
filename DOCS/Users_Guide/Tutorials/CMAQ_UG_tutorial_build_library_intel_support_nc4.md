@@ -38,7 +38,7 @@ Replace the following path the local path
 /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
 ```
 
-The intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+The [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.
 
 Use the command:
@@ -112,11 +112,11 @@ ifx: command line warning #10121: overriding '-static-intel' with '-shared-intel
 
 
 ### Create a private modules
-Add the netCDF and I/O API modules following these instructions: https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules
+Add the netCDF and I/O API modules following these instructions: [Custom Modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
 
 Example module files are available here:
 
-https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/
+[Example Modules](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/)
 You would need to create the same directory structure, and edit the basedir in each module file to use your local directory. 
 
 Create a directory with the directory structure Modules/modulefiles/ [module name]
@@ -774,9 +774,4 @@ run_combine.csh
  set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
 ```
 
-
-## Run the combine run script
-
-```
-sbatch run_combine.csh
-```
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md).
