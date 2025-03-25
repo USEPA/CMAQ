@@ -1,0 +1,154 @@
+!------------------------------------------------------------------------------!
+! Explicit and Lumped air quality Mode Output (ELMO) Synthesizer               !
+!    PM Diagnostic Output File Specifications                                  !
+!    This section allows you to customize or deactivate diagnostic species for !
+!    PM output. With ELMO's interface and underlying routines, you are able to !
+!    output upon request aggregate PM parameters like total PM2.5 mass, mass of!
+!    individual species in any fine aerosol mode, and even properties like     !
+!    aerosol pH, OM:OC, AOD, etc. With these feature, you may be able to       !
+!    deactivate the output of many individual PM species on your concentration !
+!    files if you are only interested in total values. For example, no need to !
+!    output AMT1-AMT6 if you only need total organics, PMF_OA.                 !
+!                                                                              !
+!    You may invoke individual parameters in the interface below, (see         !
+!    instructions) or you may also use keywords to invoke a group of pre-      !
+!    associated parameters. For instance, using the string "AMET" below as an  !
+!    output parameter will automatically activate all of the parameters needed !
+!    for an AMET evaluation of PM species.                                     !
+!                                                                              !
+!    Definition of Fields:                                                     !
+!     ELMO_ACTIVATE - turn files on and off                                    !
+!        'INSTANT' - If .TRUE., then the instantaneous ELMO output file will   !
+!                    be output. If .FALSE. it will not.                        !
+!        'AVERAGE' - If .TRUE., then the average ELMO output file will         !
+!                    be output. If .FALSE. it will not.                        !
+!     ELMO_INST - set parameters for instantaneous output                      !
+!        'INST_LAYER_TOP' - highest CMAQ layer for instantaneous output        ! 
+!        'INST_LAYER_BOT' - lowest CMAQ layer for instantaneous output         !
+!        'INST_VARS_NML' - register of all variables requested by the user.    !
+!             Variables can be listed explicitly (e.g. O3, PM25_FRM, DENS) or  !
+!             by keyword groups. The following keywords and definitions are    !
+!             supported:                                                       !
+!                 'ALL' - all possible parameters. This keyword activates a    !
+!                         large number of variables including all 180+ ELMO    !
+!                         aggregates variables, all raw concentrations         !
+!                         variables, and all family variables. By default, bulk!
+!                         aerosols are preloaded as families.                  !
+!                 'ALLCONC' - all raw concentration variables                  !
+!                 'DEFAULT' - parameters typically supported by COMBINE        !
+!                             post-processing in the past.                     !
+!                 'AMET' - parameters used for evaluation against AMET database!
+!                 'MASS' - parameters associated with mass aggregates (eg PM25,!
+!                          PM10, PMF_MASS, PMC_MASS, etc)                      !
+!                 'NUMBER' - parameters assoc. with number output like PMF_NUM,!
+!                            N40, N100, etc.                                   !
+!                 'SIZE' - parameters assoc. with size distributions like      !
+!                          DRY_DG, WET_M3, WET_DENS, etc                       !
+!                 'SURFACE' - parameters assoc. with PM surface area (e.g.     !
+!                             PM_SRF, PMF_SRF)                                 !
+!                 'ORGANIC' - organic-relevant parameters like PM1_OC, PM1_OA, !
+!                             PMF_OTOC, PMAMS_OA, etc                          !
+!                 'MET' - meteorlogical parameters: RH, T, 2m-T, P             !
+!                 'CHEM' - aerosol chemistry parameters like GAMMA_N2O5,       !
+!                          K_IEPOX, etc.                                       !
+!                 'FINE_SPECIES' - fine-mode speciation (e.g. PMF_SO4, etc)    !
+!                 'COARSE_SPECIES' - coarse-mode speciation (e.g. PMC_SO4, etc)!
+!                 'AMS_SPECIES' - AMS speciation (e.g. PMAMS_SO4, etc)         !
+!                 'PM1_SPECIES' - PM1.0 speciation (e.g. PM1_SO4, etc)         !
+!                 'PM25_SPECIES' - PM2.5 speciation (e.g. PM25_SO4, etc)       !
+!                 'PM25to10_SPECIES' - PM25to10 speciation (eg PM25to10_SO4,   !
+!                                      etc)                                    !
+!                 'OPTICAL' - AOD, Aerosol Extinction all at 550 nm            !
+!                 'FINE_ORG' - fine-mode organic aggregates like PMF_OC,       !
+!                              PMF_POA, PMF_ASOA, etc.                         !
+!                 'CUTOFF_FRACTIONS' - FPM01, FPM1, FPM25, FPM10, FPM25TO10,   !
+!                                      FAMS                                    !
+!                 'TOXICS' - Species output by the toxics version of CMAQ      !
+!                            (e.g. PM25_HBE, PM25_HNI, PM10_HDIESEL', etc      !
+!                            In CMAQ v5.5 and earlier versions with ELMO output!
+!                            files, the TOXICS keyword group omits several     !
+!                            toxic aerosol species. The missing species include! 
+!                            PM10 for nickle as well as PM25, PM10, and        !
+!                            fraction aerosol for benzo[a]pyrene. To have the  !
+!                            variables in the ELMO output files, a user has to !
+!                            add PM10_HNI, PM25_BENAPY, PM10_BENAPY and        !
+!                            BENAPY_FAERO as well as the TOXICS keyword groups !
+!                            to CMAQ_Control_Misc.nml file in the CCTM build   !
+!                            directory.                                        !
+!                                                                              !
+!     ELMO_AVRG - set parameters for average output                            !
+!        'AVRG_LAYER_TOP' - top CMAQ layer for average output. Enter '-1'      !
+!                           for the highest layer in the model domain          ! 
+!        'AVRG_LAYER_BOT' - lowest CMAQ layer for avergae output               !
+!        'AVRG_VARS_NML' - register of all variables requested by the user.    !
+!                          Options are equivalent to those for INST_VARS_NML   !
+!                                                                              !
+!------------------------------------------------------------------------------!
+
+&elmo_activate
+  instant = .FALSE.
+  average = .TRUE.
+/
+
+&elmo_inst
+  Inst_Layer_Top = 1
+  Inst_Layer_Bot = 1
+  Inst_Vars_Nml  = 'DEFAULT'
+  
+! Example for limited output
+! Inst_Vars_Nml = 'NO2', 'FORM', 'SO2', 'O3', 'PM25', 'PM10', 'DENS', 'NOX', 'AOD_550'
+/
+
+&elmo_avrg
+  Avrg_Layer_Top = 1
+  Avrg_Layer_Bot = 1
+  Avrg_Vars_Nml  = 'DEFAULT'
+
+! Example for limited output
+! Avrg_Vars_Nml = 'NO2', 'FORM', 'SO2', 'O3', 'PM25', 'PM10', 'DENS', 'NOX', 'AOD_550'
+/
+
+
+
+!------------------------------------------------------------------------------!
+! Budget Tool Variable and Family Definitions                                  !
+!    This section includes selections for species and families of CMAQ         !
+!    that may be grouped together when calculating budget values for the       !
+!    budget output file. Users may select any CMAQ chemical species, chemical  !
+!    family defined in the ChemicalFamilies section of this namelist or may    !
+!    use the ALL keyword to select all species.                                !
+!    If a Family name or the TOTAL keyword are provided, the sum of those      !
+!    species will be output on the budget file. If a * proceeds the name (e.g. !
+!    '*NOX') then the Family name will be expanded and all of the species it   !
+!    comprises will be added separately. The default selection is for all      !
+!    chemical species to be output individually.                               !
+!------------------------------------------------------------------------------!
+
+&Budget_Options
+  Budget_Diag = .TRUE.
+  BudgetVariables  = 'ALL'
+/ 
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This component includes definitions for families of CMAQ chemical species !
+!    and emission variables.                                                   !
+!    Note that if you are defining a 'VOC' family to apply scaling to all VOC  !
+!    emissions, it is recommended that you define 'VOC' either in terms of the !
+!    emission variables (consistent with variable names on your emission file) !
+!    or with CMAQ species names. In order to use this family to scale VOC      !
+!    emissions via an emission rule, use the 'VOC' family for either the       !
+!    emission variable or CMAQ species, consistent with how you have defined it!
+!    here, and use the 'ALL' keyword for the other field.                      !
+!------------------------------------------------------------------------------!
+&Chemical_FamVars
+ N_Chem_Fams = 0
+ Max_Chem_Fam_Members = 20
+/
+
+&ChemicalFamilies
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+/
+
+
