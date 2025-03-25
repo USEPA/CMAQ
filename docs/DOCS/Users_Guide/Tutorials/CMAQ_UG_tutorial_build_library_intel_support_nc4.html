@@ -335,10 +335,7 @@
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
@@ -471,7 +468,7 @@ wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build</span>
 </pre></div>
 </div>
-<p>The intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+<p>The <a class="reference internal" href="#./cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh"><span class="xref myst">intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh</span></a> script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.</p>
 <p>Use the command:</p>
 <p><code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">mpirun</span></code> to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used</p>
@@ -528,9 +525,9 @@ There is also a hard coded path for the openmpi library.</p>
 </section>
 <section id="create-a-private-modules">
 <h2>Create a private modules<a class="headerlink" href="#create-a-private-modules" title="Link to this heading">#</a></h2>
-<p>Add the netCDF and I/O API modules following these instructions: https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules</p>
+<p>Add the netCDF and I/O API modules following these instructions: <a class="reference external" href="https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules" rel="noreferrer" target="_blank">Custom Modules <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p>
 <p>Example module files are available here:</p>
-<p>https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/
+<p><a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/" rel="noreferrer" target="_blank">Example Modules <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>
 You would need to create the same directory structure, and edit the basedir in each module file to use your local directory.</p>
 <p>Create a directory with the directory structure Modules/modulefiles/ [module name]</p>
 </section>
@@ -1153,12 +1150,7 @@ These scripts will need to be edited</p></li>
  <span class="nb">set</span> <span class="n">END_DATE</span>   <span class="o">=</span> <span class="s2">&quot;2016-07-14&quot;</span>     <span class="c1">#&gt; ending date    (July 14, 2016)</span>
 </pre></div>
 </div>
-</section>
-<section id="run-the-combine-run-script">
-<h1>Run the combine run script<a class="headerlink" href="#run-the-combine-run-script" title="Link to this heading">#</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sbatch</span> <span class="n">run_combine</span><span class="o">.</span><span class="n">csh</span>
-</pre></div>
-</div>
+<p>After successfull completion of this tutorial, the user is now ready to proceed to the <a class="reference internal" href="CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">CMAQ Installation &amp; Benchmarking Tutorial</span></a>.</p>
 </section>
 
 
@@ -1220,7 +1212,6 @@ These scripts will need to be edited</p></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-i-o-api">Install I/O API</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-cmaqv55">Install CMAQv55</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#modify-benchmark-post-processing-scripts-for-your-installation">Modify Benchmark Post-processing Scripts for your installation</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-combine-run-script">Run the combine run script</a></li>
 </ul>
 
   </nav></div>

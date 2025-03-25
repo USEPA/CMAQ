@@ -335,10 +335,7 @@
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
@@ -443,13 +440,20 @@ This guide helps you to find and report errors to the CMAS Center Forum and foll
 <h2>Building CMAQ<a class="headerlink" href="#building-cmaq" title="Link to this heading">#</a></h2>
 <section id="prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers">
 <h3>Prerequisite: Build Libraries and CMAQ using gcc or intel compilers<a class="headerlink" href="#prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers" title="Link to this heading">#</a></h3>
-<p>Follow the CMAQ Build Tutorials for the appropriate compiler:
-Uncompressed netCDF-4 library builds:</p>
+<p>Follow the CMAQ Build Tutorials for the appropriate compiler:</p>
+</section>
+<section id="uncompressed-netcdf-library-builds">
+<h3>Uncompressed netCDF library builds:<br><a class="headerlink" href="#uncompressed-netcdf-library-builds" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc.html"><span class="std std-doc">Building CMAQ for GNU</span></a></p></li>
-<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_intel.html"><span class="std std-doc">Building CMAQ for Intel</span></a>
-Compressed netCDF-4 Library builds:</p></li>
-<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc_support_nc4.html"><span class="std std-doc">Building CMAQ using netCDF-4 compression for GNU</span></a></p></li>
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc.html"><span class="std std-doc">Building CMAQ classic libraries for GNU</span></a></p></li>
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_intel.html"><span class="std std-doc">Building CMAQ classic libraries for Intel</span></a></p></li>
+</ul>
+</section>
+<section id="compressed-netcdf-4-library-builds">
+<h3>Compressed netCDF-4 Library builds:<br><a class="headerlink" href="#compressed-netcdf-4-library-builds" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc_support_nc4.html"><span class="std std-doc">Building CMAQ libraries netCDF-4 compression for GNU</span></a></p></li>
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_intel_support_nc4.html"><span class="std std-doc">Building CMAQ using netCDF-4 compression for Intel</span></a></p></li>
 </ul>
 </section>
 <section id="verify-that-an-executable-was-created">
@@ -693,8 +697,9 @@ Example Title:</p></li>
 </div>
 </section>
 </section>
-<section id="upload-additional-files-by-clicking-on-the-up-arrow-icon-in-the-menu-underneath-the-create-new-topic-title-including">
-<h3>Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:<a class="headerlink" href="#upload-additional-files-by-clicking-on-the-up-arrow-icon-in-the-menu-underneath-the-create-new-topic-title-including" title="Link to this heading">#</a></h3>
+<section id="upload-additional-files">
+<h3>Upload additional files<a class="headerlink" href="#upload-additional-files" title="Link to this heading">#</a></h3>
+<p>Click on the up arrow icon in the menu underneath the Create New Topic Title including:</p>
 <ul class="simple">
 <li><p>your run script</p></li>
 <li><p>standard out log file</p></li>
@@ -743,6 +748,8 @@ Example Title:</p></li>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-cmaq">Building CMAQ</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers">Prerequisite: Build Libraries and CMAQ using gcc or intel compilers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uncompressed-netcdf-library-builds">Uncompressed netCDF library builds:<br/></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressed-netcdf-4-library-builds">Compressed netCDF-4 Library builds:<br/></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-an-executable-was-created">Verify that an executable was created</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-cmaq-build-log-files">Inspecting CMAQ Build log files</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#if-you-encounter-an-error-building-cmaq">If you encounter an error building CMAQ</a></li>
@@ -763,7 +770,7 @@ Example Title:</p></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-of-information-to-include-in-a-new-issue-post">Example of information to include in a new issue post:</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-additional-files-by-clicking-on-the-up-arrow-icon-in-the-menu-underneath-the-create-new-topic-title-including">Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-additional-files">Upload additional files</a></li>
 </ul>
 </li>
 </ul>
