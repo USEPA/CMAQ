@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
-    <title>Gas Phase Chemistry Changes &#8212; CMAQ 5.5+ documentation</title>
+    <title>Chemistry &#8212; CMAQ 5.5+ documentation</title>
   
   
   
@@ -44,9 +44,11 @@
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Release_Notes/CMAQ-Release-Notes:-Chemistry';</script>
-    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html" />
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Transport Processes" href="CMAQ-Release-Notes%3A-Transport-Processes.html" />
+    <link rel="prev" title="WRF-CMAQ Coupled Model" href="CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -192,7 +194,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
       
@@ -212,6 +214,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -221,8 +227,6 @@
     <div class="bd-container__inner bd-page-width">
       
       
-      
-        
       
       <dialog id="pst-primary-sidebar-modal"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
@@ -319,7 +323,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
         
@@ -330,11 +334,8 @@
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-
-</ul>
-</details></li>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
@@ -354,6 +355,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Appendix/README.html">Appendix</a></li>
 
 </ul>
 </details></li>
@@ -362,8 +364,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
 </ul>
 
@@ -406,7 +415,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Gas Phase Chemistry Changes</span></li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">CMAQ Release Notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Chemistry</span></li>
   </ul>
 </nav>
 </div>
@@ -423,9 +435,11 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <p>This page contains links to Wiki pages describing current and past changes to the Chemical components in CMAQ.</p>
-<section id="gas-phase-chemistry-changes">
-<h1>Gas Phase Chemistry Changes<a class="headerlink" href="#gas-phase-chemistry-changes" title="Link to this heading">#</a></h1>
+  <section id="chemistry">
+<h1>Chemistry<a class="headerlink" href="#chemistry" title="Link to this heading">#</a></h1>
+<p>This page contains links to Wiki pages describing current and past changes to the Chemical components in CMAQ.</p>
+<section id="chemistry-changes">
+<h2>Chemistry Changes<a class="headerlink" href="#chemistry-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="CMAQ-Release-Notes%3A-Chemistry%3A-Community-Regional-Atmospheric-Chemistry-Multiphase-Mechanism-%28CRACMM%29.html"><span class="std std-doc">Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM)</span></a></p></li>
 <li><p><a class="reference internal" href="CMAQ-Release-Notes%3A-Chemistry%3A-Carbon-Bond-6-Mechanism-%28CB6%29.html"><span class="std std-doc">Carbon Bond 6 Mechanism (CB6)</span></a></p></li>
@@ -439,6 +453,7 @@
 <li><p><a class="reference internal" href="CMAQ-Release-Notes%3A-Chemistry%3A-Photolysis.html"><span class="std std-doc">Photolysis</span></a></p></li>
 </ul>
 </section>
+</section>
 
 
                 </article>
@@ -450,12 +465,48 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">WRF-CMAQ Coupled Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CMAQ-Release-Notes%3A-Transport-Processes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Transport Processes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chemistry-changes">Chemistry Changes</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

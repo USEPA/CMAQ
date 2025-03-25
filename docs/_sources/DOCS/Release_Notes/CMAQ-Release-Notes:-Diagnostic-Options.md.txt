@@ -1,3 +1,5 @@
+# Diagnostic Options
+
 ## Remove Uninitialized Variable in Column Model
 [William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency  
 **Type of update**: Bug Fix  

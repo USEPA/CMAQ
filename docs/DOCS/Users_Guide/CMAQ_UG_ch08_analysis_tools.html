@@ -44,7 +44,7 @@
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools';</script>
-    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html" />
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="9. Process Analysis and Budget" href="CMAQ_UG_ch09_process_analysis.html" />
@@ -194,7 +194,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
       
@@ -323,7 +323,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
         
@@ -335,10 +335,7 @@
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">CMAQ User’s Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch01_overview.html">1. Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
@@ -358,6 +355,7 @@
 <li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Appendix/README.html">Appendix</a></li>
 
 </ul>
 </details></li>
@@ -366,8 +364,15 @@
 <li class="toctree-l2"><a class="reference internal" href="Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
 </ul>
 
@@ -509,7 +514,7 @@
 <p>Note that some species aggregation is already happening within the CMAQ model. The CMAQ aerosol module explicitly represents a number of individual aerosol species that need to be combined for comparisons to measured total PM<sub>2.5</sub> mass.  The Explicit and Lumped Model Output (ELMO) capability introduced in CMAQv5.4 prescribes the calculation of aggregated aerosol species (e.g., PM<sub>1</sub>, PM<sub>2.5</sub>, and PM<sub>10</sub>),  as well as diagnostic values (e.g., aerosol surface area and number) and CMAQ calculates them online.  The species are then written to the <a class="reference internal" href="CMAQ_UG_ch07_model_outputs.html#ELMO"><span class="std std-ref">CCTM_ELMO</span></a> or <a class="reference internal" href="CMAQ_UG_ch07_model_outputs.html#AELMO"><span class="std std-ref">CCTM_AELMO</span></a> output files.</p>
 <p>The “SpecDef_MECH_NAME.txt” file relies on output from the CCTM_CONC (or CCTM_ACONC) and the CCTM_ELMO (or CCTM_AELMO) files in addition to meteorological variables for completing all of its calculations. Generally, gas-phase species coming from the direct CCTM_CONC output and aerosol species from CCTM_ELMO. For reference and transparency, each mechanism folder also includes a file named “SpecDef_Conc_MECH_NAME.txt”, which processes both gas- and aerosol species from the CCTM_CONC file (CCTM_ELMO variables is still needed for applying hard bounds on particle size, like 2.5 um). These “SpecDef_Conc_MECH_NAME.txt” files are provided for all Carbon Bond 6-based mechanisms and all CRACMM-based mechanisms. Either of these two approaches should yield highly similar or exactly equal results.</p>
 <p>Finally, the SpecDef_Dep_MECH_NAME.txt files are provided to processes deposition variable output from CMAQ.</p>
-<p>See <a class="reference internal" href="Appendix/CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Apendix F</span></a> for more information about the calculation of ELMO output variables and how this relates to use of the <em>combine</em> tool.</p>
+<p>See <a class="reference internal" href="Appendix/CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Appendix F</span></a> for more information about the calculation of ELMO output variables and how this relates to use of the <em>combine</em> tool.</p>
 </section>
 <section id="model-observation-pairing-for-model-evaluation">
 <h2>8.3 Model-Observation Pairing for Model Evaluation<a class="headerlink" href="#model-observation-pairing-for-model-evaluation" title="Link to this heading">#</a></h2>

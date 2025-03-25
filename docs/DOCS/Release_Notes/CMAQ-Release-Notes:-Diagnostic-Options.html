@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
-    <title>Remove Uninitialized Variable in Column Model &#8212; CMAQ 5.5+ documentation</title>
+    <title>Diagnostic Options &#8212; CMAQ 5.5+ documentation</title>
   
   
   
@@ -44,9 +44,11 @@
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Release_Notes/CMAQ-Release-Notes:-Diagnostic-Options';</script>
-    <link rel="canonical" href="https://jbrunto.github.io/CMAQ_Docs_v55/DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html" />
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Pre-processors" href="CMAQ-Release-Notes%3A-Preprocessors.html" />
+    <link rel="prev" title="Structural Improvements" href="CMAQ-Release-Notes%3A-Structural-Improvements.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -192,7 +194,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
       
@@ -225,8 +227,6 @@
     <div class="bd-container__inner bd-page-width">
       
       
-      
-        
       
       <dialog id="pst-primary-sidebar-modal"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
@@ -323,7 +323,7 @@
           
           
           
-          <a href="https://usepa.github.io/CRACCM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
         </li>
 </ul></div>
         
@@ -334,11 +334,8 @@
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Getting_Started.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-
-</ul>
-</details></li>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
@@ -358,6 +355,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Appendix/README.html">Appendix</a></li>
 
 </ul>
 </details></li>
@@ -366,8 +364,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html">Release Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
 </ul>
 
@@ -410,7 +415,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Remove Uninitialized Variable in Column Model</span></li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">CMAQ Release Notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Diagnostic Options</span></li>
   </ul>
 </nav>
 </div>
@@ -427,8 +435,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="remove-uninitialized-variable-in-column-model">
-<h1>Remove Uninitialized Variable in Column Model<a class="headerlink" href="#remove-uninitialized-variable-in-column-model" title="Link to this heading">#</a></h1>
+  <section id="diagnostic-options">
+<h1>Diagnostic Options<a class="headerlink" href="#diagnostic-options" title="Link to this heading">#</a></h1>
+<section id="remove-uninitialized-variable-in-column-model">
+<h2>Remove Uninitialized Variable in Column Model<a class="headerlink" href="#remove-uninitialized-variable-in-column-model" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:hutzell&#46;bill&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">William T<span>&#46;</span> Hutzell <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: Bug Fix<br />
 <strong>Release Version/Date</strong>: CMAQv5.5</p>
@@ -456,7 +466,7 @@
 </div>
 </section>
 <section id="fix-bug-in-elmo-calculation-of-pmf-oc-pmf-ncom">
-<h1>Fix bug in ELMO calculation of PMF_OC, PMF_NCOM<a class="headerlink" href="#fix-bug-in-elmo-calculation-of-pmf-oc-pmf-ncom" title="Link to this heading">#</a></h1>
+<h2>Fix bug in ELMO calculation of PMF_OC, PMF_NCOM<a class="headerlink" href="#fix-bug-in-elmo-calculation-of-pmf-oc-pmf-ncom" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:nolte&#46;chris&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Chris Nolte <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: Bug Fix<br />
 <strong>Release Version/Date</strong>: CMAQv5.5</p>
@@ -477,7 +487,7 @@
 </div>
 </section>
 <section id="correct-calculation-of-pm1-pm2-5-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo">
-<h1>Correct calculation of PM1, PM2.5, and PM25to10 as well as speciated NA, K, CA, and MG in ELMO<a class="headerlink" href="#correct-calculation-of-pm1-pm2-5-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo" title="Link to this heading">#</a></h1>
+<h2>Correct calculation of PM1, PM2.5, and PM25to10 as well as speciated NA, K, CA, and MG in ELMO<a class="headerlink" href="#correct-calculation-of-pm1-pm2-5-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:murphy&#46;ben&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Ben Murphy <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: Bug Fix<br />
 <strong>Release Version/Date</strong>: CMAQv5.5</p>
@@ -510,7 +520,7 @@
 </div>
 </section>
 <section id="accurate-output-of-gas-phase-species-in-mass-units">
-<h1>Accurate output of gas-phase species in mass units<a class="headerlink" href="#accurate-output-of-gas-phase-species-in-mass-units" title="Link to this heading">#</a></h1>
+<h2>Accurate output of gas-phase species in mass units<a class="headerlink" href="#accurate-output-of-gas-phase-species-in-mass-units" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:murphy&#46;ben&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Ben Murphy <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: Bug Fix<br />
 <strong>Release Version/Date</strong>: CMAQv5.5</p>
@@ -531,7 +541,7 @@
 </div>
 </section>
 <section id="restore-accurate-timestepping-when-running-with-temporally-finer-met-inputs">
-<h1>Restore accurate timestepping when running with temporally finer MET inputs<a class="headerlink" href="#restore-accurate-timestepping-when-running-with-temporally-finer-met-inputs" title="Link to this heading">#</a></h1>
+<h2>Restore accurate timestepping when running with temporally finer MET inputs<a class="headerlink" href="#restore-accurate-timestepping-when-running-with-temporally-finer-met-inputs" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:murphy&#46;ben&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Ben Murphy <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: Bug Fix<br />
 <strong>Release Version/Date</strong>: CMAQv5.5</p>
@@ -552,7 +562,7 @@
 </div>
 </section>
 <section id="introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo">
-<h1>Introduction of the Explicit and Lumped air quality Model Output module (ELMO)<a class="headerlink" href="#introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo" title="Link to this heading">#</a></h1>
+<h2>Introduction of the Explicit and Lumped air quality Model Output module (ELMO)<a class="headerlink" href="#introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="mailto:murphy&#46;ben&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">Ben Murphy <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, U.S. Environmental Protection Agency<br />
 <strong>Type of update</strong>: New Feature<br />
 <strong>Release Version/Date</strong>: CMAQv5.4</p>
@@ -592,6 +602,7 @@ The ELMO Synthesizer streamlines the definition, calculation, and maintenance of
 </table>
 </div>
 </section>
+</section>
 
 
                 </article>
@@ -603,6 +614,24 @@ The ELMO Synthesizer streamlines the definition, calculation, and maintenance of
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="CMAQ-Release-Notes%3A-Structural-Improvements.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Structural Improvements</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CMAQ-Release-Notes%3A-Preprocessors.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Pre-processors</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -622,14 +651,13 @@ The ELMO Synthesizer streamlines the definition, calculation, and maintenance of
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Remove Uninitialized Variable in Column Model</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#fix-bug-in-elmo-calculation-of-pmf-oc-pmf-ncom">Fix bug in ELMO calculation of PMF_OC, PMF_NCOM</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#correct-calculation-of-pm1-pm2-5-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo">Correct calculation of PM1, PM2.5, and PM25to10 as well as speciated NA, K, CA, and MG in ELMO</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#accurate-output-of-gas-phase-species-in-mass-units">Accurate output of gas-phase species in mass units</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#restore-accurate-timestepping-when-running-with-temporally-finer-met-inputs">Restore accurate timestepping when running with temporally finer MET inputs</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo">Introduction of the Explicit and Lumped air quality Model Output module (ELMO)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-uninitialized-variable-in-column-model">Remove Uninitialized Variable in Column Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fix-bug-in-elmo-calculation-of-pmf-oc-pmf-ncom">Fix bug in ELMO calculation of PMF_OC, PMF_NCOM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correct-calculation-of-pm1-pm2-5-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo">Correct calculation of PM1, PM2.5, and PM25to10 as well as speciated NA, K, CA, and MG in ELMO</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accurate-output-of-gas-phase-species-in-mass-units">Accurate output of gas-phase species in mass units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#restore-accurate-timestepping-when-running-with-temporally-finer-met-inputs">Restore accurate timestepping when running with temporally finer MET inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction-of-the-explicit-and-lumped-air-quality-model-output-module-elmo">Introduction of the Explicit and Lumped air quality Model Output module (ELMO)</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>

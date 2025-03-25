@@ -41,7 +41,7 @@ Change this hard coded path to your local installation directory
 /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
 ```
 
-The gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+The [gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
 There is also a hard coded path for the openmpi library.
 
 Use the command:
@@ -116,11 +116,11 @@ cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.
 
 
 ### Create a private modules
-Add the netCDF and I/O API modules following these instructions: https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules
+Add the netCDF and I/O API modules following these instructions: [Custom Modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
 
 Example module files are available here:
 
-https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/
+[Example Modules](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/)
 You would need to create the same directory structure, and edit the basedir in each module file to use your local directory. 
 
 Create a directory with the directory structure Modules/modulefiles/ [module name]
@@ -215,15 +215,16 @@ ls $cwd/openmpi_gcc/CCTM/scripts/BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/CCTM_v55.ex
 
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
 
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md
+[CRACMM2 and Stage Tutorial](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md
+[WRF-CMAQ Tutorial](./CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
 
 
 
 ### Note - for review only.
+
 If you have successfully installed the netCDF, I/O API libraries and CMAQ, then <b>YOU CAN STOP HERE</b>, otherwise, you can go over the steps manually to see where an error has occurred in the above install scripts.
 
 
@@ -754,8 +755,4 @@ run_combine.csh
 ```
 
 
-## Run the combine run script
-
-```
-sbatch run_combine.csh
-```
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md).

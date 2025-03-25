@@ -67,7 +67,7 @@ unsetenv F90FLAGS
    ## Note, if non-standard locaions are used for the following compilers, you may need to specify their locations here: 
    setenv LDFLAGS "-L${INSTDIR}/lib"
    setenv CPPFLAGS "-I${INSTDIR}/include"
-   setenv LIBS "-L${INSTDIR}/lib -lnetcdf -lm -lzip -lcurl"
+   setenv LIBS "-L${INSTDIR}/lib -lnetcdf"
    setenv NCDIR ${INSTDIR}
    setenv CPPFLAGS "-I${INSTDIR}/include"
    setenv LDFLAGS "-L${INSTDIR}/lib"
@@ -78,6 +78,6 @@ unsetenv F90FLAGS
 
 # check version that has been installed
    cd $INSTDIR/bin
-   nc-config --version
-   nf-config --version
+   ./nc-config --version
+   ./nf-config --version
    #   ncxx4-config --version

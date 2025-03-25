@@ -1,3 +1,5 @@
+# MPAS-CMAQ Coupled Model
+
 ## New MPAS-CMAQ model
 [Jeff Willison](mailto:willison.jeff@epa.gov), U.S. Environmental Protection Agency  
 **Type of update:** New Feature  
