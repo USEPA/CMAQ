@@ -460,8 +460,8 @@ Update: Ben Murphy | v5.4</p>
 <section id="key-utilities">
 <h2>Key Utilities<a class="headerlink" href="#key-utilities" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p>chemmech (see <a class="reference internal" href="#../../../UTIL/chemmech/"><span class="xref myst">documentation</span></a>)</p></li>
-<li><p>create_ebi (see <a class="reference internal" href="#../../../UTIL/create_ebi/"><span class="xref myst">documentation</span></a>)
+<li><p>chemmech (see <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/UTIL/chemmech/" rel="noreferrer" target="_blank">documentation <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>)</p></li>
+<li><p>create_ebi (see <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/UTIL/create_ebi/" rel="noreferrer" target="_blank">documentation <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>)
 *Note that these utilities are automatically run by the Autochem feature of the bldit_cctm.csh script, if it is activated.</p></li>
 </ol>
 <p><a id=modifychem></a></p>
@@ -475,7 +475,7 @@ Update: Ben Murphy | v5.4</p>
 </section>
 <section id="edit-mech-def">
 <h2>1.2 Edit mech_*.def.<a class="headerlink" href="#edit-mech-def" title="Link to this heading">#</a></h2>
-<p>The mech_*.def file lists all of CMAQ chemical reactions and is located at /$CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_/${mechanism}.def. The <a class="reference internal" href="#../../../UTIL/chemmech/"><span class="xref myst">chemmech documentation</span></a> describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.</p>
+<p>The mech_*.def file lists all of CMAQ chemical reactions and is located at /$CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_/${mechanism}.def. The <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/UTIL/chemmech/" rel="noreferrer" target="_blank">chemmech documentation <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.</p>
 <ul class="simple">
 <li><p>All reactions must begin with a name in &lt; &gt; brackets.</p></li>
 <li><p>All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)</p></li>
@@ -837,8 +837,6 @@ Check the names of your remotes using:</p>
 </pre></div>
 </div>
 <p>You should now be able to see these changes in Github online.</p>
-<!-- START_OF_COMMENT -->  
-<!-- END_OF_COMMENT -->
 </section>
 </section>
 

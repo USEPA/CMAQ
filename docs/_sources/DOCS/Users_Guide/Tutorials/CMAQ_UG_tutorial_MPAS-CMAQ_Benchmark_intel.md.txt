@@ -470,11 +470,6 @@ Download data available on the S3 bucket
      ```
 
 
-<!-- START_OF_COMMENT --> 
-
-[link_MPAS_PDF]: https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf
-
-<!-- END_OF_COMMENT -->
-
+ 
 
 [link_MPAS_PDF]: https://github.com/USEPA/CMAQ/blob/MPAS_CMAQ/DOCS/Users_Guide/PDF/MPAS_CMAQ_guide.pdf

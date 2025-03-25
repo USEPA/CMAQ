@@ -76,10 +76,5 @@ CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
 
-<!-- START_OF_COMMENT -->
-
-[link_E_pdf]: ../PDF/PX-ACM-WRFV4.6-MPAS.pdf
-
-<!-- END_OF_COMMENT --> 
-
+ 
 [link_E_pdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/PDF/PX-ACM-WRFV4.6-MPAS.pdf  

@@ -442,7 +442,7 @@
 <section id="f-1-output-concentration-and-diagnostic-variables">
 <h2>F.1 Output concentration and diagnostic variables<a class="headerlink" href="#f-1-output-concentration-and-diagnostic-variables" title="Link to this heading">#</a></h2>
 <p>The ELMO Module streamlines the definition, calculation, and maintenance of gas and particulate concentrations, as well as over 200 aggregate and diagnostic variables, listed in Fig. 1.
-With ELMO, aggregate and diagnostic variables are registered in the <a class="reference download internal" download="" href="../../../_downloads/0ef4480aa96f206254d83dab908ab112/ELMO_DATA.F"><span class="xref download myst">ELMO_DATA.F</span></a>, their calculations are prescribed in <a class="reference download internal" download="" href="../../../_downloads/92cce048801a31be54a099cd47d3779c/ELMO_PROC.F"><span class="xref download myst">ELMO_PROC.F</span></a>, and CMAQ calculates them online.
+With ELMO, aggregate and diagnostic variables are registered in the <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_DATA.F" rel="noreferrer" target="_blank">ELMO_DATA.F <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, their calculations are prescribed in <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_PROC.F" rel="noreferrer" target="_blank">ELMO_PROC.F <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, and CMAQ calculates them online.
 Thus, CMAQ can output higher-level parameters without needing to run any particular post-processing tool.
 As a result, users may choose to limit their output to just the variables they are most interested in (perhaps just O<sub>3</sub> and PM2.5, for example). Or they may elect to output a more complex selection of scalar and aggregate variables.
 Post-processing is still needed to concatenate days of output together onto monthly, seasonal, or annual files.</p>
@@ -603,7 +603,7 @@ This and other ELMO keywords are defined in Table F-1.</p>
 </table>
 </div>
 <p><sub>#</sup>As noted for red variables in Fig. F-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.</p>
-<p>The ELMO variables are defined in <a class="reference download internal" download="" href="../../../_downloads/0ef4480aa96f206254d83dab908ab112/ELMO_DATA.F"><span class="xref download myst">ELMO_DATA.F</span></a>.
+<p>The ELMO variables are defined in <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_DATA.F" rel="noreferrer" target="_blank">ELMO_DATA.F <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.
 Before ELMO maps output variables to internal model species or meteorological inputs, ELMO recursively expands all Keywords to their members and then filters out duplicates. There is no disadvantage to specifying a variable twice in the CMAQ Control namelist.</p>
 </section>
 <section id="f-5-elmo-implementation-in-cmaq">
@@ -626,8 +626,6 @@ Follow the example of existing variables to prescribe the species to be added, t
 <p><a class="reference internal" href="CMAQ_UG_appendixE_configuring_WRF.html"><span class="std std-doc">&lt;&lt; Previous Appendix</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> <br>
 CMAQv5.5 User’s Guide<br></p>
 <!-- END COMMENT -->
-<!-- START_OF_COMMENT --> 
-<!-- END_OF_COMMENT -->
 </section>
 </section>
 
