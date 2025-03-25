@@ -6,7 +6,7 @@ There are many resources available for learning about the CMAQ system.  This tab
 |:--------------|:----|
 |... learn about CMAQ's purpose, history and design, as well as see a sample of CMAQ applications. | [US EPA CMAQ Website](https://www.epa.gov/cmaq)|
 |... learn more about EPA's Community Regional Atmospheric Chemistry Multiphase Mechanism | [CRACMM Webpage](https://www.epa.gov/cmaq/cracmm), [CRACMM Repository](https://usepa.github.io/CRACMM), and [CRACMM Getting Started Turorial](./Users_Guide/Tutorials/CMAQ_UG_tutorial_CRACMM.md)|
-|... see the model species and chemical reactions in the most recently released version of CMAQ | [Chemical Mechanism Tables](link_chemmech_tables)|
+|... see the model species and chemical reactions in the most recently released version of CMAQ | [Chemical Mechanism Tables][link_chemmech_tables]|
 |... find data files with CMAQ estimates of air pollutants and deposition | [CMAQ Data page](CMAQ_Data.md)|
 |... use the CMAQ logo in a presentation | [CMAQ logo graphics files](Logos/README.md) are in the public domain and available to download|
 |**I'm ready to start running CMAQ and I want to ...**|**Start with**|
