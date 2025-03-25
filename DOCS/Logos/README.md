@@ -1,6 +1,7 @@
 # CMAQ Logo
 
-<img src="CMAQ_Logo_2inch.png" alt="Alt Text" width="200" height="200">
+![CMAQ_Logo_2inch](./CMAQ_Logo_2inch.png)
+
 
 CMAQ logo graphics files are in the public domain and available to download.
 * [2 inch CMAQ logo PNG file](CMAQ_Logo_2inch.png)
