@@ -1,0 +1,1282 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_intel_support_nc4';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_intel_support_nc4.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="follow-these-instructions-to-build-the-netcdf-libraries-for-compressed-netcdf-4-i-o-api-and-cmaqv5-5">
+<h1>Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5<a class="headerlink" href="#follow-these-instructions-to-build-the-netcdf-libraries-for-compressed-netcdf-4-i-o-api-and-cmaqv5-5" title="Link to this heading">#</a></h1>
+<p>This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html</p>
+<ul class="simple">
+<li><p>netCDF requires the HDF5, zlib, and curl libraries.</p></li>
+<li><p>This Tutorial is for the intel 2024.2.1 compiler.</p></li>
+</ul>
+</section>
+<section id="netcdf-requires-the-hdf5-zlib-and-curl-libraries-these-instructions-use-hdf5-1-14-3-zlib-1-3-and-curl-8-11-1">
+<h1>netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.14.3, zlib 1.3, and curl 8.11.1.<a class="headerlink" href="#netcdf-requires-the-hdf5-zlib-and-curl-libraries-these-instructions-use-hdf5-1-14-3-zlib-1-3-and-curl-8-11-1" title="Link to this heading">#</a></h1>
+<p>This Tutorial uses library install scripts that were created for the intel 2024.2.1 compiler that uses ifx instead of ifort, there are also scripts for gcc 11.2. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br></p>
+<p>The libraries can be installed using install scripts that are provided.</p>
+<p>Install the netCDF libraries and their prerequisites for the compiler version that is available on your machine.</p>
+<section id="create-install-directory">
+<h2>Create install directory<a class="headerlink" href="#create-install-directory" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p $cwd/CMAQv5.5/build
+</pre></div>
+</div>
+</section>
+<section id="download-the-install-scripts-for-the-intel-2024-compiler">
+<h2>Download the install scripts for the intel 2024 compiler.<a class="headerlink" href="#download-the-install-scripts-for-the-intel-2024-compiler" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $cwd/CMAQv5.5/build
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
+
+</pre></div>
+</div>
+</section>
+<section id="edit-the-cmaq-install-scripts">
+<h2>Edit the CMAQ install scripts<a class="headerlink" href="#edit-the-cmaq-install-scripts" title="Link to this heading">#</a></h2>
+<p>Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system</p>
+<p>Replace the following path the local path</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="#./cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh"><span class="xref myst">intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh</span></a> script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+There is also a hard coded path for the openmpi library.</p>
+<p>Use the command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">mpirun</span></code> to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used</p>
+<p>On my system the path was:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">nas</span><span class="o">/</span><span class="n">sycamore</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span><span class="o">/</span><span class="n">intel</span><span class="o">/</span><span class="n">oneapi</span><span class="o">/</span><span class="n">mpi</span><span class="o">/</span><span class="n">latest</span>
+</pre></div>
+</div>
+<p>Modify the scripts to use the path on your system.</p>
+<p>Load the modules for your compiler then run the library install script for the netcdf libraries.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span>  
+</pre></div>
+</div>
+</section>
+<section id="run-script-to-install-the-netcdf-libraries">
+<h2>Run script to install the netcdf libraries:<a class="headerlink" href="#run-script-to-install-the-netcdf-libraries" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">intel_2024_install_netcdf_for_nc4_compression</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+</section>
+<section id="run-script-to-install-the-i-o-api-library">
+<h2>Run script to install the I/O API Library<a class="headerlink" href="#run-script-to-install-the-i-o-api-library" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">intel_2024_install_ioapi_for_nc4_compression</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Note, if you obtain the following error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cjcoats</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span>
+<span class="n">Cloning</span> <span class="n">into</span> <span class="s1">&#39;ioapi-3.2&#39;</span><span class="o">...</span>
+<span class="n">fatal</span><span class="p">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">access</span> <span class="s1">&#39;https://github.com/cjcoats/ioapi-3.2/&#39;</span><span class="p">:</span> <span class="n">Protocol</span> <span class="s2">&quot;https&quot;</span> <span class="ow">not</span> <span class="n">supported</span>
+</pre></div>
+</div>
+<p>Then you will unload any modules using module purge. Then the git clone command should work.<br></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">purge</span>
+<span class="n">cd</span> <span class="n">LIBRARIES_intel</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cjcoats</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span>
+<span class="n">cd</span> <span class="o">..</span>
+</pre></div>
+</div>
+<p>After the git clone has been successful then reload the modules</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span> 
+</pre></div>
+</div>
+<p>Then re-run the install script above.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">intel_2024_install_ioapi_for_nc4_compression</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>If this is successful, you will see a stream of log messages including the m3tools program wrfwndw being compiled.</p>
+<p>Output</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">Linux2_x86_64ifx</span><span class="p">;</span> <span class="n">ifx</span> <span class="o">-</span><span class="n">auto</span> <span class="o">-</span><span class="n">warn</span> <span class="n">notruncated_source</span> <span class="o">-</span><span class="n">Bstatic</span> <span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">intel</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">ioapi</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">Linux2_x86_64ifx</span> <span class="o">-</span><span class="n">DIOAPI_NCF4</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DAUTO_ARRAYS</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DF90</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DFLDMN</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DFSTR_L</span><span class="o">=</span><span class="nb">int</span> <span class="o">-</span><span class="n">DIOAPI_NO_STDOUT</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DAVOID_FLUSH</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DBIT32</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">O3</span> <span class="o">-</span><span class="n">unroll</span> <span class="o">-</span><span class="n">stack</span><span class="o">-</span><span class="n">temps</span> <span class="o">-</span><span class="n">safe</span><span class="o">-</span><span class="n">cray</span><span class="o">-</span><span class="n">ptr</span> <span class="o">-</span><span class="n">convert</span> <span class="n">big_endian</span> <span class="o">-</span><span class="n">assume</span> <span class="n">byterecl</span>  <span class="o">-</span><span class="n">traceback</span>                                           <span class="o">-</span><span class="n">DIOAPI_NCF4</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DAUTO_ARRAYS</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DF90</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DFLDMN</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DFSTR_L</span><span class="o">=</span><span class="nb">int</span> <span class="o">-</span><span class="n">DIOAPI_NO_STDOUT</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DAVOID_FLUSH</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">DBIT32</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span><span class="n">c</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">m3tools</span><span class="o">/</span><span class="n">wrfwndw</span><span class="o">.</span><span class="n">f90</span>
+<span class="n">cd</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">Linux2_x86_64ifx</span><span class="p">;</span> <span class="n">ifx</span> <span class="o">-</span><span class="n">auto</span> <span class="o">-</span><span class="n">warn</span> <span class="n">notruncated_source</span> <span class="o">-</span><span class="n">Bstatic</span> <span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">intel</span>  <span class="n">wrfwndw</span><span class="o">.</span><span class="n">o</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">Linux2_x86_64ifx</span> <span class="o">-</span><span class="n">lioapi</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build_sycamore</span><span class="o">/</span><span class="n">LIBRARIES_intel</span><span class="o">/</span><span class="n">lib</span> <span class="o">-</span><span class="n">lnetcdff</span> <span class="o">-</span><span class="n">lnetcdf</span> <span class="o">-</span><span class="n">lhdf5_hl</span> <span class="o">-</span><span class="n">lhdf5</span> <span class="o">-</span><span class="n">lm</span> <span class="o">-</span><span class="n">lcurl</span> <span class="o">-</span><span class="n">lz</span> <span class="o">-</span><span class="n">lsz</span> <span class="o">-</span><span class="n">ldl</span> <span class="o">-</span><span class="n">lm</span>  <span class="o">-</span><span class="n">lnetcdf</span> <span class="o">-</span><span class="n">qopenmp</span> <span class="o">-</span><span class="n">shared</span><span class="o">-</span><span class="n">intel</span>   <span class="o">-</span><span class="n">o</span> <span class="n">wrfwndw</span>
+<span class="n">ifx</span><span class="p">:</span> <span class="n">command</span> <span class="n">line</span> <span class="n">warning</span> <span class="c1">#10121: overriding &#39;-static-intel&#39; with &#39;-shared-intel&#39;</span>
+
+</pre></div>
+</div>
+</section>
+<section id="create-a-private-modules">
+<h2>Create a private modules<a class="headerlink" href="#create-a-private-modules" title="Link to this heading">#</a></h2>
+<p>Add the netCDF and I/O API modules following these instructions: <a class="reference external" href="https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules" rel="noreferrer" target="_blank">Custom Modules <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p>
+<p>Example module files are available here:</p>
+<p><a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/" rel="noreferrer" target="_blank">Example Modules <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>
+You would need to create the same directory structure, and edit the basedir in each module file to use your local directory.</p>
+<p>Create a directory with the directory structure Modules/modulefiles/ [module name]</p>
+</section>
+<section id="create-a-module-for-ioapi-3-2">
+<h2>Create a module for ioapi-3.2<a class="headerlink" href="#create-a-module-for-ioapi-3-2" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p $cwd/Modules/modulefiles/ioapi-3.2
+</pre></div>
+</div>
+<p>Edit the module name file to specify the PATH and LD_LIBARY_PATH.</p>
+<p>Next, create the module file named intel-2024 and save it to the ioapi-3.2 directory</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">intel</span><span class="o">-</span><span class="mi">2024</span>
+</pre></div>
+</div>
+<p>output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#%Module</span>
+  
+<span class="n">proc</span> <span class="n">ModulesHelp</span> <span class="p">{</span> <span class="p">}</span> <span class="p">{</span>
+   <span class="n">puts</span> <span class="n">stderr</span> <span class="s2">&quot;This module adds ioapi-3.2/intel-2024 to your path&quot;</span>
+<span class="p">}</span>
+
+<span class="n">module</span><span class="o">-</span><span class="n">whatis</span> <span class="s2">&quot;This module adds ioapi-3.2/intel-2024 to your path</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="nb">set</span> <span class="n">basedir</span> <span class="s2">&quot;/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/ioapi-3.2&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/Linux2_x86_64ifx&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">LD_LIBRARY_PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/ioapi/fixed_src&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-module-for-netcdf">
+<h2>Create a module for netcdf<a class="headerlink" href="#create-a-module-for-netcdf" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir -p $cwd/Modules/modulefiles/netcdf-4.5.3-for_nc4 
+</pre></div>
+</div>
+<p>Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span>  <span class="n">ifort</span><span class="o">-</span><span class="mf">2024.2.1</span>
+</pre></div>
+</div>
+<p>output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#%Module</span>
+<span class="n">proc</span> <span class="n">ModulesHelp</span> <span class="p">{</span> <span class="p">}</span> <span class="p">{</span>
+   <span class="n">puts</span> <span class="n">stderr</span> <span class="s2">&quot;This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path&quot;</span>
+<span class="p">}</span>
+
+<span class="n">module</span><span class="o">-</span><span class="n">whatis</span> <span class="s2">&quot;This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="nb">set</span> <span class="n">basedir</span> <span class="s2">&quot;/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel/&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/bin&quot;</span>
+<span class="n">prepend</span><span class="o">-</span><span class="n">path</span> <span class="n">LD_LIBRARY_PATH</span> <span class="s2">&quot;$</span><span class="si">{basedir}</span><span class="s2">/lib&quot;</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span>
+
+</pre></div>
+</div>
+</section>
+<section id="add-module-to-cshrc">
+<h2>Add module to .cshrc<a class="headerlink" href="#add-module-to-cshrc" title="Link to this heading">#</a></h2>
+<p>Now that the module files have been created, add the following line to your .cshrc</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">use</span> <span class="o">--</span><span class="n">append</span> <span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">ie</span><span class="o">/</span><span class="n">proj</span><span class="o">/</span><span class="n">CMAS</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">Modules</span><span class="o">/</span><span class="n">modulefiles</span>
+</pre></div>
+</div>
+</section>
+<section id="use-module-avail-to-see-private-modules-and-then-load-them">
+<h2>Use module avail to see private modules, and then load them<a class="headerlink" href="#use-module-avail-to-see-private-modules-and-then-load-them" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">avail</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">ifort</span><span class="o">-</span><span class="mf">2024.2.1</span> <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">intel</span><span class="o">-</span><span class="mi">2024</span>
+</pre></div>
+</div>
+<p>Now you should see 3 modules loaded.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="nb">list</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Currently</span> <span class="n">Loaded</span> <span class="n">Modules</span><span class="p">:</span>
+  <span class="mi">1</span><span class="p">)</span> <span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span>   <span class="mi">2</span><span class="p">)</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">ifort</span><span class="o">-</span><span class="mf">2024.2.1</span>   <span class="mi">3</span><span class="p">)</span> <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">intel</span><span class="o">-</span><span class="mi">2024</span>
+
+</pre></div>
+</div>
+</section>
+<section id="install-cmaq">
+<h2>Install CMAQ<a class="headerlink" href="#install-cmaq" title="Link to this heading">#</a></h2>
+<p>Edit the script to specify the correct local paths for HOME and mpirun and then run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">intel_2024_install_cmaq55_cb6r5_m3dry</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+</section>
+<section id="confirm-that-the-cmaqv5-5-cb6r5-mechanism-and-m3dry-deposition-scheme-has-been-built">
+<h2>Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built<a class="headerlink" href="#confirm-that-the-cmaqv5-5-cb6r5-mechanism-and-m3dry-deposition-scheme-has-been-built" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ls $cwd/cmaq_intel/CCTM/scripts/BLD_CCTM_v55_intel_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
+</pre></div>
+</div>
+</section>
+<section id="to-build-and-run-for-the-cracmm2-mechanism-and-stage-dry-deposition-scheme-see-the-following-tutorial">
+<h2>To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial<a class="headerlink" href="#to-build-and-run-for-the-cracmm2-mechanism-and-stage-dry-deposition-scheme-see-the-following-tutorial" title="Link to this heading">#</a></h2>
+<p>https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md</p>
+</section>
+<section id="to-build-and-run-wrf-cmaq-see-the-following-tutorial">
+<h2>To build and run WRF-CMAQ see the following tutorial<a class="headerlink" href="#to-build-and-run-wrf-cmaq-see-the-following-tutorial" title="Link to this heading">#</a></h2>
+<p>https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md</p>
+</section>
+<section id="note-for-review-only">
+<h2>Note - for review only.<a class="headerlink" href="#note-for-review-only" title="Link to this heading">#</a></h2>
+<p>If you have successfully installed the netCDF, I/O API libraries and CMAQ, then <b>YOU CAN STOP HERE</b>, otherwise, you can go over the steps manually to see where an error has occurred in the above install scripts.</p>
+<p>The following instructions go over the steps that were performed in the scripts above:</p>
+</section>
+<section id="id1">
+<h2><a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+</section>
+<section id="unset-environment-variables-that-would-conflict-with-this-installation">
+<h2>unset environment variables that would conflict with this installation<a class="headerlink" href="#unset-environment-variables-that-would-conflict-with-this-installation" title="Link to this heading">#</a></h2>
+</section>
+<section id="id2">
+<h2><a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">unsetenv</span> <span class="n">LDFLAGS</span>
+   <span class="n">unsetenv</span> <span class="n">CPPFLAGS</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>If your compute server uses modules use the following command to see what packages are available</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">avail</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
+Note, that mpirun is available with the intel 2024 compiler, so there isn’t another module that needs to be loaded.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">intel</span><span class="o">/</span><span class="mf">2024.2.1</span> 
+</pre></div>
+</div>
+</section>
+</section>
+<section id="install-zlib">
+<h1>Install zlib<a class="headerlink" href="#install-zlib" title="Link to this heading">#</a></h1>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>setenv INSTDIR $cwd/LIBRARIES_intel
+cd $INSTDIR
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">madler</span><span class="o">/</span><span class="n">zlib</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">v1</span><span class="mf">.3</span><span class="o">/</span><span class="n">zlib</span><span class="o">-</span><span class="mf">1.3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">zlib</span><span class="o">-</span><span class="mf">1.3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">zlib</span><span class="o">-</span><span class="mf">1.3</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./configure  --prefix=${INSTDIR}
+make -j 4
+make install |&amp; tee make.install.log
+</pre></div>
+</div>
+</section>
+<section id="install-curl-check-first-to-determine-if-it-is-already-installed">
+<h1>Install curl (check first to determine if it is already installed)<a class="headerlink" href="#install-curl-check-first-to-determine-if-it-is-already-installed" title="Link to this heading">#</a></h1>
+<ol class="arabic simple">
+<li><p>check to see if which is installed using</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>###IF it is not installed use the following steps to install it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd ${INSTDIR}
+wget https://github.com/curl/curl/releases/download/curl-8_11_0/curl-8.11.0.tar.gz
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>tar -xzvf curl-8.11.0.tar.gz
+ cd curl-8.11.0
+ ./configure --prefix=${INSTDIR} --without-ssl --without-libpsl
+ make |&amp; tee make.curl.log
+ make install |&amp; tee make.install.curl.log
+</pre></div>
+</div>
+</section>
+<section id="install-hdf5">
+<h1>Install HDF5<a class="headerlink" href="#install-hdf5" title="Link to this heading">#</a></h1>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   cd ${INSTDIR}
+   wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.5/src/hdf5-1.10.5.tar.gz
+   tar xvf hdf5-1.10.5.tar.gz
+   rm -f hdf5-1.10.5.tar.gz
+   cd hdf5-1.10.5
+   setenv LDFLAGS &quot;-L${INSTDIR}/lib&quot;
+   setenv CPPFLAGS &quot;-I${INSTDIR}/include&quot;
+   setenv CFLAGS &quot;-O3&quot;
+   setenv FFLAGS &quot;-O3&quot;
+   setenv CXXFLAGS &quot;-O3&quot;
+   setenv FCFLAGS &quot;-O3&quot;
+   ./configure --prefix=${INSTDIR} --enable-fortran --enable-cxx --with-zlib=${INSTDIR}/include,${INSTDIR}/lib -enable-shared --enable-hl
+   make -j 4 |&amp; tee make.intel.log
+#  make check &gt; make.intel.check
+   make install |&amp; tee make.intel.log
+</pre></div>
+</div>
+</section>
+<section id="install-netcdf-c">
+<h1>Install netCDF-C<a class="headerlink" href="#install-netcdf-c" title="Link to this heading">#</a></h1>
+<ol class="arabic simple">
+<li><p>cd ${INSTDIR}</p></li>
+<li><p>Download netCDF-C from the following website https://www.unidata.ucar.edu/downloads/netcdf/index.jsp</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">unidata</span><span class="o">.</span><span class="n">ucar</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">netcdf</span><span class="o">/</span><span class="n">netcdf</span><span class="o">-</span><span class="n">c</span><span class="o">-</span><span class="mf">4.8.1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Untar the netCDF-C tar.gz file</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">netcdf</span><span class="o">-</span><span class="n">c</span><span class="o">-</span><span class="mf">4.8.1</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Change directories into the extracted directory</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">netcdf</span><span class="o">-</span><span class="n">c</span><span class="o">-</span><span class="mf">4.8.1</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Review the installation instructions for netcdf-c-4.8.1 for building netCDF to support nc4 compression</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">more</span> <span class="n">INSTALL</span><span class="o">.</span><span class="n">md</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Run the configure –help command to see what settings can be used for the build.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">configure</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Set the Compiler environment variables</p></li>
+</ol>
+<p>Make sure these compilers can be found.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">which</span> <span class="n">icx</span>
+<span class="n">which</span> <span class="n">ifx</span>
+<span class="n">which</span> <span class="n">icpx</span>
+</pre></div>
+</div>
+<p>If they are found, proceed to set the environment variables.
+The paths will be dependent on your compute environment
+If they are not found, reload your module (see above), or ask your system administrator for the paths to a compiler</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setenv</span> <span class="n">FC</span> <span class="n">ifx</span>
+<span class="n">setenv</span> <span class="n">CC</span> <span class="n">icx</span>
+<span class="n">setenv</span> <span class="n">CXX</span> <span class="n">icpx</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Specify the CPPFLAGS and LDFLAGS to tell netCDF where to obtain the underlying libraries, without this, netCDF may be built with a different version of the underlying libraries, leading to an error when using netCDF.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">setenv</span> <span class="n">LDFLAGS</span> <span class="s2">&quot;-L$</span><span class="si">{INSTDIR}</span><span class="s2">/lib&quot;</span>
+   <span class="n">setenv</span> <span class="n">CPPFLAGS</span> <span class="s2">&quot;-I$</span><span class="si">{INSTDIR}</span><span class="s2">/include&quot;</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Run the configure command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./configure --with-pic --enable-netcdf-4 --enable-shared --prefix=${INSTALL_DIR}
+</pre></div>
+</div>
+<ol class="arabic simple" start="9">
+<li><p>Check that the configure command worked correctly, then run the install command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">|&amp;</span> <span class="n">tee</span>  <span class="n">make</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">log</span>
+<span class="n">make</span> <span class="n">install</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="10">
+<li><p>Verify that the following message is obtained</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>| Congratulations! You have successfully installed netCDF!    |
+</pre></div>
+</div>
+</section>
+<section id="install-netcdf-fortran">
+<h1>Install netCDF-Fortran<a class="headerlink" href="#install-netcdf-fortran" title="Link to this heading">#</a></h1>
+<ol class="arabic simple">
+<li><p>Change directories</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $INSTDIR
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Download netCDF-Fortran from the following website https://www.unidata.ucar.edu/downloads/netcdf/index.jsp</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">unidata</span><span class="o">.</span><span class="n">ucar</span><span class="o">.</span><span class="n">edu</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">netcdf</span><span class="o">/</span><span class="n">netcdf</span><span class="o">-</span><span class="n">fortran</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> 
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Untar the tar.gz file</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">netcdf</span><span class="o">-</span><span class="n">fortran</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Change directories to netcdf-fortran-4.5.3</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">netcdf</span><span class="o">-</span><span class="n">fortran</span><span class="o">-</span><span class="mf">4.5.3</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html</p></li>
+<li><p>Set the CC environment variable to use the ifx and icx (intel 2024) compilers</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">which</span> <span class="n">ifx</span>
+<span class="n">which</span> <span class="n">icx</span>
+<span class="n">which</span> <span class="n">icpx</span>
+
+<span class="n">setenv</span> <span class="n">FC</span> <span class="n">ifx</span>
+<span class="n">setenv</span> <span class="n">CC</span> <span class="n">icx</span>
+<span class="n">setenv</span> <span class="n">CXX</span> <span class="n">icpx</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   setenv LIBS &quot;-L${INSTDIR}/lib -lnetcdf -lhdf5_hl -lhdf5 libhdf5_fortran libhdf5_fortran_hl -lm -ldl -lz -lcurl &quot;
+   setenv NCDIR ${INSTDIR}
+   setenv CPPFLAGS &quot;-I${INSTDIR}/include&quot;
+   setenv LDFLAGS &quot;-L${INSTDIR}/lib&quot;
+   setenv LD_LIBRARY_PATH ${INSTDIR}/lib:${LD_LIBRARY_PATH}
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Check your LD_LIBRARY_PATH</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>echo $LD_LIBRARY_PATH
+</pre></div>
+</div>
+<ol class="arabic simple" start="9">
+<li><p>Run the configure command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./configure --with-pic --enable-shared --prefix=${INSTDIR}
+</pre></div>
+</div>
+<ol class="arabic simple" start="10">
+<li><p>Run the make check command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">check</span>
+</pre></div>
+</div>
+<p>Output if successful:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Testsuite</span> <span class="n">summary</span> <span class="k">for</span> <span class="n">netCDF</span><span class="o">-</span><span class="n">Fortran</span> <span class="mf">4.4.5</span>
+<span class="o">==========================================</span>
+<span class="c1"># TOTAL: 6</span>
+<span class="c1"># PASS:  6</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>Run the make install command</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>Output successful if you see Libraries have been installed in the install directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ls ${INSTALL_DIR}/lib
+</pre></div>
+</div>
+<p>If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the ‘-LLIBDIR’
+flag during linking and do at least one of the following:</p>
+<ul class="simple">
+<li><p>add LIBDIR to the ‘LD_LIBRARY_PATH’ environment variable
+during execution</p></li>
+<li><p>add LIBDIR to the ‘LD_RUN_PATH’ environment variable
+during linking</p></li>
+<li><p>use the ‘-Wl,-rpath -Wl,LIBDIR’ linker flag</p></li>
+<li><p>have your system administrator add LIBDIR to ‘/etc/ld.so.conf’</p></li>
+</ul>
+<ol class="arabic simple" start="12">
+<li><p>set your LD_LIBRARY_PATH to include the netcdf-Fortran library path for netCDF build</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>setenv NFDIR ${INSTALL_DIR}
+setenv LD_LIBRARY_PATH ${NFDIR}/lib:${LD_LIBRARY_PATH}
+</pre></div>
+</div>
+<p>(may need to add the NCDIR and NFDIR to .cshrc)</p>
+</section>
+<section id="install-i-o-api">
+<h1>Install I/O API<a class="headerlink" href="#install-i-o-api" title="Link to this heading">#</a></h1>
+<p>Note
+The complete I/O API installation guide can be found at either of the following:</p>
+<p>https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html</p>
+<p>or</p>
+<p>https://cjcoats.github.io/ioapi/AVAIL.html</p>
+<ol class="arabic simple">
+<li><p>Change directories to one level up from your current location</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">../</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Download I/O API</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cjcoats</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>change directories to the ioapi-3.2 directory</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Change branches to 20200828 for a tagged stable version</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="mi">20200828</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Change directories to the ioapi directory</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">ioapi</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>copy the Makefile.nocpl file to create a Makefile</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">Makefile</span><span class="o">.</span><span class="n">nocpl</span> <span class="n">Makefile</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Set the BIN environment variable</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setenv</span> <span class="n">BIN</span> <span class="n">Linux2_x86_64ifort</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Edit the Makeinclude.Linux2_x86_64ifort to comment out OMPFLAG and OMPLIBS
+settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OMPFLAGS</span>  <span class="o">=</span> <span class="c1">#-fopenmp</span>
+<span class="n">OMPLIBS</span>   <span class="o">=</span> <span class="c1"># -fopenmp</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="10">
+<li><p>Create a BIN directory where the library and m3tools executables will be installed</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir ../$BIN
+</pre></div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">ioapi</span>
+<span class="n">make</span> <span class="s1">&#39;HOME=[your_install_path]/LIBRARIES&#39;</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">make</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="12">
+<li><p>Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd ../$BIN
+ls -lrt libioapi.a
+</pre></div>
+</div>
+<ol class="arabic simple" start="13">
+<li><p>If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">../</span><span class="n">ioapi</span>
+<span class="n">make</span> <span class="s1">&#39;HOME=[your_install_path]/LIBRARIES&#39;</span> <span class="n">clean</span> 
+</pre></div>
+</div>
+<ol class="arabic simple" start="14">
+<li><p>Change directories to the m3tools directory</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">../</span><span class="n">m3tools</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="15">
+<li><p>Copy the Makefile.nocpl to create a Makefile</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">Makefile</span><span class="o">.</span><span class="n">nocpl</span> <span class="n">Makefile</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="16">
+<li><p>Edit line 65 of the Makefile to use the NCDIR and NFDIR environment variables that you have set in the above steps to locate the netcdf C and netcdf Fortran libraries</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> LIBS = -L${OBJDIR} -lioapi -L${NFDIR}/lib -lnetcdff -L${NCDIR}/lib -lnetcdf $(OMPLIBS) $(ARCHLIB) $(ARCHLIBS)
+</pre></div>
+</div>
+<ol class="arabic simple" start="17">
+<li><p>Run make to compile the m3tools</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">make</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="18">
+<li><p>Check to see that the m3tools have been installed successfully</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd ../$BIN
+ls -rlt m3xtract
+</pre></div>
+</div>
+<ol class="arabic simple" start="20">
+<li><p>Use test script to verify that the executables are working</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
+</pre></div>
+</div>
+</section>
+<section id="install-cmaqv55">
+<h1>Install CMAQv55<a class="headerlink" href="#install-cmaqv55" title="Link to this heading">#</a></h1>
+<ol class="arabic simple">
+<li><p>Download the CMAQv55 code using the following</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="mi">55</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">cmaq</span><span class="o">.</span><span class="n">git</span> <span class="n">CMAQ_REPO</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Build and run in a user-specified directory outside of the repository
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.</p></li>
+</ol>
+<p>In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:</p>
+<p>set CMAQ_HOME = [your_work_location]/CMAQv55
+Now execute the script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_project</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Edit the config_cmaq.csh to specify the netCDF C, netCDF Fortran, and I/O API Library locations</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="p">[</span><span class="n">your_work_location</span><span class="p">]</span><span class="o">/</span><span class="n">CMAQv55</span>
+<span class="n">vi</span> <span class="n">config_cmaq</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Edit the case intel section
+note, the paths need to be edited to match the location for your installation</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#&gt;  Intel fortran compiler......................................................
+    case intel:
+       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build_sycamore/LIBRARIES_intel
+       setenv MPI /nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
+
+
+        #&gt; I/O API, netCDF Library Locations -- used in WRF-CMAQ
+        setenv NETCDF netcdf_root_intel # Note please combine netCDF-C &amp; Fortran Libraries 
+        setenv IOAPI  ioapi_root_intel
+        setenv WRF_ARCH # [1-75]  
+
+        #&gt; I/O API, netCDF, and MPI Library Locations -- used in CMAQ
+        setenv IOAPI_INCL_DIR   $BUILD/ioapi-3.2/ioapi/fixed_src             #&gt; I/O API include header files
+        setenv IOAPI_LIB_DIR    $BUILD/ioapi-3.2/Linux2_x86_64ifx             #&gt; I/O API libraries
+        setenv NETCDF_LIB_DIR   $BUILD/lib            #&gt; netCDF C directory path
+        setenv NETCDF_INCL_DIR  $BUILD/include            #&gt; netCDF C directory path
+        setenv NETCDFF_LIB_DIR  $BUILD/lib           #&gt; netCDF Fortran directory path
+        setenv NETCDFF_INCL_DIR $BUILD/include           #&gt; netCDF Fortran directory path
+        setenv MPI_INCL_DIR     $MPI/include              #&gt; MPI Include directory path
+        setenv MPI_LIB_DIR      $MPI/lib               #&gt; MPI Lib directory path
+
+        #&gt; Compiler Aliases and Flags
+        #&gt; set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
+        setenv myFC mpiifx
+        setenv myCC icx
+        #setenv myFSTD &quot;-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive&quot;
+        setenv myFSTD &quot;-O3 -fno-strict-aliasing&quot;
+        setenv myDBG  &quot;-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback&quot;
+        setenv myLINK_FLAG #&quot;-qopenmp-simd&quot; openMP not supported w/ CMAQ
+        setenv myFFLAGS &quot;-fixed -132&quot;
+        setenv myFRFLAGS &quot;-free&quot;
+        setenv myCFLAGS &quot;-O2&quot;
+        setenv extra_lib &quot;-lhdf5_hl -lhdf5 -lm -lzip -lcurl -lz -lsz -ldl -lm -fpp -auto -qopenmp&quot;
+
+        breaksw
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Source the config_cmaq.csh to create the lib directory</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">config_cmaq</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Copy the buildit script</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">csh</span> <span class="n">bldit_cctmv55_cb6r5_m3dry</span><span class="o">/</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Build CMAQv55 to support the cb6r5 and m3dry dry deposition option</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_cctmv55_cb6r5_m3dry</span><span class="o">.</span><span class="n">csh</span> <span class="n">intel</span> <span class="o">|</span> <span class="o">&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_cctmv55_cb6r5_m3dry</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Build the POST processing routines</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">POST</span><span class="o">/</span><span class="n">combine</span><span class="o">/</span>
+<span class="o">./</span><span class="n">bldit_combine</span><span class="o">.</span><span class="n">csh</span> <span class="n">intel</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_combine</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">POST</span><span class="o">/</span><span class="n">calc_tmetric</span><span class="o">/</span><span class="n">scripts</span>
+<span class="o">./</span><span class="n">bldit_calc_tmetric</span><span class="o">.</span><span class="n">csh</span> <span class="n">intel</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_calc_tmetric</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">POST</span><span class="o">/</span><span class="n">hr2day</span><span class="o">/</span><span class="n">scripts</span>
+<span class="o">./</span><span class="n">bldit_hr2day</span><span class="o">.</span><span class="n">csh</span> <span class="n">intel</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_hr2day</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">POST</span><span class="o">/</span><span class="n">bldoverlay</span><span class="o">/</span><span class="n">scripts</span>
+<span class="o">./</span><span class="n">bldit_bldoverlay</span><span class="o">.</span><span class="n">csh</span> <span class="n">intel</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_bldoverlay</span><span class="o">.</span><span class="n">intel</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+</section>
+<section id="modify-benchmark-post-processing-scripts-for-your-installation">
+<h1>Modify Benchmark Post-processing Scripts for your installation<a class="headerlink" href="#modify-benchmark-post-processing-scripts-for-your-installation" title="Link to this heading">#</a></h1>
+<ol class="arabic simple">
+<li><p>The POST/combine directory is available under the CMAQv55 directory.
+These scripts will need to be edited</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_combine</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Edit the scripts under to specify the APPL for this benchmark</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="nb">set</span> <span class="n">APPL</span>      <span class="o">=</span> <span class="n">Bench_2018_12NE3</span>        <span class="c1">#&gt; Application Name (e.g. Gridname)</span>
+
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Edit the start and end date.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="nb">set</span> <span class="n">START_DATE</span> <span class="o">=</span> <span class="s2">&quot;2016-07-01&quot;</span>     <span class="c1">#&gt; beginning date (July 1, 2016)</span>
+ <span class="nb">set</span> <span class="n">END_DATE</span>   <span class="o">=</span> <span class="s2">&quot;2016-07-14&quot;</span>     <span class="c1">#&gt; ending date    (July 14, 2016)</span>
+</pre></div>
+</div>
+<p>After successfull completion of this tutorial, the user is now ready to proceed to the <a class="reference internal" href="CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">CMAQ Installation &amp; Benchmarking Tutorial</span></a>.</p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#netcdf-requires-the-hdf5-zlib-and-curl-libraries-these-instructions-use-hdf5-1-14-3-zlib-1-3-and-curl-8-11-1">netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.14.3, zlib 1.3, and curl 8.11.1.</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-install-directory">Create install directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#download-the-install-scripts-for-the-intel-2024-compiler">Download the install scripts for the intel 2024 compiler.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edit-the-cmaq-install-scripts">Edit the CMAQ install scripts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-script-to-install-the-netcdf-libraries">Run script to install the netcdf libraries:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-script-to-install-the-i-o-api-library">Run script to install the I/O API Library</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-private-modules">Create a private modules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-module-for-ioapi-3-2">Create a module for ioapi-3.2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-module-for-netcdf">Create a module for netcdf</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-module-to-cshrc">Add module to .cshrc</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-module-avail-to-see-private-modules-and-then-load-them">Use module avail to see private modules, and then load them</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-cmaq">Install CMAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confirm-that-the-cmaqv5-5-cb6r5-mechanism-and-m3dry-deposition-scheme-has-been-built">Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#to-build-and-run-for-the-cracmm2-mechanism-and-stage-dry-deposition-scheme-see-the-following-tutorial">To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#to-build-and-run-wrf-cmaq-see-the-following-tutorial">To build and run WRF-CMAQ see the following tutorial</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#note-for-review-only">Note - for review only.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unset-environment-variables-that-would-conflict-with-this-installation">unset environment variables that would conflict with this installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"></a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-zlib">Install zlib</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-curl-check-first-to-determine-if-it-is-already-installed">Install curl (check first to determine if it is already installed)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-hdf5">Install HDF5</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-netcdf-c">Install netCDF-C</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-netcdf-fortran">Install netCDF-Fortran</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-i-o-api">Install I/O API</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#install-cmaqv55">Install CMAQv55</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#modify-benchmark-post-processing-scripts-for-your-installation">Modify Benchmark Post-processing Scripts for your installation</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,240 @@
+!------------------------------------------------------------------------------!
+! Emission Control Interface                                                   !
+!    for the                                                                   !
+! Detailed Emissions Scaling, Isolation, and Diagnostics (DESID) Module,       !
+!    part of the                                                               !
+! Community Multiscale Air Quality (CMAQ) Model                                !
+!    developed and maintained by the                                           !
+! Center for Environmental Measurement and Modeling (CEMM),                    !
+! Office of Research and Development (ORD)                                     !
+! U.S. Environmental Protection Agency (USEPA)                                 !
+!                                                                              !
+! This namelist is consistent with CMAQv5.4 (Release AUGUST 2022)              !
+!                                                                              !
+! See CMAQ User's Guide Appendix B and                                         !
+!     Murphy et al., Geoscientific Model Development, 14, 3407-3420,           !
+!     https://doi.org/10.5194/gmd-14-3407-2021, 2021.                          !
+!------------------------------------------------------------------------------!
+&Desid_Options
+ Desid_MaxLays = 0  ! Add all emissions above Desid_MaxLays to the grid cell at 
+                    ! Desid_MaxLays. If Desid_MaxLays = 0, then all model layers are 
+                    ! available for emissions.
+/
+
+!------------------------------------------------------------------------------!
+! Area Normalization Component                                                 !
+!   Specify area-normalized emission fluxes from input streams. If emission    !
+!   inputs are provided to CMAQ in area-normalized fluxes for any stream, this !
+!   component may be used to convert them correctly to emission rates          !
+!   appropriate for the model simulation grid projection. For example, if      !
+!   offline biogenic emissions are provided in units of moles/m2/s, then that  !
+!   stream may be identified here and DESID can be instructed to adjust each   !
+!   flux to moles/s and adjust the rates using the map scale factor that       !
+!   converts emissions in real geographic space into projected grid space.     !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Declare a stream. If the label is 'ALL', then the instruction !
+!        Label'  will be expanded to all OFFLINE streams.                      !
+!                                                                              !
+!      'Area Normalization' - If TRUE, then this stream's emissions will be    !
+!                multiplied by grid cell area. If AUTO, then DESID will deduce !
+!                from the units string whether or not each variable on the     !
+!                stream input file should be multiplied by the area scale      !
+!                factor.                                                       !
+!                                                                              !
+!      'Projection Adjustment' - If TRUE, then this stream's emissions will be !
+!                multiplied by the area Map Scale Factor. If AUTO, then DESID  !
+!                will inherit the per-stream value from Area Normalization. If !
+!                Area Normalization is TRUE, the Projection Adjustment is True !
+!------------------------------------------------------------------------------!
+&Desid_AreaNormVars
+ Desid_Max_Area = 30  ! Maximum number of Area Normalization rules
+/
+
+&Desid_AreaNorm
+ Desid_Area_Nml  =
+ !         | Stream Label   | Area Normalization | Projection Adjustment 
+                'ALL'       ,'AUTO'              ,'AUTO',
+ !<Example>     'GRIDDED'   ,'TRUE'              ,'TRUE',
+ !<Example>     'FIRES'     ,'TRUE'              ,'FALSE',
+ !<Example>     'VCP'       ,'FALSE'             ,'TRUE',
+/            
+
+!------------------------------------------------------------------------------!
+! Size Distribution Specification Component                                    !
+!   Each size distribution rule either modifies the parameters associated with !
+!   the aerosol modes of a particular stream, or adds new modes to a particular!
+!   stream if they do not already exist.                                       !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Stream - Label for the emissions stream that the instruction will      !
+!        Label'   apply to. If the label is 'ALL', then the instruction will   !
+!                 be expanded to apply to all streams.                         !
+!      'Emission Mode' - With this label, the user identifies which mode from  !
+!                        the emissions is to be modified or created. With this !
+!                        specificity, multiple streams can be defined and      !
+!                        mapped in the emissions rules.                        !
+!      'Reference Mode' - This label maps the emissions species aerosol mode   !
+!                         to specific parameters catalogued in the AERO_DATA   !
+!                         module.                                              !
+!------------------------------------------------------------------------------!
+&Desid_SizeDistVars
+ Desid_Max_Sd = 10  ! Maximum number of size distribution rules
+/
+
+&Desid_SizeDist
+ Desid_Sd_nml    = 
+
+ !           Stream Label   | Emiss. Mode  | Ref. Mode 
+             'ALL'          ,'FINE'        ,'FINE_REF',
+             'ALL'          ,'COARSE'      ,'COARSE_REF',
+             'WBDUST'       ,'FINE'        ,'FINE_WBDUST',
+             'WBDUST'       ,'COARSE'      ,'COARSE_WBDUST',
+             'SEASPRAY'     ,'FINE'        ,'FINE_SEASPRAY',
+             'SEASPRAY'     ,'COARSE'      ,'COARSE_SEASPRAY',
+ !<Example>  'AIRCRAFT'     ,'FINE'        ,'AIR_FINE',   !To use these examples, you 
+ !<Example>  'AIRCRAFT'     ,'COARSE'      ,'AIR_COARSE', ! must add entries for AIR_FINE
+                                                          ! and AIR_COARSE to the data structure
+                                                          ! em_aero_ref in AERO_DATA.
+
+/
+
+!------------------------------------------------------------------------------!
+! Region-Based Scaling Specification Component (See User's Guide section B.3)  !
+!   It is possible in CMAQ to scale emissions for a subset of the model domain !
+!   using gridded masks to indicate where the scaling should occur.            !
+!                                                                              !
+!   Definition of Fields:                                                      !
+!      'Region  - Label for the region that is being specified. By default, the!
+!        Label'   first region, is the whole domain, or "EVERYWHERE". It is    !
+!      'File  - With this label, the user identifies the file that the data for!
+!       Label'  this region is stored on. The CMAQ runscript should provide the!
+!               path to this file (or files) using the environment variable    !
+!               construct.                                                     !   
+!      'Variable  - This label identifies the variable on the region file that !
+!        on File'   should be used to populate this particular region.         !
+!                                                                              !
+!      Note that the 'Region Label' and 'Variable on File' fields are case     !
+!      insensitive. It is required that region variable names on the file be   !
+!      capitalized. This requirement willl be relaxed in future CMAQ versions. !
+!------------------------------------------------------------------------------!
+&Desid_RegionDefVars
+ Desid_Max_Reg    = 60           ! Maximum number of region definition rules
+ Desid_N_Reg_Fams = 0            ! Exact number of region family definitions
+ Desid_Max_Reg_Fam_Members = 100 ! Larger than the number of regions on all
+                                 ! family definitions
+/
+
+&Desid_RegionDef
+ Desid_Reg_nml  =   
+ !            Region Label   | File_Label  | Variable on File
+               'EVERYWHERE'  ,'N/A'        ,'N/A',
+ !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
+ !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
+ !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
+/
+
+&Desid_RegionFam
+ ! Region Family Definitions
+   ! RegionFamilyName(1)     = 'Water'
+   ! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+
+/
+
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This component includes definitions for families of emission streams and  !
+!    region combinations.                                                      ! 
+!------------------------------------------------------------------------------!
+&Desid_StreamFamVars
+ Desid_N_Stream_Fams = 0           ! Exact number of stream family definitions
+ Desid_Max_Stream_Fam_Members = 20 ! Larger than the number of streams on all 
+                                   ! family definitions
+/
+
+&Desid_StreamFam
+! For emission streams available in several run scripts under CCTM/scripts
+! Set Desid_N_Stream_Fams to 1 !!!!!!!
+ ! StreamFamilyName(1)     = 'PT_SOURCES'
+ ! StreamFamilyMembers(1,1:3)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+
+! For emission streams unique in CCTM/src/run_cctm_cracmm_4LISTOS1.csh script
+! Set Desid_N_Stream_Fams to 3 !!!!!!!
+ ! Sources that do not have a source-specific POA treatment
+ !StreamFamilyName(1)     = 'GENERAL_POA'
+ !StreamFamilyMembers(1,1:5)= 'GRIDDED_OTHER','GRIDDED_SOLVENTS','PT_CANADA_SOLVENTS','PT_OTHER','PT_US_SOLVENTS'
+ ! Diesel-Like Sources
+ !StreamFamilyName(2)     = 'DIESEL' 
+ !StreamFamilyMembers(2,1:2)= 'GRIDDED_DIESEL','PT_CMV'
+ ! US and Canada Aircraft
+ !StreamFamilyName(3)     = 'AIRCRAFT'
+ !StreamFamilyMembers(3,1:2)= 'GRIDDED_US_AIRCRAFT','PT_CANADA_AIRPORTS'
+
+/
+
+!------------------------------------------------------------------------------!
+! Emissions Diagnostic Output Component                                        !
+!    This section allows users to specify individual species for output on     !
+!    emissions diagnostic output files.                                        !
+!  Definition of Fields:                                                       !
+!   Desid_Diag_Streams_Nml(1:Desid_N_Diag_Rules,:) - The stream names that are !
+!        to be exported. In addition to the labels of individual streams, you  !
+!        may also use stream family names here to identify more than one stream!
+!        at a time. By default, each stream family element will instruct CMAQ  !
+!        to sum all of the streams in that group. The keyword 'ALL' is         !
+!        available by default to expand a list of all streams individually. The!
+!        keyword 'TOTAL' is availble to select the sum of all streams. You may !
+!        use a '*' at the beginning of a family name to instruct CMAQ to expand!
+!        that keyword and export files for all of the streams in that group.   !
+!   Desid_Diag_Fmt_Nml(1:Desid_N_Diag_Rules) - the format of every stream      !
+!        created as a result of the instruction. Options are:                  !
+!              - COLSUM = the column-sum                                       !
+!              - 3D = 3D output                                                !
+!              - LAYER1 = Just the surface layer                               !
+!              - OFF = Turn Off File                                           !
+!   Desid_Diag_Spec_Nml(1:Desid_N_Diag_Rules,:) - The species to be added to   !
+!        each diagnostic file. Species will only appear on a diagnostic file if!
+!        the relevant stream or group of streams for the file have that species!
+!        present. The keyword 'ALL' may also be used to easily add all species !
+!        of any stream.                                                        !
+!------------------------------------------------------------------------------!
+&Desid_DiagVars
+  Desid_N_Diag_Rules = 0    ! Exact Number of Diagnostic Rules Below
+  Desid_Max_Diag_Streams=20 ! Maximum number of species variables on all rules 
+                            ! below (do not count expansions)
+  Desid_Max_Diag_Spec = 80  ! Maximum number of species variables on all rules 
+                            ! below (do not count expansions)
+/
+
+&Desid_Diag
+  
+ ! Example 1: Print all streams individually to many diagnostic files of 2D 
+ ! column sums. NO, NO2, total NOX (defined in the chemical family interface
+ ! in CMAQ_Control_Misc.nml), bulk ASO4 (all modes), and CO will all be on the 
+ ! file.
+
+   ! Desid_Diag_Streams_Nml(1,:)= 'ALL'
+   ! Desid_Diag_Fmt_Nml(1)      = 'COLSUM'    ! Options: LAYER1, COLSUM, 3D
+   ! Desid_Diag_Spec_Nml(1,:)   = 'NO','NO2','NOX','ASO4','CO'
+ 
+
+ ! Example 2: Activate the sum of all streams using the keyword TOTAL. This file 
+ ! will be 3D and will include six variables: 'AEC' = AECI + AECJ + AECK; 
+ ! 'AECI'; 'NO2'; 'ACLK'; 'AMG' and 'TERP' if those variables are avilable on 
+ ! the stream.
+
+   ! Desid_Diag_Streams_Nml(2,:)= 'TOTAL'
+   ! Desid_Diag_Fmt_Nml(2)      = '3D'    
+   ! Desid_Diag_Spec_Nml(2,:)   = 'AEC','AECI','NO2','ACLK','AMG','TERP'
+
+  
+ ! Example 3: Create a diagnostic of the sum of the components of the PT_SOURCES 
+ ! family (defined in the stream family section). This file will be column sums 
+ ! and will include all the emitted species as long as they appear on at least 
+ ! one of the streams within PT_SOURCES.
+
+   ! Desid_Diag_Streams_Nml(3,:)= 'PT_SOURCES'
+   ! Desid_Diag_Fmt_Nml(3)      = 'COLSUM'   
+   ! Desid_Diag_Spec_Nml(3,:)   = 'ALL'
+/
+

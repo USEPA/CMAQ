@@ -1,0 +1,396 @@
+/#start   YYYYDDD  HHMMSS
+/#end     YYYYDDD  HHMMSS
+/#layer      KLAY     (default is all layers)
+/
+
+! This Specices Definition File was generated using mapping 
+! from CB6 for SAPRC07tc_ae6.
+
+
+/ File [1]: CMAQ conc/aconc file
+/new species,    units,     expression,   description
+
+PRES            ,Pa              ,PRES[1], AVERAGE OF PRES
+
+ZH              ,m               ,ZH[1], AVERAGE OF ZH
+
+ZF              ,m               ,ZF[1], AVERAGE OF ZF
+
+NO2             ,ppmV            ,NO2[1], AVERAGE OF NO2
+
+NO              ,ppmV            ,NO[1], AVERAGE OF NO
+
+O3P             ,ppmV            ,O[1], AVERAGE OF O
+
+O3              ,ppmV            ,O3[1], AVERAGE OF O3
+
+NO3             ,ppmV            ,NO3[1], AVERAGE OF NO3
+
+O1D             ,ppmV            ,O1D[1], AVERAGE OF O1D
+
+OH              ,ppmV            ,OH[1], AVERAGE OF OH
+
+HO2             ,ppmV            ,HO2[1], AVERAGE OF HO2
+
+HO2H            ,ppmV            ,H2O2[1], SAPRC07tc mapping OF H2O2
+
+N2O5            ,ppmV            ,N2O5[1], AVERAGE OF N2O5
+
+HNO3            ,ppmV            ,HNO3[1], AVERAGE OF HNO3
+
+HONO            ,ppmV            ,HONO[1], AVERAGE OF HONO
+
+HNO4            ,ppmV            ,PNA[1], SAPRC07tc mapping OF PNA
+
+SO2             ,ppmV            ,SO2[1], AVERAGE OF SO2
+
+SULF            ,ppmV            ,SULF[1], AVERAGE OF SULF
+
+MECO3           ,ppmV            ,C2O3[1], SAPRC07tc mapping OF C2O3
+
+MEO2            ,ppmV            ,MEO2[1], AVERAGE OF MEO2
+
+PAN             ,ppmV            ,PAN[1], AVERAGE OF PAN
+
+CCOOOH          ,ppmV            ,PACD[1], SAPRC07tc mapping OF PACD
+
+CCOOH           ,ppmV            ,AACD[1], SAPRC07tc mapping OF AACD
+
+RCO3            ,ppmV            ,CXO3[1], SAPRC07tc mapping OF CXO3
+
+CCHO            ,ppmV            ,ALD2[1], SAPRC07tc mapping OF ALD2
+
+PAN2            ,ppmV            ,PANX[1], SAPRC07tc mapping OF PANX
+
+HCHO            ,ppmV            ,FORM[1], SAPRC07tc mapping OF FORM
+
+COOH            ,ppmV            ,MEPX[1], SAPRC07tc mapping OF MEPX
+
+MEOH            ,ppmV            ,MEOH[1], AVERAGE OF MEOH
+
+ROOH            ,ppmV            ,ROOH[1], AVERAGE OF ROOH
+
+RNO3            ,ppmV            ,NTR1[1] + NTR2[1] + INTR [1], RNO3 is sum of NTR1+NTR2 in SAPRC07tc
+
+HCOOH           ,ppmV            ,FACD[1], SAPRC07tc mapping OF FACD
+
+CO              ,ppmV            ,CO[1], AVERAGE OF CO
+
+RCHO            ,ppmV            ,ALDX[1], SAPRC07tc mapping OF ALDX
+
+HOCCHO          ,ppmV            ,GLYD[1], SAPRC07tc mapping OF GLYD
+
+GLY             ,ppmV            ,GLY[1], AVERAGE OF GLY
+
+MGLY            ,ppmV            ,MGLY[1], AVERAGE OF MGLY
+
+ALK1            ,ppmV            ,ETHA[1], SAPRC07tc mapping OF ETHA
+
+ETOH            ,ppmV            ,ETOH[1], AVERAGE OF ETOH
+
+MEK             ,ppmV            ,KET[1], SAPRC07tc mapping OF KET
+
+ALK3            ,ppmV            ,PAR[1]*0.33, PAR Split equally into remaning alkanes in SAPRAC07
+
+ALK4            ,ppmV            ,PAR[1]*0.33, PAR Split equally into remaning alkanes in SAPRAC07
+
+ALK5            ,ppmV            ,PAR[1]*0.34, PAR Split equally into remaning alkanes in SAPRAC07
+
+ACETONE         ,ppmV            ,ACET[1], SAPRC07tc mapping OF ACET
+
+ALK2            ,ppmV            ,PRPA[1], SAPRC07tc mapping OF PRPA
+
+ACETYLENE       ,ppmV            ,ETHY[1], SAPRC07tc mapping OF ETHY
+
+ETHENE          ,ppmV            ,ETH[1], SAPRC07tc mapping OF ETH
+
+OLE1            ,ppmV            ,OLE[1]*0.71, 71% of OLE1 is non-propene in SAPRAC07
+
+PROPENE         ,ppmV            ,OLE[1]*0.29, 29% of OLE is propene in SAPRAC07
+
+OLE2            ,ppmV            ,IOLE[1], SAPRC07tc mapping OF IOLE
+
+ISOPRENE        ,ppmV            ,ISOP[1], SAPRC07tc mapping OF ISOP
+
+MACR            ,ppmV            ,ISPD[1]*0.26, SAPRC07tc mapping OF ISPD
+
+MVK             ,ppmV            ,ISPD[1]*0.35, SAPRC07tc mapping OF ISPD
+
+IPRD            ,ppmV            ,ISPD[1]*0.39, SAPRC07tc mapping OF ISPD
+
+ISOPOOH         ,ppmV            ,ISPX[1], SAPRC07tc mapping OF ISPX
+
+MACO3           ,ppmV            ,OPO3[1], SAPRC07tc mapping OF OPO3
+
+IEPOX           ,ppmV            ,EPOX[1], SAPRC07tc mapping OF EPOX
+
+IEPOXOO         ,ppmV            ,EPX2[1], SAPRC07tc mapping OF EPX2
+
+TERP            ,ppmV            ,TERP[1], AVERAGE OF TERP
+
+APIN            ,ppmV            ,APIN[1], AVERAGE OF APIN
+
+BENZENE         ,ppmV            ,BENZENE[1], AVERAGE OF BENZENE
+
+CRES            ,ppmV            ,CRES[1], AVERAGE OF CRES
+
+AFG1            ,ppmV            ,OPEN[1]*0.50, unsaturated aldehydes from aromatic of OPEN in SAPRAC07
+
+AFG2            ,ppmV            ,OPEN[1]*0.50, unsaturated aldehydes from aromatic of OPEN in SAPRAC07
+
+BENZRO2         ,ppmV            ,BENZRO2[1], AVERAGE OF BENZRO2
+
+ARO1            ,ppmV            ,TOL[1], 75% of TOL in SAPRAC07; rest not listed explicitly
+
+TOLRO2          ,ppmV            ,TOLRO2[1], AVERAGE OF TOLRO2
+
+AFG3            ,ppmV            ,XOPN[1], SAPRC07tc mapping OF XOPN
+
+ARO2MN          ,ppmV            ,XYLMN[1]*0.58, SAPRC07tc mapping OF XYLMN
+
+MXYL            ,ppmV            ,XYLMN[1]*0.13, m-xylene is 13% of ARO2 in SAPRC07
+
+OXYL            ,ppmV            ,XYLMN[1]*0.11, o-xylene is 11% of ARO2 in SAPRC07
+
+PXYL            ,ppmV            ,XYLMN[1]*0.13, p-xylene is 13% of ARO2 in SAPRC07
+
+TMBENZ124       ,ppmV            ,XYLMN[1]*0.05, 1,2,4-TMB is 5% of ARO2 in SAPRC07
+
+XYLRO2          ,ppmV            ,XYLRO2[1], AVERAGE OF XYLRO2
+
+NAPHTHAL        ,ppmV            ,NAPH[1], SAPRC07tc mapping OF NAPH
+
+PAHRO2          ,ppmV            ,PAHRO2[1], AVERAGE OF PAHRO2
+
+BZO             ,ppmV            ,CRO[1], SAPRC07tc mapping OF CRO
+
+NPHE            ,ppmV            ,CRON[1], SAPRC07tc mapping OF CRON
+
+MAPAN           ,ppmV            ,OPAN[1], SAPRC07tc mapping OF OPAN
+
+CL2             ,ppmV            ,CL2[1], AVERAGE OF CL2
+
+CL              ,ppmV            ,CL[1], AVERAGE OF CL
+
+CLO             ,ppmV            ,CLO[1], AVERAGE OF CLO
+
+CLCHO           ,ppmV            ,FMCL[1], SAPRC07tc mapping OF FMCL
+
+HCL             ,ppmV            ,HCL[1], AVERAGE OF HCL
+
+CLNO2           ,ppmV            ,CLNO2[1], AVERAGE OF CLNO2
+
+CLONO2           ,ppmV            ,CLNO3[1], SAPRC07tc mapping OF CLNO3
+
+SESQ            ,ppmV            ,SESQ[1], AVERAGE OF SESQ
+
+SOAALK          ,ppmV            ,SOAALK[1], AVERAGE OF SOAALK
+
+H2NO3PIJ        ,ppmV            ,H2NO3PIJ[1], AVERAGE OF H2NO3PIJ
+
+H2NO3PK         ,ppmV            ,H2NO3PK[1], AVERAGE OF H2NO3PK
+
+VLVPO1          ,ppmV            ,VLVPO1[1], AVERAGE OF VLVPO1
+
+VSVPO1          ,ppmV            ,VSVPO1[1], AVERAGE OF VSVPO1
+
+VSVPO2          ,ppmV            ,VSVPO2[1], AVERAGE OF VSVPO2
+
+VSVPO3          ,ppmV            ,VSVPO3[1], AVERAGE OF VSVPO3
+
+VIVPO1          ,ppmV            ,VIVPO1[1], AVERAGE OF VIVPO1
+
+VLVOO1          ,ppmV            ,VLVOO1[1], AVERAGE OF VLVOO1
+
+VLVOO2          ,ppmV            ,VLVOO2[1], AVERAGE OF VLVOO2
+
+VSVOO1          ,ppmV            ,VSVOO1[1], AVERAGE OF VSVOO1
+
+VSVOO2          ,ppmV            ,VSVOO2[1], AVERAGE OF VSVOO2
+
+VSVOO3          ,ppmV            ,VSVOO3[1], AVERAGE OF VSVOO3
+
+PCVOC           ,ppmV            ,PCVOC[1], AVERAGE OF PCVOC
+
+HCHO_PRIMARY    ,ppmV            ,FORM_PRIMARY[1], SAPRC07tc mapping OF FORM_PRIMARY
+
+CCHO_PRIMARY    ,ppmV            ,ALD2_PRIMARY[1], SAPRC07tc mapping OF ALD2_PRIMARY
+
+BUTADIENE13     ,ppmV            ,BUTADIENE13[1], AVERAGE OF BUTADIENE13
+
+ACROLEIN        ,ppmV            ,ACROLEIN[1], AVERAGE OF ACROLEIN
+
+ACRO_PRIMARY    ,ppmV            ,ACRO_PRIMARY[1], AVERAGE OF ACRO_PRIMARY
+
+TOLUENE         ,ppmV            ,TOLU[1], SAPRC07tc mapping OF TOLU
+
+ASO4J           ,ug m-3          ,ASO4J[1], AVERAGE OF ASO4J
+
+ASO4I           ,ug m-3          ,ASO4I[1], AVERAGE OF ASO4I
+
+ANH4J           ,ug m-3          ,ANH4J[1], AVERAGE OF ANH4J
+
+ANH4I           ,ug m-3          ,ANH4I[1], AVERAGE OF ANH4I
+
+ANO3J           ,ug m-3          ,ANO3J[1], AVERAGE OF ANO3J
+
+ANO3I           ,ug m-3          ,ANO3I[1], AVERAGE OF ANO3I
+
+AISO1J          ,ug m-3          ,AISO1J[1], AVERAGE OF AISO1J
+
+AISO2J          ,ug m-3          ,AISO2J[1], AVERAGE OF AISO2J
+
+ASQTJ           ,ug m-3          ,ASQTJ[1], AVERAGE OF ASQTJ
+
+AORGCJ          ,ug m-3          ,AORGCJ[1], AVERAGE OF AORGCJ
+
+AECJ            ,ug m-3          ,AECJ[1], AVERAGE OF AECJ
+
+AECI            ,ug m-3          ,AECI[1], AVERAGE OF AECI
+
+AOTHRJ          ,ug m-3          ,AOTHRJ[1], AVERAGE OF AOTHRJ
+
+AOTHRI          ,ug m-3          ,AOTHRI[1], AVERAGE OF AOTHRI
+
+AFEJ            ,ug m-3          ,AFEJ[1], AVERAGE OF AFEJ
+
+AALJ            ,ug m-3          ,AALJ[1], AVERAGE OF AALJ
+
+ASIJ            ,ug m-3          ,ASIJ[1], AVERAGE OF ASIJ
+
+ATIJ            ,ug m-3          ,ATIJ[1], AVERAGE OF ATIJ
+
+ACAJ            ,ug m-3          ,ACAJ[1], AVERAGE OF ACAJ
+
+AMGJ            ,ug m-3          ,AMGJ[1], AVERAGE OF AMGJ
+
+AKJ             ,ug m-3          ,AKJ[1], AVERAGE OF AKJ
+
+AMNJ            ,ug m-3          ,AMNJ[1], AVERAGE OF AMNJ
+
+ACORS           ,ug m-3          ,ACORS[1], AVERAGE OF ACORS
+
+ASOIL           ,ug m-3          ,ASOIL[1], AVERAGE OF ASOIL
+
+NUMATKN         ,m-3             ,NUMATKN[1], AVERAGE OF NUMATKN
+
+NUMACC          ,m-3             ,NUMACC[1], AVERAGE OF NUMACC
+
+NUMCOR          ,m-3             ,NUMCOR[1], AVERAGE OF NUMCOR
+
+SRFATKN         ,m2 m-3          ,SRFATKN[1], AVERAGE OF SRFATKN
+
+SRFACC          ,m2 m-3          ,SRFACC[1], AVERAGE OF SRFACC
+
+SRFCOR          ,m2 m-3          ,SRFCOR[1], AVERAGE OF SRFCOR
+
+AH2OJ           ,ug m-3          ,AH2OJ[1], AVERAGE OF AH2OJ
+
+AH2OI           ,ug m-3          ,AH2OI[1], AVERAGE OF AH2OI
+
+AH3OPJ          ,ug m-3          ,AH3OPJ[1], AVERAGE OF AH3OPJ
+
+AH3OPI          ,ug m-3          ,AH3OPI[1], AVERAGE OF AH3OPI
+
+ANAJ            ,ug m-3          ,ANAJ[1], AVERAGE OF ANAJ
+
+ANAI            ,ug m-3          ,ANAI[1], AVERAGE OF ANAI
+
+ACLJ            ,ug m-3          ,ACLJ[1], AVERAGE OF ACLJ
+
+ACLI            ,ug m-3          ,ACLI[1], AVERAGE OF ACLI
+
+ASEACAT         ,ug m-3          ,ASEACAT[1], AVERAGE OF ASEACAT
+
+ACLK            ,ug m-3          ,ACLK[1], AVERAGE OF ACLK
+
+ASO4K           ,ug m-3          ,ASO4K[1], AVERAGE OF ASO4K
+
+ANH4K           ,ug m-3          ,ANH4K[1], AVERAGE OF ANH4K
+
+ANO3K           ,ug m-3          ,ANO3K[1], AVERAGE OF ANO3K
+
+AH2OK           ,ug m-3          ,AH2OK[1], AVERAGE OF AH2OK
+
+AH3OPK          ,ug m-3          ,AH3OPK[1], AVERAGE OF AH3OPK
+
+AISO3J          ,ug m-3          ,AISO3J[1], AVERAGE OF AISO3J
+
+AOLGAJ          ,ug m-3          ,AOLGAJ[1], AVERAGE OF AOLGAJ
+
+AOLGBJ          ,ug m-3          ,AOLGBJ[1], AVERAGE OF AOLGBJ
+
+APCSOJ          ,ug m-3          ,APCSOJ[1], AVERAGE OF APCSOJ
+
+ALVPO1I         ,ug m-3          ,ALVPO1I[1], AVERAGE OF ALVPO1I
+
+ASVPO1I         ,ug m-3          ,ASVPO1I[1], AVERAGE OF ASVPO1I
+
+ASVPO2I         ,ug m-3          ,ASVPO2I[1], AVERAGE OF ASVPO2I
+
+ALVPO1J         ,ug m-3          ,ALVPO1J[1], AVERAGE OF ALVPO1J
+
+ASVPO1J         ,ug m-3          ,ASVPO1J[1], AVERAGE OF ASVPO1J
+
+ASVPO2J         ,ug m-3          ,ASVPO2J[1], AVERAGE OF ASVPO2J
+
+ASVPO3J         ,ug m-3          ,ASVPO3J[1], AVERAGE OF ASVPO3J
+
+AIVPO1J         ,ug m-3          ,AIVPO1J[1], AVERAGE OF AIVPO1J
+
+ALVOO1I         ,ug m-3          ,ALVOO1I[1], AVERAGE OF ALVOO1I
+
+ALVOO2I         ,ug m-3          ,ALVOO2I[1], AVERAGE OF ALVOO2I
+
+ASVOO1I         ,ug m-3          ,ASVOO1I[1], AVERAGE OF ASVOO1I
+
+ASVOO2I         ,ug m-3          ,ASVOO2I[1], AVERAGE OF ASVOO2I
+
+ALVOO1J         ,ug m-3          ,ALVOO1J[1], AVERAGE OF ALVOO1J
+
+ALVOO2J         ,ug m-3          ,ALVOO2J[1], AVERAGE OF ALVOO2J
+
+ASVOO1J         ,ug m-3          ,ASVOO1J[1], AVERAGE OF ASVOO1J
+
+ASVOO2J         ,ug m-3          ,ASVOO2J[1], AVERAGE OF ASVOO2J
+
+ASVOO3J         ,ug m-3          ,ASVOO3J[1], AVERAGE OF ASVOO3J
+
+AALK1J          ,ug m-3          ,AAVB1J[1]*0.16, AE7 to AE6 Mapping 
+
+ABNZ1J          ,ug m-3          ,AAVB1J[1]*0.16, AE7 to AE6 Mapping
+
+ABNZ3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+ATOL3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+AXYL3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+APAH3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+AXYL1J          ,ug m-3          ,AAVB2J[1]*0.33, AE7 to AE6 Mapping
+
+ATOL1J          ,ug m-3          ,AAVB2J[1]*0.33, AE7 to AE6 Mapping
+
+APAH1J          ,ug m-3          ,AAVB2J[1]*0.34, AE7 to AE6 Mapping
+
+ATOL2J          ,ug m-3          ,AAVB3J[1], SAPRC07tc mapping OF AAVB3J
+
+ATRP1J          ,ug m-3          ,AMT4J[1], SAPRC07tc mapping OF AMT4J
+
+ATRP2J          ,ug m-3          ,AMT5J[1], SAPRC07tc mapping OF AMT5J
+
+NH3             ,ppmV            ,NH3[1], AVERAGE OF NH3
+
+SVISO1          ,ppmV            ,SVISO1[1], AVERAGE OF SVISO1
+
+SVISO2          ,ppmV            ,SVISO2[1], AVERAGE OF SVISO2
+
+SVSQT           ,ppmV            ,SVSQT[1], AVERAGE OF SVSQT
+
+LVPCSOG         ,ppmV            ,LVPCSOG[1], AVERAGE OF LVPCSOG
+
+SVTRP1           ,ppmV            ,SVMT4[1], SAPRC07tc mapping OF SVMT4
+
+SVTRP2           ,ppmV            ,SVMT5[1], SAPRC07tc mapping OF SVMT5
+

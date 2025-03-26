@@ -1,0 +1,862 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Frequently Asked Questions for Upgrading to the Latest CMAQ Version (v5.4) &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Release_FAQ/CMAQv5.5-Series-FAQ';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Frequently Asked Questions for Upgrading to the Latest CMAQ Version (v5.5)" href="CMAQv5.4-Series-FAQ.html" />
+    <link rel="prev" title="FAQ Pages" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">FAQs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">FAQ Pages</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Frequently Asked Questions for Upgrading to the Latest CMAQ Version (v5.4)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="frequently-asked-questions-for-upgrading-to-the-latest-cmaq-version-v5-4">
+<h1>Frequently Asked Questions for Upgrading to the Latest CMAQ Version (v5.4)<a class="headerlink" href="#frequently-asked-questions-for-upgrading-to-the-latest-cmaq-version-v5-4" title="Link to this heading">#</a></h1>
+<section id="table-of-contents">
+<h2>Table of Contents:<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#why_update_v54_v55"><span class="xref myst">Do I need to update from v5.4 to v5.5?</span></a></p></li>
+<li><p><a class="reference internal" href="#update_v54_v55"><span class="xref myst">What do I need to do to update from v5.4 to v5.5?</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#diff_v54_v55_input_files"><span class="xref myst">What differences should I expect in the required model input files?</span></a></p></li>
+<li><p><a class="reference internal" href="#diff_v54_v55_ouput_files"><span class="xref myst">What differences should I expect in my model output files?</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#diff_v54_v55_model_results"><span class="xref myst">What differences should I expect in my model results with v5.5 compared to v5.4?</span></a></p></li>
+<li><p><a class="reference internal" href="#data_and_docs"><span class="xref myst">Are there new benchmark data and documentation updates?</span></a></p></li>
+<li><p><a class="reference internal" href="#community_contributions"><span class="xref myst">Community contributions</span></a></p></li>
+<li><p><a class="reference internal" href="#how_to_cite"><span class="xref myst">How to cite CMAQ</span></a></p></li>
+<li><p><a class="reference internal" href="#additional_faq"><span class="xref myst">Additional FAQ</span></a></p></li>
+<li><p><a class="reference internal" href="#tech_support"><span class="xref myst">Technical support for CMAQ</span></a></p></li>
+</ul>
+<p><a id=why_update_v54_v55></a></p>
+</section>
+<section id="do-i-need-to-update-from-v5-4-to-v5-5">
+<h2>Do I need to update from v5.4 to v5.5?<a class="headerlink" href="#do-i-need-to-update-from-v5-4-to-v5-5" title="Link to this heading">#</a></h2>
+<p>CMAQv5.5 includes many scientific enhancements and new features that will benefit certain applications. See the v5.5 Release Notes for a description of each change.</p>
+<section id="instrumented-models">
+<h3>Instrumented Models<a class="headerlink" href="#instrumented-models" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Several updates were incorporated in CMAQ-ISAM: (1) includes the capability to quantify source contributions to total secondary organic aerosol (SOA) and individual species; (2) accounts for the loss of aerosol mass from gravitational settling was incorporated, so that the tagged and bulk concentrations matched more precisely; (3) incorporates a tag to attribute O3 to be of “stratospheric origin” based on the PV-scaling methodology; (4) addressed instabilities associated with mass distribution between tags immediately after cloud chemistry. See: <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models%3A-CMAQ-ISAM.html"><span class="std std-doc">CMAQ-ISAM Release Notes</span></a> for more information.</p></li>
+<li><p>In CMAQ-DDM: (1) enabled estimation of sensitivity of O3 to PV-O3 specification; (2) corrected calculation of second-order sensitivity in chemistry routines; (3) corrected error that caused incorrect dry deposition sensitivity in output. See  <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models%3A-CMAQ-DDM3D.html#cmaq-hddm-3d-second-order-sensitivity-fix"><span class="std std-ref">CMAQ-DDM Release Notes</span></a> for more information.</p></li>
+</ul>
+</section>
+<section id="on-line-coupling-of-cmaq-with-meteorological-models">
+<h3>On-line coupling of CMAQ with meteorological models<a class="headerlink" href="#on-line-coupling-of-cmaq-with-meteorological-models" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>CMAQv5.5 is the first public release that allows coupling of CMAQ with the Model for Prediction Across Scales (MPAS). Please see the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html"><span class="std std-doc">MPAS-CMAQ release note</span></a> to learn more.</p></li>
+<li><p>A bug was identified within the CMAQ to WRF coupling routine in the CMAQv5.4 series; layer heights were incorrectly being assigned to wind speed in the plume rise calculations leading to erroneous allocation of point source emissions. Users of WRF-CMAQ are strongly encouraged to update to CMAQv5.5. See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html#new-wrf-cmaq-model-using-wrfv44-and-cmaqv54"><span class="std std-ref">WRF-CMAQ Release Notes</span></a> for more information.</p></li>
+</ul>
+</section>
+<section id="chemistry">
+<h3>Chemistry<a class="headerlink" href="#chemistry" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In the Community Regional Atmospheric Chemistry Multiphase Mechanism version 1 (CRACMM1), the rate of sulfate catalyzed IEPOX was updated. The impact is to increase sulfate (as less sulfate is taken up as organosulfate) and to decrease organic aerosol. If you are interested in learning more, please see the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Community-Regional-Atmospheric-Chemistry-Multiphase-Mechanism-%28CRACMM%29.html#bug-fixes-for-cracmm1-iepox-uptake-rate"><span class="std std-ref">CRACMM1 release note</span></a>.</p></li>
+<li><p>CMAQv5.5 introduces CRACMM version 2. CRACMM2 includes several updates to CRACMM1. Many updates are intended to improve the representation of secondary formaldehyde (HCHO) in CRACMM. These include the incorporation of the AMORE v1.2 isoprene condensation into the primary CRACMM mechanism, updates to HCHO yields from monoterpenes, and the addition of styrene as a new explicit species.  Additional updates include changes to monoterpene nitrates that affect SOA formation and NOx recycling, the inclusion of emitted methane (ECH4), heterogeneous uptake of HO2 and NO3 radicals, and changes in how emissions of certain aromatic species are mapped to CRACMM species. If you are interested in learning more, please see the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Community-Regional-Atmospheric-Chemistry-Multiphase-Mechanism-%28CRACMM%29.html#updated-mechanism-cracmm2"><span class="std std-ref">CRACMM2 release note</span></a>.</p></li>
+<li><p>The photolysis module was updated to correct an error in calculation of cloud optical depth for grid cells with sub-grid/convective clouds. The net impact is to increase the attenuation of photolysis frequencies under cloudy conditions. Please see the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Photolysis.html"><span class="std std-doc">photolysis release note</span></a> to learn more.</p></li>
+</ul>
+</section>
+<section id="dry-deposition-air-surface-exchange">
+<h3>Dry Deposition/Air Surface Exchange<a class="headerlink" href="#dry-deposition-air-surface-exchange" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In STAGE, updates were made to land use mappings to an internal land use category via CMAQ_Control_STAGE.nml that is user customizable.  Updates were also made to rectify an underflow encountered in the STAGE Emerson in debug mode. See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-Surface-Tiled-Aerosol-and-Gaseous-Exchange-%28STAGE%29.html"><span class="std std-doc">STAGE release notes</span></a> to learn more.</p></li>
+<li><p>In M3DRY, (1) changes to Ammonia (NH3) deposition in M3DRY for model configurations without NH3 BIDI, (2) changes to NH3 dry deposition flux and NH3 emissions flux calculations in M3DRY, upward and downwards fluxes changed, but net flux remains the same. See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-M3DRY.html#revised-dry-dep-flux-for-nh3"><span class="std std-ref">M3DRY release note</span></a> to learn more.</p></li>
+</ul>
+</section>
+<section id="stratosphere-troposphere-exchange">
+<h3>Stratosphere-Troposphere Exchange<a class="headerlink" href="#stratosphere-troposphere-exchange" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Removed dependency on sigma-P coordinate system in PV-O3 scaling. The update impacted O3 distributions between 300-100hPa and generally improved model estimates relative to observations at these levels. See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html"><span class="doc std std-doc">Stratospheric-Troposphere exchange release note</span></a>for more information.</p></li>
+</ul>
+</section>
+<section id="emissions">
+<h3>Emissions<a class="headerlink" href="#emissions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Updates to the in-line version of MEGAN BDSNP, which corrects a bug in the pulsing subroutine of BDSNP (small impact on estimated soil NO). See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Model-of-Emissions-of-Gases-and-Aerosols-from-Nature-%28MEGAN%29-Biogenic-Emissions.html#bdsnp-dry-hours-calculation.md"><span class="std std-ref">MEGAN-BDSNP</span></a> to learn more.</p></li>
+</ul>
+</section>
+<section id="process-analysis-sulfur-tracking-model-stm">
+<h3>Process Analysis &amp; Sulfur Tracking Model (STM)<a class="headerlink" href="#process-analysis-sulfur-tracking-model-stm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixes to Sulfur Tracking Model (STM) correct errors in attribution of sulfate from gas phase chemistry, which inadvertently got introduced in the previous model version. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html#fix-to-option-for-sulfur-tracking-model"><span class="std std-ref">CMAQ-STM Release Notes</span></a> for more information.</p></li>
+</ul>
+</section>
+<section id="structural-improvements">
+<h3>Structural Improvements<a class="headerlink" href="#structural-improvements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Updated model code and run-scripts so that PV-O3 scaling can be invoked now as a runtime option. See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html"><span class="doc std std-doc">Stratospheric-Troposphere exchange release note</span></a> for more information.</p></li>
+</ul>
+</section>
+<section id="diagnostic-options">
+<h3>Diagnostic Options<a class="headerlink" href="#diagnostic-options" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Updates to ELMO to fix erroneous output for various PM aggregates (PMF_OC, PMF_NCOM, TNO3, etc.). See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html"><span class="std std-doc">Diagnostic Options</span></a> release notes to learn more.</p></li>
+</ul>
+</section>
+<section id="pre-processors-and-utilities">
+<h3>Pre-processors and Utilities<a class="headerlink" href="#pre-processors-and-utilities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>MCIP: Updates were implemented to the definition of grid origin for fine-scale lambert conformal grids (i.e. &lt; 4km resolution). See the <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html#mcip"><span class="std std-ref">MCIP release note</span></a> for additional details.</p></li>
+</ul>
+</section>
+<section id="post-processors">
+<h3>Post-processors<a class="headerlink" href="#post-processors" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Corrected deposition SpecDef for NOy species. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html#corrected-deposition-species-definition-specdef_dep-files-for-missing-nitrogen-species"><span class="std std-ref">release note</span></a> for more information.</p></li>
+<li><p>Improved checks on formulas used by Combine. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html#improve-checks-on-formulas-used-by-combine"><span class="std std-ref">combine release note</span></a> for more details.</p></li>
+<li><p>Increase character limit for station ID in sitecmp_dailyO3 to accommodate emerging networks. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html#sitecmp_dailyo3"><span class="std std-ref">Site Compare Daily O3 release note</span></a> for more details.</p></li>
+<li><p>Updated time zone csv file used to time shift CMAQ outputs in HR2DAY program to version 4.1.0 released by Natural Earth. Minor impacts on h2day calculations due to time zone updates. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html#updating-tzcsv-to-natural-earth"><span class="std std-ref">HR2DAY release note</span></a> for more details.</p></li>
+</ul>
+</section>
+<section id="python-tools">
+<h3>Python Tools<a class="headerlink" href="#python-tools" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>New Python tool to create CMAQ-ready grid masks from a shape file for defining regions and region families with DESID and using geographic source regions when running CMAQ-ISAM. See <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html#shp2cmaq-create-cmaq-ready-file-from-shapefile"><span class="std std-ref">CMAQ-Python tools release note</span></a>. for more details.</p></li>
+</ul>
+<p><a id=update_v54_v55></a></p>
+</section>
+</section>
+<section id="what-do-i-need-to-do-to-update-from-v5-4-to-v5-5">
+<h2>What do I need to do to update from v5.4 to v5.5?<a class="headerlink" href="#what-do-i-need-to-do-to-update-from-v5-4-to-v5-5" title="Link to this heading">#</a></h2>
+<p><a id=diff_v54_v55_input_files></a></p>
+<section id="what-differences-should-i-expect-in-the-required-model-input-files">
+<h3>What differences should I expect in the required model input files?<a class="headerlink" href="#what-differences-should-i-expect-in-the-required-model-input-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>If you have already successfully migrated to v5.4, you will not need to any additional input to run with the analogous options in v5.5. However, if you trying to run with the newest released version of CRACMM in v5.5, users will have to generate or map existing emissions to CRACMMv2.0. For additional information on emissions for CRACMMv2.0 please see the <a class="reference external" href="https://github.com/USEPA/CRACMM/tree/main/emissions" rel="noreferrer" target="_blank">CRACMM GitHub Page <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+</ul>
+<p><a id=diff_v54_v55_ouput_files></a></p>
+</section>
+<section id="what-differences-should-i-expect-in-my-model-output-files">
+<h3>What differences should I expect in my model output files?<a class="headerlink" href="#what-differences-should-i-expect-in-my-model-output-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The photolysis diagnostic files were updated to include additional variables (e.g., absorption AOD) that may help in evaluation of optical properties against measurements.</p></li>
+</ul>
+<p><a id=diff_v54_v55_model_results></a></p>
+</section>
+</section>
+<section id="what-differences-should-i-expect-in-my-model-results-with-v5-5-compared-to-v5-4">
+<h2>What differences should I expect in my model results with v5.5 compared to v5.4?<a class="headerlink" href="#what-differences-should-i-expect-in-my-model-results-with-v5-5-compared-to-v5-4" title="Link to this heading">#</a></h2>
+<p>The following summary is based on our testing of CMAQv5.4 and CMAQv5.5 using annual 2018 simulations performed over both the northern hemisphere (108 km horizontal grid spacing, 44 vertical layers) and the CONUS (12 km horizontal grid resolution, 35 vertical layers). The 108 km simulations were used to generate lateral boundary conditions for the 12 km simulations, with science options (except chemical mechanisms &amp; bidi-directional ammonia exchange) matching across both domains.</p>
+<p>All CMAQv5.5 108 km simulations used the cb6r5m_ae7_aq chemical mechanism that includes a detailed representation of halogen chemistry while the 12 km simulations used either the cb6r5_ae7_aq (simplified halogen chemistry) or cracmm2 chemical mechanisms. The CMAQv5.4 108 km simulations used the cb6r5m_ae7_aq chemical mechanism while the 12 km simulations used either the cb6r5_ae7_aq (simplified halogen chemistry), or cracmm1 chemical mechanisms.</p>
+<p>The updates made to the representation of aerosol dry deposition in CMAQv5.4 differ markedly between the M3Dry and STAGE dry deposition schemes. CMAQv5.4 M3Dry updates are based on on <a class="reference external" href="https://doi.org/10.1029/2022MS003050" rel="noreferrer" target="_blank">Pleim et al., 2022 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> (<a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-M3DRY.html#new-aerosol-deposition-model-aero_depv"><span class="std std-ref">see M3DRY release notes</span></a>) and STAGE updates in its default configuration are based on <a class="reference external" href="https://doi.org/10.1073/pnas.2014761117" rel="noreferrer" target="_blank">Emerson et al., 2020 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> (<a class="reference internal" href="#./CMAQ-Release-Notes:-Dry-Deposition-Air-Surface-Exchange:-Surface-Tiled-Aerosol-and-Gaseous-Exchange-(STAGE).md"><span class="xref myst">see STAGE release notes</span></a>). To investigate whether the impacts of switching from CMAQv5.4 to CMAQv5.5 differ depending on whether users select the M3Dry or STAGE dry deposition scheme, all simulations comparing v5.4 and v5.5 were performed for both M3Dry and STAGE and results for both schemes are summarized below</p>
+<section id="natural-emissions">
+<h3>Natural Emissions<a class="headerlink" href="#natural-emissions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Emissions from natural sources (e.g., lightning, wind-blown dust, biogenic emissions) remained the same in v5.5 when compared to v5.4.</p></li>
+</ul>
+</section>
+<section id="ozone">
+<h3>Ozone<a class="headerlink" href="#ozone" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>v5.5 CB6 - v5.4 CB6: ~0.2 ppbV increase in seasonal domain mean ozone mixing ratio from CMAQv5.5 to CMAQv5.4 with larger isolated differences in individual grid cells depending on sub-grid convective cloud activity. This difference is attributed to the updates in the photolysis module to properly capture impacts of sub-grid clouds.</p></li>
+<li><p>v5.5 CRACMM2 - v5.4 CRACMM1: Increase of 1-2 ppbV seasonal domain mean surface ozone mixing ratio in warmer months, especially in eastern US. Decrease of 1 ppbV season domain mean surface ozone mixing ratio in the winter, particularly in the eastern US. These changes are mostly due to updates to Isoprene chemistry <a class="reference external" href="https://doi.org/10.5194/egusphere-2024-554" rel="noreferrer" target="_blank">Skipper et al., 2024, preprint <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+<li><p>All of the ozone comparisons discussed above (CMAQv5.5 CB6 vs. CMAQv5.4 CB6 and CMAQv5.5 CRACMM2 vs. CMAQv5.4 CRACMM1) generally hold true for both the M3Dry and STAGE dry deposition schemes.</p></li>
+<li><p><strong>Summary</strong>: Minor increase in seasonal mean ozone mixing ratio due to corrections in photolysis module for the CB6 system, with larger more transient impacts due to sub-grid convective activity. Updates to the CRACMM system in CMAQv5.5 increase ozone mixing ratio during warmer months, while decreasing ozone in the winter particularly in the eastern US.</p></li>
+</ul>
+</section>
+<section id="pm2-5">
+<h3>PM2.5<a class="headerlink" href="#pm2-5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>v5.5 CB6 - v5.4 CB6: In simulations without ammonia bi-directional exchange, there is less than 0.1 of a µg/m3 impact on seasonal surface mean PM fine concentrations, except for regions of extreme aerosol loading which has an increase in winter and slight decrease in summer. These changes are mostly due to updates to the uni-directional ammonia (NH3) deposition, where ammonia deposition is now scaled by leaf area index. For simulations with ammonia bi-directional exchange, there is little to no impact from incrementing from v5.4 to v5.5.</p></li>
+<li><p>v5.5 CRACMM2 - v5.4 CRACMM1: Widespread 0.5 - 1 ug/m3 decrease in seasonal mean PM fine concentrations over most of the modeling domain. Reductions driven by treatment of monoterpene nitrates and highly oxygenated organic molecules (HOM) formation (<a class="reference external" href="https://doi.org/10.5194/egusphere-2024-554" rel="noreferrer" target="_blank">Skipper et al., 2024, preprint <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>. Summer mean sulfate concentrations increased by 0.1 - 0.5 ug/m3 over the Southeastern U.S. due to the updates to the rate of sulfate catalyzed IEPOX which also contributed to the decrease in organic aerosols (<a class="reference external" href="https://doi.org/10.1021/acsearthspacechem.3c00333" rel="noreferrer" target="_blank">Vannucci et al, 2024 <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>).</p></li>
+<li><p>All of the PM Fine comparisons discussed above (CMAQv5.5 CB6 vs. CMAQv5.4 CB6 and CMAQv5.5 CRACMM2 vs. CMAQv5.4 CRACMM1) generally hold true for both the M3Dry and STAGE dry deposition schemes.</p></li>
+<li><p><strong>Summary</strong>: Very minor change in seasonal mean PM fine concentrations for simulations without bidi directional ammonia exchange. Updates to the CRACMM system caused a decrease in seasonal mean PM fine concentrations over most of the modeling domain.</p></li>
+</ul>
+</section>
+<section id="deposition">
+<h3>Deposition<a class="headerlink" href="#deposition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>v5.5 CRACMM2 - v5.4 CRACMM1: Changes in seasonal total sulfur (S) and nitrogen (N) Deposition for both M3DRY and STAGE were minor. The most substantial change was a 5-25% increase in S wet deposition in the summer over the Southeastern U.S., in agreement with the increase in mean sulfate concentrations in the same region. CRACMM2 updates led to substantial decreases (&gt;50%) in organic nitrate (NTR) deposition in the Eastern U.S., mostly in regions with high biogenic emissions. This had little impact on Total N deposition since NTR makes up a small fraction of wet and dry N deposition.</p></li>
+</ul>
+<p><a id=data_and_docs></a></p>
+</section>
+</section>
+<section id="are-there-new-benchmark-data-and-documentation-updates">
+<h2>Are there new benchmark data and documentation updates?<a class="headerlink" href="#are-there-new-benchmark-data-and-documentation-updates" title="Link to this heading">#</a></h2>
+<p>Yes! We have made updates throughout our <a class="reference internal" href="../Users_Guide/README.html"><span class="std std-doc">User’s Guide</span></a>, including Appendices and Tutorials, to improve clarity and describe new options and features. We recommend revisiting sections that relate to your work to see the latest guidance.</p>
+<p>We have also expanded our benchmark datasets and tutorials to include MPAS-CMAQ and CRACMM2.  The Table below summarizes the benchmark data available with v5.5 and the associated Tutorials for running a test case simulation for the specific model configuration.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p><strong>CMAQ Version</strong></p></th>
+<th class="head text-center"><p><strong>Data Type (Size)</strong></p></th>
+<th class="head text-center"><p><strong>Domain</strong></p></th>
+<th class="head text-center"><p><strong>Simulation Dates</strong></p></th>
+<th class="head text-center"><p><strong>Data Access</strong></p></th>
+<th class="head text-center"><p><strong>Tutorial</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>MPAS-CMAQ</p></td>
+<td class="text-center"><p>Input (215 GB)</p></td>
+<td class="text-center"><p>Global (uniform 120)</p></td>
+<td class="text-center"><p>Jan 1, 2017</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/PAHQFO" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>  <br /> <a class="reference external" href="https://mpas-cmaq.s3.amazonaws.com/index.html" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/PDF/CMAQ_UG_09_2019.pdf" rel="noreferrer" target="_blank">Tutorial <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>v5.4 CB6r5</p></td>
+<td class="text-center"><p>Input (6.1 TB)</p></td>
+<td class="text-center"><p>12US1</p></td>
+<td class="text-center"><p>Jan 1 - Dec 31, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/LDTWKH" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>  <br /> <a class="reference external" href="https://cmas-cmaq-modeling-platform-2018.s3.amazonaws.com/index.html" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>v5.4 CB6r5</p></td>
+<td class="text-center"><p>Input (10.3 GB)</p></td>
+<td class="text-center"><p>Northeast US</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/BWMI8X" rel="noreferrer" target="_blank">Metadata, DOI, and download instructions  <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br /> <a class="reference external" href="https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp" rel="noreferrer" target="_blank">Google Drive Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>  <br /> <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_4/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>v5.5 CRACMM2</p></td>
+<td class="text-center"><p>Input (6 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>v5.5 CRACMM2</p></td>
+<td class="text-center"><p>Output (19 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.html"><span class="std std-doc">Tutorial</span></a></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>v5.5 CB6r5 M3Dry</p></td>
+<td class="text-center"><p>Output (15 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz" rel="noreferrer" target="_blank">AWS Download Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">Tutorial</span></a></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>v5.5 CB6r5 STAGE</p></td>
+<td class="text-center"><p>Output (16 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz" rel="noreferrer" target="_blank">AWS Download Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">Modify the M3DRY Tutorial</span></a></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>v5.5-ISAM CB6r5 M3Dry</p></td>
+<td class="text-center"><p>Output (52 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz" rel="noreferrer" target="_blank">AWS Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_ISAM.html"><span class="std std-doc">Tutorial</span></a></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>v5.5-DDM3D CB6r5 M3Dry</p></td>
+<td class="text-center"><p>Output (16 GB)</p></td>
+<td class="text-center"><p>12NE3</p></td>
+<td class="text-center"><p>July 1 - 2, 2018</p></td>
+<td class="text-center"><p><a class="reference external" href="https://doi.org/10.15139/S3/X5SZM2" rel="noreferrer" target="_blank">Metadata, DOI, and links to data on AWS <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> <br>  <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz" rel="noreferrer" target="_blank">AWS Download Link <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../Users_Guide/Tutorials/CMAQ_UG_tutorial_DDM3D.html"><span class="std std-doc">Tutorial</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a id=community_contributions></a></p>
+</section>
+<section id="community-contributions">
+<h2>Community Contributions<a class="headerlink" href="#community-contributions" title="Link to this heading">#</a></h2>
+<p>The CMAQ team would like to thank our user community for contributing to model updates in CMAQv5.5 by identifying issues, performing tests, and/or proposing code changes. The following v5.5 updates include a community contribution*.</p>
+<ul class="simple">
+<li><p>Updates to unidirectional fluxes in M3DRY came out of fruitful conversations with researchers Brett Schichtel and Gustavo Cuchiara Copstein from Colorado State’s Cooperative Institute for Research in the Atmosphere <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange%3A-M3DRY.html#revised-dry-dep-flux-for-nh3"><span class="std std-ref">(Release Note)</span></a>.</p></li>
+<li><p>An issue identified by shatani on the <a class="reference external" href="https://forum.cmascenter.org/t/aerosol-bulk-name-as-emission-species-name-in-the-desid-chemical-mapping-control/3692/1" rel="noreferrer" target="_blank">CMAS User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> led to an updated to the DESID module <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates%3A-Detailed-Emissions-Scaling-Isolation-and-Diagnostics-Module-%28DESID%29.html#chemical-family-support"><span class="std std-ref">(Release Note)</span></a>.</p></li>
+<li><p>Bonyoung Koo identified an issue on the <a class="reference external" href="https://forum.cmascenter.org/t/incorrect-pm25-na-calculation-in-the-elmo-module/4615" rel="noreferrer" target="_blank">CMAS User Forum  <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> that led to an update to the ELMO module <a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html#correct-calculation-of-pm1-pm25-and-pm25to10-as-well-as-speciated-na-k-ca-and-mg-in-elmo"><span class="std std-ref">(Release Note)</span></a>.</p></li>
+<li><p>An issue identified by Abi on the <a class="reference external" href="https://forum.cmascenter.org/t/cmaqv5-2-ddm-not-able-to-output-more-than-one-sens/3669/1" rel="noreferrer" target="_blank">CMAS User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> led to an update to CMAQ-HDDM to allow for correct sub-setting of variables to the ASENS output file.</p></li>
+<li><p>Sheng-Po Chen identified an error in the molecular weight of HGIIGAS in several species tables on the <a class="reference external" href="https://forum.cmascenter.org/t/error-of-the-molecular-weight-for-hgiigas/4673" rel="noreferrer" target="_blank">CMAS User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> which has now been fixed (<a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry%3A-Carbon-Bond-6-Mechanism-%28CB6%29.html#correction-to-molecular-weight-of-hgiigas-in-species-tables"><span class="std std-ref">Release Note</span></a>).</p></li>
+<li><p>Will Hatheway caught a typo in the config_cmaq.csh file and proposed an update on the <a class="reference external" href="https://github.com/USEPA/CMAQ/issues/199" rel="noreferrer" target="_blank">CMAQ GitHub repository <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+<li><p>Simon Rosanka, from the University of California, Irvine, proposed a bugfix to CCTM/src/gas/ros3/rbdriver.F on the <a class="reference external" href="https://github.com/USEPA/CMAQ/pull/198" rel="noreferrer" target="_blank">CMAQ GitHug repo <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> to avoid a model crash when using the conditional rbstats option.</p></li>
+<li><p>Feng Liu identified an issue in CMAQ-HDDM on the <a class="reference external" href="https://forum.cmascenter.org/t/cmaqv5-4-hddm-gives-too-high-second-order-sensitivity/3722/1" rel="noreferrer" target="_blank">CMAS User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> and provided testing and calculations that led to an update to address unreasonably high 2nd order sensitivity coefficients.</p></li>
+</ul>
+<p>*We attempted to be comprehensive in this list but if we have missed a contribution from you or a colleague, please forgive our oversight and contact us at <a class="reference external" href="mailto:CMAQ_Team&#37;&#52;&#48;epa&#46;gov" rel="noreferrer" target="_blank">CMAQ_Team<span>&#64;</span>epa<span>&#46;</span>gov <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> so that we can correct our mistake. Thank you for helping us improve the CMAQ modeling system!</p>
+<p><a id=how_to_cite></a></p>
+</section>
+<section id="how-to-cite-cmaq">
+<h2>How to Cite CMAQ<a class="headerlink" href="#how-to-cite-cmaq" title="Link to this heading">#</a></h2>
+<p>Please see our ‘How to Cite CMAQ’ page if you are interested in referencing one of our released model versions, scientific algorithms, or model output in your own publication: https://www.epa.gov/cmaq/how-cite-cmaq</p>
+<p><a id=additional_faq></a></p>
+</section>
+<section id="additional-faq">
+<h2>Additional FAQ<a class="headerlink" href="#additional-faq" title="Link to this heading">#</a></h2>
+<p>A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions</p>
+<p><a id=tech_support></a></p>
+</section>
+<section id="technical-support-for-cmaq">
+<h2>Technical support for CMAQ<a class="headerlink" href="#technical-support-for-cmaq" title="Link to this heading">#</a></h2>
+<p>Technical support for CMAQ, including questions about model inputs, downloading, compiling, and running the model,
+and pre- and post-processing utilities, should be directed to the <a class="reference external" href="https://forum.cmascenter.org/" rel="noreferrer" target="_blank">CMAS Center User Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.
+<a class="reference external" href="https://forum.cmascenter.org/t/please-read-before-posting/1321" rel="noreferrer" target="_blank"><strong>Please read and follow these steps</strong> <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> prior to submitting new questions to the User Forum.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">FAQ Pages</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CMAQv5.4-Series-FAQ.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Frequently Asked Questions for Upgrading to the Latest CMAQ Version (v5.5)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#do-i-need-to-update-from-v5-4-to-v5-5">Do I need to update from v5.4 to v5.5?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#instrumented-models">Instrumented Models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-line-coupling-of-cmaq-with-meteorological-models">On-line coupling of CMAQ with meteorological models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chemistry">Chemistry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dry-deposition-air-surface-exchange">Dry Deposition/Air Surface Exchange</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stratosphere-troposphere-exchange">Stratosphere-Troposphere Exchange</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#emissions">Emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-analysis-sulfur-tracking-model-stm">Process Analysis &amp; Sulfur Tracking Model (STM)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#structural-improvements">Structural Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-options">Diagnostic Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-processors-and-utilities">Pre-processors and Utilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processors">Post-processors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-tools">Python Tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-do-i-need-to-do-to-update-from-v5-4-to-v5-5">What do I need to do to update from v5.4 to v5.5?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-the-required-model-input-files">What differences should I expect in the required model input files?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-my-model-output-files">What differences should I expect in my model output files?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-differences-should-i-expect-in-my-model-results-with-v5-5-compared-to-v5-4">What differences should I expect in my model results with v5.5 compared to v5.4?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#natural-emissions">Natural Emissions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ozone">Ozone</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pm2-5">PM2.5</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deposition">Deposition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#are-there-new-benchmark-data-and-documentation-updates">Are there new benchmark data and documentation updates?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#community-contributions">Community Contributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-cite-cmaq">How to Cite CMAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-faq">Additional FAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-support-for-cmaq">Technical support for CMAQ</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

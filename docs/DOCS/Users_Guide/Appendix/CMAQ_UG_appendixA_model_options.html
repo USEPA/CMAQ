@@ -1,0 +1,1222 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Appendix A: Model options &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Appendix A: Model options</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="../CMAQ_UG_tables_figures.html"><span class="std std-doc">&lt;&lt; Tables and Figures</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a></p>
+<!-- END COMMENT -->
+<hr class="docutils" />
+<section id="appendix-a-model-options">
+<h1>Appendix A: Model options<a class="headerlink" href="#appendix-a-model-options" title="Link to this heading">#</a></h1>
+<!-- BEGIN COMMENT -->
+<p><a id=TOC_A></a></p>
+<section id="table-of-contents">
+<h2>Table of Contents:<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#config_cmaq.csh"><span class="xref myst">A.1 Configuration Options (config_cmaq.csh)</span></a></p></li>
+<li><p><a class="reference internal" href="#bldit_cctm.csh"><span class="xref myst">A.2 Compilation Options (bldit_cctm.csh)</span></a></p></li>
+<li><p><a class="reference internal" href="#run_cctm.csh"><span class="xref myst">A.3 Execution Options (run_cctm.csh)</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#MPI_Config"><span class="xref myst">MPI Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#Vertical_Ext"><span class="xref myst">Vertical Extent</span></a></p></li>
+<li><p><a class="reference internal" href="#Timestep_Config"><span class="xref myst">Timestep Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#CCTM_Config_Options"><span class="xref myst">CCTM Configuration Options</span></a></p></li>
+<li><p><a class="reference internal" href="#Syn_time_Option"><span class="xref myst">Synchronization Time Step and Tolerance Options</span></a></p></li>
+<li><p><a class="reference internal" href="#Science_Options"><span class="xref myst">Science Options</span></a></p></li>
+<li><p><a class="reference internal" href="#Process_Analysis_Options"><span class="xref myst">Process Analysis Options</span></a></p></li>
+<li><p><a class="reference internal" href="#I/O_Controls"><span class="xref myst">I/O Controls</span></a></p></li>
+<li><p><a class="reference internal" href="#Aersol_Diagnostics_Controls"><span class="xref myst">Aerosol Diagnostics Controls</span></a></p></li>
+<li><p><a class="reference internal" href="#Diagnostic_Output_Flags"><span class="xref myst">Diagnostic Output Flags</span></a></p></li>
+<li><p><a class="reference internal" href="#Offline_Emissions_Config"><span class="xref myst">Offline Emissions Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#Lightning_NOx_Config"><span class="xref myst">Lightning NOx Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#Online_Bio_Config"><span class="xref myst">Online Biogenic Emissions Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="#windblown_dust_config"><span class="xref myst">Windblown Dust Emissions Configuration</span></a></p></li>
+</ul>
+</li>
+</ul>
+<!-- END COMMENT -->
+<p><a id=config_cmaq.csh></a></p>
+</section>
+<section id="a-1-configuration-options-config-cmaq-csh">
+<h2>A.1 Configuration Options (config_cmaq.csh)<a class="headerlink" href="#a-1-configuration-options-config-cmaq-csh" title="Link to this heading">#</a></h2>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<p>Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly, CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.</p>
+<p>Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CMAQ_HOME</span></code> <a id=CMAQ_HOME></a>
+The central CMAQ installation directory. For example, if you installed the CMAQ source code in the directory <code class="docutils literal notranslate"><span class="pre">/home/user/CMAQ</span></code> set CMAQ_HOME with <code class="docutils literal notranslate"><span class="pre">export CMAQ_HOME=/home/user/CMAQ</span></code> for bash or <code class="docutils literal notranslate"><span class="pre">setenv CMAQ_HOME /home/user/CMAQ</span></code> for csh; note that this variable is M3HOME prior to CMAQv5.2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CMAQ_DATA</span></code><a id=CMAQ_DATA></a>
+Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTDIR</span></code><a id=OUTDIR></a>
+Only necessary if the Budget Tool is activated. If this variable is unspecified, CMAQ will try to output the Budget Tool file to the root directory. This will be updated in future CMAQ versions to be consistent with other output files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CMAQ_LIB</span></code><a id=CMAQ_LIB></a>
+Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compiler</span></code><a id=compiler_config></a>
+Set the Fortran compiler type that you will use to compile CMAQ; choices are intel, pgi, or gcc</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compilerVrsn</span></code><a id=compilerVrsn></a>
+(Optional) Set the Fortran compiler version number that you will use to compile CMAQ; if you employ this variable, it will be appended to the compiler type when naming build directories and executables</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOAPI_INCL_DIR</span></code><a id=IOAPI_INCL_DIR></a>
+Location of the I/O API include files installed on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOAPI_LIB_DIR</span></code><a id=IOAPI_LIB_DIR></a>
+Location of the I/O API library on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETCDF_LIB_DIR</span></code><a id=NETCDF_LIB_DIR></a>
+Location of the netCDF C Library on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETCDF_INCL_DIR</span></code><a id=NETCDF_LIB_DIR></a>
+Location of the netCDF C include files on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETCDFF_LIB_DIR</span></code><a id=NETCDF_LIB_DIR></a>
+Location of the netCDF Fortran Library on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETCDFF_INCL_DIR</span></code><a id=NETCDF_LIB_DIR></a>
+Location of the netCDF Fortran include files on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MPI_LIB_DIR</span></code><a id=MPI_LIB_DIR></a>
+Location of the Message Passing Interface Library on your Linux system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ioapi_lib</span></code><a id=ioapi_lib></a>
+Name of the I/O API library on your system; set to “-lioapi”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">netcdf_lib</span></code><a id=netcdf_lib></a>
+Name of the netCDF library C on your system;  set to “-lnetcdf” for versions &lt; 4.2.0, “-lnetcdf” for version 4.2.0 and later</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">netcdff_lib</span></code><a id=netcdf_lib></a>
+Name of the netCDF Fortran library on your system;  set to “-lnetcdff” for versions 4.2.0 and later, for version before 4.2.0 this    library is bundled with the C library.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pnetcdf_lib</span></code><a id=pnetcdf_lib></a>
+Name of the parallel netCDF library on your system; set to “-lpnetcdf”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi_lib</span></code><a id=mpi_lib></a>
+Name of the MPI library on your system; set to “-lmpich” for MVAPICH, “-lmpi” for OpenMPI</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myFC</span></code><a id=myFC></a>
+Set to match the <code class="docutils literal notranslate"><span class="pre">FC</span></code> (Fortran compiler) you use to compile netCDF</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myCC</span></code><a id=myCC></a>
+Set to match the <code class="docutils literal notranslate"><span class="pre">CC</span></code> (C compiler) you use to compile netCDF</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myFSTD</span></code> <a id=myFSTD></a>
+Standard Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myDBG</span></code> <a id=myDBG></a>
+Debug Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myLINK_FLAGS</span></code> <a id=myLINK_FLAGS></a>
+Fortran compile linker flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myFFLAGS</span></code><a id=myFFLAGS></a>
+Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myCFLAGS</span></code><a id=myCFLAGS></a>
+C compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">myFRFLAGS</span></code><a id=myFRFLAGS></a>
+Free form-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extra_lib</span></code><a id=extra_lib></a>
+Set to other libraries required for compiling on your Linux system; users will likely need to change this setting in the distributed script for portability to their system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EXEC_ID</span></code><a id=EXEC_ID></a>
+Build tag, should be automatically set by config_cmaq.csh. Users who build the CMAQ model from a git repository will see the SHA ID, corresponding to the state of the repository code used to build their model, inserted into this EXEC_ID. This will support the model build and resulting output being uniquely associated with the model source code version.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CMAQ_REPO</span></code> <a id=CMAQ_REPO></a> This is always the location of the CMAQ repository that the user will pull from to create exectuables. If the user is building CMAQ inside the repository then it will be equal to CMAQ_HOME. If not, the user must supply an alternative folder location.</p></li>
+</ul>
+<p><a id=bldit_cctm.csh></a></p>
+</section>
+<section id="a-2-compilation-options-bldit-cctm-csh">
+<h2>A.2 Compilation Options (bldit_cctm.csh)<a class="headerlink" href="#a-2-compilation-options-bldit-cctm-csh" title="Link to this heading">#</a></h2>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<p>The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options, you must recompile CCTM and create a new executable.</p>
+<p>Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.</p>
+<p>The following options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a “#” to turn the option off.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CompileBLDMAKE</span></code><a id=CopySrc></a><br />
+Uncomment to use an existing BLDMAKE executable to build CCTM executable. If commented out, recompile BLDMAKE utility from the source.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CopySrc</span></code><a id=CopySrc></a><br />
+Uncomment to copy the source code into a working build (BLD) directory. Currently, this option cannot be commented out to successfully compile the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MakeFileOnly</span></code><a id=MakeFileOnly></a><br />
+Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing ‘make’ in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ParOpt</span></code><a id=ParOpt></a><br />
+Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_parallel_io</span></code><a id=build_parallel_io></a><br />
+Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to <a class="reference internal" href="CMAQ_UG_appendixD_parallel_implementation.html"><span class="std std-doc">Appendix D</span></a>.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Debug_CCTM</span></code><a id=CopySrc></a><br />
+Uncomment to compile the CCTM executable in Debug Mode.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ISAM_CCTM</span></code><a id=CopySrc></a><br />
+Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See <a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html"><span class="std std-doc">Chapter 11</span></a> for futher information before invoking this option.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_twoway</span></code><a id=build_twoway></a><br />
+Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problem, please contact David Wong (wong.david&#64;epa.gov) for specific instructions for building WRF-CMAQ.</p></li>
+</ul>
+<p>The following configuration settings may have multiple options. Select one option in the CCTM build script.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ModGrid:</span> <span class="pre">[default:</span> <span class="pre">Cartesian]</span></code><a id=ModGrid></a><br />
+The CCTM model grid configuration module. Currently only Cartesian coordinates are supported by CMAQ. Do not change this module setting.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">grid/cartesian</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModAdv:</span> <span class="pre">[default:</span> <span class="pre">wrf_cons]</span></code><a id=ModHadv></a><br />
+3-D Horizontal module. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#65-advection"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">wrf_cons</span></code><br />
+use the WRF vertically integrated column mass to calculate vertical advection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">local_cons</span></code><br />
+use the layer-by-layer integrated mass-conserving scheme to calculate vertical advection</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModHdiff:</span> <span class="pre">[default:</span> <span class="pre">hdiff/multiscale]</span></code><a id=ModHdiff></a><br />
+The only option in CMAQv5 for the horizontal diffusion module is <code class="docutils literal notranslate"><span class="pre">hdiff/multiscale</span></code>, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#66-horizontal-diffusion"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">hdiff/multiscale</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModVdiff:</span> <span class="pre">[default:</span> <span class="pre">vdiff/acm2]</span></code><a id=ModVdiff></a><br />
+Vertical diffusion and surface exchange module. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#67-vertical-diffusion"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">vdiff/acm2</span></code><br />
+calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModDepv:</span> <span class="pre">[default:</span> <span class="pre">depv/m3dry]</span></code><a id=ModDepv></a><br />
+Deposition calculation module. Users may choose between the msdry and stage options.  If CMAQ output of land use specific deposition or stomatal flux is desired, then the stage option must be selected. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#68-dry-depositionair-surface-exchange"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">depv/m3dry</span></code><br />
+CMAQ m3dry dry deposition routine.  This is an updated version of the routine that has always been in CMAQ. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#681-dry-deposition---m3dry"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depv/stage</span></code>
+CMAQ stage dry deposition routine.  This option is new in version 5.3. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModEmis:</span> <span class="pre">[default:</span> <span class="pre">emis/emis]</span></code><a id=ModEmis></a><br />
+CMAQ inline anthropogenic and natural emissions module. Inline emissions are activated by the user via the CCTM run script. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">emis/emis</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModBiog:</span> <span class="pre">[default:</span> <span class="pre">biog/beis4]</span></code><a id=ModBiog></a><br />
+Calculate biogenic emissions online with the BEIS4 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">biog/beis4</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModMegBiog:</span> <span class="pre">[default:</span> <span class="pre">biog/megan3]</span></code><a id=ModMegBiog></a><br />
+Calculate biogenic emissions online with the MEGAN3.1 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">biog/megan3</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModPlmrs:</span> <span class="pre">[default:</span> <span class="pre">plrise/smoke]</span></code><a id=ModPlmrs></a><br />
+Calculate inline plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">plrise/smoke</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModCgrds:</span> <span class="pre">[default:</span> <span class="pre">spcs/cgrid_spcs_nml]</span></code><a id=ModCgrds></a><br />
+CMAQ model species configuration module.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">spcs/cgrid_spcs_nml</span></code><br />
+namelist files used to configure CMAQ model species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spcs/cgrid_specs_icl</span></code><br />
+use Fortran INCLUDE files to configure CMAQ model species</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModPhot:</span> <span class="pre">[default:</span> <span class="pre">phot/inline]</span></code><a id=ModPhot></a><br />
+Photolysis calculation module. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#6103-photolysis"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">phot/inline</span></code><br />
+calculate photolysis rates inline using simulated aerosols and ozone concentrations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">phot/table</span></code><br />
+calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mechanism:</span> <span class="pre">[default:</span> <span class="pre">cb6r5_ae7_aq</span></code>]<a id=Mechanism></a><br />
+Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the <a class="reference internal" href="../../../CCTM/src/MECHS/README.html"><span class="std std-doc">CMAQv5.3 Chemical Mechanisms Table</span></a> for a listing of the mechanism choices that are available in CMAQv5.3. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#610-gas-phase-chemistry"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tracer</span> <span class="pre">[default</span> <span class="pre">trac0]</span> </code><a id=Tracer></a><br />
+Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the <code class="docutils literal notranslate"><span class="pre">$CMAQ_HOME/CCTM/src/MECHS</span></code> directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">trac[n]</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModGas:</span> <span class="pre">[default:</span> <span class="pre">gas/ebi_${Mechanism}]</span></code><a id=ModGas></a><br />
+Gas-phase chemistry solver module. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#6102-solvers"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">smvgear</span></code><br />
+use the SMVGEAR chemistry solver</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ros3</span></code><br />
+use gas/the Rosenbrock chemistry solver</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ebi</span></code><br />
+use the Euler Backward Iterative solver</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModDiag</span></code> <a id=ModDiag></a>
+use various diagnostic routines. Currently only the vertical extraction tool is implemented here.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModAero:</span> <span class="pre">[default:</span> <span class="pre">aero7]</span></code><a id=ModAero></a><br />
+CMAQ aero/aerosol module. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#611-aerosol-dynamics-and-chemistry"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">aero7</span></code><br />
+seventh-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModCloud:</span> <span class="pre">[default:</span> <span class="pre">cloud/acm_ae6]</span></code><a id=ModCloud></a><br />
+CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#612-aqueous-chemistry-scavenging-and-wet-deposition"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cloud/acm_ae6</span></code><br />
+ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cloud/acm_ae6_mp</span></code><br />
+ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO6 and air toxics; this is the multipollutant mechanism in CMAQv5</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cloud/acm_ae7</span></code><br />
+ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cloud/acm_ae7_kmt2</span></code><br />
+ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for AERO7. This cloud mechanism considers kinetic mass transfer and uses a Rosenbrock solver to simulate extended aqueous chemistry in cloud droplets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cloud/acm_cracmm</span></code><br />
+ACM cloud processor that uses the ACM methodology to compute convective mixing with aqueous chemistry for CRACMM</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModUtil:</span> <span class="pre">[default:</span> <span class="pre">util]</span></code><a id=ModUtil></a><br />
+CMAQ utility modules. Do not change this module setting.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">util/util</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModPa:</span> <span class="pre">[default:</span> <span class="pre">procan/pa]</span></code><a id=ModPa></a>
+Process analysis is controlled in the CCTM run script. Do not change this module setting.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">procan/pa</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ModPvO3:</span> <span class="pre">[default:</span> <span class="pre">pv_o3]</span></code><a id=ModPvO3></a>
+Potential vorticity parameterization for free-troposphere exchange of ozone. Do not change this module setting. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#613-potential-vorticity-scaling"><span class="std std-ref">Chapter 6</span></a> for further information.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pv_o3</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p><a id=run_cctm.csh></a></p>
+</section>
+<section id="a-3-execution-options-run-cctm-csh">
+<h2>A.3 Execution Options (run_cctm.csh)<a class="headerlink" href="#a-3-execution-options-run-cctm-csh" title="Link to this heading">#</a></h2>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<p>The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">compiler</span> <span class="pre">[default:</span> <span class="pre">intel]</span></code><a id=compiler></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compilerVrsn</span> <span class="pre">[default:</span> <span class="pre">Empty]</span></code><a id=compilerVrsn></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VRSN</span> <span class="pre">[default:</span> <span class="pre">v55]</span></code><a id=VRSN></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PROC</span> <span class="pre">[default:</span> <span class="pre">mpi]</span></code><a id=PROC></a><br />
+Sets if the CCTM will run in multi-processor or serial mode.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi</span></code><br />
+Use MPI multi-processor configuration. The CCTM executable must have been built to support MPI, see bldit_cctm.csh compilation options above. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">serial</span></code><br />
+Run the CCTM in serial, single-processor mode.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MECH</span> <span class="pre">[default:</span> <span class="pre">None]</span></code><a id=MECH></a><br />
+CMAQ chemical mechanism. Must match <code class="docutils literal notranslate"><span class="pre">Mechanism</span></code> variable setting in the CCTM build script. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#using-predefined-chemical-mechanisms"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APPL</span> <span class="pre">[default:</span> <span class="pre">none]</span></code><a id=APPL></a><br />
+Application name used to label output binaries and log files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RUNID</span> <span class="pre">[default:</span> <span class="pre">$VRSN_compiler_APPL]</span></code><a id=RUNID></a><br />
+Run ID used to track version number, compiler, and application case name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BLD</span></code> <a id=BLD></a><br />
+Directory path of the built CCTM executable</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EXEC</span> <span class="pre">[default:</span> <span class="pre">CCTM_$VRSN]</span></code><a id=EXEC></a><br />
+The name of the CCTM executable.</p></li>
+</ul>
+<p><a id=MPI_Config></a></p>
+<section id="mpi-configuration">
+<h3>MPI Configuration<a class="headerlink" href="#mpi-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NPCOL_NPROW</span> <span class="pre">[default:</span> <span class="pre">1</span> <span class="pre">1]</span></code><a id=NPCOL_NPROW></a><br />
+The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">1</span></code>. For example, for an 8 processor MPI simulation, set to <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">2</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NPROCS</span> <span class="pre">[default:</span> <span class="pre">1]</span></code><a id=NPROCS></a><br />
+Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, otherwise set to the product of the two numbers used in NPCOL_NPROW.</p></li>
+</ul>
+<p><a id=Vertical_Ext></a></p>
+</section>
+<section id="vertical-extent">
+<h3>Vertical extent<a class="headerlink" href="#vertical-extent" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NZ</span> <span class="pre">[default:</span> <span class="pre">35]</span></code><a id=NZ></a><br />
+Set the number of vertical layers. Script variable only, variable not used by CCTM model. Vertical extent inherited from MCIP model inputs.</p></li>
+</ul>
+<p><a id=Timestep_Config></a></p>
+</section>
+<section id="timestep-configuration">
+<h3>Timestep Configuration<a class="headerlink" href="#timestep-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NEW_START</span> <span class="pre">[default:</span> <span class="pre">TRUE]</span></code><a id=NEW_START></a><br />
+Value should be true for new simulations starting from an initial condition file. To restart from a previous days simulation output, set to FALSE. For all standard runscripts, this variable is automatically set to FALSE after looping to the second day of the simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">START_DATE</span></code><a id=START_DATE></a><br />
+Simulation start date in Gregorian format (YYYY-MM-DD)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">END_DATE</span></code><a id=END_DATE></a><br />
+Simulation end date in Gregorian format (YYYY-MM-DD)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STTIME</span></code><a id=STTIME></a><br />
+Simulation start time (HHMMSS)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NSTEPS</span> <span class="pre">[default:</span> <span class="pre">240000]</span></code><a id=NSTEPS></a><br />
+Number of simulation time steps (HHMMSS)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TSTEP</span> <span class="pre">[default:</span> <span class="pre">010000]</span></code><a id=TSTEP></a><br />
+Simulation output time step interval (HHMMSS). Must be a mutiple of the run length.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MET_TSTEP</span> <span class="pre">[default:</span> <span class="pre">time</span> <span class="pre">step</span> <span class="pre">of</span> <span class="pre">METCRO3D</span> <span class="pre">file]</span></code><a id=MET_TSTEP></a><br />
+Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable; this environmental variable is not included in our default runscripts. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60…} minutes.</p></li>
+</ul>
+<p><a id=CCTM_Config_Options></a></p>
+</section>
+<section id="cctm-configuration-options">
+<h3>CCTM Configuration Options<a class="headerlink" href="#cctm-configuration-options" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GRID_NAME</span> <span class="pre">[default:</span> <span class="pre">Blank]</span></code><a id=GRID_NAME></a><br />
+Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GRIDDESC</span> <span class="pre">[default:</span> <span class="pre">Path</span> <span class="pre">to</span> <span class="pre">GRIDDESC</span> <span class="pre">file]</span></code><a id=GRIDDESC></a><br />
+Grid description file for setting the horizontal grid definition.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_APPL</span> <span class="pre">[default:</span> <span class="pre">${RUNID}_${YYYYMMDD}]</span></code><a id=CTM_APPL></a><br />
+CCTM log and output file naming extension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CONC_SPCS</span> <span class="pre">[if</span> <span class="pre">commented</span> <span class="pre">out,</span> <span class="pre">all</span> <span class="pre">species]</span></code><a id=CONC_SPCS></a><br />
+Model species to be written to the CCTM_CONC file, including temperature, relative humidity and pressure. See <a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html#72-cctm-output-files"><span class="std std-ref">Chapter 7</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CONC_BLEV_ELEV</span> <span class="pre">[if</span> <span class="pre">commented</span> <span class="pre">out,</span> <span class="pre">all</span> <span class="pre">layers]</span></code><a id=CONC_BLEV_ELEV></a><br />
+Vertical model layer range for the CCTM_CONC file concentrations; this variable sets the lower and upper layers over which to output the CCTM_CONC file. In the example script, BLEV and ELEV are both set to 1, so concentrations will only be written for the first layer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AVG_CONC_SPCS</span> <span class="pre">[if</span> <span class="pre">commented</span> <span class="pre">out,</span> <span class="pre">output</span> <span class="pre">all</span> <span class="pre">species]</span></code><a id=AVG_CONC_SPCS></a><br />
+Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file, including temperature, relative humidity and pressure. The species in this list will be written to the CCTM_ACONC output file. See <a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html#72-cctm-output-files"><span class="std std-ref">Chapter 7</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ACONC_BLEV_ELEV</span> <span class="pre">[default:</span> <span class="pre">if</span> <span class="pre">commented</span> <span class="pre">out,</span> <span class="pre">all</span> <span class="pre">layers]</span></code><a id=ACONC_BLEV_ELEV></a><br />
+Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AVG_FILE_END_TIME</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=AVG_FILE_END_TIME></a><br />
+Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Y</span></code>: Set the time stamp to the end of each hour.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code>: Set the time stamp to the beginning of the hour.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EXECUTION_ID</span> <span class="pre">[default:</span> <span class="pre">Blank]</span></code><a id=EXECUTION_ID></a><br />
+The name of the CCTM executable; automatically set by the script.</p></li>
+</ul>
+<p><a id=Syn_time_Option></a></p>
+</section>
+<section id="synchronization-time-step-and-tolerance-options">
+<h3>Synchronization Time Step and Tolerance Options<a class="headerlink" href="#synchronization-time-step-and-tolerance-options" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_MAXSYNC</span> <span class="pre">[default:</span> <span class="pre">720]</span></code><a id=CTM_MAXSYNC></a><br />
+Maximum synchronization time step in seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_MINSYNC</span> <span class="pre">[default:</span> <span class="pre">60]</span></code><a id=CTM_MINSYNC></a><br />
+Minimum synchronization time step in seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SIGMA_SYNC_TOP</span> <span class="pre">[default:</span> <span class="pre">.70]</span></code><a id=SIGMA_SYNC_TOP></a><br />
+Top sigma level thru. which sync step determined</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ADV_HDIV_LIM</span> <span class="pre">[default:</span> <span class="pre">.9]</span></code><a id=ADV_HDIV_LIM></a><br />
+Maximum horizontal divergence limit for advection time step adjustment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_ADV_CFL</span> <span class="pre">[default:</span> <span class="pre">.75]</span></code><a id=CTM_ADV_CFL></a><br />
+Maximum Courant–Friedrichs–Lewy (CFL) condition</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RB_ATOL</span> <span class="pre">[default:</span> <span class="pre">1.0E-07]</span></code><a id=RB_ATOL></a><br />
+If using Rosenbrock (ros3) photochemistry solver, the absolute tolerance for
+converging to solution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RB_RTOL</span> <span class="pre">[default:</span> <span class="pre">1.0E-03]</span></code><a id=RB_RTOL></a><br />
+If using Rosenbrock (ros3) photochemistry solver, relative tolerance for converging
+to solution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GEAR_ATOL</span> <span class="pre">[default:</span> <span class="pre">1.0E-09]</span></code><a id=RB_ATOL></a><br />
+If using Gear (smvgear) photochemistry solver, the absolute tolerance for
+converging to solution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GEAR_RTOL</span> <span class="pre">[default:</span> <span class="pre">1.0E-03]</span></code><a id=RB_RTOL></a><br />
+If using Gear (smvgear) photochemistry solver, relative tolerance for converging
+to solution</p></li>
+</ul>
+<p><a id=Science_Options></a></p>
+</section>
+<section id="science-options">
+<h3>Science Options<a class="headerlink" href="#science-options" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_OCEAN_CHEM</span> <span class="pre">[default:</span> <span class="pre">True]</span></code><a id=CTM_SS_AERO></a><br />
+Use online sea spray aerosol emissions, halogen ozone chemistry, and enhanced ozone deposition over ocean waters. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#sea-spray"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_LTNG_NO</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=CTM_LING_NO></a><br />
+Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for <code class="docutils literal notranslate"><span class="pre">LTNGNO</span></code>, <code class="docutils literal notranslate"><span class="pre">LTNGPARAMS</span></code>, <code class="docutils literal notranslate"><span class="pre">NLDN_STRIKES</span></code>, and <code class="docutils literal notranslate"><span class="pre">LTNGDIAG</span></code> below. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#lightning-no"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KZMIN</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=KZMIN></a><br />
+If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_MOSAIC</span> <span class="pre">[default</span> <span class="pre">N]</span></code><a id=CTM_MOSAIC></a><br />
+Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_STAGE_P22</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=CTM_FST></a><br />
+Y/N setting to select the land use specific implementation of the Pleim et al. 2022 aerosol deposition parameterization in the STAGE deposition option. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_STAGE_E20</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=CTM_FST></a><br />
+Y/N setting to select the land use specific and modal implementation of the Emerson et al. 2020 aerosol deposition parameterization in the STAGE deposition option. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_STAGE_S22</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=CTM_FST></a><br />
+Y/N setting to select the land use specific implementation of the Shu et al. 2022 and v5.3 STAGE aerosol deposition parameterization in the STAGE deposition option. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PX_VERSION</span></code> <a id=PX_VERSION></a>
+Y/N setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CLM_VERSION</span></code> <a id=CLM_VERSION></a>
+Y/N setting to indicate whether the Community Land Model (CLM) land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from CLM will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NOAH_VERSION</span></code> <a id=NOAH_VERSION></a>
+Y/N setting to indicate whether the Noah land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from Noah will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange.  See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#682-dry-depostion---stage"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_ABFLUX</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=CTM_ABFLUX></a><br />
+Y/N setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_BIDI_FERT_NH3</span></code> <a id=CTM_BIDI_FERT_NH3></a>
+Y/N setting to indicate whether fertilizer NH3 should be subtracted from the emissions and handled instead by the NH3 bidirectional flux model.  Note that the bidirectional flux model must also be invoked by setting CTM_ABFLUX to Y.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_HGBIDI</span> <span class="pre">[default:</span> <span class="pre">N]</span></code>
+Y/N setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_SFC_HONO</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code>
+Y/N setting to include  surface HONO interactions.  See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#6.10.4_HONO"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_GRAV_SETL</span> <span class="pre">[default</span> <span class="pre">Y]</span></code><a id=CTM_GRAV_SETL></a><br />
+Y/N setting to activate gravitational sedimentation for aerosols.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_BIOGEMIS_BEIS</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=CTM_BIOGEMIS_BEIS></a><br />
+Y/N setting to calculate biogenic emissions using BEIS. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_BIOGEMIS_MEGAN</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=CTM_BIOGEMIS_MEGAN></a><br />
+Y/N setting to calculate biogenic emissions using MEGAN. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AEROSOL_OPTICS</span>&#160; <span class="pre">[default:</span> <span class="pre">3]</span></code><a id=AEROSOL_OPTICS></a>  Determines how aerosol optical properies are calculated for the Inline Calculation of Photolysis Frequencies.<br />
+– VALUES 1 thru 3 determined by using Uniformly Volume Mixed sphere for each aerosol mode<br />
+—  1-Inline Tabular Method based on Mie Calculations over range of aerosol properties<br />
+—  2-Solves Mie Theory using aerosol size distribution and mean refractive indices<br />
+—  3-Approximations to Mie Theory based on Mie Parameters and mean refractive indices<br />
+–  VALUES 4 thru 6 attempts to use core-shell mixing model when the aerosol mode has signficant black carbon core otherwise uses Volume Mixed model where optics determined as<br />
+—  4-Inline Tabular Method based on Mie Calculations<br />
+—  5-Solves Mie Theory<br />
+—  6-Approximations to Mie Theory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_PVO3</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=CTM_PVO3></a><br />
+Y/N determines whether to scale ozone in free-troposphere to potential vorticity. Option requires that METCRO3D file has PV, potential vorticity. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#613-potential-vorticity-scaling"><span class="std std-ref">User Guide 6.13</span></a> for more information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IC_AERO_M2USE</span> <span class="pre">[default:</span> <span class="pre">T]</span></code><a id=IC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Initial Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode. If a particular simulation is a restart from a simulation preceeding in time (i.e. if this is any day after the first simulation day), then IC_AERO_M2USE is automatically set to True inside CMAQ.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IC_AERO_M2WET</span> <span class="pre">[default:</span> <span class="pre">F=dry]</span></code><a id=IC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the initial condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC_AERO_M2USE</span> <span class="pre">[default:</span> <span class="pre">T]</span></code><a id=BC_AERO_M2USE></a> Instructs CMAQ whether or not to use aerosol surface area from the Boundary Condition file. If this option is set to false, then uniform diameter and standard deviation will be applied to each aerosol mode from the boundaries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC_AERO_M2WET</span> <span class="pre">[default:</span> <span class="pre">F=dry]</span></code><a id=BC_AERO_M2WET></a> Instructs CMAQ whether or not to assume the boundary condition surface area is consistent with dry or wet diameter. Note that most air quality models assume mode parameters are dry, and then will calculate wet diameter when needed (e.g. for deposition). For more information about the IC_AERO and BC_AERO options, please see <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#6.11.1_Aero_BC"><span class="std std-ref">Chapter 6</span></a></p></li>
+</ul>
+<p><a id=Process_Analysis_Options></a></p>
+</section>
+<section id="process-analysis-options">
+<h3>Process analysis options<a class="headerlink" href="#process-analysis-options" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_PROCAN</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=CTM_PROCAN></a><br />
+Activate process analysis in the CCTM. Set the environment variable, PACM_INFILE (Read below for more information), that defines the integrated process rate and integrated reaction rate outputs from CCTM. Additional process analysis output files will be created when this setting is activated.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA_BCOL_ECOL</span> <span class="pre">[default:</span> <span class="pre">0]</span></code><a id=PA_BCOL_ECOL></a><br />
+Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA_BROW_EROW</span> <span class="pre">[default:</span> <span class="pre">0]</span></code><a id=PA_BROW_EROW></a><br />
+Modeling grid domain row range for the process analysis calculations. Set to the two digits representing the beginning and ending row number bounding the process analysis domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA_BLEV_ELEV</span> <span class="pre">[default:</span> <span class="pre">0]</span></code><a id=PA_BLEV_ELEV></a><br />
+Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PACM_INFILE</span></code> <a id=PACM_INFILE></a><br />
+Input file that specifies the desired output information (read by pa_read.F). See Table 1 in <a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html"><span class="std std-doc">Chapter 9</span></a> for details on the types of equations and operators that can be used in this file. A sample file is included in each of the mechanism folders under the CCTM/src/MECHS directory. For example, the file pa_cb6r3_ae7_aq.ctl in CCTM/src/MECHS/cb6r3_ae7_aq provides a template of IRR and IPR commands.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PACM_REPORT</span></code> <a id=PACM_REPORT></a><br />
+The output file that displays how CMAQ translates the variables listed in <code class="docutils literal notranslate"><span class="pre">PACM_INFILE</span></code>, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.</p></li>
+</ul>
+<p><a id=I/O_Controls></a></p>
+</section>
+<section id="i-o-controls">
+<h3>I/O Controls<a class="headerlink" href="#i-o-controls" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IOAPI_LOG_WRITE</span> <span class="pre">[default:False]</span></code><a id=IOAPI_LOG_WRITE></a><br />
+Set to T to turn on excess WRITE3 logging by the I/O API.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FL_ERR_STOP</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=FL_ERR_STOP></a><br />
+Set to T to configure the program to exit if inconsistent headers are found in the input files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PROMPTFLAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=PROMPTFLAG></a><br />
+Turn on I/O-API PROMPTFILE interactive mode. Set to T to require interactive prompts for different I/O API operations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOAPI_OFFSET_64</span> <span class="pre">[default:</span> <span class="pre">True]</span></code><a id=IOAPI_OFFSET_64></a><br />
+I/O API setting for large time step records. If your output time step is going to produce data that are &gt;2GB per time step, then this needs to be set to YES.</p></li>
+</ul>
+<p><a id=Aersol_Diagnostics_Controls></a></p>
+</section>
+<section id="aerosol-diagnostics-controls">
+<h3>Aerosol Diagnostics Controls<a class="headerlink" href="#aerosol-diagnostics-controls" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<p>Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See <a class="reference internal" href="CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Appendix B.6: ELMO</span></a></p>
+<p><a id=Diagnostic_Output_Flags></a></p>
+</section>
+<section id="diagnostic-output-flags">
+<h3>Diagnostic Output Flags<a class="headerlink" href="#diagnostic-output-flags" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_CKSUM</span> <span class="pre">[default:</span> <span class="pre">True]</span></code><a id=CTM_CKSUM></a><br />
+Write science processes summaries to the standard output. Impacts run speed and log file output size.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CLD_DIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CLD_DIAG></a><br />
+Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_PHOTDIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CTM_PHOTDIAG></a><br />
+Output files for viewing the photolysis rates used in the model simulation and what meterological and other factors determined the rates. The inline and table options produce three files (<code class="docutils literal notranslate"><span class="pre">CTM_RJ_1</span></code>, <code class="docutils literal notranslate"><span class="pre">CTM_RJ_2</span></code> and <code class="docutils literal notranslate"><span class="pre">CTM_RJ_3</span></code>) and one file (<code class="docutils literal notranslate"><span class="pre">CTM_RJ_2</span></code>), respectively. <code class="docutils literal notranslate"><span class="pre">CTM_RJ_1</span></code> is a two dimensional file that contains key photolysis rates and radiative parameters. <code class="docutils literal notranslate"><span class="pre">CTM_RJ_2</span></code> contains the photolysis rates used over the model domain. <code class="docutils literal notranslate"><span class="pre">CTM_RJ_3</span></code> contains data used to calculate the photolysis rates.<br />
+–   <code class="docutils literal notranslate"><span class="pre">NLAYS_PHOTDIAG</span> <span class="pre">[default:</span> <span class="pre">1]</span></code> <a id=NLAYS_PHOTDIAG></a>: Number of layers in <code class="docutils literal notranslate"><span class="pre">CTM_RJ_2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CTM_RJ_3</span></code> files. Permitted values equal 1 to number of layers in model domain. Only the inline option uses this runtime option.<br />
+–   <code class="docutils literal notranslate"><span class="pre">NWAVE_PHOTDIAG</span> <span class="pre">[default:294</span> <span class="pre">303</span> <span class="pre">310</span> <span class="pre">316</span> <span class="pre">333</span> <span class="pre">381</span> <span class="pre">607]</span></code> <a id= NWAVE_PHOTDIAG></a>: In
+<code class="docutils literal notranslate"><span class="pre">CTM_RJ_3</span></code>, the wavelengths of diagnostic data written. The user can use or subset the default
+values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_SSEMDIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CTM_SSEMDIAG></a><br />
+Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_DUSTEM_DIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CTM_DUSTEM_DIAG></a><br />
+Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_DEPV_FILE</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CTM_DEPV_FILE></a><br />
+Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LTNGDIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=LTNGDIAG></a><br />
+Output a lightning NO emissions diagnostics file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_WVEL</span> <span class="pre">[default:</span> <span class="pre">Y]</span></code><a id=CTM_WVEL></a><br />
+Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file.</p></li>
+</ul>
+<p><a id=Offline_Emissions_Config></a></p>
+</section>
+<section id="offline-emissions-configuration">
+<h3>Offline emissions configuration<a class="headerlink" href="#offline-emissions-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">N_EMIS_GR</span> </code><a id=N_EMIS_GR></a><br />
+The number of offline gridded streams to be used by the model. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GR_EMIS_###</span> </code><a id=GR_EMIS_###></a><br />
+Directory path and file name of the gridded file for stream number ###, where ### = 001, 002,…,N_EMIS_GR. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GR_EMIS_LAB_###</span> </code><a id=GR_EMIS_LAB_###></a><br />
+Short label of the gridded file for stream ###, where ### = 001, 002,…,N_EMIS_GR. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GR_EM_SYM_DATE_###</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=GR_EM_SYM_DATE_###></a><br />
+Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N_EMIS_PT</span> </code><a id=N_EMIS_PT></a>
+The number of offline Point emission streams to be used by the model. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STK_GRPS_###</span> </code><a id=STK_GRPS_###></a><br />
+Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STK_EMIS_###</span></code><a id=STK_EMIS_###></a><br />
+Directory path and file name of the point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STK_EMIS_DIAG_###</span></code><a id=STK_EMIS_DIAG_###></a><br />
+Logical for turning on/off diagnostic output for point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. These data reflect the emission rates after scaling rules have been applied by DESID, the emissions control interface. Values for STK_EMIS_DIAG_### include FALSE, TRUE, 2D, 2DSUM, and 3D. The TRUE and 2D options are synonymous and will output just the surface layer of emissions. The 2DSUM option outputs a 2D file with values calculated from summing the entire column of emissions in each horizontal grid cell. The 3D option outputs a full 3D file. All options provide output across all output time steps during the simulation day. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STK_EMIS_LAB_###</span> </code><a id=STK_EMIS_LAB_###></a><br />
+Short label of the point emissions file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">STK_EM_SYM_DATE_###</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=STK_EM_SYM_DATE_###></a><br />
+Switch to indicate whether point emission file is of representative day type for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EMIS_SYM_DATE</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=EMIS_SYM_DATE></a><br />
+The default for GR_EM_SYM_DATE_### and STK_EM_SYM_DATE_### if not set explicitly is false, however users have the option to set this default by setting this environment variable. Users should note, that if this variable is set and GR_EM_SYM_DATE_### or STK_EM_SYM_DATE_### is set, the individual stream switch takes precedent over this variable. This switch maybe useful if all offline emissions are of representative day type. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#inline-stream-offline"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+</ul>
+<p><a id=Lightning_NOx_Config></a></p>
+</section>
+<section id="lightning-nox-configuration">
+<h3>Lightning NOx configuration<a class="headerlink" href="#lightning-nox-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LTNGNO</span> <span class="pre">[default:</span> <span class="pre">&quot;InLine&quot;]</span></code><a id=LTNGNO></a><br />
+Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#lightning-no"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NLDN</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=USE_NLDN></a><br />
+Use hourly NLDN or WWLLNs strikes data to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input files (the files can be either NLDN hourly data or WWLLNs hourly data).  If USE_NLDN is set to N and LTNGNO set to “InLine”, lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.<br />
+Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to “InLine” and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#lightning-no"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_LTNGDIAG_1</span></code><a id=LTNGOUT></a><br />
+Lightning diagnostics output 3D netCDF file; ignore if <code class="docutils literal notranslate"><span class="pre">LTNGDIAG</span> <span class="pre">=</span> <span class="pre">N</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_LTNGDIAG_2</span></code><a id=LTNGOUT></a><br />
+Lightning diagnostics output 2D netCDF file (column total lightning NO emissions); ignore if <code class="docutils literal notranslate"><span class="pre">LTNGDIAG</span> <span class="pre">=</span> <span class="pre">N</span></code></p></li>
+</ul>
+<p><a id=Online_Bio_Config></a></p>
+</section>
+<section id="online-biogenic-emissions-configuration">
+<h3>Online biogenic emissions configuration<a class="headerlink" href="#online-biogenic-emissions-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BEIS_SOILOUT</span> <span class="pre">[default:</span> <span class="pre">[Out</span> <span class="pre">Directory/CCTM_BSOILOUT_$RUNID_$TODAY]</span></code><a id=SOILOUT></a><br />
+Directory path and file name of biogenic NO soil emissions output file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BEIS_SOILINP</span> <span class="pre">[default:</span> <span class="pre">[Out</span> <span class="pre">Directory/CCTM_BSOILOUT_$RUNID_$YESTERDAY]</span></code><a id=SOILINP></a><br />
+Directory path and file name of biogenic NO soil emissions input file. If NEW_START is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+</ul>
+<p>Options for use with BEIS:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GSPRO</span> <span class="pre">[default:</span> <span class="pre">Build</span> <span class="pre">Directory]</span></code><a id=GSPRO></a><br />
+Directory path and file name for input ASCII speciation profiles. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BEIS_NORM_EMIS</span> <span class="pre">[default:</span> <span class="pre">None]</span></code><a id=BEIS_NORM_EMIS></a><br />
+Grid-normalized biogenic emissions input netCDF file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PX_VERSION</span> <span class="pre">[default:</span> <span class="pre">True]</span></code><a id=PX_VERSION></a><br />
+Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B3GTS_DIAG</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=B3GTS_DIAG></a><br />
+Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B3GTS_S</span> <span class="pre">[default:</span> <span class="pre">[Output</span> <span class="pre">Directory]/CCTM_B3GTS_$CTM_APPL.nc</span></code><a id=B3GTS_S></a><br />
+Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.</p></li>
+</ul>
+<p>Options for use with MEGAN:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_MEGAN_LAI</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=USE_MEGAN_LAI></a>
+By default MEGAN will use the same leaf area index information as the rest of CMAQ. Toggle if a separate LAI dataset is desired. When this option is enabled the user must also set the environment variable MEGAN_LAI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_SOILOUT</span> <span class="pre">[default:</span> <span class="pre">[Out</span> <span class="pre">Directory/CCTM_MSOILOUT_$RUNID_$TODAY]</span></code><a id=SOILOUT></a><br />
+Directory path and file name of MEGAN’s biogenic NO soil emissions output file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_SOILINP</span> <span class="pre">[default:</span> <span class="pre">[Out</span> <span class="pre">Directory/CCTM_MSOILOUT_$RUNID_$YESTERDAY]</span></code><a id=SOILINP></a><br />
+Directory path and file name of MEGAN’s biogenic NO soil emissions input file. If NEW_START is set to N or F, or if IGNORE_SOILINP is set to F (Default), the soil NO emissions file from the previous day’s simulation will be a required input file. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IGNORE_SOILINP</span> <span class="pre">[default:</span> <span class="pre">N]</span></code><a id=IGNORE_SOILINP></a>
+Similar to the obsolete INITIAL_RUN option for BEIS, this option allows a user to perform a CMAQ restart without needing an MEGAN_SOILINP file for the previous day. Instanteous values of shortwave radiation and surface temperature will be used instead of the previous daily average, and soil NO variables are set to their initialization values as for a new run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_MEGAN_BDSNP</span> <span class="pre">[default:</span> <span class="pre">N</span> <span class="pre">]</span></code><a id=USE_MEGAN_BDSNP></a>
+Toggle to use the Berkeley-Dalhousie Soil NOx Parameterization (BDSNP) instead of the default option based on Yinger and Levy (1995). If the BDSNP option is activated, several additional variables must be set (see below). See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#biogenics"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_CTS</span></code><a id=MEGAN_CTS></a>
+Points to canopy file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_EFS</span></code><a id=MEGAN_EFS></a>
+Points to emission factor file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_LDF</span></code><a id=MEGAN_LDF></a>
+Points to light dependent fraction file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MEGAN_LAI</span></code><a id=MEGAN_CTS></a>
+Optional. Points to leaf area index file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDSNP_AFILE</span></code><a id=MEGAN_ARID></a>
+For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDSNP_NAFILE</span></code><a id=MEGAN_NONARID></a>
+For BDSNP. Points to the NONARID file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDSNP_FFILE</span></code><a id=MEGAN_FERT></a>
+For BDSNP. Points to the FERT file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDSNP_LFILE</span></code><a id=MEGAN_FERT></a>
+For BDSNP. Points to the LANDTYPE file that was created using the MEGAN preprocessor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDSNP_NFILE</span></code><a id=MEGAN_NDF></a>
+For BDSNP. Points to the nitrogen deposition file that was created using the MEGAN preprocessor.</p></li>
+</ul>
+<p><a id=windblown_dust_config></a></p>
+</section>
+<section id="windblown-dust-emissions-configuration">
+<h3>Windblown dust emissions configuration<a class="headerlink" href="#windblown-dust-emissions-configuration" title="Link to this heading">#</a></h3>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#TOC_A"><span class="xref myst">Return to Top</span></a></p>
+<!-- END COMMENT -->
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CTM_WB_DUST</span> <span class="pre">[default:</span> <span class="pre">False]</span></code><a id=CTM_WB_DUST></a><br />
+Setting to calculate online windblown dust emissions in CCTM. Requires additional setting of environmental variable <code class="docutils literal notranslate"><span class="pre">PX_VERSION</span></code> to “Y”. See <a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html#wind-blown-dust"><span class="std std-ref">Chapter 6</span></a> for further information.</p></li>
+</ul>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="../CMAQ_UG_tables_figures.html"><span class="std std-doc">&lt;&lt; Tables and Figures</span></a> - <a class="reference internal" href="../README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Next Appendix &gt;&gt;</span></a><br>
+CMAQv5.5 User’s Guide <br></p>
+ <!-- END COMMENT -->
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-1-configuration-options-config-cmaq-csh">A.1 Configuration Options (config_cmaq.csh)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-2-compilation-options-bldit-cctm-csh">A.2 Compilation Options (bldit_cctm.csh)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-3-execution-options-run-cctm-csh">A.3 Execution Options (run_cctm.csh)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mpi-configuration">MPI Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vertical-extent">Vertical extent</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timestep-configuration">Timestep Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cctm-configuration-options">CCTM Configuration Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#synchronization-time-step-and-tolerance-options">Synchronization Time Step and Tolerance Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#science-options">Science Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-analysis-options">Process analysis options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#i-o-controls">I/O Controls</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aerosol-diagnostics-controls">Aerosol Diagnostics Controls</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-output-flags">Diagnostic Output Flags</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#offline-emissions-configuration">Offline emissions configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lightning-nox-configuration">Lightning NOx configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#online-biogenic-emissions-configuration">Online biogenic emissions configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windblown-dust-emissions-configuration">Windblown dust emissions configuration</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

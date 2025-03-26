@@ -1,0 +1,377 @@
+/#start   YYYYDDD  HHMMSS
+/#end     YYYYDDD  HHMMSS
+/#layer      KLAY     (default is all layers)
+/
+
+! This Specices Definition File was generated for mapping 
+! from CB6 to RACM2_ae6 for LISTOS_cracmmv1 testing.
+
+
+/ File [1]: CMAQ conc/aconc file
+
+/new species,    units,     expression,   description
+
+PRES            ,Pa              ,PRES[1], RACM2 mapping of PRES
+
+ZH              ,m               ,ZH[1], AVERAGE OF ZH
+
+TA              ,m               ,TA[1], RACM2 mapping of TA
+
+ZF              ,m               ,ZF[1], AVERAGE OF ZF
+
+RH              ,m               ,RH[1], RACM2 mapping of RH
+
+W_VEL           ,m               ,W_VEL[1], RACM2 mapping of W_VEL
+
+NO2             ,ppmV            ,NO2[1], RACM2 mapping of NO2
+
+NO              ,ppmV            ,NO[1], RACM2 mapping of NO
+
+O3P             ,ppmV            ,O[1], RACM2 mapping of O
+
+O3              ,ppmV            ,O3[1], RACM2 mapping of O3
+
+NO3             ,ppmV            ,NO3[1], RACM2 mapping of NO3
+
+O1D             ,ppmV            ,O1D[1], RACM2 mapping of O1D
+
+HO              ,ppmV            ,OH[1], RACM2 mapping of OH
+
+HO2             ,ppmV            ,HO2[1], RACM2 mapping of HO2
+
+H2O2            ,ppmV            ,H2O2[1], RACM2 mapping of H2O2
+
+N2O5            ,ppmV            ,N2O5[1], RACM2 mapping of N2O5
+
+HNO3            ,ppmV            ,HNO3[1], RACM2 mapping of HNO3
+
+HONO            ,ppmV            ,HONO[1], RACM2 mapping of HONO
+
+HNO4            ,ppmV            ,PNA[1], RACM2 mapping of PNA
+
+SO2             ,ppmV            ,SO2[1], RACM2 mapping of SO2
+
+SULF            ,ppmV            ,SULF[1], RACM2 mapping of SULF
+
+ACO3            ,ppmV            ,C2O3[1], RACM2 mapping of C2O3
+
+MO2             ,ppmV            ,MEO2[1], RACM2 mapping of MEO2
+
+PAN             ,ppmV            ,PAN[1] + PANX[1], RACM2 mapping of PAN and PANX
+
+PAA             ,ppmV            ,PACD[1], RACM2 mapping of PACD
+
+ORA2            ,ppmV            ,AACD[1], RACM2 mapping of AACD
+
+RCO3            ,ppmV            ,CXO3[1], RACM2 mapping of CXO3
+
+HCHO            ,ppmV            ,FORM[1], RACM2 mapping of FORM
+
+OP1             ,ppmV            ,MEPX[1], RACM2 mapping of MEPX
+
+MOH             ,ppmV            ,MEOH[1], RACM2 mapping of MEOH
+
+OP2             ,ppmV            ,ROOH[1], RACM2 mapping of ROOH
+
+ETHP            ,ppmV            ,XPAR[1], RACM2 mapping of XPAR
+
+HC3P            ,ppmV            ,XPRP[1], RACM2 mapping of XPRP
+
+ONIT            ,ppmV            ,NTR1[1] + NTR2[1], RACM2 mapping of NTR1 and NTR2
+
+ORA1            ,ppmV            ,FACD[1], RACM2 mapping of FACD
+
+CO              ,ppmV            ,CO[1], RACM2 mapping of CO
+
+ALD             ,ppmV            ,ALDX[1] + GLYD[1], RACM2 mapping of ALDX and GLYD
+
+UALD            ,ppmV            ,HPLD[1], RACM2 mapping of HPLD
+
+ACD             ,ppmV            ,ALD2[1], RACM2 mapping of ALD2 and ALD2_PRIMARY
+
+GLY             ,ppmV            ,GLY[1], RACM2 mapping of GLY
+
+MGLY            ,ppmV            ,MGLY[1], RACM2 mapping of MGLY
+
+ETH             ,ppmV            ,ETHA[1], RACM2 mapping of ETHA
+
+EOH             ,ppmV            ,ETOH[1], RACM2 mapping of ETOH
+
+MEK             ,ppmV            ,KET[1]*0.5, RACM2 mapping of KET
+
+KET             ,ppmV            ,KET[1]*0.5, RACM2 mapping of KET
+
+HC5             ,ppmV            ,PAR[1]*0.33, RACM2 splitting of PAR based on 2017 US emissions
+
+HC8             ,ppmV            ,PAR[1]*0.67, RACM2 splitting of PAR based on 2017 US emissions
+
+ACT             ,ppmV            ,ACET[1], RACM2 mapping of ACET
+
+HC3             ,ppmV            ,PRPA[1], RACM2 mapping of PRPA
+
+ACE             ,ppmV            ,ETHY[1], RACM2 mapping of ETHY
+
+ETE             ,ppmV            ,ETH[1], RACM2 mapping of ETH
+
+OLT             ,ppmV            ,OLE[1], RACM2 mapping of OLE
+
+OLI             ,ppmV            ,IOLE[1], RACM2 mapping of IOLE
+
+ISO             ,ppmV            ,ISOP[1], RACM2 mapping of ISOP
+
+ISOP            ,ppmV            ,ISO2[1], RACM2 mapping of ISO2
+
+MACR            ,ppmV            ,ISPD[1]*0.26, RACM2 mapping of ISPD
+
+MVK             ,ppmV            ,ISPD[1]*0.35, RACM2 mapping of ISPD
+
+HKET            ,ppmV            ,ISPD[1]*0.39, RACM2 mapping of ISPD
+
+ISON            ,ppmV            ,INTR[1], RACM2 mapping of INTR
+
+ISHP            ,ppmV            ,ISPX[1], RACM2 mapping of ISPX
+
+MACP            ,ppmV            ,OPO3[1], RACM2 mapping of OPO3
+
+IEPOX           ,ppmV            ,EPOX[1], RACM2 mapping of EPOX
+
+LIM             ,ppmV            ,TERP[1], RACM2 mapping of TERP
+
+API             ,ppmV            ,APIN[1], RACM2 mapping of APIN
+
+BENZENE         ,ppmV            ,BENZENE[1], RACM2 mapping of BENZENE
+
+CSL             ,ppmV            ,CRES[1] + CRON[1], RACM2 mapping of CRES and CRON
+
+BENP            ,ppmV            ,BZO2[1], RACM2 mapping of BZO2
+
+DCB2            ,ppmV            ,OPEN[1], RACM2 mapping of OPEN (no direct match but OPEN is close)
+
+BENZRO2         ,ppmV            ,BENZRO2[1], RACM2 mapping of BENZRO2
+
+TOL             ,ppmV            ,TOL[1], RACM2 mapping of TOL
+
+TLP1            ,ppmV            ,TO2[1], RACM2 mapping of TO2
+
+TOLRO2          ,ppmV            ,TOLRO2[1], RACM2 mapping of TOLRO2
+
+XYM             ,ppmV            ,XYLMN[1]*0.35, RACM2 mapping of XYLMN
+
+XYO             ,ppmV            ,XYLMN[1]*0.30, RACM2 mapping of XYLMN 
+
+XYP             ,ppmV            ,XYLMN[1]*0.35, RACM2 mapping of XYLMN
+
+XYLRO2          ,ppmV            ,XYLRO2[1], RACM2 mapping of XYLRO2
+
+NAPH            ,ppmV            ,NAPH[1], RACM2 mapping of NAPH
+
+PAHRO2          ,ppmV            ,PAHRO2[1], RACM2 mapping of PAHRO2
+
+MCT             ,ppmV            ,CAT1[1], RACM2 mapping of CAT1
+
+MPAN            ,ppmV            ,OPAN[1], RACM2 mapping of OPAN
+
+SESQ            ,ppmV            ,SESQ[1], RACM2 mapping of SESQ
+
+SOAALK          ,ppmV            ,SOAALK[1], RACM2 mapping of SOAALK
+
+VLVPO1          ,ppmV            ,VLVPO1[1], RACM2 mapping of VLVPO1
+
+VSVPO1          ,ppmV            ,VSVPO1[1], RACM2 mapping of VSVPO1
+
+VSVPO2          ,ppmV            ,VSVPO2[1], RACM2 mapping of VSVPO2
+
+VSVPO3          ,ppmV            ,VSVPO3[1], RACM2 mapping of VSVPO3
+
+VIVPO1          ,ppmV            ,VIVPO1[1], RACM2 mapping of VIVPO1
+
+VLVOO1          ,ppmV            ,VLVOO1[1], RACM2 mapping of VLVOO1
+
+VLVOO2          ,ppmV            ,VLVOO2[1], RACM2 mapping of VLVOO2
+
+VSVOO1          ,ppmV            ,VSVOO1[1], RACM2 mapping of VSVOO1
+
+VSVOO2          ,ppmV            ,VSVOO2[1], RACM2 mapping of VSVOO2
+
+VSVOO3          ,ppmV            ,VSVOO3[1], RACM2 mapping of VSVOO3
+
+PCVOC           ,ppmV            ,PCVOC[1], RACM2 mapping of PCVOC
+
+DIEN            ,ppmV            ,BUTADIENE13[1], RACM2 mapping of BUTADIENE13
+
+ASO4J           ,ug m-3          ,ASO4J[1], RACM2 mapping of ASO4J
+
+ASO4I           ,ug m-3          ,ASO4I[1], RACM2 mapping of ASO4I
+
+ANH4J           ,ug m-3          ,ANH4J[1], RACM2 mapping of ANH4J
+
+ANH4I           ,ug m-3          ,ANH4I[1], RACM2 mapping of ANH4I
+
+ANO3J           ,ug m-3          ,ANO3J[1], RACM2 mapping of ANO3J
+
+ANO3I           ,ug m-3          ,ANO3I[1], RACM2 mapping of ANO3I
+
+AISO1J          ,ug m-3          ,AISO1J[1], RACM2 mapping of AISO1J
+
+AISO2J          ,ug m-3          ,AISO2J[1], RACM2 mapping of AISO2J
+
+ASQTJ           ,ug m-3          ,ASQTJ[1], RACM2 mapping of ASQTJ
+
+AORGCJ          ,ug m-3          ,AORGCJ[1], RACM2 mapping of AORGCJ
+
+AECJ            ,ug m-3          ,AECJ[1], RACM2 mapping of AECJ
+
+AECI            ,ug m-3          ,AECI[1], RACM2 mapping of AECI
+
+AOTHRJ          ,ug m-3          ,AOTHRJ[1], RACM2 mapping of AOTHRJ
+
+AOTHRI          ,ug m-3          ,AOTHRI[1], RACM2 mapping of AOTHRI
+
+AFEJ            ,ug m-3          ,AFEJ[1], RACM2 mapping of AFEJ
+
+AALJ            ,ug m-3          ,AALJ[1], RACM2 mapping of AALJ
+
+ASIJ            ,ug m-3          ,ASIJ[1], RACM2 mapping of ASIJ
+
+ATIJ            ,ug m-3          ,ATIJ[1], RACM2 mapping of ATIJ
+
+ACAJ            ,ug m-3          ,ACAJ[1], RACM2 mapping of ACAJ
+
+AMGJ            ,ug m-3          ,AMGJ[1], RACM2 mapping of AMGJ
+
+AKJ             ,ug m-3          ,AKJ[1], RACM2 mapping of AKJ
+
+AMNJ            ,ug m-3          ,AMNJ[1], RACM2 mapping of AMNJ
+
+ACORS           ,ug m-3          ,ACORS[1], RACM2 mapping of ACORS
+
+ASOIL           ,ug m-3          ,ASOIL[1], RACM2 mapping of ASOIL
+
+NUMATKN         ,m-3             ,NUMATKN[1], RACM2 mapping of NUMATKN
+
+NUMACC          ,m-3             ,NUMACC[1], RACM2 mapping of NUMACC
+
+NUMCOR          ,m-3             ,NUMCOR[1], RACM2 mapping of NUMCOR
+
+SRFATKN         ,m2 m-3          ,SRFATKN[1], RACM2 mapping of SRFATKN
+
+SRFACC          ,m2 m-3          ,SRFACC[1], RACM2 mapping of SRFACC
+
+SRFCOR          ,m2 m-3          ,SRFCOR[1], RACM2 mapping of SRFCOR
+
+AH2OJ           ,ug m-3          ,AH2OJ[1], RACM2 mapping of AH2OJ
+
+AH2OI           ,ug m-3          ,AH2OI[1], RACM2 mapping of AH2OI
+
+AH3OPJ          ,ug m-3          ,AH3OPJ[1], RACM2 mapping of AH3OPJ
+
+AH3OPI          ,ug m-3          ,AH3OPI[1], RACM2 mapping of AH3OPI
+
+ANAJ            ,ug m-3          ,ANAJ[1], RACM2 mapping of ANAJ
+
+ANAI            ,ug m-3          ,ANAI[1], RACM2 mapping of ANAI
+
+ACLJ            ,ug m-3          ,ACLJ[1], RACM2 mapping of ACLJ
+
+ACLI            ,ug m-3          ,ACLI[1], RACM2 mapping of ACLI
+
+ASEACAT         ,ug m-3          ,ASEACAT[1], RACM2 mapping of ASEACAT
+
+ACLK            ,ug m-3          ,ACLK[1], RACM2 mapping of ACLK
+
+ASO4K           ,ug m-3          ,ASO4K[1], RACM2 mapping of ASO4K
+
+ANH4K           ,ug m-3          ,ANH4K[1], RACM2 mapping of ANH4K
+
+ANO3K           ,ug m-3          ,ANO3K[1], RACM2 mapping of ANO3K
+
+AH2OK           ,ug m-3          ,AH2OK[1], RACM2 mapping of AH2OK
+
+AH3OPK          ,ug m-3          ,AH3OPK[1], RACM2 mapping of AH3OPK
+
+AISO3J          ,ug m-3          ,AISO3J[1], RACM2 mapping of AISO3J
+
+AOLGAJ          ,ug m-3          ,AOLGAJ[1], RACM2 mapping of AOLGAJ
+
+AOLGBJ          ,ug m-3          ,AOLGBJ[1], RACM2 mapping of AOLGBJ
+
+APCSOJ          ,ug m-3          ,APCSOJ[1], RACM2 mapping of APCSOJ
+
+APOCI           ,ug m-3          ,APOCI[1], RACM2 mapping of APOCI
+
+APOCJ           ,ug m-3          ,APOCJ[1], RACM2 mapping of APOCJ
+
+ALVPO1I         ,ug m-3          ,ALVPO1I[1], RACM2 mapping of ALVPO1I
+
+ASVPO1I         ,ug m-3          ,ASVPO1I[1], RACM2 mapping of ASVPO1I
+
+ASVPO2I         ,ug m-3          ,ASVPO2I[1], RACM2 mapping of ASVPO2I
+
+ALVPO1J         ,ug m-3          ,ALVPO1J[1], RACM2 mapping of ALVPO1J
+
+ASVPO1J         ,ug m-3          ,ASVPO1J[1], RACM2 mapping of ASVPO1J
+
+ASVPO2J         ,ug m-3          ,ASVPO2J[1], RACM2 mapping of ASVPO2J
+
+ASVPO3J         ,ug m-3          ,ASVPO3J[1], RACM2 mapping of ASVPO3J
+
+AIVPO1J         ,ug m-3          ,AIVPO1J[1], RACM2 mapping of AIVPO1J
+
+ALVOO1I         ,ug m-3          ,ALVOO1I[1], RACM2 mapping of ALVOO1I
+
+ALVOO2I         ,ug m-3          ,ALVOO2I[1], RACM2 mapping of ALVOO2I
+
+ASVOO1I         ,ug m-3          ,ASVOO1I[1], RACM2 mapping of ASVOO1I
+
+ASVOO2I         ,ug m-3          ,ASVOO2I[1], RACM2 mapping of ASVOO2I
+
+ALVOO1J         ,ug m-3          ,ALVOO1J[1], RACM2 mapping of ALVOO1J
+
+ALVOO2J         ,ug m-3          ,ALVOO2J[1], RACM2 mapping of ALVOO2J
+
+ASVOO1J         ,ug m-3          ,ASVOO1J[1], RACM2 mapping of ASVOO1J
+
+ASVOO2J         ,ug m-3          ,ASVOO2J[1], RACM2 mapping of ASVOO2J
+
+ASVOO3J         ,ug m-3          ,ASVOO3J[1], RACM2 mapping of ASVOO3J
+
+AALK1J          ,ug m-3          ,AAVB1J[1]*0.16, AE7 to AE6 Mapping 
+
+ABNZ1J          ,ug m-3          ,AAVB1J[1]*0.16, AE7 to AE6 Mapping
+
+ABNZ3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+ATOL3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+AXYL3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+APAH3J          ,ug m-3          ,AAVB1J[1]*0.17, AE7 to AE6 Mapping
+
+AXYL1J          ,ug m-3          ,AAVB2J[1]*0.33, AE7 to AE6 Mapping
+
+ATOL1J          ,ug m-3          ,AAVB2J[1]*0.33, AE7 to AE6 Mapping
+
+APAH1J          ,ug m-3          ,AAVB2J[1]*0.34, AE7 to AE6 Mapping
+
+ATOL2J          ,ug m-3          ,AAVB3J[1], RACM2 mapping of AAVB3J
+
+ATRP1J          ,ug m-3          ,AMT4J[1], RACM2 mapping of AMT4J
+
+ATRP2J          ,ug m-3          ,AMT5J[1], RACM2 mapping of AMT5J
+
+NH3             ,ppmV            ,NH3[1], RACM2 mapping of NH3
+
+HCL             ,ppmV            ,HCL[1], RACM2 mapping of HCL
+
+SVISO1          ,ppmV            ,SVISO1[1], RACM2 mapping of SVISO1
+
+SVISO2          ,ppmV            ,SVISO2[1], RACM2 mapping of SVISO2
+
+SVSQT           ,ppmV            ,SVSQT[1], RACM2 mapping of SVSQT
+
+LVPCSOG         ,ppmV            ,LVPCSOG[1], RACM2 mapping of LVPCSOG
+
+SVTRP1          ,ppmV            ,SVMT4[1], RACM2 mapping of SVMT4
+
+SVTRP2          ,ppmV            ,SVMT5[1], RACM2 mapping of SVMT5
+
