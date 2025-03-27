@@ -26,32 +26,8 @@ mkdir -p $cwd/CMAQv5.5/build
 cd $cwd/CMAQv5.5/build
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
-
 ```
 
-### Edit the CMAQ install scripts 
-Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
-
-Replace the following path the local path
-```
-/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
-```
-
-The [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
-There is also a hard coded path for the openmpi library.
-
-Use the command:
-
-`which mpirun` to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used
-
-On my system the path was:
-
-```
-/nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
-```
-
-Modify the scripts to use the path on your system.
 
 Load the modules for your compiler then run the library install script for the netcdf libraries.
 
@@ -208,15 +184,15 @@ Currently Loaded Modules:
 
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial:
 
-[CMAQ Installation Tutorial for CRACMM2](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+[CMAQ Installation Tutorial for CRACMM2](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
 
 ### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
 
-[CMAQ Installation Tutorial for CRACMM2](./CMAQ_UG_tutorial_benchmark.md)
+[CMAQ Installation Tutorial for CRACMM2](CMAQ_UG_tutorial_benchmark.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
-[WRF-CMAQ Installation Tutorial](./CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+[WRF-CMAQ Installation Tutorial](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
 
 
 
