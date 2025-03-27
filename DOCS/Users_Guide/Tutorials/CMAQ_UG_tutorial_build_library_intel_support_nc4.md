@@ -208,15 +208,15 @@ Currently Loaded Modules:
 
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial:
 
-[CMAQ Installation Tutorial for CRACMM2](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+[CMAQ Installation Tutorial for CRACMM2](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
 
 ### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
 
-[CMAQ Installation Tutorial for CRACMM2](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)
+[CMAQ Installation Tutorial for CRACMM2](./CMAQ_UG_tutorial_benchmark.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
-[WRF-CMAQ Installation Tutorial](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+[WRF-CMAQ Installation Tutorial](./CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
 
 
 
