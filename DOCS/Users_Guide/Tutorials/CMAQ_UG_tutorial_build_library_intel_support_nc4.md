@@ -1,6 +1,6 @@
 ## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
 
-This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
+This tutorial is based on these instructions: [Installing NetCDF](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html)
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
 * This Tutorial is for the intel 2024.2.1 compiler.   
@@ -111,7 +111,7 @@ ifx: command line warning #10121: overriding '-static-intel' with '-shared-intel
 ```
 
 
-### Create a private modules
+### Create a custom module
 Add the netCDF and I/O API modules following these instructions: [Custom Modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
 
 Example module files are available here:
@@ -186,7 +186,7 @@ Now that the module files have been created, add the following line to your .csh
 module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 ```
 
-### Use module avail to see private modules, and then load them
+### Use module avail to see custom modules, and then load them
 
 ```
 module avail
@@ -222,11 +222,11 @@ ls $cwd/cmaq_intel/CCTM/scripts/BLD_CCTM_v55_intel_cb6r5_ae7_aq_m3dry/CCTM_v55.e
 
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
 
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md
+[CMAQ Installation Tutorial for CRACMM2](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md
+[WRF-CMAQ Installation Tutorial](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
 
 
 
