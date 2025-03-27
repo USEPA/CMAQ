@@ -206,23 +206,13 @@ Currently Loaded Modules:
 
 ```
 
-### Install CMAQ
-
-Edit the script to specify the correct local paths for HOME and mpirun and then run
-
-```
-./intel_2024_install_cmaq55_cb6r5_m3dry.csh
-```
-
-### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
-
-```
-ls $cwd/cmaq_intel/CCTM/scripts/BLD_CCTM_v55_intel_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
-```
-
-### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
+### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial:
 
 [CMAQ Installation Tutorial for CRACMM2](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+
+### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
+
+[CMAQ Installation Tutorial for CRACMM2](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
