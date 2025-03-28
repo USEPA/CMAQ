@@ -41,9 +41,9 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |[CCTM_DDEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly Cumulative|XYW
 |[CCTM_LTNGHRLY](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly Instantaneous|XYZ
 |[CCTM_LTNGCOL](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly Instantaneous|XY
-|[CCTM_PHOTDIAG1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
-|[CCTM_PHOTDIAG2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
-|[CCTM_PHOTDIAG3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG1](#ctm_rj1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly Instantaneous|XY
+|[CCTM_PHOTDIAG2](#ctm_rj2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
+|[CCTM_PHOTDIAG3](#ctm_rj3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly Instantaneous|XYZ'
 |[CCTM_SSEMIS](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly Instantaneous|XY
 |[CCTM_WETDEP2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly Cumulative|XY
 |[CCTM_VEXT](#vext) <a id=vext_t></a>|GRDDED3|Hourly Instantaneous|WZ
@@ -78,7 +78,7 @@ The LOGFILE environment variable allows users to specify the name of a log file 
 [Return to Table 7-1](#conc_t)
 <!-- END COMMENT -->
 
-The 2-D or 3-D CCTM hourly concentration file (CONC) contains instantaneous gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each model output time step. The number and type of species contained in the CONC files depends on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files (e.g. [AE_cb6r3_ae7_aq.nml](../../CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml)). The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file. Users can also specify the output species list (including temperature, pressure & relative humidity) by modifying the environment variable CONC_SPCS in the RunScript which overrides the setting of the CONC column in the NameList file(s). By default, concentrations for all model layers are output to the CONC file.  Users may specify the layers to output using the CONC_BLEV_ELEV environment variable in the RunScript where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number.
+The 2-D or 3-D CCTM hourly concentration file (CONC) contains instantaneous gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each model output time step. The number and type of species contained in the CONC files depends on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files (e.g. [AE_cb6r3_ae7_aq.nml][link_7_nml]). The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file. Users can also specify the output species list (including temperature, pressure & relative humidity) by modifying the environment variable CONC_SPCS in the RunScript which overrides the setting of the CONC column in the NameList file(s). By default, concentrations for all model layers are output to the CONC file.  Users may specify the layers to output using the CONC_BLEV_ELEV environment variable in the RunScript where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number.
 
 
 <a id=aconc></a>
@@ -193,8 +193,6 @@ The 2-D "soilout" file contains hourly total rainfall information for subsequent
  *MEGAN*
  
 As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains rainfall information that is needed for the calculation of soil NO emissions when CTM_BIOGEMIS_MG is set to Y (Default is N). When enabling in-line MEGAN this file will also contains LAI, temperature, and radiation information that is used to calculate biogenic emissions. The input file from the previous day is identified by the environmental variable MEGAN_SOILINP in the run script.
-
- <a id=bdsnpout></a>
  
 **CCTM_BDSNPOUT**
 <!-- BEGIN COMMENT -->
@@ -310,7 +308,7 @@ This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calcu
 
 This optional 2-D CCTM file contains hourly column-total lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_2 environment variable in the RunScript is set to Y (Default is N).
 
-<a id=ctm_rj_1></a>
+<a id=ctm_rj1></a>
 
 **CCTM_PHOTDIAG1: In-line photolysis inputs and outputs - summary file**
 <!-- BEGIN COMMENT -->
@@ -320,7 +318,7 @@ This optional 2-D CCTM file contains hourly column-total lightning NO emissions 
 This optional 2-D CCTM file contains general summary information for the photolysis calculation including the surface albedo, 
 select photolysis rates and flux values.  This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to Y (Default is N).
 
-<a id=ctm_rj_2></a>
+<a id=ctm_rj2></a>
 
 **CCTM_PHOTDIAG2_2: In-line photolysis output – gridded photolysis rates**
 <!-- BEGIN COMMENT -->
@@ -329,7 +327,7 @@ select photolysis rates and flux values.  This file is only created if the CTM_P
 
 This optional 3-D CCTM file contains the photolysis rates calculated in-line by the CCTM.  The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to T (Default is N).
 
-<a id=ctm_rj_3></a>
+<a id=ctm_rj3></a>
 
 **CCTM_PHOTDIAG3: In-line photolysis inputs and outputs – detailed**
 <!-- BEGIN COMMENT -->
@@ -371,3 +369,11 @@ This optional 3-D CCTM file contains vertical profiles of the concentration of m
 CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
+
+<!-- START_OF_COMMENT -->
+
+[link_7_nml]: ../../CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  
+
+<!-- END_OF_COMMENT -->
+
+[link_7_nml]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml  

@@ -1,22 +1,235 @@
-##  Building with netCDF-4 and the Remote Data Client
+## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
 
 This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
-* This Tutorial is for the gcc 9.1.0 compiler.   
-* For gcc 10 and above, use the  -fallow-argument-mismatch argument  
-  * As of Aug. 28, 2020, there are now new *BIN=Linux\*gfort10\** types and corresponding *Makeinclude.Linux\*gfort10\** that incorporate this flag for the I/O API and M3Tools.
-  * Source: I/O API documentation, https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
+* This Tutorial is for the gcc 11.4.1 compiler.   
+* For gcc 10 and above, use the  -fallow-argument-mismatch argument (see alternative script and instructions for gcc 10 and above) 
+
+## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.10.5, zlib 1.3, and curl 8.11.0. 
+
+This Tutorial uses libarary install scripts that were created for the gcc 11.4 compiler, there are also scripts for intel 18.2 and intel 2024. These install scripts assume that you have environment modules available on your system, and that you can use a module load command to load the compiler and openmpi version. Different scripts are provided, as different options are required, such as for gcc 10 and above, requires using the  -fallow-argument-mismatch argument <br>
+
+When building I/O API, as of Aug. 28, 2020, there are now new <b>BIN=Linux\*gfort10\*</b> types and corresponding <b>Makeinclude.Linux\*gfort10\*</b> that incorporate this flag for the I/O API and M3Tools. Please see the I/O API documentation: https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html <br>
+
+The libraries can be installed using install scripts that are provided.
+
+Install the netCDF libraries and their prerequisites for the compiler version that is available on your machine.
 
 
-## Versions required are at least HDF5 1.8.9, zlib 1.2.5, and curl 7.18.0 or later.
-
-set install directory
+### Create install directory
 
 ```
-set INSTALL_DIR = $cwd/CMAQv5.5/LIBRARIES 
-mkdir -p $cwd/CMAQv5.5/LIBRARIES
+mkdir -p $cwd/CMAQv5.5/build
 ```
+
+### Download the install scripts for the gcc version 11.4 compiler.
+
+```
+cd $cwd/CMAQv5.5/build
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh
+wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
+```
+
+
+### Edit the CMAQ install scripts 
+Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
+
+Change this hard coded path to your local installation directory
+```
+/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
+```
+
+The [gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
+There is also a hard coded path for the openmpi library.
+
+Use the command:
+
+which mpirun to find the path to the library, note the path depands on the openmpi module that is used.
+
+
+```
+module load openmpi
+which mpirun
+```
+
+Output
+```
+/nas/sycamore/apps/openmpi/5.0.5/bin/mpirun
+```
+
+Modify the scripts to use the path on your system.
+
+Load the modules for your compiler and openmpi version and then run the library install script for the netcdf libraries.
+
+```
+module load openmpi_5.0.5/gcc_11.4.1 
+```
+
+### Run script to install the netcdf libraries:
+
+```
+./gcc_11.4_install_netcdf_for_nc4_compression.csh
+```
+
+### Run script to install the I/O API Library
+
+```
+./gcc_11.4_install_ioapi_for_nc4_compression.csh
+```
+
+Note, if you obtain the following error:
+
+```
+git clone https://github.com/cjcoats/ioapi-3.2
+Cloning into 'ioapi-3.2'...
+fatal: unable to access 'https://github.com/cjcoats/ioapi-3.2/': Protocol "https" not supported
+```
+
+Then use module purge as there is a conflict with the modules being loaded.
+
+```
+module purge
+```
+
+Re-run the git clone
+```
+cd LIBRARIES_gcc
+git clone https://github.com/cjcoats/ioapi-3.2
+cd ../
+```
+
+Then re-run the install script above.
+
+```
+./gcc_install_ioapi_for_nc4_compression.csh
+```
+
+If this is successful, you will see a stream of log messages including the m3tools program wrfwndw being compiled.
+
+Output
+```
+cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/ioapi -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -O3 -ffast-math -funroll-loops -m64   -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -c /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/m3tools/wrfwndw.f90
+cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran  wrfwndw.o -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -lioapi -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl -lnetcdf -fopenmp -dynamic -L/usr/lib64 -lm -lpthread -lc  -o wrfwndw
+```
+
+
+### Create a private modules
+Add the netCDF and I/O API modules following these instructions: [Custom Modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
+
+Example module files are available here:
+
+[Example Modules](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/scripts/Modules/)
+You would need to create the same directory structure, and edit the basedir in each module file to use your local directory. 
+
+Create a directory with the directory structure Modules/modulefiles/ [module name]
+
+### Create a module for ioapi-3.2
+
+```
+mkdir -p $cwd/Modules/modulefiles/ioapi-3.2
+```
+
+Edit the module name file to specify the PATH and LD_LIBARY_PATH.
+
+Next, create the module file and save it to the ioapi-3.2 directory 
+
+Example:
+```
+cat  gcc-11.4
+#%Module
+  
+proc ModulesHelp { } {
+   puts stderr "This module adds ioapi-3.2/gcc-11.4 to your path"
+}
+
+module-whatis "This module adds ioapi-3.2/gcc-11.4 to your path\n"
+
+set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2"
+prepend-path PATH "${basedir}/Linux2_x86_64gfort"
+prepend-path LD_LIBRARY_PATH "${basedir}/ioapi/fixed_src"
+```
+
+### Create a module for netcdf
+
+```
+mkdir -p $cwd/Modules/modulefiles/netcdf-4.5.3-for_nc4 
+```
+
+Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory
+
+```
+cat gcc-11.4
+#%Module
+  
+proc ModulesHelp { } {
+   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path"
+}
+
+module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path\n"
+
+set basedir "/proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc"
+prepend-path PATH "${basedir}/bin"
+prepend-path LD_LIBRARY_PATH "${basedir}/lib"
+```
+
+
+### Add module to .cshrc
+Now that the module files have been created, add the following line to your .cshrc
+
+```
+module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
+```
+
+### Use module avail to see private modules
+
+```
+module avail
+module load netcdf-4.5.3-for_nc4/gcc-11.4 ioapi-3.2/gcc-11.4
+```
+
+Now you should see 4 modules loaded.
+
+module list
+
+Output:
+```
+Currently Loaded Modules:
+  1) openmpi_5.0.5/gcc_11.4.1   2) netcdf-4.5.3-for_nc4/gcc-11.4   3) ioapi-3.2/gcc-11.4
+```
+
+### Install CMAQ
+
+Edit the script to specify the correct local paths for HOME and openmpi and then run
+
+```
+./gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
+```
+
+### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
+
+```
+ls $cwd/openmpi_gcc/CCTM/scripts/BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
+```
+
+### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
+
+[CRACMM2 and Stage Tutorial](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+
+### To build and run WRF-CMAQ see the following tutorial
+
+[WRF-CMAQ Tutorial](./CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
+
+
+
+### Note - for review only.
+
+If you have successfully installed the netCDF, I/O API libraries and CMAQ, then <b>YOU CAN STOP HERE</b>, otherwise, you can go over the steps manually to see where an error has occurred in the above install scripts.
+
+
+The following instructions go over the steps that were performed in the scripts above:
+
 
 ###
 ###  unset environment variables that would conflict with this installation
@@ -35,40 +248,35 @@ module avail
 2. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
 
 ```
-module load gcc9.1.0
-module load openmpi_4.0.1/gcc_9.1.0
+module load openmpi_5.0.5/gcc_11.4.1
 ```
 
 
 ## Install zlib
 
 ```
- cd $INSTALL_DIR
+setenv INSTDIR $cwd/LIBRARIES_gcc
+cd $INSTDIR
 ```
 
 ```
-wget  https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-1.2.11.tar.gz
+wget  https://github.com/madler/zlib/releases/download/v1.3/zlib-1.3.tar.gz
 ```
 
 ```
- tar -xzvf zlib-1.2.11.tar.gz
+ tar -xzvf zlib-1.3.tar.gz
 ```
 
 ```
-cd zlib-1.2.11
+cd zlib-1.3
 ```
 
 ```
-./configure ; make test
+./configure  --prefix=${INSTDIR}
+make -j 4
+make install |& tee make.install.log
 ```
 
-```
-mkdir ${INSTALL_DIR}/zlib-1.2.11_gcc9.1.0
-```
-
-```
-make install prefix=${INSTALL_DIR}/zlib-1.2.11_gcc9.1.0
-```
 
 ## Install curl (check first to determine if it is already installed)
 
@@ -82,88 +290,60 @@ curl --version
 ###IF it is not installed use the following steps to install it.
 
 ```
-cd ${INSTALL_DIR}
-wget https://curl.se/download/curl-7.79.0.tar.gz
+cd ${INSTDIR}
+wget https://github.com/curl/curl/releases/download/curl-8_11_0/curl-8.11.0.tar.gz
 ```
 ```
-tar -xzvf curl-7.79.0.tar.gz
-```
-
-```
-./configure --without-ssl --prefix=${INSTALL_DIR}/curl-7.79.0-gcc9.1.0
-```
-
-```
-make
-make install
+tar -xzvf curl-8.11.0.tar.gz
+ cd curl-8.11.0
+ ./configure --prefix=${INSTDIR} --without-ssl --without-libpsl
+ make |& tee make.curl.log
+ make install |& tee make.install.curl.log
 ```
 
 ## Install HDF5
 
 ```
-cd $INSTALL_DIR
-```
-
-```
-wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/src/hdf5-1.10.7.tar.gz
-tar -xzvf hdf5-1.10.7.tar.gz
-```
-```
-mkdir ${INSTALL_DIR}/hdf5-1.10-7-gcc9.1.0
-```
-
-```
-cd hdf5-1.10.7
-```
-
-Set flags
-
-```
+   cd ${INSTDIR}
+   wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.5/src/hdf5-1.10.5.tar.gz
+   tar xvf hdf5-1.10.5.tar.gz
+   rm -f hdf5-1.10.5.tar.gz
+   cd hdf5-1.10.5
+   setenv LDFLAGS "-L${INSTDIR}/lib"
+   setenv CPPFLAGS "-I${INSTDIR}/include"
    setenv CFLAGS "-O3"
    setenv FFLAGS "-O3"
    setenv CXXFLAGS "-O3"
    setenv FCFLAGS "-O3"
-```
-
-Configure (note, you may need to add a path if you installed the curl library using --with-curl=${INSTALL_DIR}/curl-7.79.0-gcc9.1.0)
-
-
-```
-./configure --prefix=${INSTALL_DIR} --with-zlib=${INSTALL_DIR}/zlib-1.2.11_gcc9.1.0/include,${INSTALL_DIR}/zlib-1.2.11_gcc9.1.0/lib --enable-hl
-```
-
-Build
-
-```
-make
-make check   # run test suite
-make install # install
-make check-install # verify installation
+   ./configure --prefix=${INSTDIR} --enable-fortran --enable-cxx --with-zlib=${INSTDIR}/include,${INSTDIR}/lib -enable-shared --enable-hl
+   make -j 4 |& tee make.gcc.log
+#  make check > make.gcc.check
+   make install |& tee make.gcc.log
 ```
 
 ## Install netCDF-C
 
 
-1. cd ${INSTALL_DIR}
+1. cd ${INSTDIR}
 
 2. Download netCDF-C from the following website https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 
 ```
-wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.8.0.tar.gz
+wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.8.1.tar.gz
 ```
 
 3. Untar the netCDF-C tar.gz file
 
 ```
-tar -xzvf netcdf-c-4.8.0.tar.gz
+tar -xzvf netcdf-c-4.8.1.tar.gz
 ```
 
 4. Change directories into the extracted directory
 ```
-cd netcdf-c-4.8.0
+cd netcdf-c-4.8.1
 ```
 
-5. Review the installation instructions for netcdf-c-4.8.0 for building netCDF to support nc4 compression 
+5. Review the installation instructions for netcdf-c-4.8.1 for building netCDF to support nc4 compression 
 
 ```
 more INSTALL.md
@@ -194,6 +374,13 @@ setenv CC gcc
 setenv CXX g++
 ```
 
+8. Specify the CPPFLAGS and LDFLAGS to tell netCDF where to obtain the underlying libraries, without this, netCDF may be built with a different version of the underlying libraries, leading to an error when using netCDF. 
+
+```
+   setenv LDFLAGS "-L${INSTDIR}/lib"
+   setenv CPPFLAGS "-I${INSTDIR}/include"
+```
+
 8. Run the configure command
 
 ```
@@ -218,7 +405,7 @@ make install
 1. Change directories
 
 ```
-cd $INSTALL_DIR
+cd $INSTDIR
 ```
 
 
@@ -258,12 +445,11 @@ setenv CXX g++
 7. Set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
 
 ```
-setenv NCDIR ${INSTALL_DIR}
-setenv LIBS "-lnetcdf"
-setenv CPPFLAGS -I${NCDIR}/include
-setenv LDFLAGS -L${NCDIR}/lib
-
-setenv LD_LIBRARY_PATH ${NCDIR}/lib:${LD_LIBRARY_PATH}
+   setenv LIBS "-L${INSTDIR}/lib -lnetcdf -lhdf5_hl -lhdf5 libhdf5_fortran libhdf5_fortran_hl -lm -ldl -lz -lcurl "
+   setenv NCDIR ${INSTDIR}
+   setenv CPPFLAGS "-I${INSTDIR}/include"
+   setenv LDFLAGS "-L${INSTDIR}/lib"
+   setenv LD_LIBRARY_PATH ${INSTDIR}/lib:${LD_LIBRARY_PATH}
 ```
 
 8. Check your LD_LIBRARY_PATH
@@ -272,21 +458,13 @@ setenv LD_LIBRARY_PATH ${NCDIR}/lib:${LD_LIBRARY_PATH}
 echo $LD_LIBRARY_PATH
 ```
 
-9. Set the install directory for netCDF fortran
+9. Run the configure command
 
 ```
-setenv NFDIR  ${INSTALL_DIR} 
-setenv CPPFLAGS -I${NCDIR}/include
-setenv LDFLAGS -L${NCDIR}/lib
+./configure --with-pic --enable-shared --prefix=${INSTDIR}
 ```
 
-10. Run the configure command
-
-```
-./configure --with-pic --enable-shared --prefix=${NFDIR}
-```
-
-11. Run the make check command
+10. Run the make check command
 
 ```
 make check
@@ -301,7 +479,7 @@ Testsuite summary for netCDF-Fortran 4.4.5
 # PASS:  6
 ```
 
-12. Run the make install command
+11. Run the make install command
 
 ```
 make install
@@ -325,7 +503,7 @@ flag during linking and do at least one of the following:
    - have your system administrator add LIBDIR to '/etc/ld.so.conf'
 
 
-14. set your LD_LIBRARY_PATH to include the netcdf-Fortran library path for netCDF build
+12. set your LD_LIBRARY_PATH to include the netcdf-Fortran library path for netCDF build
 
 ```
 setenv NFDIR ${INSTALL_DIR}
@@ -379,25 +557,18 @@ cd ioapi
 cp Makefile.nocpl Makefile
 ```
 
-7. Set the BIN environment variable to include the module that will be used to compile CMAQ
-This will help future users identify what compiler version is compatible with this library.
+7. Set the BIN environment variable 
 
 ```
-setenv BIN Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
+setenv BIN Linux2_x86_64gfort
 ```
 
-8. Copy an existing Makeinclude file to have this BIN name at the end
-
-```
-cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-```
-
-9. Edit the Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
+8. Edit the Makeinclude.Linux2_x86_64gfort to comment out OMPFLAG and OMPLIBS 
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
 
 ```
-#OMPFLAGS  = -fopenmp
-#OMPLIBS   =  -fopenmp
+OMPFLAGS  = #-fopenmp
+OMPLIBS   = # -fopenmp
 ```
 
 10. Create a BIN directory where the library and m3tools executables will be installed
@@ -406,59 +577,52 @@ settings.  This will remove the need to link the shared memory OPENMP libraries 
 mkdir ../$BIN
 ```
 
-11. Link the BIN directory to a the gfort BIN directory - this step is needed for WRF-CMAQ.
-
-```
-cd ../
-ln -s Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0 Linux2_x86_64gfort
-```
-
-12. Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library
+11. Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library
 
 ```
 cd ioapi
 make 'HOME=[your_install_path]/LIBRARIES' |& tee make.log
 ```
 
-13. Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built
+12. Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built
 
 ```
 cd ../$BIN
 ls -lrt libioapi.a
 ```
 
-14. If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows
+13. If you need to do a make clean, to rebuild the I/O API Library, specify the HOME directory at the command line as follows
 
 ```
 cd ../ioapi
 make 'HOME=[your_install_path]/LIBRARIES' clean 
 ```
 
-15. Change directories to the m3tools directory
+14. Change directories to the m3tools directory
 
 ```
 cd ../m3tools
 ```
 
-16. Copy the Makefile.nocpl to create a Makefile
+15. Copy the Makefile.nocpl to create a Makefile
 
 ```
 cp Makefile.nocpl Makefile
 ```
 
-17. Edit line 65 of the Makefile to use the NCDIR and NFDIR environment variables that you have set in the above steps to locate the netcdf C and netcdf Fortran libraries
+16. Edit line 65 of the Makefile to use the NCDIR and NFDIR environment variables that you have set in the above steps to locate the netcdf C and netcdf Fortran libraries
 
 ```
  LIBS = -L${OBJDIR} -lioapi -L${NFDIR}/lib -lnetcdff -L${NCDIR}/lib -lnetcdf $(OMPLIBS) $(ARCHLIB) $(ARCHLIBS)
  ```
 
-18. Run make to compile the m3tools
+17. Run make to compile the m3tools
 
 ```
 make |& tee make.log
 ```
 
-19. Check to see that the m3tools have been installed successfully
+18. Check to see that the m3tools have been installed successfully
 
 ```
 cd ../$BIN
@@ -476,7 +640,7 @@ make test
 1. Download the CMAQv55 code using the following
 
 ```
-git clone -b 55 https://github.com/lizadams/cmaq.git CMAQ_REPO
+git clone -b 55 https://github.com/USEPA/CMAQ/cmaq.git CMAQ_REPO
 ```
 
 2. Build and run in a user-specified directory outside of the repository
@@ -509,7 +673,7 @@ note, the paths need to be edited to match the location for your installation
         #> I/O API and netCDF for WRF-CMAQ 
         setenv NCDIR /your_local_path/LIBRARIES/                  # C netCDF install path
         setenv NFDIR /your_local_path/LIBRARIES/           # Fortran netCDF install path for CMAQ
-        setenv NETCDF /your_local_path/LIBRARIES/          # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - don't change this setting
+        setenv NETCDF /your_local_path/LIBRARIES/          # Note only for  WRF-CMAQ as it requires combining the netcdf C and netcdf F into a single directory. CMAQ users - dont change this setting
         setenv IOAPI  /your_local_path/LIBRARIES/ioapi-3.2/   # I/O API 
         setenv WRF_ARCH 34                              # [1-75] Optional, ONLY for WRF-CMAQ  
 
@@ -523,8 +687,8 @@ note, the paths need to be edited to match the location for your installation
             setenv NETCDFF_INCL_DIR ${NFDIR}/include                   #> netCDF Fortran directory path
         endif
 
-        setenv MPI_INCL_DIR      /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/include #> MPI Include directory path
-        setenv MPI_LIB_DIR      /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/lib               #> MPI Lib directory path
+        setenv MPI_INCL_DIR      /nas/sycamore/apps/openmpi/5.0.5/include #> MPI Include directory path
+        setenv MPI_LIB_DIR      /nas/sycamore/apps/openmpi/5.0.5/lib               #> MPI Lib directory path
 ```
 
 4. Source the config_cmaq.csh to create the lib directory
@@ -567,32 +731,6 @@ cd POST/bldoverlay/scripts
 ./bldit_bldoverlay.csh gcc |& tee ./bldit_bldoverlay.gcc.log
 ```
 
-8.  Edit the SBATCH section of the Benchmark run script to use the SLURM resources on your machine 
-and modify the CMAQ_HOME directory to specify your local path
-
-```
-vi run_cctm_Bench_2018_12NE3.csh
-```
-
-
-
-## Download Benchmark Input Data
-
-
-## Update EQUATES Benchmark Run Script to specify path to downloaded input data
-
-1. Specify the 2018_12US1 as the input data directory in the CMAQv55 CCTM run script
-
-```
-vi run_cctm_Bench_2018_12NE3.csh  
-```
-
-verify the location of the 12NE3 benchmark input files
-
-```
- setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
-```
-
 ## Modify Benchmark Post-processing Scripts for your installation
 
 1. The POST/combine directory is available under the CMAQv55 directory. 
@@ -601,7 +739,6 @@ These scripts will need to be edited
 ```
 run_combine.csh
 ```
-
 
 2. Edit the scripts under to specify the APPL for this benchmark
 
@@ -618,8 +755,4 @@ run_combine.csh
 ```
 
 
-## Run the combine run script
-
-```
-sbatch run_combine.csh
-```
+After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md).

@@ -120,7 +120,7 @@ Sourcing the `config_cmaq.csh` script only needs to be invoked during a new inst
 
 After all required CMAQ inputs are generated using the preprocessors mentioned above the user is now ready to compile CCTM. CMAQ’s current coding structure is based on a modular design principle that seperates CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
 
-In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules are discussed further in [Chapter 6](./CMAQ_UG_ch06_configuring_the_model.md).
+In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules are discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
 Science Modules:
 
@@ -144,7 +144,7 @@ cd $CMAQ_HOME/CCTM/scripts
 source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
 
-The bldit script invokes the CMAQ utility program [bldmake](../../UTIL/bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
+The bldit script invokes the CMAQ utility program [bldmake][link_5_bldmake], which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the Fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode _instead_ of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
 cd BLD_CCTM_v54_[compiler][version]
@@ -470,3 +470,11 @@ See the [CMAQ Installation and Benchmarking Tutorial](Tutorials/CMAQ_UG_tutorial
 CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
+
+<!-- START_OF_COMMENT -->
+
+[link_5_bldmake]: ../../UTIL/bldmake/README.md
+
+<!-- END_OF_COMMENT -->
+
+[link_5_bldmake]:  https://github.com/USEPA/CMAQ/blob/main/UTIL/bldmake/README.md

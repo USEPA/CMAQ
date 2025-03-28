@@ -392,6 +392,56 @@ cd ../$BIN
 ls -rlt m3xtract
 ```
 
+## Configure the CMAQ build environment
+
+The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Link the CMAQ Libraries" below.
+
+### Build and run in a user-specified directory outside of the repository
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
+
+In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+```
+set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
+```
+
+Now execute the script.
+```
+./bldit_project.csh
+```
+
+## Link the CMAQ Libraries
+The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note: the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`):
+
+- netCDF C library files are located in the `$CMAQ_LIB/netcdf/lib` directory
+- netCDF Fortran library files are located in the `$CMAQ_LIB/netcdff/lib` directory
+- I/O API library, include files and module files are located in the `$CMAQ_LIB/ioapi` directory
+- MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
+
+The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
+
+- `setenv IOAPI_INCL_DIR`: the location of the I/O API include header files on your system.
+- `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.
+- `setenv NETCDF_LIB_DIR`: the location of the netCDF C library installation on your system.
+- `setenv NETCDF_INCL_DIR`: the location of the netCDF C include files on your system.
+- `setenv NETCDFF_LIB_DIR`: the location of the netCDF Fortran library installation on your system.
+- `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
+- `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
+
+For example, if your netCDF C libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64gfort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64gfort.
+
+*1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
+
+*2.* Check the name of the MPI library using the `mpi_lib` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
+
+Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
+```
+source config_cmaq.csh [compiler]
+```
+You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
+```
+source config_cmaq.csh gcc 9.5
+```
+
 17. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md)
 
 
