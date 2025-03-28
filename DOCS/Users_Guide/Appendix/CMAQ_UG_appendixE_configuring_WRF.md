@@ -8,7 +8,7 @@
 
 ## E.1 WRF for CMAQ & Output
 
-* **[WRF configuration guide for CMAQ applications](../PDF/PX-ACM-WRFV4.6-MPAS.pdf)**
+* **[WRF configuration guide for CMAQ applications][link_E_pdf]**
 * CMAQ is best connected to WRF that uses the P-X LSM with key variables in the output (see WRF configuration guide above).
 * Variable names: RS, RA, ZNT_PX, VEGF_PX, LAI_PX, LANDUSEF, WFC_PX, WSAT_PX, WWLT_PX, CSAND_PX, FMSAND_PX, CLAY_PX
 * Method 1: Compiled into executable with directives in the Registry file.
@@ -40,6 +40,7 @@ in layer k rather than wind speed difference between layer k and ksrc.
 ## E.5 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
+
 ## E.6 Reference:
 
 Noilhan, J., & Mahfouf, J. F. (1996). The ISBA land surface parameterization scheme. Global and planetary Change, 13(1-4), 145-159.
@@ -64,9 +65,7 @@ Heath, N. K., J. E. Pleim, R. C. Gilliam, & D. Kang (2016). A simple lightning a
 
 Gilliam, R. C., Herwehe, J. A., Bullock, Jr, O. R., Pleim, J. E., Ran, L., Campbell, P. C., & Foroutan, H. (2021). Establishing the suitability of the model for prediction across scales for global retrospective air quality modeling. Journal of Geophysical Research: Atmospheres, 126, e2020JD033588. https://doi.org/10.1029/2020JD033588
 
-Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilation in the Weather Research and Forecasting (WRF) Model Version 4.1.1: Technique Updates and Assessment of the Applications from Regional to Hemispheric Scales, EGUsphere [preprint], https://doi.org/10.5194/egusphere-2022-348, 2022.
-
-
+Kang, D., H. K. Heath, R. C. Gilliam, T. L. Spero, and J. E. Pleim (2022), Lightning assimilation in the WRF model (Version 4.1. 1): technique updates and assessment of the applications from regional to hemispheric scales, Geosci. Model Dev., 15, 8561–8579, https://doi.org/10.5194/gmd-15-8561-2022, 2022.
 
 
 
@@ -76,3 +75,11 @@ Kang, D., Heath, N., Gilliam, R., Spero, T., and Pleim, J.: Lightning Assimilati
 CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
+
+<!-- START_OF_COMMENT -->
+
+[link_E_pdf]: ../PDF/PX-ACM-WRFV4.6-MPAS.pdf
+
+<!-- END_OF_COMMENT --> 
+
+[link_E_pdf]: https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/PDF/PX-ACM-WRFV4.6-MPAS.pdf  

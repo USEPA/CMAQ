@@ -101,7 +101,7 @@ After determining the horizontal and vertical extent of the domain of interest, 
 
 MCIP can be used to extract a subset of the WRF modeling domain (that is, a "window") to be used for the CCTM modeling domain. The window can be any rectangular area within the meteorological model's lateral boundaries, provided it contains a nominally large enough areal coverage.
 
-Horizontal grids specifications for CMAQ are contained in the grid definition file (GRIDDESC), which is output by MCIP and can be edited by the user.  Further details on grid configuration are available in the [README.md](../../PREP/mcip/README.md) file in the PREP/mcip folder. If several domains have been used within a group, the horizontal domain for a given CMAQ run can be defined at runtime by setting the GRIDDESC and GRID_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. 
+Horizontal grids specifications for CMAQ are contained in the grid definition file (GRIDDESC), which is output by MCIP and can be edited by the user.  Further details on grid configuration are available in the [README.md][link_6.1] file in the PREP/mcip folder. If several domains have been used within a group, the horizontal domain for a given CMAQ run can be defined at runtime by setting the GRIDDESC and GRID_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. 
 
 <a id=6.3.2_Vertical_Domains></a>
 
@@ -289,7 +289,7 @@ setenv CTM_STAGE_P22 N
 setenv CTM_STAGE_E20 Y       
 setenv CTM_STAGE_S22 N       
 ```
-CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](./CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
+CTM_STAGE_P22 is a tiled/land use specific [Pleim et al. (2022)](https://doi.org/10.1002/essoar.10510541.1) aerosol deposition option. CTM_STAGE_E20 is the tiled implementation of the [Emerson et al. (2020)](https://doi.org/10.1073/pnas.2014761117) aerosol deposition model. CTM_STAGE_S22 is the tiled version of [Shu et al. (2022)](https://doi.org/10.1016/j.atmosenv.2022.119343) aerosol deposition model (the same as the STAGE parameterization in CMAQ v5.3 STAGE). CTM_STAGE_E20 is the default option and will be used in model simulation unless one of the other options is specified. In v5.4, the user can modify land use and chemical species dependent variables used by STAGE by editing the [STAGE Control Namelist](CMAQ_UG_ch04_model_inputs.md#stagectrl_nml) to update model parameters without the need to recompile.
 
 <a id=6.8.3_Enhanced_Ozone_Deposition></a>
 
@@ -454,7 +454,7 @@ Running CMAQ with BEIS is controlled by the following RunScript flag:
 setenv CTM_BIOGEMIS_BE Y
 ```
 
-Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis4](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s13.html) program in SMOKE prior to running the online biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. [Starting with CMAQ v54](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes:-Emissions-Updates:-BEIS-Biogenic-Emissions#beis-updates), the selection of summer vs. winter normalized emission factors when using the BEIS online biogenic emission option in CMAQ is based on the 1 meter soil temperature following the WRF PX LSM representation of seasonality. The location of the B3GRD file is set in the RunScript:
+Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis4](https://www.cmascenter.org/smoke/documentation/5.0/html/ch04s13.html) program in SMOKE prior to running the online biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. [Starting with CMAQ v54](../Release_Notes/CMAQ-Release-Notes:-Emissions-Updates:-BEIS-Biogenic-Emissions.md#beis-updates), the selection of summer vs. winter normalized emission factors when using the BEIS online biogenic emission option in CMAQ is based on the 1 meter soil temperature following the WRF PX LSM representation of seasonality. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
@@ -767,7 +767,7 @@ To solve the photochemistry, the model uses one of three numerical methods or so
  set ModGas    = gas/ebi_${Mechanism} 
 ``` 
  
-If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they must create a new EBI solver by using the create_ebi utility. Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. To examine if the newly created EBI solver is working properly, CMAQ results with the EBI solver can be compared to those obtained with the SMVGEAR or ROS3 solver for a few days. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times fasterr. To use either SMVGEAR and ROS3, the BuildScript defines ModGas as below. 
+If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they must create a new EBI solver by using the create_ebi utility. Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi][link_6.10.1] folder. To examine if the newly created EBI solver is working properly, CMAQ results with the EBI solver can be compared to those obtained with the SMVGEAR or ROS3 solver for a few days. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times fasterr. To use either SMVGEAR and ROS3, the BuildScript defines ModGas as below. 
 
 ```
  set ModGas    = gas/smvgear
@@ -805,7 +805,7 @@ The in-line method (Binkowski et al., 2007) is the preferred option because it i
 
 | **AEROSOL_OPTICS value**|**In-line Photolysis Method**|**Description**|
 |:--------------:|:----:|:--------:|
-|  1 | Tabular Mie | Adapts a look-up table and interpolation method for aerosol optical properteis described by Fast et al. (2006). The table is created in-line and saved to an ASCII file when NEW_START equals true or when the ASCII file is missing. The model run-script controls the location of the table by the line, "setenv MIE_TABLE ${SOMELOCATION}". | 
+|  1 | Tabular Mie | Adapts a look-up table and interpolation method for aerosol optical properteis described by Fast et al. (2006). The table is created in-line and saved to an ASCII file when NEW_START equals true or when the ASCII file is missing. The model run-script controls the location of the table by the line, "setenv MIE_TABLE ${SOMELOCATION}"". | 
 | 2 | MieCalc | Solution to Mie Scattering Theory for a uniformly mixed sphere whose refractive index is a volume weighted average of the aerosol modal component's refractive indicies (Bohren et al., 1998). |  
 | 3 | Fast Optics | The default option employed in Binkowski et al. (2007) uses case approximations of Mie Scattering Theory for a uniformly mixed sphere. |
 | 4 | Core-shell + Tabular Mie | Option where the internal structure of an aerosol is represented as a by a black carbon core surrounded by a shell with a volume-averaged refractive index. If the black carbon component of the aerosol modal volume makes up more than one billionth of the modal volume the Coreshell method is used, otherwise an aerosol mode's optical properties are determined by Tabular Mie. |
@@ -817,9 +817,9 @@ The in-line method (Binkowski et al., 2007) is the preferred option because it i
 
 Three other ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the 
 **CSQY_DATA_${Mechanism}** 
-file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file's path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
+file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility][link_6.10.2_II] produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file's path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
 
-The phot/table build option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript sets the value for a table's path with the environment variable XJ_DATA.
+The phot/table build option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility][link_6.10.2] creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript sets the value for a table's path with the environment variable XJ_DATA.
 
 
 <a id=6.10.4_HONO></a>
@@ -869,7 +869,7 @@ The description should reflect the lumped nature of the category if the species 
 
 - HC10,Alkanes and other species with HO rate constant greater than 6.8x10-12 cm3 s-1
 
-In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. (2023) with supporting code available on github at [USEPA/CRACMM](https://github.com/USEPA/CRACMM). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
+In the case of emitted species, the actual emitted individual species mapped to a mechanism species is based on a hierarchy of rules as described by Pye et al. (2023) with supporting code available on github at [USEPA/CRACMM](https://usepa.github.io/CRACMM/). For example, HC10 is one of the last species to be mapped to in the hierarchy and all semi and intermediate volatility compounds (S/IVOCs) as well as those with aromaticity or double bonds have already been mapped to other mechanism species. Consult the official hierarchy of emission mapping to get the full definition for emitted species.
 
 Note that CRACMM mechanisms include some species that can partition between the gas and aerosol phase and thus have both a gas-phase component (in the GC.nml) and particulate component (in the AE.nml). Rather than entering the same description for each phase, species that have multiphase components should be entered once and the phase identifier (V prepended on a gas species in GC.nml (if used) or A prepended on a particulate species in AE.nml) should not be included. In addition, separate entries are not needed for a species existing in multiple size modes. For example, this is the entry describing the species OP3 which exists in the GC.nml as OP3 and in the particle as AOP3J:
 
@@ -898,7 +898,7 @@ In general, molecular weights (MOLWT) in the namelists should match the represen
 For species that exist in multiple phases, the metadata should only be specified in the GC.nml.
 
 #### CRACMM supporting code archive
-A supporting code archive is distributed at [USEPA/CRACMM](https://github.com/USEPA/CRACMM) to provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
+A supporting code archive is distributed at [USEPA/CRACMM](https://usepa.github.io/CRACMM/) to provide information that can be used by other models to implement CRACMM. This information includes documentation on how individual species map to the mechanism (available schematically and in python code), inputs to models such as Speciation Tool and SMOKE, and mapping of the SPECIATE database to CRACMM.
 
 One of the python routines available in the archive combines the CRACMM species information from the CMAQ namelists and species description file to create the species markdown files in (MECHS/mechanism_information). The processor will automatically format the following strings in markdown if used in the species description file:
 
@@ -981,10 +981,11 @@ setenv IC_AERO_M2USE F  #(default: T)
 ```
 This may be an attractive option if the values of M2 have become corrupted or unstable to due to interpolation of boundary or initial conditions in space and time. The impact of this option on fine and coarse mode particle mass concentrations is shown below. There is a substantially larger impact on coarse particles than on fine particles, especially near the boundaries.
 
-![image](https://github.com/user-attachments/assets/9f048187-ab68-4f64-9ba9-925cb6c6d218)  
+
+![image](./images/Figure_6-11_1.png)  
 Deviation in total fine particle mass concentration in $\mu g \ m^{-3}$.
 
-![image](https://github.com/user-attachments/assets/80068a34-2643-49ac-bb0a-cce3e5859d41)  
+![image](./images/Figure_6-11_2.png)  
 Deviation in total coarse particle mass concentration in $\mu g \ m^{-3}$.
 
 The initial conditions are not expected to have such large impact on model results because model output data are used to begin every model restart (e.g. at the end of a day). It is expected that the user will give ample model spin-up time so that the impact of initial conditions issues is unlikely. 
@@ -1095,7 +1096,7 @@ Fast, J. D., W. I. Gustafson Jr., R. C. Easter, R. A. Zaveri, J. C. Barnard, E. 
 
 Foroutan, H., J. Young, S. Napelenok, L. Ran, K. W. Appel, R. C. Gilliam, and J. E. Pleim (2017), Development and evaluation of a physics-based windblown dust emission scheme implemented in the CMAQ modeling system, J. Adv. Model. Earth Syst., 9, 585–608, doi:10.1002/2016MS000823
 
-Gantt, B., Kelly, J.T., & Bash, J.O. (2015). Updating sea spray aerosol emissions in the Community Multiscale Air Quality (CMAQ) model version 5.0.2. Geosci. Model Dev., 8, 3733-3746. [doi:10.5194/gmd-8-3733-201](https://doi.org/10.5194/gmd-8-3733-201).
+Gantt, B., Kelly, J.T., & Bash, J.O. (2015). Updating sea spray aerosol emissions in the Community Multiscale Air Quality (CMAQ) model version 5.0.2. Geosci. Model Dev., 8, 3733-3746. [doi:10.5194/gmd-8-3733-2015](https://doi.org/10.5194/gmd-8-3733-2015).
 
 Giorgi, F. (1986). A particle dry-deposition parameterization scheme for use in tracer transport models. J. Geophys. Res., 91(D9), 9794-9806.
 
@@ -1200,3 +1201,16 @@ CMAQv5.5 User's Guide <br>
 
 <!-- END COMMENT -->
 
+<!-- START_OF_COMMENT -->
+
+[link_6.1]: ../../PREP/mcip/
+[link_6.10.1]: ../../UTIL/create_ebi/
+[link_6.10.2]: ../../UTIL/jproc/
+[link_6.10.2_II]: ../../UTIL/inline_phot_preproc/
+
+<!-- END_OF_COMMENT --> 
+
+[link_6.1]: https://github.com/USEPA/CMAQ/blob/main/PREP/mcip/
+[link_6.10.1]: https://github.com/USEPA/CMAQ/blob/main/UTIL/create_ebi/
+[link_6.10.2]: https://github.com/USEPA/CMAQ/blob/main/UTIL/jproc/
+[link_6.10.2_II]: https://github.com/USEPA/CMAQ/blob/main/UTIL/inline_phot_preproc/

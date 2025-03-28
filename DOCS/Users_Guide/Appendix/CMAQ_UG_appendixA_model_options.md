@@ -542,7 +542,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
-Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](./CMAQ_UG_appendixB_emissions_control.md) 
+Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 
