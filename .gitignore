@@ -73,5 +73,10 @@ bldit_project.csh
 
 #for documentation website builders
 *.ipynb_checkpoints
-SPHINX/source/*
+SPHINX/source/UTIL/*
+SPHINX/source/PYTOOLS/*
+SPHINX/source/DOCS/*
+SPHINX/source/PREP/*
+SPHINX/source/POST/*
+SPHINX/source/CCTM/*
 SPHINX/_build/*
