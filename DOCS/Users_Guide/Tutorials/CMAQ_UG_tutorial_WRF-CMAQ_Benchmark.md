@@ -315,6 +315,15 @@ PNETCDFPATH     =
 ADIOS2PATH      =
 ```
 
+Also edit the configure.wrf to add the -fallow-argument-mismatch option 
+
+FCOPTIM         =       -O2 -ftree-vectorize -funroll-loops -fallow-argument-mismatch
+
+Rerun the bldit script
+
+./bldit_wrf4.5.1_cctmv55.csh gcc | & tee ./bldit_wrf4.5.1_cctmv55.log
+
+
 
 If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
