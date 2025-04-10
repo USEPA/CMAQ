@@ -282,6 +282,39 @@ Then define MPIPATH (add under the NETCDFPATH settings)
 
 MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
 
+Example:
+
+```
+INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
+                     $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
+                      -I$(WRF_SRC_ROOT_DIR)/main \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_int \
+                      -I$(WRF_SRC_ROOT_DIR)/frame \
+                      -I$(WRF_SRC_ROOT_DIR)/share \
+                      -I$(WRF_SRC_ROOT_DIR)/phys \
+                      -I$(WRF_SRC_ROOT_DIR)/wrftladj \
+                      -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
+                      -I$(NETCDFPATH)/include \
+                      -I$(MPIPATH)/include \
+
+REGISTRY        =    Registry
+CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
+
+LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(LIB_WRF_HYDRO)  $(NETCDF4_DEP_LIB)
+LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL)
+ENVCOMPDEFS     =     -DWRF_CMAQ
+WRF_CHEM        =       0
+CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG)
+NETCDFPATH      =    /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc11.2
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+HDF5PATH        =
+WRFPLUSPATH     =
+RTTOVPATH       =
+PNETCDFPATH     =
+ADIOS2PATH      =
+```
+
 
 If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
 
