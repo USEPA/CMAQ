@@ -254,6 +254,25 @@ Recompile
 ./compile em_real | & tee ./compile.again.3rd.log
 ```
 
+An additional error can occur if time is not found on your system.
+If this is the case, edit the configure.wrf to remove the time command from the F90 definition.
+
+```
+cd BLD_WRF_release-v4.5.1_CCTM_v55_gcc
+vi configure.wrf
+```
+
+edit line 138
+
+change
+
+FC              =       time $(DM_FC)
+
+to
+
+FC              =       $(DM_FC)
+
+
 
 
 
