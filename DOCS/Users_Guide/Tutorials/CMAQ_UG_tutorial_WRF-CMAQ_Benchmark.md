@@ -175,6 +175,14 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 
 ### Run the build script
 
+If you have set up environment modules for your libraries, then load them
+
+```
+module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc
+```
+
+Run the bldit script to compile wrf-cmaq
+
 ```
 ./bldit_wrf4.5.1_cctmv55.csh gcc |& tee bldit_wrf4.5.1_cctmv55.log
 ```
