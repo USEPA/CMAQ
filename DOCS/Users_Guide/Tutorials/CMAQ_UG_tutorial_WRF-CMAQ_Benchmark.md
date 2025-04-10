@@ -206,9 +206,8 @@ If you get this error:
 
 ```
 Error NoahMP submodule files not populating WRF directories
-```
- 
 make: *** [wrf] Error 31
+```
 
 This is because of a conflict between git clone and the environment modules.
 
@@ -223,7 +222,9 @@ cd ..
 
 If the git clone ssh command doesn't work, try 
 
+```
 git clone https://github.com/NCAR/noahmp/
+```
 
 If you get this error:
 
