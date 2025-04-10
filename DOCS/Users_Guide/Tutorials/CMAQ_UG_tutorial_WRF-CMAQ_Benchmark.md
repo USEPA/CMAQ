@@ -133,11 +133,11 @@ Output:
     setenv WRF_CMAQ 1
 ```
 
-Set the WRF version to 4.5.1
+Set the WRF version to release-v4.5.1
 
 ```
  if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
-    set WRF_VRSN = v4.5.1
+    set WRF_VRSN = release-v4.5.1
  endif
 ```
 
@@ -153,13 +153,7 @@ Set the BLD directory name to add wrf to it, so that when the script copies the 
  endif
 ```
 
-If you are using an older version of git, you need to modify the git clone command to add --recurse-submodule flag to obtain the noahmp submodule, and to also use ssh instead of https:
-
-```
-git clone --recurse-submodule --branch ${WRF_VRSN} ssh://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
-```
-
-Note, if you use https then the git clone will fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br>
+Note, if you use https then the git clone will or may fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br>
 
 Configure CMAQ benchmark Science Modules:
 
@@ -213,10 +207,10 @@ This is because of a conflict between git clone and the environment modules.
 Try the following commands:
 
 ```
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/openmpi_gcc/CCTM/scripts/BLD_WRFv4.5.1_CCTM_v55_gcc/phys
+cd ./BLD_WRF_release-v4.5.1_CCTM_v55_gcc/phys
 git clone ssh://github.com/NCAR/noahmp/
 cd ..
-./compile em_real |& compile.again.log
+./compile em_real |& tee compile.again.log
 ```
 
 If you get this error:
