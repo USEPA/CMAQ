@@ -272,8 +272,15 @@ to
 
 FC              =       $(DM_FC)
 
+If the build fails due to not finding the mpi.h include file, then edit the configure.wrf file to add the following:
 
+Add the following to the list of the INCLUDE_MODULES = 
 
+-I$(MPIPATH)/include \
+
+Then define MPIPATH (add under the NETCDFPATH settings)
+
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
 
 
 If it still fails, please reach post on the [CMAS Forum](https://forum.cmascenter.org/c/wrf-cmaq).
@@ -358,14 +365,14 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    Set the WRF version number
 
   ```
-     set wrfv    = 4.5.1
+     set wrfv    = release_v4.5.1
   ```
 
    Now, modify the following section to specify your local paths: 
 
    ```
      set WORKDIR     = ${PWD}
-     set WRF_DIR     = $WORKDIR/BLD_WRFv4.5.1_CCTM_v55_gcc  # WRF source code directory
+     set WRF_DIR     = $WORKDIR/BLD_WRF_release-v4.5.1_CCTM_v55_gcc  # WRF source code directory
      set INPDIR      = ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
      set OUTPUT_ROOT = $WORKDIR  # output root directory
      set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
