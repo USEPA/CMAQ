@@ -153,7 +153,6 @@ Set the BLD directory name to add wrf to it, so that when the script copies the 
  endif
 ```
 
-Note, if you use https then the git clone will or may fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br>
 
 Configure CMAQ benchmark Science Modules:
 
@@ -212,6 +211,10 @@ git clone ssh://github.com/NCAR/noahmp/
 cd ..
 ./compile em_real |& tee compile.again.log
 ```
+
+If the git clone ssh command doesn't work, try 
+
+git clone https://github.com/NCAR/noahmp/
 
 If you get this error:
 
@@ -317,7 +320,10 @@ ADIOS2PATH      =
 
 Also edit the configure.wrf to add the -fallow-argument-mismatch option 
 
+```
 FCOPTIM         =       -O2 -ftree-vectorize -funroll-loops -fallow-argument-mismatch
+FCCOMPAT        =        -fallow-argument-mismatch -fallow-invalid-boz -fallow-argument-mismatch
+```
 
 Rerun the bldit script
 
@@ -432,10 +438,10 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Load the environment modules 
 
     ```
-    module load  gcc/9.1.0   openmpi_4.0.1/gcc_9.1.0   netcdf-4.5.3-for_nc4/gcc-9.1 ioapi-3.2/gcc-9.1
+    module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc_11.4.1
     ```
     
-  - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
+  - Run the job (if you have a batch queuing system such as SLURM use sbatch after adding the sbatch commands to the top of the run script): 
 
   ```
   ./run_cctm_Bench_2018_12NE3.WRFCMAQ.csh
