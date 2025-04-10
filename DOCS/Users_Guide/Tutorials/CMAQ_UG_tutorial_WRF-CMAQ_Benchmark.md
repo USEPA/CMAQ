@@ -203,9 +203,10 @@ Users should look for the following message at the end of their bldit_wrf4.5.1_c
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. 
 
 If you get this error:
-------------------------------------------------------------------------------
-Error Error Error NoahMP submodule files not populating WRF directories
-------------------------------------------------------------------------------
+
+```
+Error NoahMP submodule files not populating WRF directories
+```
  
 make: *** [wrf] Error 31
 
