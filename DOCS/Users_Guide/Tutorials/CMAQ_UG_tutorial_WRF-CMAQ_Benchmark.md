@@ -446,7 +446,7 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Load the environment modules 
 
     ```
-    module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc_11.4.1
+    module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc
     ```
     
   - Run the job (if you have a batch queuing system such as SLURM use sbatch after adding the sbatch commands to the top of the run script): 
