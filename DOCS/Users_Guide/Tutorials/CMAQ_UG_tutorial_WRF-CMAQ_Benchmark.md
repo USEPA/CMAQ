@@ -10,7 +10,7 @@ CMAQ requires a specific hardware and software configuration. To learn about the
 
 ## Installing WRF-CMAQ ##
 
-If you followed the CMAQ_UG_tutorial_build_library_gcc_support_nc4.md tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.
+If you followed the [CMAQ_UG_tutorial_build_library_gcc_support_nc4.md](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.
 
 In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:
 
