@@ -279,21 +279,30 @@ edit line 138
 
 change
 
+```
 FC              =       time $(DM_FC)
+```
 
 to
 
+```
 FC              =       $(DM_FC)
+```
 
 If the build fails due to not finding the mpi.h include file, then edit the configure.wrf file to add the following:
 
 Add the following to the list of the INCLUDE_MODULES = 
 
+```
 -I$(MPIPATH)/include \
+```
 
-Then define MPIPATH (add under the NETCDFPATH settings)
+Then define MPIPATH (add under the NETCDFPATH settings) to your local path
+Example: 
 
+```
 MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+```
 
 Example:
 
