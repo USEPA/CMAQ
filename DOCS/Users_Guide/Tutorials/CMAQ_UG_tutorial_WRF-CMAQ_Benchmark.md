@@ -346,7 +346,9 @@ FCCOMPAT        =        -fallow-argument-mismatch -fallow-invalid-boz -fallow-a
 
 Rerun the bldit script
 
+```
 ./bldit_wrf4.5.1_cctmv55.csh gcc | & tee ./bldit_wrf4.5.1_cctmv55.log
+```
 
 
 
