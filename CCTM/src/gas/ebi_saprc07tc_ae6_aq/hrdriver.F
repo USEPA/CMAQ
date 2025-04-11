@@ -83,7 +83,8 @@ C**********************************************************************
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 #ifdef sens
       USE DDM3D_CHEM
-      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH,
+     &                      SENGRID, NP, NPMAX, CKTIME
 #endif
 
       IMPLICIT NONE
@@ -486,8 +487,30 @@ c..update irrout arrays if needed
                   END IF
                END DO
 
+c..unit conversion for current gridcell
+               DO SPC = 1, NUMB_MECH_SPC
+                  S = CGRID_INDEX( SPC )
+                  IF( CONVERT_CONC( SPC ) )THEN
+                     DO NP = 1, NPMAX
+                        SENGRID( C,R,L,S,NP ) = REAL ( INV_DENS*FORWARD_CONV( SPC ) )
+     &                                     * SENGRID( C,R,L,S,NP )
+                     END DO
+                  END IF
+               END DO
 
+c..ddm-3d sensitivity solver
                CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+
+c..revert back to original units
+               DO SPC = 1, NUMB_MECH_SPC
+                  S = CGRID_INDEX( SPC )
+                  IF( CONVERT_CONC( SPC ) )THEN
+                      DO NP = 1, NPMAX
+                        SENGRID( C,R,L,S,NP ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L ) )
+     &                                 * SENGRID( C,R,L,S,NP )
+                      END DO
+                  ENDIF
+               END DO
 #endif
 
             END DO
