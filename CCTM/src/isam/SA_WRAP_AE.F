@@ -19,11 +19,11 @@
      &                      N_AEROSPC, AEROSPC, AEROSPC_MWINV,
      &                      AEROSPC_MW
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
-      USE CONST, ONLY: MWAIR
 
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID
+      INCLUDE SUBST_CONST
 
 ! Arguments
       REAL, POINTER             :: CGRID( :,:,:,: )

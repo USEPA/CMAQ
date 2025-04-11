@@ -164,12 +164,12 @@ C-----------------------------------------------------------------------
 #ifdef mpas
       use util_module, only : nextime, time2sec, sec2time, secsdiff, currstep
 #endif
-      USE CONST
 
       IMPLICIT NONE
 
 C...........INCLUDES
 
+      INCLUDE SUBST_CONST               ! constants
       INCLUDE SUBST_FILES_ID            ! file name parameters
 
 C...........Arguments
@@ -677,6 +677,8 @@ C...  for the accumulation mode, add aqueous tracked species
             END IF
 
             IF ( ( AE6ISOA ) .OR.
+     &           ( INDEX( MECHNAME, 'CRACMM'     ) .GT. 0 ) .OR. 
+     &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
      &           ( INDEX( MECHNAME, 'CB6R5_AE7'  ) .GT. 0 ) .OR.
      &           ( INDEX( MECHNAME, 'CB6R5M_AE7' ) .GT. 0 ) ) THEN
     
