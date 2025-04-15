@@ -405,8 +405,8 @@
          CHARACTER( 16 ) :: DENOM2
          LOGICAL         :: LTIME_UNIT
 
-         REAL, PARAMETER :: AVO = 6.0221367E23
-         REAL, PARAMETER :: RAVO = 1.0 / AVO
+         REAL, PARAMETER  :: AVO  = 6.0221367E23
+         REAL, PARAMETER  :: RAVO = 1.0 / AVO
 
          ! The Default Finding is an unknown Basis unit and conversion
          ! equal to 1.0
@@ -432,12 +432,12 @@
          ! If there are no slashes or spaces, then exit
          IF ( SLASH_IND .EQ. 0 ) RETURN
 
-         ! Check numerator for moleculae units
+         ! Check numerator for molecule units
          ! This has to come before the check for molar units since the
-         !  check for mole, moles, or mol will also match molecule
-         IF ( NUMER(1:8) .EQ. 'MOLECULE'   .OR.
-     &        NUMER(1:9) .EQ. 'MOLECULES'  .OR.
-     &        NUMER(1:5) .EQ. 'MOLEC'      .OR.
+         !   check for mole, moles, or mol will also match molecule
+         IF ( NUMER(1:8) .EQ. 'MOLECULE'  .OR.
+     &        NUMER(1:9) .EQ. 'MOLECULES' .OR.
+     &        NUMER(1:5) .EQ. 'MOLEC'     .OR.
      &        NUMER(1:6) .EQ. 'MOLECS' ) THEN
             ! Convert molecules -> mol
             CONV = RAVO
@@ -641,7 +641,7 @@
      &             DENOM .EQ. 'CENTIMETERS2'.OR.DENOM .EQ. 'CENTIMETERS-2' .OR.
      &             DENOM .EQ. 'CENTIMETERS^2'.OR.DENOM .EQ. 'CENTIMETERS-2' ) THEN
             ! Convert centimeters^2 -> meters^2
-            CONV = CONV / 1.0E4
+            CONV = CONV / 1.0E-4
             LAREA = .TRUE.
          ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
      &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
