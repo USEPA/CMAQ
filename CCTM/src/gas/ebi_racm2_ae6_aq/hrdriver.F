@@ -492,8 +492,8 @@ c..unit conversion for current gridcell
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN
                      DO NP = 1, NPMAX
-                        SENGRID( C,R,L,S,NP ) = REAL ( INV_DENS*FORWARD_CONV( SPC ) )
-     &                                     * SENGRID( C,R,L,S,NP )
+                        SENGRID( C,R,L,NP,S ) = REAL ( INV_DENS*FORWARD_CONV( SPC ) )
+     &                                        * SENGRID( C,R,L,NP,S )
                      END DO
                   END IF
                END DO
@@ -506,8 +506,8 @@ c..revert back to original units
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN
                       DO NP = 1, NPMAX
-                        SENGRID( C,R,L,S,NP ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L ) )
-     &                                 * SENGRID( C,R,L,S,NP )
+                        SENGRID( C,R,L,NP,S ) = REAL( REVERSE_CONV( SPC ) * DENS( C,R,L ) )
+     &                                        * SENGRID( C,R,L,NP,S )
                       END DO
                   ENDIF
                END DO               
