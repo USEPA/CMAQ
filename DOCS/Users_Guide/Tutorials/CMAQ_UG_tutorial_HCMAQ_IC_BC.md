@@ -93,7 +93,7 @@ EOF
 
 ### STEP 3: (optional): Map to a different chemical mechanism </strong>
 
-If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, craccm1_aq, or craccm2 is provided in a directory alongside the BCON and ICON [source code](../../../PREP/bcon/map2mech). Species definition files used for the mechanism mapping are also provided in that directory.
+If a chemical mechanism other than cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, or cb6r5m_ae7_aq will be used for the regional-scale CMAQ simulations, the species in the downloaded file need to be mapped to that other chemical mechanism. An example script for using the `combine` program to map from cb6r3m_ae7_kmtbr to racm_ae6_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, craccm1_aq, or craccm2 is provided in a directory alongside the BCON and ICON [source code][link_1]. Species definition files used for the mechanism mapping are also provided in that directory.
 
 ### STEP 4: Compile the ICON and BCON executables</strong>
 
@@ -111,7 +111,7 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 
 ### STEP 5: Run ICON to create initial conditions</strong>
 
-The run script below uses the [`ICON`](../../../PREP/icon) program to create initial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
+The run script below uses the [`ICON`][link_2] program to create initial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
 
 ```
 #!/bin/csh -f
@@ -233,7 +233,7 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create ini
  
 ### STEP 6: Run BCON to create boundary conditions</strong>
 
-The run script below uses the [`BCON`](../../../PREP/bcon) program to create boundary conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
+The run script below uses the [`BCON`][link_3] program to create boundary conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1, optionally time-shifted in Step 2, and optionally mapped to a different mechanism in Step 3. The same script can be used for the monthly files with daily average hemispheric CMAQ output by changing the CTM_CONC_1 and MET_CRO_3D_CRS environment variables to use one of those files instead of the file with the seasonal average output. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2 and/or species-mapped in Step 3.
 
 ```
 #!/bin/csh -f
@@ -357,3 +357,16 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create bou
 
  exit() 
 ```
+
+
+<!-- START_OF_COMMENT --> 
+
+[link_1]: ../../../PREP/bcon/map2mech/
+[link_2]: ../../../PREP/icon/
+[link_3]: ../../../PREP/bcon
+
+<!-- END_OF_COMMENT --> 
+
+[link_1]: https://github.com/USEPA/CMAQ/blob/main/PREP/bcon/map2mech/
+[link_2]: https://github.com/USEPA/CMAQ/blob/main/PREP/icon/ 
+[link_3]: https://github.com/USEPA/CMAQ/blob/main/PREP/bcon/

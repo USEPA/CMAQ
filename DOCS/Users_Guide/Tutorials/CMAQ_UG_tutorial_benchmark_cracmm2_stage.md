@@ -6,28 +6,13 @@ Benchmarking refers to a simulation that is used to verify that the software is 
 - Installation by a new user
 - Installation on a new server     
 - Following kernel upgrades
-- Following Fortran/C compiler upgrades
-- Following netCDF or I/O API library upgrades
-
+- Following compiler or system library updates
+  
 ## System Checks 
 
-The following support software are required for compiling and running CMAQ.  
+CMAQ requires a specific hardware and software configuration. To learn about these requirements, please refer to the tutorial on [preparing your compute environment for CMAQ simulations](CMAQ_UG_tutorial_configure_linux_environment.md).
 
-1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
-2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built with netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
-4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
-(note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
-https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials
-
-The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
-
-1. Linux environment with a 16 processors
-2. 16 GB RAM
-3. 400 GB hard drive storage
-
-## Install CMAQ and Required Libraries 
+## Install CMAQ 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.5:
 
@@ -276,7 +261,7 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 
 The CMAQv5.5 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. 
 
-Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
+Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.cmascenter.org/verdi/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
 Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitive to small changes in machine precision and accuracy.
 
