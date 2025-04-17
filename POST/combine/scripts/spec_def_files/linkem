@@ -4,33 +4,33 @@
  set CMD = '/bin/ln -s'
  set src = ../../../../CCTM/src/MECHS
 
- $CMD $src/saprc07tic_ae6invPOA_aq/SpecDef_Dep_saprc07tic_ae6invPOA_aq.txt
- $CMD $src/saprc07tic_ae6invPOA_aq/SpecDef_saprc07tic_ae6invPOA_aq.txt
- $CMD $src/cb05e51_ae6nvPOA_aq/SpecDef_cb05e51_ae6nvPOA_aq.txt
- $CMD $src/cb05e51_ae6nvPOA_aq/SpecDef_Dep_cb05e51_ae6nvPOA_aq.txt
- $CMD $src/cb05e51_ae6_aq/SpecDef_cb05e51_ae6_aq.txt
- $CMD $src/cb05e51_ae6_aq/SpecDef_Dep_cb05e51_ae6_aq.txt
- $CMD $src/saprc07tic_ae6i_aqkmti/SpecDef_Dep_saprc07tic_ae6i_aqkmti.txt
- $CMD $src/saprc07tic_ae6i_aqkmti/SpecDef_saprc07tic_ae6i_aqkmti.txt
+ $CMD $src/cb6r3_ae7_aq/SpecDef_cb6r3_ae7_aq.txt
+ $CMD $src/cb6r3_ae7_aq/SpecDef_Conc_cb6r3_ae7_aq.txt
+ $CMD $src/cb6r3_ae7_aq/SpecDef_Dep_cb6r3_ae7_aq.txt
+ $CMD $src/cb6r5_ae7_aq/SpecDef_cb6r5_ae7_aq.txt
+ $CMD $src/cb6r5_ae7_aq/SpecDef_Conc_cb6r5_ae7_aq.txt
+ $CMD $src/cb6r5_ae7_aq/SpecDef_Dep_cb6r5_ae7_aq.txt
+ $CMD $src/cb6r5hap_ae7_aq/SpecDef_cb6r5hap_ae7_aq.txt
+ $CMD $src/cb6r5hap_ae7_aq/SpecDef_Conc_cb6r5hap_ae7_aq.txt
+ $CMD $src/cb6r5hap_ae7_aq/SpecDef_Dep_cb6r5hap_ae7_aq.txt
+ $CMD $src/cb6r5m_ae7_aq/SpecDef_cb6r5m_ae7_aq.txt
+ $CMD $src/cb6r5m_ae7_aq/SpecDef_Conc_cb6r5m_ae7_aq.txt
+ $CMD $src/cb6r5m_ae7_aq/SpecDef_Dep_cb6r5m_ae7_aq.txt
+ 
+ $CMD $src/cracmm1amore_aq/SpecDef_cracmm1amore_aq.txt
+ $CMD $src/cracmm1amore_aq/SpecDef_Conc_cracmm1amore_aq.txt
+ $CMD $src/cracmm1amore_aq/SpecDef_Dep_cracmm1amore_aq.txt
+ $CMD $src/cracmm1_aq/SpecDef_cracmm1_aq.txt
+ $CMD $src/cracmm1_aq/SpecDef_Conc_cracmm1_aq.txt
+ $CMD $src/cracmm1_aq/SpecDef_Dep_cracmm1_aq.txt
+ $CMD $src/cracmm2/SpecDef_cracmm2.txt
+ $CMD $src/cracmm2/SpecDef_Conc_cracmm2.txt
+ $CMD $src/cracmm2/SpecDef_Dep_cracmm2.txt
+ 
  $CMD $src/racm2_ae6_aq/SpecDef_racm2_ae6_aq.txt
  $CMD $src/racm2_ae6_aq/SpecDef_Dep_racm2_ae6_aq.txt
- $CMD $src/saprc07tc_ae6nvPOA_aq/SpecDef_saprc07tc_ae6nvPOA_aq.txt
- $CMD $src/saprc07tc_ae6nvPOA_aq/SpecDef_Dep_saprc07tc_ae6nvPOA_aq.txt
- $CMD $src/cb05tucl_ae6_aq/SpecDef_cb05tucl_ae6_aq.txt
- $CMD $src/cb05tucl_ae6_aq/SpecDef_Dep_cb05tucl_ae6_aq.txt
- $CMD $src/cb6r3_ae6_aq/SpecDef_cb6r3_ae6_aq.txt
- $CMD $src/cb6r3_ae6_aq/SpecDef_Dep_cb6r3_ae6_aq.txt
- $CMD $src/cb6r3_ae7_aq/SpecDef_cb6r3_ae7_aq.txt
- $CMD $src/cb6r3_ae7_aq/SpecDef_Dep_cb6r3_ae7_aq.txt
- $CMD $src/cb6r3_ae6nvPOA_aq/SpecDef_Dep_cb6r3_ae6nvPOA_aq.txt
- $CMD $src/cb6r3_ae6nvPOA_aq/SpecDef_cb6r3_ae6nvPOA_aq.txt
- $CMD $src/cb05eh51_ae6_aq/SpecDef_Dep_cb05eh51_ae6_aq.txt
- $CMD $src/cb05eh51_ae6_aq/SpecDef_cb05eh51_ae6_aq.txt
+ 
  $CMD $src/saprc07tc_ae6_aq/SpecDef_saprc07tc_ae6_aq.txt
  $CMD $src/saprc07tc_ae6_aq/SpecDef_Dep_saprc07tc_ae6_aq.txt
- $CMD $src/saprc07tb_ae6_aq/SpecDef_Dep_saprc07tb_ae6_aq.txt
- $CMD $src/saprc07tb_ae6_aq/SpecDef_saprc07tb_ae6_aq.txt
- $CMD $src/saprc07tic_ae6i_aq/SpecDef_saprc07tic_ae6i_aq.txt
- $CMD $src/saprc07tic_ae6i_aq/SpecDef_Dep_saprc07tic_ae6i_aq.txt
- $CMD $src/cb05mp51_ae6_aq/SpecDef_Dep_cb05mp51_ae6_aq.txt
- $CMD $src/cb05mp51_ae6_aq/SpecDef_cb05mp51_ae6_aq.txt
+ $CMD $src/saprc07tic_ae7i_aq/SpecDef_saprc07tic_ae7i_aq.txt
+ $CMD $src/saprc07tic_ae7i_aq/SpecDef_Dep_saprc07tic_ae7i_aq.txt
