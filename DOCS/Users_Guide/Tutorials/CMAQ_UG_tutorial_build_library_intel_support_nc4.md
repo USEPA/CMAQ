@@ -1,6 +1,6 @@
 ## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
 
-This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
+This tutorial is based on these instructions: [Installing NetCDF](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html)
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
 * This Tutorial is for the intel 2024.2.1 compiler.   
@@ -26,32 +26,8 @@ mkdir -p $cwd/CMAQv5.5/build
 cd $cwd/CMAQv5.5/build
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_netcdf_for_nc4_compression.csh
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
-
 ```
 
-### Edit the CMAQ install scripts 
-Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
-
-Replace the following path the local path
-```
-/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
-```
-
-The [intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./cmaq_libraries/intel_2024_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
-There is also a hard coded path for the openmpi library.
-
-Use the command:
-
-`which mpirun` to find the path to the mpi library, note the path depands on the compiler and whether openmpi or intel mpi is used
-
-On my system the path was:
-
-```
-/nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
-```
-
-Modify the scripts to use the path on your system.
 
 Load the modules for your compiler then run the library install script for the netcdf libraries.
 
@@ -111,7 +87,7 @@ ifx: command line warning #10121: overriding '-static-intel' with '-shared-intel
 ```
 
 
-### Create a private modules
+### Create a custom module
 Add the netCDF and I/O API modules following these instructions: [Custom Modules](https://researchcomputing.princeton.edu/support/knowledge-base/custom-modules)
 
 Example module files are available here:
@@ -186,7 +162,7 @@ Now that the module files have been created, add the following line to your .csh
 module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
 ```
 
-### Use module avail to see private modules, and then load them
+### Use module avail to see custom modules, and then load them
 
 ```
 module avail
@@ -206,27 +182,17 @@ Currently Loaded Modules:
 
 ```
 
-### Install CMAQ
+### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial:
 
-Edit the script to specify the correct local paths for HOME and mpirun and then run
+[CMAQ Installation Tutorial for CRACMM2](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
 
-```
-./intel_2024_install_cmaq55_cb6r5_m3dry.csh
-```
+### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
 
-### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
-
-```
-ls $cwd/cmaq_intel/CCTM/scripts/BLD_CCTM_v55_intel_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
-```
-
-### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
-
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark_cracmm2_stage.md
+[CMAQ Installation Tutorial for CRACMM2](CMAQ_UG_tutorial_benchmark.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
-https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md
+[WRF-CMAQ Installation Tutorial](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)
 
 
 
