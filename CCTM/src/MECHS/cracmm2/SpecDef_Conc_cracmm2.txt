@@ -69,8 +69,8 @@ NTR             ,ppbV      ,1000.0*(ONIT[1]+ISON[1]+INALD[1]+TRPN[1]+HONIT[1]), 
 PANS            ,ppbV      ,1000.0*(PAN[1]+PPN[1]+MPAN[1])
 NOY             ,ppbV      ,1000.0*(NO[1]+NO2[1]+NO3[1]+2*N2O5[1]+HONO[1] \
                                    +HNO3[1]+HNO4[1]+PAN[1]+PPN[1]+MPAN[1] \
-                                   +ISON[1]+INALD[1]+IPX[1]+TRPN[1]+ONIT[1]) \
-                                   +HONIT[1]+ANO3_PPB[0]
+                                   +ISON[1]+INALD[1]+IPX[1]+TRPN[1]+ONIT[1] \
+                                   +HONIT[1])+ANO3_PPB[0]
 O3              ,ppbV      ,1000.0*O3[1]
 SO2             ,ppbV      ,1000.0*SO2[1]
 SO2_UGM3        ,ug m-3    ,1000.0*(SO2[1]*2.2118*DENS[2])
@@ -185,6 +185,7 @@ ANH4IJ          ,ug m-3    ,ANH4I[1]+ANH4J[1]
 ANH4K           ,ug m-3    ,ANH4K[1]
 ASO4IJ          ,ug m-3    ,ASO4I[1]+ASO4J[1]
 ASO4K           ,ug m-3    ,ASO4K[1]
+ACLK            ,ug m-3    ,ACLK[1]
 
 !! Organic Particle Species
 ! Why is there an APOCI and APOCJ in the output? It doesn't match below 
@@ -208,10 +209,13 @@ ASOCI     ,ugC m-3,  AROCN2OXY2I[1]/1.42  + AROCN2OXY4I[1]/1.67  \
 ASOCJ     ,ugC m-3,  AHOMJ[1]/2.08 + AELHOMJ[1]/1.67 + AISO3NOSJ[1]/2.27 \
                    + AISO3OSJ[1]/3.6 + AGLYJ[1]/2.13 + AORGCJ[1]/2  \
                    + AOP3J[1]/1.92 + ASOATJ[1]/2.31 + AROCN2OXY2J[1]/1.42 \
+                   + AISO4J[1]/2.80 + AISO5J[1]/2.50 + AHONITJ[1]/2.21 + ATRPNJ[1]/1.79 \
                    + AROCN2OXY4J[1]/1.67 + AROCN2OXY8J[1]/2.17 + AROCN1OXY1J[1]/1.29 \
                    + AROCN1OXY3J[1]/1.54 + AROCN1OXY6J[1]/1.92 + AROCP0OXY2J[1]/1.42 \
                    + AROCP0OXY4J[1]/1.67 + AROCP1OXY1J[1]/1.29 + AROCP1OXY3J[1]/1.54 \
                    + AROCP2OXY2J[1]/1.42 + AROCP3OXY2J[1]/1.42 
+ATERPJ   ,ugC m-3,  AHOMJ[1]/2.08 + AELHOMJ[1]/1.67  \
+                    + AHONITJ[1]/2.21 + ATRPNJ[1]/1.79 
 ASOCIJ   ,ugC m-3,  ASOCI[0] + ASOCJ[0]
 
 ASOMI    ,ug m-3, AROCN2OXY2I[1]  + AROCN2OXY4I[1]  \
@@ -222,6 +226,7 @@ ASOMI    ,ug m-3, AROCN2OXY2I[1]  + AROCN2OXY4I[1]  \
 ASOMJ    ,ug m-3,  AHOMJ[1] + AELHOMJ[1] + AISO3NOSJ[1] \
                    + AISO3OSJ[1] + AGLYJ[1] + AORGCJ[1]  \
                    + AOP3J[1] + ASOATJ[1] + AROCN2OXY2J[1] \
+                   + AISO4J[1] + AISO5J[1] + AHONITJ[1] + ATRPNJ[1] \
                    + AROCN2OXY4J[1] + AROCN2OXY8J[1] + AROCN1OXY1J[1] \
                    + AROCN1OXY3J[1] + AROCN1OXY6J[1] + AROCP0OXY2J[1] \
                    + AROCP0OXY4J[1] + AROCP1OXY1J[1] + AROCP1OXY3J[1] \
@@ -252,7 +257,8 @@ AORGAJ          ,ug m-3     ,AROCN2OXY2J[1]+AROCN2OXY4J[1]+AROCN2OXY8J[1]+AROCN1
 AORGAIJ         ,ug m-3     ,AORGAI[0] + AORGAJ[0]
 
 !!! Biogenic-VOC Derived Organic Aerosol
-AORGBIJ         ,ug m-3    ,AISO3NOSJ[1] +AISO3OSJ[1] +AHOMJ[1] + AELHOMJ[1]
+AORGBIJ         ,ug m-3    ,AISO3NOSJ[1] +AISO3OSJ[1] +AHOMJ[1] + AELHOMJ[1] \
+                           +AISO4J[1]    +AISO5J[1]   +ATRPNJ[1]+AHONITJ[1]
 
 !!! Cloud-Processed  SOA
 AORGCJ          ,ug m-3    ,AORGCJ[1]
