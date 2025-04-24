@@ -45,6 +45,7 @@ Example Application
 """
 import os
 import string
+import numpy as np
 
 
 __version__ = '1.0'
