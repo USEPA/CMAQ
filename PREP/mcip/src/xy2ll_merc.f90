@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE xy2ll_merc (xx, yy, lambda0, phi, lambda)
+SUBROUTINE xy2ll_merc (xx, yy, truelat1, lambda0, phi, lambda)
 
 !-------------------------------------------------------------------------------
 ! Name:     (X,Y) to Latitude-Longitude for Polar Stereographic Projection
@@ -48,7 +48,8 @@ SUBROUTINE xy2ll_merc (xx, yy, lambda0, phi, lambda)
   REAL(8)                      :: xxd
   REAL,          INTENT(IN)    :: yy         ! Y-coordinate from origin
   REAL(8)                      :: yyd
-
+  REAL(8)                      :: k0
+  REAL,          INTENT(IN)    :: truelat1 
 !-------------------------------------------------------------------------------
 ! Compute constants.
 !-------------------------------------------------------------------------------
@@ -60,7 +61,7 @@ SUBROUTINE xy2ll_merc (xx, yy, lambda0, phi, lambda)
   rad2deg = 1.8d2 / pi
 
   drearth = DBLE(rearth)
-
+  k0=DCOS(DBLE(truelat1*deg2rad))
 !-------------------------------------------------------------------------------
 ! Set up geometric constants.
 !-------------------------------------------------------------------------------
@@ -71,8 +72,7 @@ SUBROUTINE xy2ll_merc (xx, yy, lambda0, phi, lambda)
 !-------------------------------------------------------------------------------
 ! Compute latitude (PHI).
 !-------------------------------------------------------------------------------
-
-  phirad  = ( 2.0d0 * DATAN ( DEXP(yyd/drearth) ) ) - piover2
+  phirad  = piover2 - 2.0d0 * DATAN ( DEXP(- yyd/drearth/k0) ) 
   phi     = REAL( phirad * rad2deg )
 
 !-------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ SUBROUTINE xy2ll_merc (xx, yy, lambda0, phi, lambda)
 !-------------------------------------------------------------------------------
 
   lambda0rad = DBLE(lambda0) * deg2rad
-  lambdarad  = lambda0rad + xxd/drearth
+  lambdarad  = lambda0rad + xxd/drearth/k0
   lambda     = REAL( lambdarad * rad2deg )
 
 END SUBROUTINE xy2ll_merc
