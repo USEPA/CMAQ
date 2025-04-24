@@ -250,6 +250,9 @@ def shp2cmaq(
 
     # Add IOAPI meta-data
     igf = gf.expand_dims(TSTEP=1, LAY=1).csp.to_ioapi()
+    
+    igf["TFLAG"].data = np.zeros_like(igf["TFLAG"].data, 'i')
+
     desctxt = f'{attrkey} fractional area coverage, total ({prefix}TOT) and'
     desctxt += f' dominant ({prefix}DOM)'
     igf.attrs['FILEDESC'] = f"""title: {outpath}
