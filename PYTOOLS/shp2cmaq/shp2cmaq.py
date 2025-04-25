@@ -45,7 +45,6 @@ Example Application
 """
 import os
 import string
-import numpy as np
 
 
 __version__ = '1.0'
@@ -251,9 +250,11 @@ def shp2cmaq(
 
     # Add IOAPI meta-data
     igf = gf.expand_dims(TSTEP=1, LAY=1).csp.to_ioapi()
-    
-    igf["TFLAG"].data = np.zeros_like(igf["TFLAG"].data, 'i')
 
+    # avoid errors when CMAQ reads the time information.
+    igf['TFLAG'][:] = 0
+    igf.attrs['SDATE'] = igf['TFLAG'][0, 0, 0].data
+    
     desctxt = f'{attrkey} fractional area coverage, total ({prefix}TOT) and'
     desctxt += f' dominant ({prefix}DOM)'
     igf.attrs['FILEDESC'] = f"""title: {outpath}
