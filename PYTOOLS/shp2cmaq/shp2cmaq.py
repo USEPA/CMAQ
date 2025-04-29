@@ -250,6 +250,11 @@ def shp2cmaq(
 
     # Add IOAPI meta-data
     igf = gf.expand_dims(TSTEP=1, LAY=1).csp.to_ioapi()
+
+    # avoid errors when CMAQ reads the time information.
+    igf['TFLAG'][:] = 0
+    igf.attrs['SDATE'] = igf['TFLAG'][0, 0, 0].data
+    
     desctxt = f'{attrkey} fractional area coverage, total ({prefix}TOT) and'
     desctxt += f' dominant ({prefix}DOM)'
     igf.attrs['FILEDESC'] = f"""title: {outpath}
