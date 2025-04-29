@@ -10,7 +10,7 @@ CMAQ requires a specific hardware and software configuration. To learn about the
 
 ## Installing WRF-CMAQ ##
 
-If you followed the CMAQ_UG_tutorial_build_library_gcc_support_nc4.md tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.
+If you followed the [CMAQ_UG_tutorial_build_library_gcc_support_nc4.md](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.
 
 In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:
 
@@ -133,11 +133,11 @@ Output:
     setenv WRF_CMAQ 1
 ```
 
-Set the WRF version to 4.5.1
+Set the WRF version to release-v4.5.1
 
 ```
  if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
-    set WRF_VRSN = v4.5.1
+    set WRF_VRSN = release-v4.5.1
  endif
 ```
 
@@ -153,13 +153,6 @@ Set the BLD directory name to add wrf to it, so that when the script copies the 
  endif
 ```
 
-If you are using an older version of git, you need to modify the git clone command to add --recurse-submodule flag to obtain the noahmp submodule, and to also use ssh instead of https:
-
-```
-git clone --recurse-submodule --branch ${WRF_VRSN} ssh://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
-```
-
-Note, if you use https then the git clone will fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br>
 
 Configure CMAQ benchmark Science Modules:
 
@@ -182,6 +175,14 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 
 ### Run the build script
 
+If you have set up environment modules for your libraries, then load them
+
+```
+module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc
+```
+
+Run the bldit script to compile wrf-cmaq
+
 ```
 ./bldit_wrf4.5.1_cctmv55.csh gcc |& tee bldit_wrf4.5.1_cctmv55.log
 ```
@@ -202,21 +203,27 @@ Users should look for the following message at the end of their bldit_wrf4.5.1_c
 If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again. 
 
 If you get this error:
-------------------------------------------------------------------------------
-Error Error Error NoahMP submodule files not populating WRF directories
-------------------------------------------------------------------------------
- 
+
+```
+Error NoahMP submodule files not populating WRF directories
 make: *** [wrf] Error 31
+```
 
 This is because of a conflict between git clone and the environment modules.
 
 Try the following commands:
 
 ```
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/openmpi_gcc/CCTM/scripts/BLD_WRFv4.5.1_CCTM_v55_gcc/phys
+cd ./BLD_WRF_release-v4.5.1_CCTM_v55_gcc/phys
 git clone ssh://github.com/NCAR/noahmp/
 cd ..
-./compile em_real |& compile.again.log
+./compile em_real |& tee compile.again.log
+```
+
+If the git clone ssh command doesn't work, try 
+
+```
+git clone https://github.com/NCAR/noahmp/
 ```
 
 If you get this error:
@@ -260,6 +267,88 @@ Recompile
 ./compile em_real | & tee ./compile.again.3rd.log
 ```
 
+An additional error can occur if time is not found on your system.
+If this is the case, edit the configure.wrf to remove the time command from the F90 definition.
+
+```
+cd BLD_WRF_release-v4.5.1_CCTM_v55_gcc
+vi configure.wrf
+```
+
+edit line 138
+
+change
+
+```
+FC              =       time $(DM_FC)
+```
+
+to
+
+```
+FC              =       $(DM_FC)
+```
+
+If the build fails due to not finding the mpi.h include file, then edit the configure.wrf file to add the following:
+
+Add the following to the list of the INCLUDE_MODULES = 
+
+```
+-I$(MPIPATH)/include \
+```
+
+Then define MPIPATH (add under the NETCDFPATH settings) to your local path
+Example: 
+
+```
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+```
+
+Example:
+
+```
+INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
+                     $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
+                      -I$(WRF_SRC_ROOT_DIR)/main \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_int \
+                      -I$(WRF_SRC_ROOT_DIR)/frame \
+                      -I$(WRF_SRC_ROOT_DIR)/share \
+                      -I$(WRF_SRC_ROOT_DIR)/phys \
+                      -I$(WRF_SRC_ROOT_DIR)/wrftladj \
+                      -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
+                      -I$(NETCDFPATH)/include \
+                      -I$(MPIPATH)/include \
+
+REGISTRY        =    Registry
+CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
+
+LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(LIB_WRF_HYDRO)  $(NETCDF4_DEP_LIB)
+LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL)
+ENVCOMPDEFS     =     -DWRF_CMAQ
+WRF_CHEM        =       0
+CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG)
+NETCDFPATH      =    /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc11.2
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+HDF5PATH        =
+WRFPLUSPATH     =
+RTTOVPATH       =
+PNETCDFPATH     =
+ADIOS2PATH      =
+```
+
+Also edit the configure.wrf to add the -fallow-argument-mismatch option 
+
+```
+FCOPTIM         =       -O2 -ftree-vectorize -funroll-loops -fallow-argument-mismatch
+FCCOMPAT        =        -fallow-argument-mismatch -fallow-invalid-boz -fallow-argument-mismatch
+```
+
+Rerun the bldit script
+
+```
+./bldit_wrf4.5.1_cctmv55.csh gcc | & tee ./bldit_wrf4.5.1_cctmv55.log
+```
 
 
 
@@ -345,14 +434,14 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
    Set the WRF version number
 
   ```
-     set wrfv    = 4.5.1
+     set wrfv    = release_v4.5.1
   ```
 
    Now, modify the following section to specify your local paths: 
 
    ```
      set WORKDIR     = ${PWD}
-     set WRF_DIR     = $WORKDIR/BLD_WRFv4.5.1_CCTM_v55_gcc  # WRF source code directory
+     set WRF_DIR     = $WORKDIR/BLD_WRF_release-v4.5.1_CCTM_v55_gcc  # WRF source code directory
      set INPDIR      = ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
      set OUTPUT_ROOT = $WORKDIR  # output root directory
      set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
@@ -370,10 +459,10 @@ The following commonly modified namelist options for WRF-CMAQ are specified in t
   - Load the environment modules 
 
     ```
-    module load  gcc/9.1.0   openmpi_4.0.1/gcc_9.1.0   netcdf-4.5.3-for_nc4/gcc-9.1 ioapi-3.2/gcc-9.1
+    module load netcdf-4.5.3-for_nc4/gcc-11.2  ioapi-3.2/gcc-11.2  openmpi_5.0.5/gcc
     ```
     
-  - Run the job (if you have a batch queuing system such as SLURM use sbatch): 
+  - Run the job (if you have a batch queuing system such as SLURM use sbatch after adding the sbatch commands to the top of the run script): 
 
   ```
   ./run_cctm_Bench_2018_12NE3.WRFCMAQ.csh

@@ -94,7 +94,7 @@ Building netCDF without the compression capabilities of netCDF4 can be done usin
 ./configure --prefix=$cwd/../netcdf --disable-netcdf-4 --disable-dap
 ```
 
-This simpler installation can work for some applications, but the CMAQ ecosystem increasingly includes netCDF4 compression. For example, the cracmm1_aq 2018 benchmark and the MEGAN 3.2 preprocessor both require netCDF4. The error "Attempt to use feature that was not turned on when netCDF was built" suggests that your workflow requires netCDF4. 
+This simpler installation can work for some applications, but the CMAQ ecosystem increasingly includes netCDF4 compression. For example, the cracmm1_aq 2018 benchmark and the MEGAN 3.2 preprocessor both require netCDF4. The error "Attempt to use feature that was not turned on when netCDF was built" suggests that your workflow requires netCDF4.  If you need to build libraries that support netCDF4 please see tutorials for building netCDF4 in [Configuring your Environment](CMAQ_UG_tutorial_configure_linux_environment.html)
 
 11. Check that the configure command worked correctly
 
