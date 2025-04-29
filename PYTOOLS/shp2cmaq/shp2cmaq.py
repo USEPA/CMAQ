@@ -230,7 +230,7 @@ def shp2cmaq(
         gf[vark].attrs.update(
             long_name=vark.ljust(16),
             var_desc=var_desc.ljust(80)[:80],
-            unit='1'.ljust(16)
+            units='1'.ljust(16)
         )
 
     # Set any missing values (i.e., no overla) to 0.
