@@ -57,7 +57,7 @@
 # =====================================================================
 #> COMBINE Configuration Options
 #> The purpose of this example run script is to create two output files
-#> (COMBINE_ACONC and COMBINE_DEP) often used for model evaluation 
+#> (COMBINE_AELMO and COMBINE_DEP) often used for model evaluation 
 #> purposes. This is accomplished by setting up two loops, each with
 #> its own definitions of SPECIES_DEF and day-specific input files before 
 #> calling the COMBINE executable. 
@@ -76,9 +76,9 @@
 
 
 # =====================================================================
-#> Begin First Loop Through Simulation Days to Create COMBINE_ACONC File
+#> Begin First Loop Through Simulation Days to Create COMBINE_AELMO File
 #> Set up the SPECIES_DEF, INFILEx, and OUTFILE environment variables
-#> for COMBINE_ACONC processing
+#> for COMBINE_AELMO processing
 # =====================================================================
 
 #> Set the species definition file for concentration species.
@@ -101,7 +101,7 @@
 
   #> Define name of combine output file to save hourly average concentration.
   #> A new file will be created for each month/year.
-   setenv OUTFILE ${POSTDIR}/COMBINE_ACONC_${RUNID}_$YYYY$MM.nc
+   setenv OUTFILE ${POSTDIR}/COMBINE_AELMO_${RUNID}_$YYYY$MM.nc
 
   #> Define name of input files needed for combine program.
   #> File [1]: CMAQ conc/aconc file
