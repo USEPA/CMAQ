@@ -1,6 +1,6 @@
 ## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
 
-This tutorial is based on these instructions: https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html
+This tutorial is based on these instructions: [Installing netCDF](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html)
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
 * This Tutorial is for the gcc 11.4.1 compiler.   
@@ -29,37 +29,7 @@ mkdir -p $cwd/CMAQv5.5/build
 cd $cwd/CMAQv5.5/build
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh
-wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
 ```
-
-
-### Edit the CMAQ install scripts 
-Modify any hard coded paths, grep for proj and replace the hardcoded path to a hardcoded path on your system
-
-Change this hard coded path to your local installation directory
-```
-/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build
-```
-
-The [gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh](./scripts/cmaq_libraries/gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh) script uses this in a sed command, so it needs to be edited to reflect the absolute path on your system.
-There is also a hard coded path for the openmpi library.
-
-Use the command:
-
-which mpirun to find the path to the library, note the path depands on the openmpi module that is used.
-
-
-```
-module load openmpi
-which mpirun
-```
-
-Output
-```
-/nas/sycamore/apps/openmpi/5.0.5/bin/mpirun
-```
-
-Modify the scripts to use the path on your system.
 
 Load the modules for your compiler and openmpi version and then run the library install script for the netcdf libraries.
 
@@ -199,23 +169,13 @@ Currently Loaded Modules:
   1) openmpi_5.0.5/gcc_11.4.1   2) netcdf-4.5.3-for_nc4/gcc-11.4   3) ioapi-3.2/gcc-11.4
 ```
 
-### Install CMAQ
-
-Edit the script to specify the correct local paths for HOME and openmpi and then run
-
-```
-./gcc_11.4_install_cmaq55_cb6r5_m3dry_for_nc4_compression.csh
-```
-
-### Confirm that the CMAQv5.5 cb6r5 mechanism and m3dry deposition scheme has been built
-
-```
-ls $cwd/openmpi_gcc/CCTM/scripts/BLD_CCTM_v55_gcc_cb6r5_ae7_aq_m3dry/CCTM_v55.exe
-```
-
 ### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
 
 [CRACMM2 and Stage Tutorial](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+
+### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
+
+[CMAQ Installation Tutorial for CRACMM2](./CMAQ_UG_tutorial_benchmark.md)
 
 ### To build and run WRF-CMAQ see the following tutorial
 
