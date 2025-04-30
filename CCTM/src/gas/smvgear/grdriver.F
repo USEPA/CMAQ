@@ -92,7 +92,8 @@ C**********************************************************************
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 #ifdef sens
       USE DDM3D_CHEM, DDM_RK => RK
-      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+      USE DDM3D_DEFN, ONLY: DATENUM, STARTDATE, IPT, IDATE, HIGH,
+     &                      SENGRID, NP, NPMAX, CKTIME
 #endif
 
       IMPLICIT NONE 
@@ -422,9 +423,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                    CNEW( NCELL,ISPNEW ) = REAL( MAX( CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
                END IF
                BLKCONC( NCELL, ISP ) = CNEW( NCELL,ISPNEW )
-#ifdef sens
-               CINIT( NCELL, ISP )   = CNEW( NCELL,ISPNEW )
-#endif
             ENDDO                 
          ENDDO
 
@@ -533,9 +531,7 @@ C..Update concentrations
                   ROW = CROW( CELLNUM )
                   COL = CCOL( CELLNUM )
                   LEV = CLEV( CELLNUM )
-#ifdef sens
-                  CFINI( NCELL, ISPOLD )   = CNEW( NCELL,ISP )
-#endif
+
                   IF( CONVERT_CONC( ISPOLD ) )THEN 
                      CONC( COL,ROW,LEV,SPC ) = REAL( REVERSE_CONV( ISPOLD ) 
      &                                       *       BLKDENS( NCELL ) * CNEW( NCELL,ISP ), 4)
@@ -599,16 +595,37 @@ C  Update CGRID based on the degradation routines
               END DO
 
               DO ISP = 1,NUMB_MECH_SPC
-!                  ISPOLD = INEW2OLD( ISP,NCS )
-!                   YCDDM( ISP ) = 0.5D0 * ( CINIT(NCELL,ISP)+CFINI( NCELL,ISP ) )
                   YCDDM( ISP ) = CAVEG(NCELL,ISP)
                END DO
                CELLNUM = NORDCELL( OFFSET + NCELL )
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
+
+c..unit conversion to ppmV for current gridcell if sensitivity is in ugm-3
+               DO ISP = 1, ISCHANG( NCS )
+                  SPC = CGRID_INDEX( ISP )                  
+                  IF( CONVERT_CONC( ISP ) )THEN
+                     DO NP = 1, NPMAX
+                        SENGRID( COL,ROW,LEV,NP,SPC ) = BLKSVOL( NCELL )*FORWARD_CONV( ISP )
+     &                                                * SENGRID( COL,ROW,LEV,NP,SPC )
+                     END DO
+                  END IF
+               END DO
+
                CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP )
-!              CALL SOLVE_DDM3D_CHEM( COL,ROW,LEV,CHEMSTEP,IOLD2NEW,INEW2OLD )
+
+c..revert back to original units if ug/m3
+               DO ISP = 1, ISCHANG( NCS )
+                  SPC = CGRID_INDEX( ISP )
+                  IF( CONVERT_CONC( ISP ) )THEN
+                      DO NP = 1, NPMAX
+                        SENGRID( COL,ROW,LEV,NP,SPC ) = REAL( REVERSE_CONV( ISP ) * BLKDENS( NCELL ) )
+     &                                                * SENGRID( COL,ROW,LEV,NP,SPC )
+                      END DO
+                  ENDIF
+               END DO               
+
             END DO
 #endif
          ENDIF
