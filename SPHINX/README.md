@@ -26,19 +26,18 @@ These steps for maintaining CMAQ's Sphinx-built HTML hosted on Github Actions as
 
 Critical files for maintaining the website pages are held within the SPHINX/ directory of html_docs, and can be found [here](https://github.com/USEPA/CMAQ/tree/html_docs). Copy this directory from your html_docs branch to your documentation_updates branch.
 
-'''
+```
 mkdir {*main*}/SPHINX/
-<!---IMPORTANT: Remove front slash if copying from MARKDOWN!-->
 mdkir {*main*}/SPHINX/\_build/
-'''
+```
 
-'''
+```
 cp -r {*html_docs*}/SPHINX/* {*main*}/SPHINX/
-'''
+```
 
 To build HTML, must make copies of markdown documentation into the new SPHINX/ workspace
 
-'''
+```
 cd {*main*}/
 cp -r UTIL/ SPHINX/source/
 cp -r PYTOOLS/ SPHINX/source/
@@ -46,30 +45,30 @@ cp -r PREP/ SPHINX/source/
 cp -r POST/ SPHINX/source/
 cp -r DOCS/ SPHINX/source/
 cp -r CCTM/ SPHINX/source/
-'''
+```
 
 
 ## Environment Setup
 
 1. From where you manage virtual environments, create a python virtual environment for building sphinx. Ensure python version 3.11 by specifying in the environment creation command.
 
-'''
+```
 cd {environment_space}
 python3.11 -m venv ./Sphinx_Environment
-'''
+```
 
 2. Activate the environment in your shell, upgrade to latest pip version.
 
-'''
+```
 source Sphinx_Environment/bin/activate.csh
 pip install --upgrade pip
-'''
+```
 
 3. Install required libraries from the SPHINX/ directory in your local html_docs branch.
 
-'''
+```
 pip install -r {*html_docs*}/SPHINX/sphinx_requirements.txt
-'''
+```
 
 ## Building HTML
 ![Git_Workflow](./source/_static/Git_Workflow.png)
@@ -77,38 +76,37 @@ pip install -r {*html_docs*}/SPHINX/sphinx_requirements.txt
 1. Fetch and make documentation edits within your main branch. PR to CMAQ main branch documentation as necessary. Once working with an appropriately updated DOCS/ folder, move on to step 2.
 
 **Note** if making a PR to CMAQ:*main*, remove docs/ and SPHINX/ and any extra files (.ipynb_checkpoints) from workspace _and_ git cache:
-'''
+```
 git rm -rf docs/
 git rm -rf SPHINX/
-'''
+```
 
 OR, add following lines to your *main*/.gitignore:
 
-'''
+```
 SPHINX/
 docs/
-<!---IMPORTANT: Remove front slash if copying from MARKDOWN!-->
 \*.ipynb_checkpoints
-'''
+```
 
 2. Locally, enter your main branch SPHINX/ directory (see [Repository Setup](#repository-setup)) and run reconfigure_rebuild.csh. This will create a new docs/ directory.
 
-'''
+```
 cd {*main*}/SPHINX/
 ./reconfigure_rebuild.csh
-'''
+```
 
 When copying the HTML build in docs/, must add an empty .nojekyll file to new location. To remove cached data from previous builds, make a clean docs/ directory in your html_docs branch.
 
-'''
+```
 git rm -rf {*html_docs*}/docs/
 mkdir {*html_docs*}/docs
-'''
+```
 
-'''
+```
 cp -r {*main*}/docs/* {*html_docs*}/docs/
 touch {*html_docs*}/docs/.nojekyll
-'''
+```
 
 3. May test functionality of new HTML pages on internal HTML servers or by pushing to user-owned html_docs branch and deploying the build from the Github Pages space of this branch.
 
