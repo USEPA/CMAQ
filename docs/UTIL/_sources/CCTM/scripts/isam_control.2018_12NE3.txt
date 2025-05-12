@@ -1,0 +1,47 @@
+!!! CMAQ-ISAM tag definition control file
+!!!   (lines begining with !!! - three exclamation marks - are ignored by the text parser)!!!
+!!!
+!!!   Example file provided with CMAQ v5.5 release
+!!!   14 September 2022: Sergey L. Napelenok
+!!!
+!!! The "TAG CLASSES" line defines the tag classes to track for the simulation. Species in NITRATE and VOC classes depend on the
+!!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism. These species will be tracked for
+!!! each user-defined source.
+!!!   Choose any/all from the list:
+!!!   SULFATE   - ASO4, SO2, SULF, SULRXN
+!!!   NITRATE   - ANO3, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3
+!!!   AMMONIUM  - ANH4, NH3
+!!!   EC        - AEC
+!!!   OA_TOT    - Total Primary and Seocndary Organic Aerosol Species
+!!!   NVPOA     - Primary Organic Aerosol Species APOC, APNCOM
+!!!   VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)
+!!!   PM_TOT    - All PM Species. ACL,ANA,AMG,AK,ACA,AFE,AAL,ASI,ATI,AMN,AOTHR
+!!!                 and TAGCLASSES SULFATE, NITRATE, AMMONIUM, EC, OC, and VOC
+!!!   PM_IONS   - ANA, AMG, AK, ACA, AFE, AAL, ASI, ATI, AMN, AOTHR
+!!!   OZONE     - O3, all NITRATE species, and all VOC species
+!!!   CHLORINE  - ACL, HCL
+!!!   HAP_GAS   - Gas-phase Hazardous Air Pollutant Species
+!!!   HAP_AERO  - Aerosol-Phase Hazardous Air Pollutant Species
+!!!   HAP_TOT   - Total Gas and Aerosol HAPs
+!!!   PAH_TEQ   - Nonreactive TEQ PAH species
+!!!   BENAPYRENE- BENAPY and ABENAPY
+!!!   MERCURY   - HG, HGIIGAS, HGIIAER, APHG
+!!!   ALL       - All available modeled species
+
+TAG CLASSES     |SULFATE, OZONE
+
+!!! The following are source definition text blocks in the format. Provide a 3-line block for each source you want to track.
+!!! Do not assign the same source of mass in more than 1 source definition block. 
+!!!   TAG NAME        |Three character text string (unique to each source definition)
+!!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file (multiple regions need to be comma delimited)
+!!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
+
+TAG NAME        |EGU
+REGION(S)       |EVERYWHERE
+EMIS STREAM(S)  |PT_EGU
+
+TAG NAME        |BIO
+REGION(S)       |NY
+EMIS STREAM(S)  |BIOG
+
+ENDLIST eof 

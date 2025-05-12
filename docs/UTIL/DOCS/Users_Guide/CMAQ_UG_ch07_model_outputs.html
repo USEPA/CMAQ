@@ -1,0 +1,970 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>7. Model Output Files &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8. Analysis Tools for CMAQ output" href="CMAQ_UG_ch08_analysis_tools.html" />
+    <link rel="prev" title="6. Model Configuration Options" href="CMAQ_UG_ch06_model_configuration_options.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">CMAQ User’s Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">CMAQ User’s Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">7. Model Output Files</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_ch06_model_configuration_options.html"><span class="std std-doc">&lt;&lt; Previous Chapter</span></a> - <a class="reference internal" href="README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_ch08_analysis_tools.html"><span class="std std-doc">Next Chapter &gt;&gt;</span></a></p>
+<!-- END COMMENT -->
+<section id="model-output-files">
+<h1>7. Model Output Files<a class="headerlink" href="#model-output-files" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<h2>7.1 Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>In this section, details on the routine CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is run interactively, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax. Additional output files are created when using the Process Analysis (PA), Integrated Source Apportionment Method (ISAM) and Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID) options.  The files associated with these options are discussed in <a class="reference internal" href="CMAQ_UG_ch09_process_analysis.html"><span class="std std-doc">Chapter 9</span></a>, <a class="reference internal" href="CMAQ_UG_ch11_ISAM.html"><span class="std std-doc">Chapter 11</span></a>, and <a class="reference internal" href="Appendix/CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Appendix B</span></a>, respectively.</p>
+<p><a id=Output_Table></a>
+<a id=Table7-1></a></p>
+<p><strong>Table 7-1. CMAQ Output files</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>File Name<sup>1</sup></strong></p></th>
+<th class="head"><p><strong>File Type</strong></p></th>
+<th class="head"><p><strong>Time-Dependence<sup>2</sup></strong></p></th>
+<th class="head"><p><strong>Spatial Dimensions<sup>3</sup></strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Standard</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cmaq_output_log"><span class="xref myst">Output Log</span></a> <a id=cmaq_output_log_t></a></p></td>
+<td><p>ASCII</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#conc"><span class="xref myst">CCTM_CONC</span></a><a id=conc_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#aconc"><span class="xref myst">CCTM_ACONC</span></a> <a id=aconc_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Averaged</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ELMO"><span class="xref myst">CCTM_ELMO</span></a> <a id=ELMO_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#aELMO"><span class="xref myst">CCTM_AELMO</span></a> <a id=aELMO_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Averaged</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#drydep"><span class="xref myst">CCTM_DRYDEP</span></a> <a id=drydep_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Cumulative</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#wetdep"><span class="xref myst">CCTM_WETDEP1</span></a> <a id=wetdep_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Cumulative</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Restart</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cgrid"><span class="xref myst">CCTM_CGRID</span></a> <a id=cgrid_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#media"><span class="xref myst">CCTM_MEDIA_CONC</span></a><a id=media_conc_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soilout"><span class="xref myst">CCTM_BSOILOUT</span></a> <a id=soilout_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>n/a (see detailed file description below)</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#soilout"><span class="xref myst">CCTM_MSOILOUT</span></a> <a id=soilout_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>n/a (see detailed file description below)</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bdsnpout"><span class="xref myst">CCTM_BDSNPOUT</span></a> <a id=bdsnpout_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>n/a (see detailed file description below)</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Diagnostic and Advanced</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#b3gts"><span class="xref myst">CCTM_B3GTS_S</span></a> <a id=b3gts_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#budget"><span class="xref myst">CCTM_BUDGET</span></a> <a id=budget_t></a></p></td>
+<td><p>ASCII</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>Domain-Wide</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#depv"><span class="xref myst">CCTM_DEPV</span></a> <a id=depv_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dust"><span class="xref myst">CCTM_DUSTEMIS</span></a> <a id=dust_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#desid"><span class="xref myst">CCTM_DESIDX</span></a> <a id=desid_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#depv_mos"><span class="xref myst">CCTM_DEPVMOS</span></a> <a id=depv_mos_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYW</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dry_dep_mos"><span class="xref myst">CCTM_DDEP_MOS</span></a> <a id=dry_dep_mos_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Cumulative</p></td>
+<td><p>XYW</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ltngdiag1"><span class="xref myst">CCTM_LTNGHRLY</span></a> <a id=ltngdiag1_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ltngdiag2"><span class="xref myst">CCTM_LTNGCOL</span></a> <a id=ltngdiag2_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctm_rj1"><span class="xref myst">CCTM_PHOTDIAG1</span></a> <a id=ctm_rj1_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ctm_rj2"><span class="xref myst">CCTM_PHOTDIAG2</span></a> <a id=ctm_rj2_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ctm_rj3"><span class="xref myst">CCTM_PHOTDIAG3</span></a> <a id=ctm_rj3_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XYZ’</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssemis"><span class="xref myst">CCTM_SSEMIS</span></a> <a id=ssemis_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#wetdep2"><span class="xref myst">CCTM_WETDEP2</span></a> <a id=wetdep2_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Cumulative</p></td>
+<td><p>XY</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vext"><span class="xref myst">CCTM_VEXT</span></a> <a id=vext_t></a></p></td>
+<td><p>GRDDED3</p></td>
+<td><p>Hourly Instantaneous</p></td>
+<td><p>WZ</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><sup>1</sup>By default, output files are named CCTM_XXX_${CTM_APPL}.nc where XXX is the file identifier and ${CTM_APPL} is a user defined string that identifies the model run.<br />
+<sup>2</sup>While “Hourly” is indicated, users may define a different time step (e.g., 30 minutes) for model output by changing the TSTEP variable in the runscript. Hourly Instantaneous represents the model value at the exact model output time step.  Hourly Averaged values represent the average model values for the 60 minutes beginning with the model output time step.  Hourly Cumulative represent the cumulative (summed) model values for the 60 minutes ending at the model output time step.<br />
+<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z’ is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, AELMO_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.<br />
+<sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations.</p>
+</section>
+<section id="cctm-output-files">
+<h2>7.2 CCTM Output Files<a class="headerlink" href="#cctm-output-files" title="Link to this heading">#</a></h2>
+<p>Some output files created by the CCTM are considered standard output as these contain hourly concentration and deposition values and information to document the run. Options for these files are controlled by their corresponding environment variable in the CCTM RunScript (e.g. run_cctm.csh).
+<a id=cmaq_output_log></a></p>
+<p><strong>CMAQ output log</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#cmaq_output_log_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>All of the CMAQ processors generate standard output and standard error during execution. When you run the CMAQ executable interactively, diagnostic output information can be captured to a log file using a UNIX redirect command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run</span><span class="o">.</span><span class="n">cctm</span> <span class="o">&gt;&amp;</span> <span class="n">tee</span> <span class="n">cctm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>The LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“&gt;”), as shown in the example above.</p>
+<p><a id=conc></a></p>
+<p><strong>CCTM_CONC: CCTM hourly instantaneous concentration file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#conc_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>The 2-D or 3-D CCTM hourly concentration file (CONC) contains instantaneous gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each model output time step. The number and type of species contained in the CONC files depends on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The <a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html#matrix_nml"><span class="std std-ref">Species NameLists files</span></a> within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files (e.g. <a class="reference external" href="https://github.com/USEPA/CMAQ/blob/main/CCTM/src/MECHS/cb6r3_ae7_aq/AE_cb6r3_ae7_aq.nml" rel="noreferrer" target="_blank">AE_cb6r3_ae7_aq.nml <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>). The GC_<em>mechname</em>.nml file lists the gas-phase species, the AE_<em>mechname</em>.nml file lists the aerosol species, and the NR_<em>mechname</em>.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file. Users can also specify the output species list (including temperature, pressure &amp; relative humidity) by modifying the environment variable CONC_SPCS in the RunScript which overrides the setting of the CONC column in the NameList file(s). By default, concentrations for all model layers are output to the CONC file.  Users may specify the layers to output using the CONC_BLEV_ELEV environment variable in the RunScript where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number.</p>
+<p><a id=aconc></a></p>
+<p><strong>CCTM_ACONC: hourly average concentration file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#aconc_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>The 2-D or 3-D CCTM integral average concentration file contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM RunScript using the environment variable AVG_CONC_SPCS. The model layers for which hourly average concentrations are calculated are also set in the CCTM RunScript using the environment variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent for which hourly average concentrations are calculated and written to the ACONC file.</p>
+<p><a id=ELMO></a></p>
+<p><strong>CCTM_ELMO: instantaneous hourly ELMO output file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ELMO_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D or 3-D CCTM output file contains instantaneous information at the end of the output time step for user-specified variables including concentrations that would appear on CONC and ACONC files as well as aggregate variables like total mass of PM<sub>2.5</sub> and PM<sub>10</sub>.
+Diagnostic parameters that were found on the PMDIAG file in previous CMAQ versions are also available for output on the ELMO file.
+Thease include particle geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes.
+It also includes the fraction of each mode that contributes to PM<sub>1</sub>, PM<sub>2.5</sub>, and PM<sub>10</sub> and the AMS transmission factor for each mode.
+Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient.
+Units for all variables are specified in the output file.</p>
+<p>The namelist input file CMAQ_Control_Misc.nml allows users to omit this file (set instant = .FALSE. under &amp;elmo_activate), to set the top and bottom layers to be output (Inst_Layer_Top and Inst_Layer_Bot under &amp;elmo_inst) and which variables to output (Inst_Vars_Nml under &amp;elmo_inst).
+See <a class="reference internal" href="Appendix/CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Appendix F (ELMO Output):</span></a> for more details.</p>
+<p><a id=aELMO></a></p>
+<p><strong>CCTM_AELMO: average hourly ELMO output file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#aELMO_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D or 3-D CCTM output file contains average information integrated from the previous output time step for user-specified variables including concentrations that would appear on CONC and ACONC files as well as aggregate variables like total mass of PM<sub>2.5</sub> and PM<sub>10</sub>.
+Diagnostic parameters that were found on the PMDIAG file in previous CMAQ versions are also available for output on the ELMO file.
+Thease include particle geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes.
+It also includes the fraction of each mode that contributes to PM<sub>1</sub>, PM<sub>2.5</sub>, and PM<sub>10</sub> and the AMS transmission factor for each mode.
+Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient.
+Units for all variables are specified in the output file.</p>
+<p>The namelist input file CMAQ_Control_Misc.nml allows users to omit this file (set instant = .FALSE. under &amp;elmo_activate), to set the top and bottom layers to be output (Inst_Layer_Top and Inst_Layer_Bot under &amp;elmo_inst) and which variables to output (Inst_Vars_Nml under &amp;elmo_inst).
+See <a class="reference internal" href="Appendix/CMAQ_UG_appendixF_elmo_output.html"><span class="std std-doc">Appendix F (ELMO Output):</span></a> for more details.</p>
+<p><a id=drydep></a></p>
+<p><strong>CCTM_DRYDEP: hourly cumulative dry deposition file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#drydep_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species.  CCTM calculates dry deposition for all of the species listed in the dry deposition column of the <a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html#matrix_nml"><span class="std std-ref">Species NameLists files</span></a> within the mechanism directories. The GC_<em>mechname</em>.nml file lists the gas-phase species, the AE_<em>mechname</em>.nml file lists the aerosol species, and the NR_<em>mechname</em>.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).</p>
+<section id="nh3-flux-components-in-cctm-drydep">
+<h3>NH<sub>3</sub> flux components in CCTM_DRYDEP<a class="headerlink" href="#nh3-flux-components-in-cctm-drydep" title="Link to this heading">#</a></h3>
+<p>CMAQ v5.3 and later contains two build-time options for calculating dry deposition/surface exchange: M3DRY and STAGE. (See <a class="reference internal" href="CMAQ_UG_ch06_model_configuration_options.html#68-dry-depositionair-surface-exchange"><span class="std std-ref">Section 6.8 </span></a> for further information).  Both M3DRY and STAGE support modeling ammonia bidirectional surface flux.  The definition of the NH3 flux components in the CCTM_DRYDEP file will depend on whether or not bidirectional NH<sub>3</sub> flux option has been enabled (a run-time option controlled by setting CTM_ABFLUX to Y or N).  When the model is run without the bidirectional NH<sub>3</sub> flux option enabled (CTM_ABFLUX set to N), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional ammonia dry deposition flux in both STAGE and M3DRY.</p>
+<p>When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contain additional NH3 flux components.  The variable names and definitions are defined in Table 7-2.  Note that these variables definitions may not agree with the definitions used in CMAQ versions prior to version 5.3.2.</p>
+<p><a id=Table7-2></a>
+<strong>Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flux is enabled</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p><strong>Variable Name</strong></p></th>
+<th class="head text-center"><p><strong>Variable Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>NH3</p></td>
+<td class="text-center"><p>Downward Deposition Flux (always positive)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>NH3_Emis</p></td>
+<td class="text-center"><p>Upward Emissions Flux (always positive)</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>NH3_Flux</p></td>
+<td class="text-center"><p>Net Flux (positive if downward and negative if upward)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a id=wetdep></a></p>
+<p><strong>CCTM_WETDEP1: hourly cumulative wet deposition file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#wetdep_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>The 2-D CCTM wet deposition file contains cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the <a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html#matrix_nml"><span class="std std-ref">Species NameLists files</span></a> within the mechanism directories. The GC_<em>mechname</em>.nml file lists the gas-phase species, the AE_<em>mechname</em>.nml file lists the aerosol species, and the NR_<em>mechname</em>.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).</p>
+</section>
+</section>
+<section id="restart-files">
+<h2>7.3 Restart Files<a class="headerlink" href="#restart-files" title="Link to this heading">#</a></h2>
+<p>There are several files created by the CCTM that are used to enable a restart of the run for any specific day.  The files contain values for parameters at the end of the day which are used to initialize the values for the start of calculations for the next day.</p>
+<p><a id=cgrid></a></p>
+<p><strong>CCTM_CGRID: gridded concentration restart file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#cgrid_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>The 3-D CCTM ending concentration file contains gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from a simulation period that the model completed. For example, if the CCTM is configuring to produce daily output files, a CGRID file will be written out at the end of each simulation day. These concentrations then become the initial conditions for the next simulation period.</p>
+<p><a id=media></a></p>
+<p><strong>CCTM_MEDIA_CONC: Bidirectional modeling media concentration file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#media_conc_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This 2-D CCTM file contains the soil NH<sub>4</sub><sup>+</sup> and pH concentrations and/or the soil, vegetation and water Hg concentrations. This file is only created when the CTM_ABFLUX environment variable or the CTM_HGBIDI variable in the RunScript is set to Y (Default is N) for either the M3Dry or STAGE dry deposition option. For STAGE, it is used to initialize the next day of the model simulation for either the CTM_ABFLUX == Y or CTM_HGBIDI == Y case. For M3Dry, it is only used to initialize the next day of the model simulation for the CTM_HGBDIDI == Y case while the the soil NH<sub>4</sub><sup>+</sup> and pH concentrations written to this file for the CTM_ABFLUX == Y case are purely diagnostic. As described in <a class="reference internal" href="CMAQ_UG_ch06_model_configuration_options.html#6.8.1_Dry_Depm3dry"><span class="std std-ref">Chapter 6</span></a>, M3Dry relies exclusively on input files generated by EPIC to derive the soil compensation concentration for the bidirectional NH<sub>3</sub><sup>+</sup> flux calculation.</p>
+<p><a id=soilout></a></p>
+<p><strong>CCTM_BSOILOUT and CCTM_MSOILOUT</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#soilout_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p><em>BEIS</em></p>
+<p>The 2-D “soilout” file contains hourly total rainfall information for subsequent use by the CCTM in-line biogenics module. It is written out at the end of each simulation day and is only created if the CTM_BIOGEMIS_BE environment variable in the RunScript is set to Y (Default is N). The file name is defined in the runscript by setting the environmental variable BEIS_SOILOUT. With the exception of the first day of the simulation when the environment variable NEW_START is set to TRUE, the previous day’s rainfall information contained in the file is used in the calculation of soil NO emissions by the CCTM in-line biogenics module. This is accomplished by setting the BEIS_SOILINP environment variable in the RunScript for a given day to the CCTM_BSOILOUT file created at the end of the previous day’s simulation. Note that even though this file contains 24 hourly gridded rainfall fields, it has a time-independent file structure and stores these 24 values as 24 separate time-independent variables (RAINFALL01, … RAINFALL24). However, while the structure of the file is time-independent, each day’s CCTM_BSOILOUT file is unique due to the daily variations in meteorology. Therefore, care must be taken to ensure that the BEIS_SOILINP file specified for a given day is indeed the CCTM_BSOILOUT file for the previous day rather than that for a different day.</p>
+<p><em>MEGAN</em></p>
+<p>As with BEIS, the file set by the environmental variable MEGAN_SOILOUT contains rainfall information that is needed for the calculation of soil NO emissions when CTM_BIOGEMIS_MG is set to Y (Default is N). When enabling in-line MEGAN this file will also contains LAI, temperature, and radiation information that is used to calculate biogenic emissions. The input file from the previous day is identified by the environmental variable MEGAN_SOILINP in the run script.</p>
+<p><strong>CCTM_BDSNPOUT</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#bdsnpout_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This file is required when setting both CTM_BIOGEMIS_MG to Y and BDSNP_MEGAN to Y, since the BDSNP soil NO model requires information about the previous day’s meteorology and nitrogen deposition reservoir. The output file is created at the end of the simulation day and its name is defined by setting the environmental variable BDSNPOUT. The input file for the previous day is defined by setting the environmental variable BDSNPINP.</p>
+</section>
+<section id="diagnostic-and-advanced-cmaq-output-files">
+<h2>7.4 Diagnostic and Advanced CMAQ Output Files<a class="headerlink" href="#diagnostic-and-advanced-cmaq-output-files" title="Link to this heading">#</a></h2>
+<p>Along with the standard output files detailed in the previous section, CCTM can be configured to output several auxiliary files for diagnostic model purposes. Each option is controlled by its corresponding environment variable in the CCTM RunScript (e.g. run_cctm.csh). For logical values, TRUE/T is equivalent to Y and FALSE/F is equivalent to N.</p>
+<p>Note that I/O APIv3.2 supports up to MXFILE3=64 open files, each with up to MXVARS3=2048.  Turning on all of the diagnostic and advanced CMAQ output files can exceed this upper limit of open files, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 “large” that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:</p>
+<p>https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz</p>
+<p>Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file.</p>
+<p><a id=floor></a></p>
+<p><strong>FLOOR: concentration-reset diagnostics file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#floor_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional ASCII file contains specific gridcells/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.</p>
+<p><a id=budget></a></p>
+<p><strong>CCTM_BUDGET: Budget Tool Output File</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#budget_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional ascii file outputs domain-wide changes for user-specified species every output time step in units of kg for gases and aerosols, number for particle number, and m<sup>2</sup> for particle surface area. See <a class="reference internal" href="CMAQ_UG_ch09_process_analysis.html"><span class="std std-doc">Chapter 9 (Process Analysis and Budget):</span></a> for a description of the Budget Tool methods, interface, and potential applications.</p>
+<p>The destination folder of this output file must be specified with the $OUTDIR environment variable in the RunScript. If this variable is not specified, the destination will be the root directory.</p>
+<p><a id=b3gts></a></p>
+<p><strong>CCTM_B3GTS_S: biogenic emissions diagnostic file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#b3gts_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable in the RunScript is set to Y (Default is Y) and only if BEIS is the selected biogenic emisisons model.</p>
+<p><a id=depv></a></p>
+<p><strong>CCTM_DEPV: inline deposition diagnostics file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#depv_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates the deposition velocity for all of the species listed in the deposition velocity column of the <a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html#matrix_nml"><span class="std std-ref">Species NameLists files</span></a> files within the mechanism directories. The GC_<em>mechname</em>.nml file lists the gas-phase species, the AE_<em>mechname</em>.nml file lists the aerosol species, and the NR_<em>mechname</em>.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s). This file is only created if the CTM_DEPV_FILE environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=dust></a></p>
+<p><strong>CCTM_DUSTEMIS: dust emissions diagnostic file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#dust_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM hourly output file contains dust emissions in mass units calculated in-line by the CCTM when the CTM_WB_DUST environment variable is set to Y. This file is only created if the CTM_DUSTEM_DIAG environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=desid></a></p>
+<p><strong>CCTM_DESIDX: DESID diagnostic output file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#desid_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D or 3-D CCTM hourly output file contains emission rates equal to those calculated by DESID after all user-specified rules have been implemented and input emissions data applied.
+Use the CMAQ_Control_DESID.nml file to specify the number and contents of these emissions diagnostic files.
+They may contain information about one stream or many, and the variable list for each is customizable.
+See <a class="reference internal" href="Appendix/CMAQ_UG_appendixB_emissions_control.html"><span class="std std-doc">Appendix B (Emissions Control):</span></a> for more information.</p>
+<p><a id=depv_mos></a></p>
+<p><strong>CCTM_DEPVMOS: land use specific deposition velocity file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#depv_mos_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 “layers”.  This file is only created if the DepMod environment variable in the BuildScript is set to stage (rather than m3dry) and if the CTM_MOSAIC environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=dry_dep_mos></a></p>
+<p><strong>CCTM_DDMOS: land use specific deposition flux file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#dry_dep_mos_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 “layers”. This file is only created if the ModDepv environment variable in the BuildScript is set to stage (rather than m3dry) and if the CTM_MOSAIC environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=ltngdiag1></a></p>
+<p><strong>CCTM_LTNGHRLY: hourly lightning emissions file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ltngdiag1_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_1 environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=ltngdiag2></a></p>
+<p><strong>CCTM_LTNGCOL: hourly column total lightning emissions</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ltngdiag2_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM file contains hourly column-total lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_2 environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=ctm_rj1></a></p>
+<p><strong>CCTM_PHOTDIAG1: In-line photolysis inputs and outputs - summary file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ctm_rj1_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM file contains general summary information for the photolysis calculation including the surface albedo,
+select photolysis rates and flux values.  This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=ctm_rj2></a></p>
+<p><strong>CCTM_PHOTDIAG2_2: In-line photolysis output – gridded photolysis rates</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ctm_rj2_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains the photolysis rates calculated in-line by the CCTM.  The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to T (Default is N).</p>
+<p><a id=ctm_rj3></a></p>
+<p><strong>CCTM_PHOTDIAG3: In-line photolysis inputs and outputs – detailed</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ctm_rj3_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains detailed inputs and results from the photolysis rate calculation done in-line by the CCTM. The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). The number of wavelengths included in the file is set by the NWAVE_PHOTDIAG environment variable (Default is all wavelengths). This file is only created if the CTM_PHOTDIAG environment variable in the RunScript is set to T (Default is N).</p>
+<p><a id=ssemis></a></p>
+<p><strong>CCTM_SSEMIS: Sea salt emissions diagnostic file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#ssemis_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 2-D CCTM hourly output file contains calculated sea salt emissions (g/s). This file is only created if the CTM_SSEMDIAG environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=wetdep2></a></p>
+<p><strong>CCTM_WETDEP2: CCTM cloud diagnostics file</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#wetdep2_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 file contains the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables. The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the <a class="reference internal" href="CMAQ_UG_ch04_model_inputs.html#matrix_nml"><span class="std std-ref">Species NameLists files</span></a> files within the mechanism directories. The GC_<em>mechname</em>.nml file lists the gas-phase species, the AE_<em>mechname</em>.nml file lists the aerosol species, and the NR_<em>mechname</em>.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s). This file is only created if the CLD_DIAG environment variable in the RunScript is set to Y (Default is N).</p>
+<p><a id=vext></a></p>
+<p><strong>CCTM_VEXT: file of vertical profiles of concentration at selected sites</strong></p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="#vext_t"><span class="xref myst">Return to Table 7-1</span></a></p>
+<!-- END COMMENT -->
+<p>This optional 3-D CCTM file contains vertical profiles of the concentration of multiple chemical species for latitude / longitude coordinates specified in the VERTEXT_COORD_PATH file. The species written to this output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the RunScript or the last column in the GC, AE, NR, and TR namelist files. There is one row for each location specified. The coordinates for each location are echoed in the file metadata in the “history” field. This file is only created if the VERTEXT environment variable in the RunScript is set to Y (Default is N).</p>
+<!-- BEGIN COMMENT -->
+<p><a class="reference internal" href="CMAQ_UG_ch06_model_configuration_options.html"><span class="std std-doc">&lt;&lt; Previous Chapter</span></a> - <a class="reference internal" href="README.html"><span class="std std-doc">Home</span></a> - <a class="reference internal" href="CMAQ_UG_ch08_analysis_tools.html"><span class="std std-doc">Next Chapter &gt;&gt;</span></a><br>
+CMAQv5.5 User’s Guide <br></p>
+<!-- END COMMENT -->
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="CMAQ_UG_ch06_model_configuration_options.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">6. Model Configuration Options</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CMAQ_UG_ch08_analysis_tools.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">8. Analysis Tools for CMAQ output</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">7.1 Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cctm-output-files">7.2 CCTM Output Files</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nh3-flux-components-in-cctm-drydep">NH<sub>3</sub> flux components in CCTM_DRYDEP</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#restart-files">7.3 Restart Files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-and-advanced-cmaq-output-files">7.4 Diagnostic and Advanced CMAQ Output Files</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

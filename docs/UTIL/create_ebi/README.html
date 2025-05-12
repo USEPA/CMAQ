@@ -1,0 +1,939 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Create EBI Solver (create_ebi) &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'UTIL/create_ebi/README';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/UTIL/create_ebi/README.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../DOCS/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Create EBI Solver (create_ebi)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="create-ebi-solver-create-ebi">
+<h1>Create EBI Solver (create_ebi)<a class="headerlink" href="#create-ebi-solver-create-ebi" title="Link to this heading">#</a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules (Tables 1 and 2).
+If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stops if they are not met but the tests may not detect all possible cases for violations.</p>
+<center> Table 1. 
+Photochemistry Species or Compounds Required;    
+model species names can be different between CMAQ mechanisms
+</center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Name</p></th>
+<th class="head text-center"><p>Formula</p></th>
+<th class="head text-center"><p>Group<sup>1</sup></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>nitric oxide</p></td>
+<td class="text-center"><p>NO</p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>nitrogen dioxide</p></td>
+<td class="text-center"><p>NO<sub>2</sub></p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ozone</p></td>
+<td class="text-center"><p>O<sub>3</sub></p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ground state oxygen atom</p></td>
+<td class="text-center"><p>O(3P)</p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>excited state oxygen atom</p></td>
+<td class="text-center"><p>O(1D)</p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>hydroxyl radical</p></td>
+<td class="text-center"><p>OH</p></td>
+<td class="text-center"><p>2</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>hydroperoxy radical</p></td>
+<td class="text-center"><p>HO<sub>2</sub></p></td>
+<td class="text-center"><p>2</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>nitrous acid</p></td>
+<td class="text-center"><p>HONO</p></td>
+<td class="text-center"><p>2</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>peroxynitric acid</p></td>
+<td class="text-center"><p>HNO<sub>4</sub></p></td>
+<td class="text-center"><p>2</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>peroxy acetyl nitrate</p></td>
+<td class="text-center"><p>C<sub>2</sub>H<sub>3</sub>NO<sub>5</sub></p></td>
+<td class="text-center"><p>3</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>peroxy acetyl radical</p></td>
+<td class="text-center"><p>C<sub>2</sub>H<sub>3</sub>O<sub>3</sub></p></td>
+<td class="text-center"><p>3</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>nitrate radical</p></td>
+<td class="text-center"><p>NO<sub>3</sub></p></td>
+<td class="text-center"><p>4</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>dinitrogen pentoxide</p></td>
+<td class="text-center"><p>N<sub>2</sub>O<sub>5</sub></p></td>
+<td class="text-center"><p>4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol class="arabic simple">
+<li><p>Hertel et al. (1993) sorted the analytically solved species into groups. The group number denote their order. Note that Hertel et al. did not analytically solve for O(1D) in the original paper but the CMAQ EBI solver does.</p></li>
+</ol>
+<center> Table 2. 
+Photochemical Mechanism Constraints.    
+</center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Mechanism Constraint</p></th>
+<th class="head text-left"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>All reactions destorying O(1D) are first order</p></td>
+<td class="text-left"><p>Excludes reactants that are atmospheric species held constant such as N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>O(1D) (+ Constant Species) —&gt; O(3P) present</p></td>
+<td class="text-left"><p>Needed to solve Group 1 and 2</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>O(1D) (+ H</sub>2</sub>O) —&gt; 2OH present</p></td>
+<td class="text-left"><p>Needed to solve Group 1 and 2</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>NO<sub>2</sub>           —&gt; NO+O(3P) present</p></td>
+<td class="text-left"><p>Needed to solve Group 1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>N<sub>2</sub>O and excited NO<sub>2</sub> are not active in NOx cycle</p></td>
+<td class="text-left"><p>If the two species are present, their chemistry upsets the accuracy of the analytical soluton for NOx species</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>O(3P) (+ O<sub>2</sub>)    —&gt; O<sub>3</sub> present</p></td>
+<td class="text-left"><p>Needed to solve Group 1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>NO + O<sub>3</sub>       —&gt; NO<sub>2</sub> present</p></td>
+<td class="text-left"><p>Needed to solve Group 1 and 2</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>HONO          —&gt; OH + NO present</p></td>
+<td class="text-left"><p>Needed to solve Group 2; often a photolysis reaction</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>OH + NO       —&gt; HONO present</p></td>
+<td class="text-left"><p>Needed to solve Group 2; often a photolysis reaction</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>HNO<sub>4</sub>         —&gt; HO<sub>2</sub> + NO<sub>2</sub> present</p></td>
+<td class="text-left"><p>Needed to solve Group 2</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>HO<sub>2</sub> + NO<sub>2</sub>     —&gt; HNO<sub>4</sub> present</p></td>
+<td class="text-left"><p>Needed to solve Group 2</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>HO<sub>2</sub> + HO<sub>2</sub>     —&gt;  H<sub>2</sub>O<sub>2</sub> present</p></td>
+<td class="text-left"><p>Needed to solve Group 2</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> —&gt; <em>products</em> present</p></td>
+<td class="text-left"><p>Needed to solve Group 3; products mechanism dependent</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Negative product coefficients are only allowed for a photochemical species named PAR</p></td>
+<td class="text-left"><p>Exception made for Carbon Bond mechanisms</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="using-create-ebi">
+<h2>Using create_ebi<a class="headerlink" href="#using-create-ebi" title="Link to this heading">#</a></h2>
+<p>The create_ebi utility is designed compiled and run once for each application. Beside the utility’s own source code and data files, compiling needs a photochemical mechanism’s data module defined by the run script (Table 3.). If compilation is successful, the utility runs based on the run script options.</p>
+<p>To create a new EBI solver based on photochemical mechanism’s reactions data module:</p>
+<ol class="arabic simple">
+<li><p>Copy scripts/bldrun.create_ebi.csh into its parent directory. <em>The bldrun script assumes that value of base is {CMAQ_REPO}/UTIL/create_ebi.</em></p></li>
+<li><p>Edit to define the FORTRAN compiler and mechanism’s data module. See to Table 3 for options set by bldrun script.</p></li>
+<li><p>Execute the script. <em>The script compiles create_ebi then runs the utility.</em></p></li>
+<li><p>Check the OUTDIR for the code files for the ebi solver, produced.</p></li>
+</ol>
+ <center> Table 3. create_ebi environment settings or run time options </center>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Names</p></th>
+<th class="head text-left"><p>Definition</p></th>
+<th class="head text-left"><p>Notes or Recommeded Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>COMPILER</p></td>
+<td class="text-left"><p>FORTRAN compiler to building create_ebi</p></td>
+<td class="text-left"><p>the utility’s makefile, <em>makefile.v5XX</em>, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>RXNS_DATA_SRC</p></td>
+<td class="text-left"><p>Full path to mechanism’s RXNS_DATA_MODULE.F90</p></td>
+<td class="text-left"><p>Produced by CHEMMECH utility</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>TMPLDIR</p></td>
+<td class="text-left"><p>Full path to for FORTRAN templates for solver files</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>DEGRADE_CODES</p></td>
+<td class="text-left"><p>Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4.</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>SRCDIR</p></td>
+<td class="text-left"><p>Full path to FORTRAN codes for create_ebi utility</p></td>
+<td class="text-left"><p>${CMAQ_REPO}/UTIL/create_ebi/src_RXNSU</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>OUTDIR</p></td>
+<td class="text-left"><p>Full path where to write output files</p></td>
+<td class="text-left"><p>actual value is up to the user</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>PAR_NEG_FLAG</p></td>
+<td class="text-left"><p>whether mechamisms has the species PAR and the species as negative production coefficients</p></td>
+<td class="text-left"><p>T for Carbon Bond based mechanism but F for other mechanisms<sup>1</sup></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>DEGRADE_SUBS</p></td>
+<td class="text-left"><p>include calls for HAPs degrade routines</p></td>
+<td class="text-left"><p>T</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>SOLVER_DELT</p></td>
+<td class="text-left"><p>Default time step of solver in minutes</p></td>
+<td class="text-left"><p>2.5 but saprc07tic mechanism uses 1.25</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_NO</p></td>
+<td class="text-left"><p>mechanism’s name for nitrogen oxide</p></td>
+<td class="text-left"><p><strong>NO</strong> for cb6, saprc07t and racm2<sup>2</sup> based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_NO2</p></td>
+<td class="text-left"><p>mechanism’s name for nitrogen dioxide</p></td>
+<td class="text-left"><p><strong>NO2</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_O3</p></td>
+<td class="text-left"><p>mechanism’s name for ozone</p></td>
+<td class="text-left"><p><strong>O3</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_O3P</p></td>
+<td class="text-left"><p>mechanism’s name for ground state oxygen atom</p></td>
+<td class="text-left"><p><strong>O</strong> for cb6 but <strong>O3P</strong> for saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_O1D</p></td>
+<td class="text-left"><p>mechanism’s name for excited state oxygen atom</p></td>
+<td class="text-left"><p><strong>O1D</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_OH</p></td>
+<td class="text-left"><p>mechanism’s name for hydroyxl radical</p></td>
+<td class="text-left"><p><strong>OH</strong> for cb6 and saprc07t but <strong>HO</strong> for racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_HO2</p></td>
+<td class="text-left"><p>mechanism’s name for hydroperoxy radical</p></td>
+<td class="text-left"><p><strong>HO2</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_HONO</p></td>
+<td class="text-left"><p>mechanism’s name for nitrous acid</p></td>
+<td class="text-left"><p><strong>HONO</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_HNO4</p></td>
+<td class="text-left"><p>mechanism’s name for proxynitric acid</p></td>
+<td class="text-left"><p><strong>PNA</strong> for cb6 but <strong>HNO4</strong> for saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_PAN</p></td>
+<td class="text-left"><p>mechanism’s name for peroxy acetyl nitrate</p></td>
+<td class="text-left"><p><strong>PAN</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_C2O3</p></td>
+<td class="text-left"><p>mechanism’s name for peroxy acetyl radical</p></td>
+<td class="text-left"><p><strong>C2O3</strong> for cb6, <strong>MECO3</strong> for saprc07t and <strong>ACO3</strong> racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>MECH_NO3</p></td>
+<td class="text-left"><p>mechanism’s name for nitrate radical</p></td>
+<td class="text-left"><p><strong>NO3</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>MECH_N2O5</p></td>
+<td class="text-left"><p>mechanism’s name for dinitrogen pentoxide</p></td>
+<td class="text-left"><p><strong>N2O5</strong> for cb6, saprc07t and racm2 based photochemical mechanisms</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol class="arabic simple">
+<li><p>Negative product coefficients are only allowed for a photochemical species named PAR, common to Carbon Bond based photochemical mechanisms.</p></li>
+<li><p>The three photochemical mechanisms released in CMAQ version 5.3.</p></li>
+</ol>
+<p>To report potential program errors or EBI solver failures, contact Bill Hutzell/USEPA at hutzell.bill&#64;epa.gov</p>
+</section>
+<section id="example-application">
+<h2>Example Application.<a class="headerlink" href="#example-application" title="Link to this heading">#</a></h2>
+<section id="compile-create-ebi">
+<h3>Compile CREATE_EBI<a class="headerlink" href="#compile-create-ebi" title="Link to this heading">#</a></h3>
+<p>After copying the bldrun_create_ebi.csh from $CMAQ_HOME/UTIL/create_ebi/scripts to another directory then editing the script to produce a solver for the saprc07tic_ae7i_aq.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bldrun_create_ebi</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Execute the script (the screen output can be redirected to a log file.)</p>
+<p>First set of lines send to screen will echo script options and show compilation commands. Upon its execution, create_ebi writes the below lines
+if the execution is successful.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> Value for OUTDIR: /home/hwo/CCTM_git_repository/UTIL/create_ebi/output/ebi_saprc07tic_ae7i_aq-Apr-08-2019-INTEL   
+ Value for TMPLDIR: /home/hwo/CCTM_git_repository/UTIL/create_ebi/template_RXNSU_OPT   
+ Value for PAR_NEG_FLAG: F returning FALSE   
+ Value for DEGRADE_SUBS: F returning FALSE   
+ Value for SOLVER_DELT:     1.250E+00   
+ Value for MECH_NO2: NO2   
+ Value for MECH_NO: NO   
+ Value for MECH_O3: O3   
+ Value for MECH_O1D: O1D   
+ Value for MECH_O3P: O3P   
+ Value for MECH_OH: OH   
+ Value for MECH_HO2: HO2   
+ Value for MECH_HONO: HONO   
+ Value for MECH_HNO4: HNO4   
+ Value for MECH_PAN: PAN   
+ Value for MECH_C2O3: MECO3   
+ Value for MECH_NO3: NO3   
+ Value for MECH_N2O5: N2O5   
+
+
+ Group species mapping results:
+    nitric oxide (NO):                NO
+    nitrogen dioxide (NO2):           NO2
+    ozone (O3):                       O3
+    ground state atomic oxygen (O3P): O3P
+    excited atomic oxygen (O1D):      O1D
+    hydroxyl radical (OH):            OH
+    hydroperoxy radical (HO2):        HO2
+    nitrous acid (HONO):              HONO
+    peroxynitric acid (HNO4):         HNO4
+    nitrate radical (NO3):            NO3
+    nitrogen pentoxide (N2O5):        N2O5
+    peroxy acetyl radical (C2O3):     MECO3
+    peroxy acetyl nitrate (PAN):      PAN
+
+
+ Checking mechanism for EBI solver requirements.
+
+ No mechanism requirement problems detected - continuing.  
+ Found O1D destruction in reaction #          20   
+ Found O1D destruction in reaction #          21   
+ Found OH production via O1D in reaction #          20  
+ No HO2 production via O1D found  
+
+ The following 10 output files were created:  
+     hrdriver.F                        
+     hrsolver.F                      
+     hrdata_mod.F                    
+     hrinit.F                        
+     hrg1.F                          
+     hrg2.F                          
+     hrg3.F                          
+     hrg4.F                          
+     hrprodloss.F                    
+     hrrates.F                       
+ Program CR_EBI_SOLVER completed successfully
+</pre></div>
+</div>
+</section>
+</section>
+<section id="input-and-output-files">
+<h2>Input and Output files<a class="headerlink" href="#input-and-output-files" title="Link to this heading">#</a></h2>
+<p>To create an EBI solver for a photochemical mechanism to be used in the CMAQ model, a user needs the Fortran data module describing the photochemical mechanism. The chemmech utility produces the module based on a mechanism definitions file and species namelist files. For more information, consult the README under ${CMAQ_REPO}/UTIL/chemmech.</p>
+<p><strong>Table 4. CREATE_EBI input files</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>File Name</strong></p></th>
+<th class="head"><p><strong>Format</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RXNS_DATA_MODULE.F90</p></td>
+<td><p>ASCII</p></td>
+<td><p>a Fortran 90 module describing the photochemical mechanism produced by the chemmech utility</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="create-ebi-output-files">
+<h3>CREATE_EBI output files<a class="headerlink" href="#create-ebi-output-files" title="Link to this heading">#</a></h3>
+<p>A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on run time options (Table 5.)</p>
+<p><strong>Table 5. CREATE_EBI output files</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File Name</p></th>
+<th class="head"><p>Format</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>hr*.F</p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran files for the CCTM EBI chemistry solver</p></td>
+</tr>
+<tr class="row-odd"><td><p>DEGRADE_SETUP_TOX.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran module that calculates exponent decay for a set of toxic air pollutants</p></td>
+</tr>
+<tr class="row-even"><td><p>init_degrade.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran code that initializes arrays in DEGRADE_SETUP_TOX.F</p></td>
+</tr>
+<tr class="row-odd"><td><p>degrade_data.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran code that lists the set of toxic pollutants and their photochemical loss processes</p></td>
+</tr>
+<tr class="row-even"><td><p>find_degrade.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran code that search for the toxic pollutants in species namelists</p></td>
+</tr>
+<tr class="row-odd"><td><p>degrade.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran code that calculated the exponental decay for the toxic pollutants</p></td>
+</tr>
+<tr class="row-even"><td><p>final_degrade.F<sup>1</sup></p></td>
+<td><p>ASCII</p></td>
+<td><p>Fortran code that updates CGRID array</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol class="arabic simple">
+<li><p>Produced if DEGRADE_SUBS equals T.</p></li>
+</ol>
+<p>Compiling a version of the CMAQ model using this photochemical mechanism and its EBI solver. A user has two options.</p>
+<ol class="arabic simple">
+<li><p>update the source code ( <em>the two photochemical reaction modules produced by CHEMMECH and EBI solver files</em>) and Makefile in an existing CMAQ build directory.</p></li>
+<li><p>Add the new mechanism and solver files to their CMAQ repository then use the cctm build-it script to build the CMAQ CCTM model.</p></li>
+</ol>
+<p>The latter option is more complicated because it creates subdirectories under <code class="docutils literal notranslate"><span class="pre">$CMAQ_HOME/CCTM/src/MECHS</span></code> and <code class="docutils literal notranslate"><span class="pre">$CMAQ_HOME/CCTM/src/gas</span></code> and involve files not produced by the user and other utilities.</p>
+</section>
+</section>
+<section id="references">
+<h2>References.<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Hertel O., Berkowicz R., Christensen J., and Hov O. (1993).  Test of Two Numerical Schemes for Use in Atmospheric Transport-Chemistry Models. Atmospheric Environment, Vol. 27A, No. 16, 2591-2661.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-create-ebi">Using create_ebi</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-application">Example Application.</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-create-ebi">Compile CREATE_EBI</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-and-output-files">Input and Output files</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-ebi-output-files">CREATE_EBI output files</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References.</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,842 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>CMAQ Debugging Tips &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_debug';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_debug.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CMAQ Debugging Tips</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cmaq-debugging-tips">
+<h1>CMAQ Debugging Tips<a class="headerlink" href="#cmaq-debugging-tips" title="Link to this heading">#</a></h1>
+<p>Purpose: This guide describes how to examine log files and debug issues encountered when installing and running the CMAQ test case.
+This guide helps you to find and report errors to the CMAS Center Forum and follows the <a class="reference external" href="https://forum.cmascenter.org/t/please-read-before-posting/1321" rel="noreferrer" target="_blank">best practices for posting new issues to the forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p>
+<section id="building-cmaq">
+<h2>Building CMAQ<a class="headerlink" href="#building-cmaq" title="Link to this heading">#</a></h2>
+<section id="prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers">
+<h3>Prerequisite: Build Libraries and CMAQ using gcc or intel compilers<a class="headerlink" href="#prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers" title="Link to this heading">#</a></h3>
+<p>Follow the CMAQ Build Tutorials for the appropriate compiler:</p>
+</section>
+<section id="uncompressed-netcdf-library-builds">
+<h3>Uncompressed netCDF library builds:<br><a class="headerlink" href="#uncompressed-netcdf-library-builds" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc.html"><span class="std std-doc">Building CMAQ classic libraries for GNU</span></a></p></li>
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_intel.html"><span class="std std-doc">Building CMAQ classic libraries for Intel</span></a></p></li>
+</ul>
+</section>
+<section id="compressed-netcdf-4-library-builds">
+<h3>Compressed netCDF-4 Library builds:<br><a class="headerlink" href="#compressed-netcdf-4-library-builds" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc_support_nc4.html"><span class="std std-doc">Building CMAQ libraries netCDF-4 compression for GNU</span></a></p></li>
+<li><p><a class="reference internal" href="CMAQ_UG_tutorial_build_library_intel_support_nc4.html"><span class="std std-doc">Building CMAQ using netCDF-4 compression for Intel</span></a></p></li>
+</ul>
+</section>
+<section id="verify-that-an-executable-was-created">
+<h3>Verify that an executable was created<a class="headerlink" href="#verify-that-an-executable-was-created" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/CCTM/scripts
+ls */*.exe
+</pre></div>
+</div>
+</section>
+<section id="inspecting-cmaq-build-log-files">
+<h3>Inspecting CMAQ Build log files<a class="headerlink" href="#inspecting-cmaq-build-log-files" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="n">error</span>  <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">log</span>
+<span class="n">tail</span> <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+</section>
+<section id="if-you-encounter-an-error-building-cmaq">
+<h3>If you encounter an error building CMAQ<a class="headerlink" href="#if-you-encounter-an-error-building-cmaq" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://forum.cmascenter.org/search?expanded=true" rel="noreferrer" target="_blank">Search the CMAS Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> for an error similar to the one that you are seeing in your bldit_cctm.log file.</p></li>
+<li><p><a class="reference external" href="https://www.epa.gov/cmaq/frequent-cmaq-questions" rel="noreferrer" target="_blank">Review the CMAQ FAQ <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+</ul>
+<p>If you don’t find an answer that solves the issue that you are having, create a new topic on the CMAS Center Forum.
+Please create a new topic in describing your issue, even if your issue is similar to that of another user.</p>
+<p><strong>See the instructions at the bottom of this tutorial for creating a new topic on the CMAS User Forum.</strong></p>
+</section>
+</section>
+<section id="running-cmaq">
+<h2>Running CMAQ<a class="headerlink" href="#running-cmaq" title="Link to this heading">#</a></h2>
+<section id="prerequisite-run-the-cmaq-benchmark-case">
+<h3>Prerequisite: Run the CMAQ Benchmark case<a class="headerlink" href="#prerequisite-run-the-cmaq-benchmark-case" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">Follow Benchmark Tutorial instructions</span></a>
+(does not require running ICON/BCON as inputs are provided in the Benchmark Input Data).</p>
+</section>
+<section id="inspect-the-cmaq-run-log-files">
+<h3>Inspect the CMAQ run log files<a class="headerlink" href="#inspect-the-cmaq-run-log-files" title="Link to this heading">#</a></h3>
+<p>Check the output log file in the run directory to see if it has completed successfully.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/CCTM/scripts
+</pre></div>
+</div>
+<p><strong>The type of output log file that is created depends on how you submit the job.</strong> If you use slurm, with the sbatch command to submit the job, the standard error and output is logged to a slurm-*.out file.</p>
+<p>Use grep to verify how many processors were used to run cmaq.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>grep -i ‘Number of Processors’ slurm-*.out
+</pre></div>
+</div>
+<p>Use grep to determine if CMAQ completed successfully.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;PROGRAM COMPLETED SUCCESSFULLY&#39;</span> <span class="n">slurm</span><span class="o">-*.</span><span class="n">out</span>
+</pre></div>
+</div>
+<p>Use grep to check for any errors in the slurm log files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;error&#39;</span> <span class="n">slurm</span><span class="o">-*.</span><span class="n">out</span>
+</pre></div>
+</div>
+</section>
+<section id="if-your-run-error-contains-the-following-message">
+<h3>If your run error contains the following message:<a class="headerlink" href="#if-your-run-error-contains-the-following-message" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>error while loading shared libraries  …  cannot open shared object file …
+</pre></div>
+</div>
+<p>This error indicates that the <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> environment variable is not properly set to include the path to all the required shared library object files. If this occurs, one solution is to edit the CCTM run script to add the path to the netCDF C (libnetcdf.so) and Fortran (libnetcdff.so) libraries to the <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> variable.  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>setenv NCDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdf
+setenv NCFDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdff
+setenv LD_LIBRARY_PATH ${NCDIR}/lib:${NCFDIR}/lib:${LD_LIBRARY_PATH}
+</pre></div>
+</div>
+<p>Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.<br />
+If this does not work, then cd to the build directory and use the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ldd</span> <span class="n">CCTM</span><span class="o">*.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>This will show the absolute path to the libraries used in compiling the model. Edit the <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> environment variable to include the <em>directories</em> where the libnetcdf.so and libnetcdff.so files are located.</p>
+</section>
+<section id="if-the-program-did-not-complete-successfully-for-another-reason">
+<h3>If the program did not complete successfully for another reason<a class="headerlink" href="#if-the-program-did-not-complete-successfully-for-another-reason" title="Link to this heading">#</a></h3>
+<p>If the program did not complete successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_*.</p>
+<ul class="simple">
+<li><p>These files may either be located in the run directory, if the run script was aborted.</p></li>
+<li><p>Or they may have been moved by the run script to a LOGS directory under the output directory.</p></li>
+</ul>
+<p>Look in the following locations for the CTM_LOG* log files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/CCTM/scripts
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/data/LOGS
+</pre></div>
+</div>
+<p>Determine the number of log files that exist using the ls command and word count command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="n">CTM_LOG</span><span class="o">*</span> <span class="o">|</span> <span class="n">wc</span>
+</pre></div>
+</div>
+<p>There should be 1 log command for each processor used to run CMAQ for each day.</p>
+<p>Use the grep command to determine if the message “PROGRAM COMPLETED SUCCESSFULLY” is at the bottom of all of the log files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;PROGRAM COMPLETED SUCCESSFULLY&#39;</span> <span class="n">CTM_LOG</span><span class="o">*</span> <span class="o">|</span> <span class="n">wc</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If you ran the program on 16 processors, you should see a word count of 16 files that contain this message for each day that you run the model.</p></li>
+<li><p>If there were fewer findings of the successful run command message than the number of processors that were used to run CMAQ:
+Use the grep command to find an error in any of the files</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="n">error</span> <span class="n">CTM_LOG</span><span class="o">*</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="if-you-encounter-an-error-running-cmaq">
+<h2>If you encounter an error running CMAQ<a class="headerlink" href="#if-you-encounter-an-error-running-cmaq" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://forum.cmascenter.org/search?expanded=true" rel="noreferrer" target="_blank">Search the CMAS Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> for an error similar to the one that you are seeing in your CTM_LOG file.</p></li>
+<li><p><a class="reference external" href="https://www.epa.gov/cmaq/frequent-cmaq-questions" rel="noreferrer" target="_blank">Review the CMAQ FAQ <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>If you don’t see a similar error reported in an issue or in a FAQ that provides enough information for you to troubleshoot and solve the issue then submit a new topic.</p></li>
+</ul>
+</section>
+<section id="if-the-program-crashed">
+<h2>If the program crashed<a class="headerlink" href="#if-the-program-crashed" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>If the program crashed (as opposed to aborting with an error message), you may get a stack trace similar to the following:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">forrtl</span><span class="p">:</span> <span class="n">severe</span> <span class="p">(</span><span class="mi">174</span><span class="p">):</span> <span class="n">SIGSEGV</span><span class="p">,</span> <span class="n">segmentation</span> <span class="n">fault</span> <span class="n">occurred</span>
+<span class="n">Image</span>              <span class="n">PC</span>                <span class="n">Routine</span>            <span class="n">Line</span>        <span class="n">Source</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">00000000009</span><span class="n">AF90D</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">libpthread</span><span class="o">-</span><span class="mf">2.18</span><span class="o">.</span><span class="n">s</span>  <span class="mi">00002</span><span class="n">AF0F5B4B6D0</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">00000000006</span><span class="n">F3A8A</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000000605</span><span class="n">EF2</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">00000000005</span><span class="n">FEC8C</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">00000000005</span><span class="n">FD619</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000000406</span><span class="n">D9E</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">libc</span><span class="o">-</span><span class="mf">2.18</span><span class="o">.</span><span class="n">so</span>       <span class="mi">00002</span><span class="n">AF0F6464D65</span>  <span class="n">__libc_start_main</span>     <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000000406</span><span class="n">CA9</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+</pre></div>
+</div>
+<p>Please do not post an unreadable stack trace to the user forum! Instead, recompile the model in debug mode (uncomment “set Debug_CCTM” in bldit_cctm.csh) and rerun. The model will run much more slowly, but when a crash occurs, the stack trace will provide information which should help with debugging.  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">forrtl</span><span class="p">:</span> <span class="n">severe</span> <span class="p">(</span><span class="mi">174</span><span class="p">):</span> <span class="n">SIGSEGV</span><span class="p">,</span> <span class="n">segmentation</span> <span class="n">fault</span> <span class="n">occurred</span>
+<span class="n">Image</span>              <span class="n">PC</span>                <span class="n">Routine</span>            <span class="n">Line</span>        <span class="n">Source</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000001</span><span class="n">A61C1D</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">libpthread</span><span class="o">-</span><span class="mf">2.18</span><span class="o">.</span><span class="n">s</span>  <span class="mi">00002</span><span class="n">B8D9E0FC6D0</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000001551229</span>  <span class="n">aero_</span>                     <span class="mi">503</span>  <span class="n">aero_driver</span><span class="o">.</span><span class="n">F</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mf">0000000000E617</span><span class="n">C1</span>  <span class="n">sciproc_</span>                  <span class="mi">298</span>  <span class="n">sciproc</span><span class="o">.</span><span class="n">F</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mf">0000000000E48385</span>  <span class="n">cmaq_driver_</span>              <span class="mi">679</span>  <span class="n">driver</span><span class="o">.</span><span class="n">F</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mf">0000000000E40</span><span class="n">B84</span>  <span class="n">MAIN__</span>                     <span class="mi">96</span>  <span class="n">cmaq_main</span><span class="o">.</span><span class="n">F</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000000406</span><span class="n">D9E</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">libc</span><span class="o">-</span><span class="mf">2.18</span><span class="o">.</span><span class="n">so</span>       <span class="mi">00002</span><span class="n">B8D9EA15D65</span>  <span class="n">__libc_start_main</span>     <span class="n">Unknown</span>  <span class="n">Unknown</span>
+<span class="n">CCTM_s07tic_noche</span>  <span class="mi">0000000000406</span><span class="n">CA9</span>  <span class="n">Unknown</span>               <span class="n">Unknown</span>  <span class="n">Unknown</span>
+</pre></div>
+</div>
+<p>This stack trace indicates that the error occurred on line 503 of the file aero_driver.F.</p>
+<p>To rebuild a debug version</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">csh</span> <span class="n">bldit_cctmv55_debug</span><span class="o">.</span><span class="n">csh</span>
+<span class="n">vi</span> <span class="n">bldit_cctmv55_debug</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>uncomment the following line</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#set Debug_CCTM </span>
+</pre></div>
+</div>
+<p>change to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">Debug_CCTM</span> 
+</pre></div>
+</div>
+<p>Rerun the build script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_cctmv55_debug</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_cctmv55_debug</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>Edit your run script to use the newly compiled debug version that is in a BLD directory with the following extension <code class="docutils literal notranslate"><span class="pre">_debug</span></code></p>
+<p>Re-run using the debug version</p>
+</section>
+<section id="submit-a-new-topic-issue-on-the-cmas-user-forum">
+<h2>Submit a new topic issue on the CMAS User Forum<a class="headerlink" href="#submit-a-new-topic-issue-on-the-cmas-user-forum" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://forum.cmascenter.org/categories" rel="noreferrer" target="_blank">Visit the category <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> that best describes your issue.</p></li>
+<li><p>For example, if you are having an issue running CMAQ <a class="reference external" href="https://forum.cmascenter.org/c/cmaq/run-time-errors-and-issues/14" rel="noreferrer" target="_blank">choose the category cmaq runtime issues <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Or choose the <a class="reference external" href="https://forum.cmascenter.org/c/cmaq/7" rel="noreferrer" target="_blank">parent CMAQ category <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Click on + New Topic in the upper right corner.
+The Category will be pre-selected if you start a new topic request from within a category. If the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.</p></li>
+</ul>
+<section id="selecting-a-category-for-your-issue">
+<h3>Selecting a category for your issue<a class="headerlink" href="#selecting-a-category-for-your-issue" title="Link to this heading">#</a></h3>
+<p>Selecting a category is important, as the CMAS Center and EPA staff are only monitoring topics submitted within a category that matches their expertise.</p>
+<ul class="simple">
+<li><p>Type in a title for your topic that describes your CMAQ compiler environment
+Example Title:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CMAQv5</span><span class="mf">.4</span> <span class="n">segmentation</span> <span class="n">fault</span> <span class="n">using</span> <span class="n">gcc</span> <span class="ow">and</span> <span class="n">openmpi</span>
+</pre></div>
+</div>
+</section>
+<section id="template-for-what-to-include-in-your-new-issue">
+<h3>Template for what to include in your new issue.<a class="headerlink" href="#template-for-what-to-include-in-your-new-issue" title="Link to this heading">#</a></h3>
+<p><strong>Please include the following information when creating a new issue.</strong>  This will make it much faster and easier for others to understand your issue and respond with an appropriate suggestion.</p>
+<ol class="arabic simple">
+<li><p>Report the <strong>compiler and version used to run CMAQ</strong></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mpif90</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Report the <strong>version of CMAQ</strong> that you are using.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="o">*/*.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Report the name of the run script if it is a benchmark case, or <strong>report the Domain and resolution</strong></p></li>
+<li><p>Report a limited amount of the <strong>error message contents</strong> in the body of the issue with output obtained by using the following commands:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The grep argument -B NUM prints NUM lines before the matching text is found.  For example, this command will print out the 10 lines prior to each occurrence of the word “error” (case insensitive):</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">B</span> <span class="mi">10</span> <span class="o">-</span><span class="n">i</span> <span class="n">error</span> <span class="n">CTM_LOG_000</span><span class="o">*</span>
+</pre></div>
+</div>
+<section id="example-of-information-to-include-in-a-new-issue-post">
+<h4>Example of information to include in a new issue post:<a class="headerlink" href="#example-of-information-to-include-in-a-new-issue-post" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p></p></th>
+<th class="head text-center"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>Compiler Version</p></td>
+<td class="text-center"><p>ifort version 18.0.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>CMAQ Version</p></td>
+<td class="text-center"><p>BLD_CCTM_v54_intel/CCTM_v54.exe</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>Run Script</p></td>
+<td class="text-center"><p>run_cctm_Bench_2018_12NE3.csh</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Error message encountered:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>error while loading shared libraries  …  cannot open shared object file …
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="upload-additional-files">
+<h3>Upload additional files<a class="headerlink" href="#upload-additional-files" title="Link to this heading">#</a></h3>
+<p>Click on the up arrow icon in the menu underneath the Create New Topic Title including:</p>
+<ul class="simple">
+<li><p>your run script</p></li>
+<li><p>standard out log file</p></li>
+<li><p>per-processor log file that contains the error message.</p></li>
+<li><p>Note You will need to rename any files to match one of the following extensions (jpg, jpeg, png, gif, csh, txt, csv), for instance, copy cmaq.log to cmaq.log.txt</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CTM_LOG_000</span><span class="o">.</span><span class="n">v54_gcc_Bench_2018_12NE3_2day_20180701</span>  <span class="n">CTM_LOG_000</span><span class="o">.</span><span class="n">v54_gcc_Bench_2018_12NE3_2day_20180702</span>  
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>When someone replies to your topic, you will receive an e-mail notification.</p></li>
+<li><p>Please click on the “VISIT TOPIC” button in your e-mail to return to your CMAS Center Forum Issue and reply to any follow-up questions or suggestions.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-cmaq">Building CMAQ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite-build-libraries-and-cmaq-using-gcc-or-intel-compilers">Prerequisite: Build Libraries and CMAQ using gcc or intel compilers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uncompressed-netcdf-library-builds">Uncompressed netCDF library builds:<br/></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compressed-netcdf-4-library-builds">Compressed netCDF-4 Library builds:<br/></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-an-executable-was-created">Verify that an executable was created</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-cmaq-build-log-files">Inspecting CMAQ Build log files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#if-you-encounter-an-error-building-cmaq">If you encounter an error building CMAQ</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-cmaq">Running CMAQ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite-run-the-cmaq-benchmark-case">Prerequisite: Run the CMAQ Benchmark case</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-the-cmaq-run-log-files">Inspect the CMAQ run log files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#if-your-run-error-contains-the-following-message">If your run error contains the following message:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#if-the-program-did-not-complete-successfully-for-another-reason">If the program did not complete successfully for another reason</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-you-encounter-an-error-running-cmaq">If you encounter an error running CMAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-the-program-crashed">If the program crashed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submit-a-new-topic-issue-on-the-cmas-user-forum">Submit a new topic issue on the CMAS User Forum</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-a-category-for-your-issue">Selecting a category for your issue</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#template-for-what-to-include-in-your-new-issue">Template for what to include in your new issue.</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-of-information-to-include-in-a-new-issue-post">Example of information to include in a new issue post:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-additional-files">Upload additional files</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

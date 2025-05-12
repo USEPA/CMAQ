@@ -1,0 +1,963 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>WRF-CMAQ Benchmarking Tutorial &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">WRF-CMAQ Benchmarking Tutorial</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="wrf-cmaq-benchmarking-tutorial">
+<h1>WRF-CMAQ Benchmarking Tutorial<a class="headerlink" href="#wrf-cmaq-benchmarking-tutorial" title="Link to this heading">#</a></h1>
+<p><strong>Purpose</strong>: This guide describes how to install and run the WRF-CMAQ test case, which serves two different purposes. The first being to familiarize the user with the WRF-CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking.</p>
+<p>Users are highly encouraged to work through the <a class="reference internal" href="CMAQ_UG_tutorial_benchmark.html"><span class="std std-doc">CMAQ Benchmark Tutorial</span></a> and <a class="reference external" href="https://www2.mmm.ucar.edu/wrf/users/" rel="noreferrer" target="_blank">WRF Installation Guide <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> to familiarize themselves with the individuals program components.</p>
+<section id="system-checks">
+<h2>System Checks<a class="headerlink" href="#system-checks" title="Link to this heading">#</a></h2>
+<p>CMAQ requires a specific hardware and software configuration. To learn about these requirements, please refer to the tutorial on <a class="reference internal" href="CMAQ_UG_tutorial_configure_linux_environment.html"><span class="std std-doc">preparing your compute environment for CMAQ simulations</span></a>.</p>
+</section>
+<section id="installing-wrf-cmaq">
+<h2>Installing WRF-CMAQ<a class="headerlink" href="#installing-wrf-cmaq" title="Link to this heading">#</a></h2>
+<p>If you followed the <a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc_support_nc4.html"><span class="std std-doc">CMAQ_UG_tutorial_build_library_gcc_support_nc4.md</span></a> tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.</p>
+<p>In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">main</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">.</span><span class="n">git</span> <span class="n">CMAQ_REPO</span>
+</pre></div>
+</div>
+</section>
+<section id="check-out-a-new-branch-in-the-cmaq-repository">
+<h2>Check Out a new Branch in the CMAQ Repository<a class="headerlink" href="#check-out-a-new-branch-in-the-cmaq-repository" title="Link to this heading">#</a></h2>
+<p>Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the main branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">CMAQ_REPO</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">my_branch</span>
+</pre></div>
+</div>
+</section>
+<section id="building-and-running-in-a-user-specified-directory-outside-of-the-repository">
+<h2>Building and running in a user-specified directory outside of the repository<a class="headerlink" href="#building-and-running-in-a-user-specified-directory-outside-of-the-repository" title="Link to this heading">#</a></h2>
+<p>In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.</p>
+<p>In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">CMAQ_HOME</span> <span class="o">=</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span>
+</pre></div>
+</div>
+<p>Now execute the script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_project</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>CMAQ_HOME will be the location of your newly created WRF_CMAQ project directory (where you will compile and run WRF-CMAQ).</p>
+</section>
+<section id="combining-the-netcdf-c-and-netcdf-fortran-libraries">
+<h2>Combining the netCDF-C and netCDF-Fortran libraries<a class="headerlink" href="#combining-the-netcdf-c-and-netcdf-fortran-libraries" title="Link to this heading">#</a></h2>
+<p>Compiling WRF-CMAQ requires several libraries and include files to be made avialable. Because these libraries and include files are not expected to be in standard locations, users need to explicitly provide the path to this via environmental variables.</p>
+<p>The environmental variables that need to be set are located in the config_cmaq.csh script, located at the root of the WRF-CMAQ project directory.</p>
+<p>Note: WRF source code expects that you have already collated the netCDF-C and netCDF-Fortran libraires into one directory. If you have not done so, please follow the example instructions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">cd</span> <span class="o">/</span><span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">LIBRARIES_gcc</span>
+   <span class="n">mkdir</span> <span class="n">netcdf_combined</span>
+   <span class="n">cp</span> <span class="o">-</span><span class="n">rp</span> <span class="o">./</span><span class="n">netcdf</span><span class="o">-</span><span class="n">fortran</span><span class="o">-</span><span class="mf">4.4.5</span><span class="o">-</span><span class="n">gcc9</span><span class="mf">.1.0</span><span class="o">/*</span> <span class="o">./</span><span class="n">netcdf_combined</span><span class="o">/</span>
+   <span class="n">cp</span> <span class="o">-</span><span class="n">rp</span> <span class="o">./</span><span class="n">netcdf</span><span class="o">-</span><span class="n">c</span><span class="o">-</span><span class="mf">4.7.0</span><span class="o">-</span><span class="n">gcc9</span><span class="mf">.1.0</span><span class="o">/*</span> <span class="o">./</span><span class="n">netcdf_combined</span><span class="o">/</span>
+</pre></div>
+</div>
+<section id="configuring-the-wrf-cmaq-environment">
+<h3>Configuring the WRF-CMAQ Environment<a class="headerlink" href="#configuring-the-wrf-cmaq-environment" title="Link to this heading">#</a></h3>
+<p>Navigate to the compiler of your choice to compile WRF-CMAQ using distributed memory parallel (dmpar).
+For example, for GNU based compilers go to line 148 of the config_cmaq.csh. Then set the paths for NETCDF and IOAPI and the WRF_ARCH to 34.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#&gt; I/O API and netCDF for WRF-CMAQ </span>
+<span class="n">setenv</span> <span class="n">NETCDF</span> <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">LIBRARIES_gcc</span>
+<span class="n">setenv</span> <span class="n">IOAPI</span>  <span class="p">[</span><span class="n">your_install_path</span><span class="p">]</span><span class="o">/</span><span class="n">LIBRARIES_gcc</span><span class="o">/</span><span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span>  
+<span class="n">setenv</span> <span class="n">WRF_ARCH</span> <span class="mi">34</span>              <span class="c1"># [1-75]  WRF 64 Bit Linux_x86 Compiler/Architecture options</span>
+</pre></div>
+</div>
+<p><em>Note: WRF_ARCH environment variable is used to configure WRF and is based on the following options:</em></p>
+<div class="highlight-Please notranslate"><div class="highlight"><pre><span></span>
+  1. (serial)    2. (smpar)   3. (dmpar)      4. (dm+sm)   PGI (pgf90/gcc)
+  5. (serial)    6. (smpar)   7. (dmpar)      8. (dm+sm)   PGI (pgf90/pgcc): SGI MPT
+  9. (serial)   10. (smpar)  11. (dmpar)     12. (dm+sm)   PGI (pgf90/gcc): PGI accelerator
+ 13. (serial)   14. (smpar)  15. (dmpar)     16. (dm+sm)   INTEL (ifort/icc)
+                                             17. (dm+sm)   INTEL (ifort/icc): Xeon Phi (MIC architecture)
+ 18. (serial)  19. (smpar)  20. (dmpar)      21. (dm+sm)   INTEL (ifort/icc): Xeon (SNB with AVX mods)
+ 22. (serial)  23. (smpar)  24. (dmpar)      25. (dm+sm)   INTEL (ifort/icc): SGI MPT
+ 26. (serial)  27. (smpar)  28. (dmpar)      29. (dm+sm)   INTEL (ifort/icc): IBM POE
+ 30. (serial)               31. (dmpar)                    PATHSCALE (pathf90/pathcc)
+ 32. (serial)  33. (smpar)  34. (dmpar)      35. (dm+sm)   GNU (gfortran/gcc)
+ 36. (serial)  37. (smpar)  38. (dmpar)      39. (dm+sm)   IBM (xlf90_r/cc_r)
+ 40. (serial)  41. (smpar)  42. (dmpar)      43. (dm+sm)   PGI (ftn/gcc): Cray XC CLE
+ 44. (serial)  45. (smpar)  46. (dmpar)      47. (dm+sm)   CRAY CCE (ftn $(NOOMP)/cc): Cray XE and XC
+ 48. (serial)  49. (smpar)  50. (dmpar)      51. (dm+sm)   INTEL (ftn/icc): Cray XC
+ 52. (serial)  53. (smpar)  54. (dmpar)      55. (dm+sm)   PGI (pgf90/pgcc)
+ 56. (serial)  57. (smpar)  58. (dmpar)      59. (dm+sm)   PGI (pgf90/gcc): -f90=pgf90
+ 60. (serial)  61. (smpar)  62. (dmpar)      63. (dm+sm)   PGI (pgf90/pgcc): -f90=pgf90
+ 64. (serial)  65. (smpar)  66. (dmpar)      67. (dm+sm)   INTEL (ifort/icc): HSW/BDW
+ 68. (serial)  69. (smpar)  70. (dmpar)      71. (dm+sm)   INTEL (ifort/icc): KNL MIC
+ 72. (serial)  73. (smpar)  74. (dmpar)      75. (dm+sm)   FUJITSU (frtpx/fccpx): FX10/FX100 SPARC64 IXfx/Xlfx
+
+Enter selection [1-75] : ------------------------------------------------------------------------
+</pre></div>
+</div>
+<p>If you have never configured WRF before, here are some guidelines:</p>
+<ul class="simple">
+<li><p>Choose the appropriate compiler platform and hardware architecture if applicable</p></li>
+<li><p>Choose the dmpar (Distributed Memory Parallelization – MPI) option only. The serial, Single Memory Parallelization (smpar), and (dm+sm) are out of scope of this tutorial, configuration with those options require <a class="reference external" href="https://forum.cmascenter.org/" rel="noreferrer" target="_blank">additional support <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+<li><p>For more information refer to the <a class="reference external" href="https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.0/contents.html" rel="noreferrer" target="_blank">WRF User Guide <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+</ul>
+</section>
+</section>
+<section id="compiling-wrf-cmaq">
+<h2>Compiling WRF-CMAQ<a class="headerlink" href="#compiling-wrf-cmaq" title="Link to this heading">#</a></h2>
+<p><em>Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference <a class="reference internal" href="../CMAQ_UG_ch04_model_inputs.html"><span class="std std-doc">Chapter 4</span></a>.</em></p>
+<section id="modify-the-bldit-cctm-csh">
+<h3>Modify the bldit_cctm.csh<a class="headerlink" href="#modify-the-bldit-cctm-csh" title="Link to this heading">#</a></h3>
+<p>Navigate to the WRF-CMAQ project directory and from there navigate to the CCTM/scripts directory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">CCTM</span><span class="o">/</span><span class="n">scripts</span>
+<span class="n">cp</span> <span class="n">bldit_cctm</span><span class="o">.</span><span class="n">csh</span> <span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Edit bldit_wrf4.5.1_cctmv55.csh and uncomment the option to build WRF-CMAQ twoway:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#&gt; Two-way WRF-CMAQ </span>
+<span class="nb">set</span> <span class="n">build_twoway</span>                      <span class="c1">#&gt; uncomment to build WRF-CMAQ twoway; </span>
+</pre></div>
+</div>
+<p>Verify that WRF_CMAQ environment variable is set to 1:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="n">WRF_CMAQ</span> <span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">setenv</span> <span class="n">WRF_CMAQ</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Set the WRF version to release-v4.5.1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
+    set WRF_VRSN = release-v4.5.1
+ endif
+</pre></div>
+</div>
+<p>Set the BLD directory name to add wrf to it, so that when the script copies the BLD directory, that it does not copy an existing direectory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#&gt; Set and create the &quot;BLD&quot; directory for checking out and compiling 
+#&gt; source code. Move current directory to that build directory.
+ if ( $?Debug_CCTM ) then
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_wrfcmaq_debug
+ else
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_wrfcmaq
+ endif
+</pre></div>
+</div>
+<p>Configure CMAQ benchmark Science Modules:</p>
+<p>The build directory parameters for the benchmark test case include the following:</p>
+<ul class="simple">
+<li><p>Multiprocessor simulation</p></li>
+<li><p>3-D Advection Scheme: wrf_cons</p></li>
+<li><p>Horizontal diffusion: Multiscale</p></li>
+<li><p>Vertical diffusion: ACM2_M3Dry</p></li>
+<li><p>Deposition: M3Dry</p></li>
+<li><p>Chemistry solver: EBI</p></li>
+<li><p>Aerosol module: AERO7</p></li>
+<li><p>Cloud module: ACM_AE7</p></li>
+<li><p>Mechanism: cb6r3_ae7_aq</p></li>
+<li><p>Online biogenic emissions</p></li>
+<li><p>Inline plume rise</p></li>
+</ul>
+<p>To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be modified from set defaults. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in
+<a class="reference internal" href="../Appendix/CMAQ_UG_appendixA_model_options.html"><span class="std std-doc">Appendix A</span></a>.</p>
+</section>
+<section id="run-the-build-script">
+<h3>Run the build script<a class="headerlink" href="#run-the-build-script" title="Link to this heading">#</a></h3>
+<p>If you have set up environment modules for your libraries, then load them</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc</span>
+</pre></div>
+</div>
+<p>Run the bldit script to compile wrf-cmaq</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>Users should look for the following message at the end of their bldit_wrf4.5.1_cctmv55.log:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---&gt;</span>                  <span class="n">Executables</span> <span class="n">successfully</span> <span class="n">built</span>                  <span class="o">&lt;---</span>
+
+<span class="o">-</span><span class="n">rwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="o">.</span> <span class="mi">1</span> <span class="n">user</span> <span class="n">home</span> <span class="mi">51139232</span> <span class="n">Jun</span>  <span class="mi">7</span> <span class="mi">19</span><span class="p">:</span><span class="mi">03</span> <span class="n">main</span><span class="o">/</span><span class="n">ndown</span><span class="o">.</span><span class="n">exe</span>
+<span class="o">-</span><span class="n">rwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="o">.</span> <span class="mi">1</span> <span class="n">user</span> <span class="n">home</span> <span class="mi">51187088</span> <span class="n">Jun</span>  <span class="mi">7</span> <span class="mi">19</span><span class="p">:</span><span class="mi">03</span> <span class="n">main</span><span class="o">/</span><span class="n">real</span><span class="o">.</span><span class="n">exe</span>
+<span class="o">-</span><span class="n">rwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="o">.</span> <span class="mi">1</span> <span class="n">user</span> <span class="n">home</span> <span class="mi">50445512</span> <span class="n">Jun</span>  <span class="mi">7</span> <span class="mi">19</span><span class="p">:</span><span class="mi">03</span> <span class="n">main</span><span class="o">/</span><span class="n">tc</span><span class="o">.</span><span class="n">exe</span>
+<span class="o">-</span><span class="n">rwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="o">.</span> <span class="mi">1</span> <span class="n">user</span> <span class="n">home</span> <span class="mi">81349320</span> <span class="n">Jun</span>  <span class="mi">7</span> <span class="mi">19</span><span class="p">:</span><span class="mi">02</span> <span class="n">main</span><span class="o">/</span><span class="n">wrf</span><span class="o">.</span><span class="n">exe</span>
+
+<span class="o">==========================================================================</span>
+
+</pre></div>
+</div>
+<p>If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again.</p>
+<p>If you get this error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span> <span class="n">NoahMP</span> <span class="n">submodule</span> <span class="n">files</span> <span class="ow">not</span> <span class="n">populating</span> <span class="n">WRF</span> <span class="n">directories</span>
+<span class="n">make</span><span class="p">:</span> <span class="o">***</span> <span class="p">[</span><span class="n">wrf</span><span class="p">]</span> <span class="n">Error</span> <span class="mi">31</span>
+</pre></div>
+</div>
+<p>This is because of a conflict between git clone and the environment modules.</p>
+<p>Try the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">./</span><span class="n">BLD_WRF_release</span><span class="o">-</span><span class="n">v4</span><span class="mf">.5.1</span><span class="n">_CCTM_v55_gcc</span><span class="o">/</span><span class="n">phys</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">ssh</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NCAR</span><span class="o">/</span><span class="n">noahmp</span><span class="o">/</span>
+<span class="n">cd</span> <span class="o">..</span>
+<span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>If the git clone ssh command doesn’t work, try</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NCAR</span><span class="o">/</span><span class="n">noahmp</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>If you get this error:</p>
+<p>gfortran: error: libcmaqlib.a: No such file or directory</p>
+<p>Then try the following commands to recompile the cmaq executable, and then retry building WRF-CMAQ</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">cmaq</span>
+<span class="n">make</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span><span class="o">.</span><span class="n">twoway</span>
+<span class="n">cd</span> <span class="o">..</span>
+<span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|&amp;</span> <span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>If you get this error</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>name2fid.f:(.text+0x17): undefined reference to `GOMP_critical_name_start&#39;
+</pre></div>
+</div>
+<p>Edit the configure.wrf to remove the commented out -fopenmp flags.</p>
+<p>Change</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OMP</span>             <span class="o">=</span>       <span class="c1"># -fopenmp</span>
+<span class="n">OMPCC</span>           <span class="o">=</span>       <span class="c1"># -fopenmp</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OMP</span>             <span class="o">=</span>        <span class="o">-</span><span class="n">fopenmp</span>
+<span class="n">OMPCC</span>           <span class="o">=</span>        <span class="o">-</span><span class="n">fopenmp</span>
+</pre></div>
+</div>
+<p>Recompile</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|</span> <span class="o">&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="mf">.3</span><span class="n">rd</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>An additional error can occur if time is not found on your system.
+If this is the case, edit the configure.wrf to remove the time command from the F90 definition.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">BLD_WRF_release</span><span class="o">-</span><span class="n">v4</span><span class="mf">.5.1</span><span class="n">_CCTM_v55_gcc</span>
+<span class="n">vi</span> <span class="n">configure</span><span class="o">.</span><span class="n">wrf</span>
+</pre></div>
+</div>
+<p>edit line 138</p>
+<p>change</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FC              =       time $(DM_FC)
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FC              =       $(DM_FC)
+</pre></div>
+</div>
+<p>If the build fails due to not finding the mpi.h include file, then edit the configure.wrf file to add the following:</p>
+<p>Add the following to the list of the INCLUDE_MODULES =</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>-I$(MPIPATH)/include \
+</pre></div>
+</div>
+<p>Then define MPIPATH (add under the NETCDFPATH settings) to your local path
+Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MPIPATH</span>         <span class="o">=</span>    <span class="o">/</span><span class="n">nas</span><span class="o">/</span><span class="n">sycamore</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">openmpi</span><span class="o">/</span><span class="mf">5.0.5</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
+                     $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
+                      -I$(WRF_SRC_ROOT_DIR)/main \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_int \
+                      -I$(WRF_SRC_ROOT_DIR)/frame \
+                      -I$(WRF_SRC_ROOT_DIR)/share \
+                      -I$(WRF_SRC_ROOT_DIR)/phys \
+                      -I$(WRF_SRC_ROOT_DIR)/wrftladj \
+                      -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
+                      -I$(NETCDFPATH)/include \
+                      -I$(MPIPATH)/include \
+
+REGISTRY        =    Registry
+CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
+
+LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(LIB_WRF_HYDRO)  $(NETCDF4_DEP_LIB)
+LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL)
+ENVCOMPDEFS     =     -DWRF_CMAQ
+WRF_CHEM        =       0
+CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG)
+NETCDFPATH      =    /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc11.2
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+HDF5PATH        =
+WRFPLUSPATH     =
+RTTOVPATH       =
+PNETCDFPATH     =
+ADIOS2PATH      =
+</pre></div>
+</div>
+<p>Also edit the configure.wrf to add the -fallow-argument-mismatch option</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FCOPTIM</span>         <span class="o">=</span>       <span class="o">-</span><span class="n">O2</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+<span class="n">FCCOMPAT</span>        <span class="o">=</span>        <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">invalid</span><span class="o">-</span><span class="n">boz</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+</pre></div>
+</div>
+<p>Rerun the bldit script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|</span> <span class="o">&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>If it still fails, please reach post on the <a class="reference external" href="https://forum.cmascenter.org/c/wrf-cmaq" rel="noreferrer" target="_blank">CMAS Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p>
+</section>
+<section id="install-the-wrf-cmaq-reference-input-benchmark-data">
+<h3>Install the WRF-CMAQ reference input benchmark data<a class="headerlink" href="#install-the-wrf-cmaq-reference-input-benchmark-data" title="Link to this heading">#</a></h3>
+<p>Download the CMAQ two day reference input data from the <a class="reference external" href="https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing" rel="noreferrer" target="_blank">CMAS Center Data Warehouse Google Drive <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> or from the <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/" rel="noreferrer" target="_blank">CMAS Center Data Warehouse Amazon Web Services S3 Bucket <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.</p>
+<ul class="simple">
+<li><p>Use the gdrive command if you are downloading the dataset from Google Drive.</p></li>
+<li><p>If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions</p></li>
+<li><p><a class="reference external" href="https://docs.google.com/document/d/1e7B94zFkbKygVWfrhGwEZL51jF4fGXGXZbvi6KzXYQ4" rel="noreferrer" target="_blank">Tips to download data from CMAS Data Warehouse <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a></p></li>
+<li><p>Text files are included that provide a list of the files in the benchmark input datasets.</p></li>
+<li><p>wget can be used to download data from the CMAS Open Data Folder on AWS</p></li>
+<li><p>Reference output files for WRF-CMAQv5.5 will be provided at a later date.</p></li>
+</ul>
+<p>Copy the data to <code class="docutils literal notranslate"><span class="pre">$CMAQ_DATA</span></code>. Navigate to the <code class="docutils literal notranslate"><span class="pre">$CMAQ_DATA</span></code> directory, unzip and untar the two day benchmark input files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $CMAQ_DATA
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+</pre></div>
+</div>
+<p>The input files for the WRF-CMAQ benchmark case are provided in the base model benchmark inputs .tar file. Output WRF-CMAQ files associated with the sample run script for the coupled WRF-CMAQ model in this release package are also available.</p>
+</section>
+</section>
+<section id="running-the-wrf-cmaq-model">
+<h2>Running the WRF-CMAQ model<a class="headerlink" href="#running-the-wrf-cmaq-model" title="Link to this heading">#</a></h2>
+<p>Note, in this new coupled model design, the namelist is used to modify settings for WRF.
+Environment variables such as WRF_CMAQ_FREQ are no longer used.<br />
+The following commonly modified namelist options for WRF-CMAQ are specified in the run script.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. wrf_cmaq_option     (dictates how the coupled model execute)
+
+   0 = run WRF only
+   1 = run WRF only               w   producing MCIP like GRID and MET files
+   2 = run WRF-CMAQ coupled model w/o producing MCIP like GRID and MET files
+   3 = run WRF-CMAQ coupled model w   producing MCIP like GRID and MET files
+
+2. wrf_cmaq_freq       (indicate how often WRF and CMAQ interact)
+
+3. met_file_tstep      (time step size of MCIP like intermediate output files)
+
+4. direct_sw_feedback  (indicate to turn on aerosol short wave direct effect)
+
+5. feedback_restart    (indicate aerosol short wave direct effect information is
+                        available in the WRF restart file or not)
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>One sample run scripts is provided (run_cctm_Bench_2018_12NE3.WRFCMAQ.csh) for running the coupled
+model with short wave radiation feedback turned on.  Reference benchmark output will be provided for a test simulations with short wave radiation feedback turned on (“sf”) and turned off (“nf”).</p>
+<ul>
+<li><p>Start with the run_cctm_Bench_2018_12NE3.WRFCMAQ.csh that specifies direct_sw_feedback = .true.</p></li>
+<li><p>and the CMAQv5.4 input benchmark dataset to run CMAQ-WRF with feedback</p></li>
+<li><p>It is configured to run on 32 processors and for 1 day of model simulation</p></li>
+<li><p>Edit the script to specify the paths, modify the number of processors and batch queue commands</p></li>
+<li><p>Fix VEGPARM.TBL, since Benchmark runs with PX LSM with NLCD40 Data</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>* Users using PX Land Surface Model option with NLCD40 dataset are required to fix their VEGPARM.TBL before running WRF-CMAQ, due to a bug in the WRF released VEGPARM.TBL. Please see the <a class="reference external" href="https://github.com/wrf-model/WRF/pull/1733" rel="noreferrer" target="_blank">WRF Repository <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> for more information on the bug.</strong>*</p>
+<ul class="simple">
+<li><p>For example, one option may include manually editing the existing VEGPARM.TBL (found in WRF-CMAQ Build Directory) with the fix seen on the <a class="reference external" href="https://github.com/wrf-model/WRF/pull/1733/files" rel="noreferrer" target="_blank">WRF Repository <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p></li>
+</ul>
+<p>Edit the run script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">vi</span> <span class="n">run_cctm_Bench_2018_12NE3</span><span class="o">.</span><span class="n">WRFCMAQ</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<p>Change end date to run for two days</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="nb">set</span> <span class="n">START_DATE</span> <span class="o">=</span> <span class="s2">&quot;2018-07-01&quot;</span>     <span class="c1"># beginning date (July 1, 2016)</span>
+   <span class="nb">set</span> <span class="n">END_DATE</span>   <span class="o">=</span> <span class="s2">&quot;2018-07-02&quot;</span>     <span class="c1"># ending date    (July 14, 2016)</span>
+</pre></div>
+</div>
+<p>Set the WRF version number</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="nb">set</span> <span class="n">wrfv</span>    <span class="o">=</span> <span class="n">release_v4</span><span class="mf">.5.1</span>
+</pre></div>
+</div>
+<p>Now, modify the following section to specify your local paths:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  set WORKDIR     = ${PWD}
+  set WRF_DIR     = $WORKDIR/BLD_WRF_release-v4.5.1_CCTM_v55_gcc  # WRF source code directory
+  set INPDIR      = ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
+  set OUTPUT_ROOT = $WORKDIR  # output root directory
+  set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
+  setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
+  set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
+
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Set the number of processors to run WRF-CMAQ</p></li>
+</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>```
+set NPROCS =    32
+```
+</pre></div>
+</div>
+<ul>
+<li><p>Load the environment modules</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run the job (if you have a batch queuing system such as SLURM use sbatch after adding the sbatch commands to the top of the run script):</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">run_cctm_Bench_2018_12NE3</span><span class="o">.</span><span class="n">WRFCMAQ</span><span class="o">.</span><span class="n">csh</span>
+</pre></div>
+</div>
+<section id="verify-that-the-run-was-successful">
+<h3>Verify that the run was successful<a class="headerlink" href="#verify-that-the-run-was-successful" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>look for the output directory</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">WRFCMAQ</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">sf_feedback</span>
+</pre></div>
+</div>
+<p>If the run was successful you will see the following output</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tail</span> <span class="o">./</span><span class="mi">2018182</span><span class="o">/</span><span class="n">rsl</span><span class="o">.</span><span class="n">out</span><span class="mf">.0000</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   |&gt;---   PROGRAM COMPLETED SUCCESSFULLY   ---&lt;|
+</pre></div>
+</div>
+</section>
+<section id="compare-the-output-to-what-is-available-on-the-s3-bucket">
+<h3>Compare the output to what is available on the S3 bucket<a class="headerlink" href="#compare-the-output-to-what-is-available-on-the-s3-bucket" title="Link to this heading">#</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>```
+ cd $CMAQ_DATA
+ wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/WRF-CMAQ/WRFv4.5.1-CMAQv55-output-sw_feedback_gcc.tar.gz
+ tar xvzf WRFv4.5.1-CMAQv55-output-sw_feedback_gcc.tar.gz
+ ```
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-checks">System Checks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-wrf-cmaq">Installing WRF-CMAQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-out-a-new-branch-in-the-cmaq-repository">Check Out a new Branch in the CMAQ Repository</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-running-in-a-user-specified-directory-outside-of-the-repository">Building and running in a user-specified directory outside of the repository</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combining-the-netcdf-c-and-netcdf-fortran-libraries">Combining the netCDF-C and netCDF-Fortran libraries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-the-wrf-cmaq-environment">Configuring the WRF-CMAQ Environment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compiling-wrf-cmaq">Compiling WRF-CMAQ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#modify-the-bldit-cctm-csh">Modify the bldit_cctm.csh</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-build-script">Run the build script</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-wrf-cmaq-reference-input-benchmark-data">Install the WRF-CMAQ reference input benchmark data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-wrf-cmaq-model">Running the WRF-CMAQ model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-the-run-was-successful">Verify that the run was successful</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-the-output-to-what-is-available-on-the-s3-bucket">Compare the output to what is available on the S3 bucket</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

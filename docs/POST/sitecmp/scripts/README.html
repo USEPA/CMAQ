@@ -1,0 +1,1539 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_static/CMAQ_Logo_2_inch.png" sizes="600x593" rel="icon" type="image/png">
+    <title>Species List for sitecmp: Matching model and observed variables &#8212; CMAQ 5.5+ documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=eec9c716"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'POST/sitecmp/scripts/README';</script>
+    <link rel="canonical" href="https://usepa.github.io/CMAQ/POST/sitecmp/scripts/README.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-light" alt="CMAQ 5.5+ documentation - Home"/>
+    <img src="../../../_static/CMAQ_Logo_2_inch.png" class="logo__image only-dark pst-js-only" alt="CMAQ 5.5+ documentation - Home"/>
+  
+  
+</a></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/USEPA/CMAQ" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.epa.gov/cmaq" title="CMAQ - EPA Site" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/epa_seal_w-ring_RGB-sm.png" class="icon-link-image" alt="CMAQ - EPA Site"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://forum.cmascenter.org/" title="User Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/cmas_logo.png" class="icon-link-image" alt="User Forum"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://usepa.github.io/CRACMM/" title="CRACMM" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/CRACMM_1.png" class="icon-link-image" alt="CRACMM"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../DOCS/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../DOCS/Users_Guide/README.html">CMAQ User’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch01_overview.html">1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch02_program_structure.html">2. Program Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.html">3. Preparing Compute Environment for CMAQ Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.html">4. Model Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.html">5. Running a CMAQ Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.html">6. Model Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch07_model_outputs.html">7. Model Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.html">8. Analysis Tools for CMAQ output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.html">9. Process Analysis and Budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch10_HDDM-3D.html">10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.html">11. Integrated Source Apportionment Method (CMAQ-ISAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch12_sulfur_tracking.html">12. Sulfur Tracking Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch13_WRF-CMAQ.html">13. WRF-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/CMAQ_UG_ch14_MPAS-CMAQ.html">14. MPAS-CMAQ Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/Appendix/README.html">Appendix</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../DOCS/Users_Guide/Tutorials/README.html">CMAQ Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_configure_linux_environment.html">Configuring your compute environment for CMAQ simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_running_benchmarks.html">CMAQ Benchmark Tutorials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../DOCS/Release_Notes/README.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Instrumented-Models.html">Instrumented Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-MPAS-CMAQ-Coupled-Model.html">MPAS-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-WRF-CMAQ-Coupled-Model.html">WRF-CMAQ Coupled Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Chemistry.html">Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Transport-Processes.html">Transport Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Dry-Deposition-Air-Surface-Exchange.html">Dry Deposition/Air-Surface Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Emissions-Updates.html">Emissions Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Process-Analysis-%26-Sulfur-Tracking-Model-%28STM%29.html">Process Analysis &amp; STM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Structural-Improvements.html">Structural Improvements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Diagnostic-Options.html">Diagnostic Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Preprocessors.html">Pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-PYTOOLS.html">PYTOOLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Postprocessors.html">Post-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_Notes/CMAQ-Release-Notes%3A-Stratospheric%E2%80%90Tropospheric-Exchange-%28STE%29.html">Stratospheric-Tropospheric Exchange (STE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/CMAQ-Bugfix-Branch.html">Bug fix branch</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../DOCS/Release_FAQ/README.html">FAQs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_FAQ/CMAQv5.5-Series-FAQ.html">FAQ v5.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../DOCS/Release_FAQ/CMAQv5.4-Series-FAQ.html">FAQ v5.4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DOCS/Community_Support.html">Community Support</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Species List for sitecmp:  Matching model and observed variables</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="species-list-for-sitecmp-matching-model-and-observed-variables">
+<h1>Species List for sitecmp:  Matching model and observed variables<a class="headerlink" href="#species-list-for-sitecmp-matching-model-and-observed-variables" title="Link to this heading">#</a></h1>
+<p>The environment variables that control how CMAQ and observed values are matched using sitecmp will change depending on the observation network. Sitecmp requires observation data to be in a specific format. Sitecmp-ready observation data files going back to 2000 are available on the CMAS Data Warehouse Google Drive: <a class="reference external" href="https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=drive_link" rel="noreferrer" target="_blank">North America Air Quaility Observation Files <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>. Data files are provided in AMET_OBSDATA_YYYY.tar.gz for year YYYY.  These should be used when setting environment variable IN_TABLE. A site meta data file (SITE_FILE) is also needed for sitecmp.  These can be found within the .tar.gz files under the <em>site_metadata_files</em> folder.</p>
+<p>The variable names in these observation files can change over time.  This README file provides the environment variables needed for the species list in the sitecmp run script for different networks and years.</p>
+<p>This species information was generated using the <a class="reference external" href="https://github.com/USEPA/AMET" rel="noreferrer" target="_blank">Atmospheric Model Evaluation Tool (AMET) <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> which is also available github.com/USEPA. For further information on the mapping of observation species from each network to CMAQ model species, please see the section <strong>AQ Species List Input File</strong> of the <a class="reference external" href="https://github.com/USEPA/AMET/blob/1.4b/docs/AMET_Users_Guide_v14.md" rel="noreferrer" target="_blank">AMETv1.4 User’s Guide <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p>
+<p>Note that the configuration options below are just for the species definition part of the sitecmp run script.  See the run scripts within this folder for AQS, CSN, IMPROVE, NADP and SEARCH for examples of complete run scripts for sitecmp that include all necessary environment variables.</p>
+<section id="sitecmp-configuration-options-for-aeronet">
+<h2>SITECMP Configuration Options for AERONET<a class="headerlink" href="#sitecmp-configuration-options-for-aeronet" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for AERONET</span>
+<span class="c1"># =====================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ 
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;AOT_340,none,SW_AOD_340,none,AOD_340&quot;</span> 
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;AOT_380,none,SW_AOD_380,none,AOD_380&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;AOT_440,none,SW_AOD_440,none,AOD_440&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;AOT_500,none,SW_AOD_500,none,AOD_500&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;AOT_555,none,SW_AOD_555,none,AOD_555&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;AOT_675,none,SW_AOD_675,none,AOD_675&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;AOT_870,none,SW_AOD_870,none,AOD_870&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;AOT_1020,none,SW_AOD_1020,none,AOD_1020&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;AOT_1640,none,SW_AOD_1640,none,AOD_1640&quot;</span>
+
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing meta data (e.g., site-id, longitude, latitude, time zone) about each site.</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AERONET_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">AERONET_hourly_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for AERONET</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="sitecmp-configuration-options-for-amon">
+<h2>SITECMP Configuration Options for AMON<a class="headerlink" href="#sitecmp-configuration-options-for-amon" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for AMON</span>
+<span class="c1"># =====================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+  <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;NH3,ug/m3,NH3_UGM3,ug/m3,NH3&quot;</span>                        <span class="c1"># Ammonia</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AMON_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">AMON_data</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for AMON</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="sitecmp-configuration-options-for-hourly-castnet-data">
+<h2>SITECMP Configuration Options for Hourly CASTNET data<a class="headerlink" href="#sitecmp-configuration-options-for-hourly-castnet-data" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for Hourly CASTNET data</span>
+<span class="c1"># =====================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">MET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">GAS_1</span> <span class="s2">&quot;ozone,ppb,O3,ppb,O3&quot;</span>
+ <span class="n">setenv</span> <span class="n">GAS_2</span> <span class="s2">&quot;temperature,C,SFC_TMP,C,SFC_TMP&quot;</span>
+ <span class="n">setenv</span> <span class="n">GAS_3</span> <span class="s2">&quot;relative_humidity,%,RH,%,RH&quot;</span>
+ <span class="n">setenv</span> <span class="n">GAS_4</span> <span class="s2">&quot;solar_radiation,watts/m2,SOL_RAD,watts/m2,Solar_Rad&quot;</span>
+ <span class="n">setenv</span> <span class="n">GAS_5</span> <span class="s2">&quot;precipitation,mm/hr,precip,mm/hr,precip&quot;</span>
+ <span class="n">setenv</span> <span class="n">GAS_6</span> <span class="s2">&quot;windspeed,m/s,WSPD10,m/s,WSPD10&quot;</span>
+<span class="c1"># setenv GAS_7 &quot;wind_direction,deg,WDIR10,deg,WDIR10&quot;</span>
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">CASTNET_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CASTNET_hourly_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for Hourly CASTNET</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="sitecmp-configuration-options-for-weekly-castnet-data">
+<h2>SITECMP Configuration Options for Weekly CASTNET data<a class="headerlink" href="#sitecmp-configuration-options-for-weekly-castnet-data" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for Weekly CASTNET data</span>
+<span class="c1"># =====================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ 
+<span class="c1">#&gt; GAS Variables (1-10)  - compute average over time</span>
+<span class="c1">#&gt; Model output was originally in ppm, but conversions were already</span>
+<span class="c1">#&gt; made in the combine extract to convert to ug/m3.</span>
+ <span class="n">setenv</span> <span class="n">GAS_1</span> <span class="s2">&quot;nhno3,ug/m3,HNO3_UGM3,,HNO3&quot;</span>                           <span class="c1"># nitric acid</span>
+ <span class="n">setenv</span> <span class="n">GAS_2</span> <span class="s2">&quot;total_so2,ug/m3,SO2_UGM3,,SO2&quot;</span>                         <span class="c1"># sulfur dioxide (total SO2 = Whatman Filter + 0.667*Nylon Filter)</span>
+ <span class="n">setenv</span> <span class="n">GAS_3</span> <span class="s2">&quot;1.15*total_so2,ug/m3,SO2_UGM3,,SO2_adj&quot;</span>                <span class="c1"># adjusted SO2 value to account for observation bias (experimental)</span>
+
+<span class="c1">#&gt; AEROSOL Variables  - compute average over time</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;tso4,ug/m3,ASO4IJ,ug/m3,SO4&quot;</span>                          <span class="c1"># sulfate</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;tno3,ug/m3,ANO3IJ,ug/m3,NO3&quot;</span>                          <span class="c1"># nitrate</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;tnh4,ug/m3,ANH4IJ,ug/m3,NH4&quot;</span>                          <span class="c1"># ammonium</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;tno3+nhno3,ug/m3,ANO3IJ+HNO3_UGM3,ug/m3,TNO3&quot;</span>         <span class="c1"># total nitrate</span>
+
+<span class="c1">#&gt; PM2.5 Sharp Cutoff Species</span>
+<span class="c1">#&gt; Requires preprocessing using AERODIAM file</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;tso4,ug/m3,PM25_SO4,ug/m3,PM25_SO4&quot;</span>                   <span class="c1"># sulfate using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;tno3,ug/m3,PM25_NO3,ug/m3,PM25_NO3&quot;</span>                   <span class="c1"># nitrate using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;tnh4,ug/m3,PM25_NH4,ug/m3,PM25_NH4&quot;</span>                   <span class="c1"># ammonium using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;tno3+nhno3,ug/m3,PM25_NO3+HNO3_UGM3,ug/m3,PM25_TNO3&quot;</span>  <span class="c1"># total nitrate using sharp cutoff</span>
+
+<span class="c1">#&gt; AERO6 species</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;MG,ug/m3,AMGJ,ug/m3,MG&quot;</span>                               <span class="c1"># ammonium using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;CA,ug/m3,ACAJ,ug/m3,CA&quot;</span>                              <span class="c1"># calcium using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;K,ug/m3,AKJ,ug/m3,K&quot;</span>                                 <span class="c1"># potassium using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;NA,ug/m3,ANAIJ,ug/m3,NA&quot;</span>                             <span class="c1"># sodium using sharp cutoff</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;CL,ug/m3,ACLIJ,ug/m3,CL&quot;</span>                             <span class="c1"># chloride using sharp cutoff</span>
+  
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">CASTNET_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CASTNET_weekly_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for Weekly CASTNET</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-environment-options-for-csn-formally-stn">
+<h2>Runtime Environment Options for CSN (formally STN)<a class="headerlink" href="#runtime-environment-options-for-csn-formally-stn" title="Link to this heading">#</a></h2>
+<section id="csn-for-2009-and-earlier">
+<h3>CSN for 2009 and earlier<a class="headerlink" href="#csn-for-2009-and-earlier" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List Environment Options for CSN (formally STN) </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are three formats of the CSN observed data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the </span>
+<span class="c1">#&gt; time series provided (2001-2009, 2010, 2011-2013, 2014 and later).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; CSN for 2009 and earlier</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">STN</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;m_so4,ug/m3, ASO4IJ,,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;m_no3,ug/m3, ANO3IJ,,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;m_nh4,ug/m3, ANH4IJ,,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;FRM PM2.5 Mass,ug/m3,ATOTIJ,,PM_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;FRM PM2.5 Mass,ug/m3,PMIJ_FRM,,PM_FRM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;oc_adj,ug/m3, AOCIJ,,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;ec_niosh,ug/m3, AECIJ,,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;oc_adj+ec_niosh,ug/m3,AOCIJ+AECIJ,,TC&quot;</span>
+
+<span class="c1">## PM2.5 Sharp Cutoff Species</span>
+<span class="c1">## Requires preprocessing using AERODIAM file</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;m_so4,ug/m3, PM25_SO4,,PM25_SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;m_no3,ug/m3, PM25_NO3,,PM25_NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;m_nh4,ug/m3, PM25_NH4,,PM25_NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;oc_adj,ug/m3, PM25_OC,,PM25_OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;ec_niosh,ug/m3, PM25_EC,,PM25_EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;oc_adj+ec_niosh,ug/m3,PM25_OC+PM25_EC,,PM25_TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;FRM PM2.5 Mass,ug/m3,PM25_TOT,ug/m3,PM25_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;FRM PM2.5 Mass,ug/m3,PM25_FRM,ug/m3,PM25_FRM&quot;</span>
+
+<span class="c1"># AERO6 species</span>
+<span class="c1">## note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium</span>
+<span class="c1">## all other elemental concentrations (including Cl and K) come from XRF</span>
+ <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;Sodium Ion,ug/m3, ANAIJ,,Na&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;chlorine,ug/m3, ACLIJ,,Cl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;iron,ug/m3, AFEJ,,Fe&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;aluminum,ug/m3,AALJ,,Al&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;silicon,ug/m3, ASIJ,,Si&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;titanium,ug/m3, ATIJ,,Ti&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;calcium,ug/m3,ACAJ,,Ca&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;magnesium,ug/m3,AMGJ,,Mg&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;potassium,ug/m3,AKJ,,K&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;manganese,ug/m3,AMNJ,,Mn&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_27</span> <span class="s2">&quot;2.2*aluminum+2.49*silicon+1.63*calcium+2.42*iron+1.94*titanium,ug/m3,ASOILJ,,soil&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_28</span> <span class="s2">&quot;Sodium Ion + chlorine, ug/m3, ANAIJ+ACLIJ,,NaCl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_29</span> <span class="s2">&quot;FRM PM2.5 Mass - m_so4 - m_no3 - m_nh4 - oc_adj - ec_niosh - [Sodium Ion] - [chlorine] - 2.2*aluminum - 2.49*silicon - 1.63*calcium - 2.42*iron - 1.94*titanium , ug/m3, AUNSPEC1IJ,,OTHER&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_30</span> <span class="s2">&quot;0.8*oc_adj, ug/m3, ANCOMIJ,,NCOM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_31</span> <span class="s2">&quot;FRM PM2.5 Mass - m_so4 - m_no3 - m_nh4 - oc_adj - ec_niosh - [Sodium Ion] - [chlorine] - 2.2*aluminum - 2.49*silicon - 1.63*calcium - 2.42*iron - 1.94*titanium - 0.8*oc_adj, ug/m3, AUNSPEC2IJ,,OTHER_REM&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AQS_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CSN_hourly_data_2009</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</section>
+<section id="csn-for-2010">
+<h3>CSN for 2010<a class="headerlink" href="#csn-for-2010" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List Environment Options for CSN (formally STN) </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are three formats of the CSN observed data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the </span>
+<span class="c1">#&gt; time series provided (2001-2009, 2010, 2011-2013, 2014 and later).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; CSN for 2010</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">STN</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;m_so4,ug/m3, ASO4IJ,,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;m_no3,ug/m3, ANO3IJ,,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;m_nh4,ug/m3, ANH4IJ,,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;PM2.5 Mass,ug/m3,ATOTIJ,,PM_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;PM2.5 Mass,ug/m3,PMIJ_FRM,,PM_FRM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;oc_adj,ug/m3, AOCIJ,,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;ec_tor,ug/m3, AECIJ,,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;oc_adj+ec_tor,ug/m3,AOCIJ+AECIJ,,TC&quot;</span>
+
+<span class="c1">## PM2.5 Sharp Cutoff Species</span>
+<span class="c1">## Requires preprocessing using AERODIAM file</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;m_so4,ug/m3, PM25_SO4,,PM25_SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;m_no3,ug/m3, PM25_NO3,,PM25_NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;m_nh4,ug/m3, PM25_NH4,,PM25_NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;oc_adj,ug/m3, PM25_OC,,PM25_OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;ec_tor,ug/m3, PM25_EC,,PM25_EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;oc_adj+ec_tor,ug/m3,PM25_OC+PM25_EC,,PM25_TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;PM2.5 Mass,ug/m3,PM25_TOT,ug/m3,PM25_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;PM2.5 Mass,ug/m3,PM25_FRM,ug/m3,PM25_FRM&quot;</span>
+
+<span class="c1"># AERO6 species</span>
+<span class="c1">## note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium</span>
+<span class="c1">## all other elemental concentrations (including Cl and K) come from XRF</span>
+ <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;Sodium Ion,ug/m3, ANAIJ,,Na&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;chlorine,ug/m3, ACLIJ,,Cl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;iron,ug/m3, AFEJ,,Fe&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;aluminum,ug/m3,AALJ,,Al&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;silicon,ug/m3, ASIJ,,Si&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;titanium,ug/m3, ATIJ,,Ti&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;calcium,ug/m3,ACAJ,,Ca&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;magnesium,ug/m3,AMGJ,,Mg&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;potassium,ug/m3,AKJ,,K&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;manganese,ug/m3,AMNJ,,Mn&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_27</span> <span class="s2">&quot;2.2*aluminum+2.49*silicon+1.63*calcium+2.42*iron+1.94*titanium,ug/m3,ASOILJ,,soil&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_28</span> <span class="s2">&quot;Sodium Ion + chlorine, ug/m3, ANAIJ+ACLIJ,,NaCl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_29</span> <span class="s2">&quot;PM2.5 Mass - m_so4 - m_no3 - m_nh4 - oc_adj - ec_tor - [Sodium Ion] - [chlorine] - 2.2*aluminum - 2.49*silicon - 1.63*calcium - 2.42*iron - 1.94*titanium , ug/m3, AUNSPEC1IJ,,OTHER&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_30</span> <span class="s2">&quot;0.8*oc_adj, ug/m3, ANCOMIJ,,NCOM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_31</span> <span class="s2">&quot;PM2.5 Mass - m_so4 - m_no3 - m_nh4 - oc_adj - ec_niosh - [Sodium Ion] - [chlorine] - 2.2*aluminum - 2.49*silicon - 1.63*calcium - 2.42*iron - 1.94*titanium - 0.8*oc_adj, ug/m3, AUNSPEC2IJ,,OTHER_REM&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AQS_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CSN_hourly_data_2010</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</section>
+<section id="csn-for-2011-2013">
+<h3>CSN for 2011-2013<a class="headerlink" href="#csn-for-2011-2013" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List Environment Options for CSN (formally STN) </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are three formats of the CSN observed data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the </span>
+<span class="c1">#&gt; time series provided (2001-2009, 2010, 2011-2013, 2014 and later).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; CSN for 2011-2013</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">STN</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;SO4f_val,ug/m3, ASO4IJ,,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;NO3f_val,ug/m3, ANO3IJ,,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;NH4f_val,ug/m3, ANH4IJ,,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;88502_val,ug/m3,ATOTIJ,,PM_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;88502_val,ug/m3,PMIJ_FRM,,PM_FRM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;88370_val-blank,ug/m3, AOCIJ,,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;88380_val,ug/m3, AECIJ,,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;88370_val-blank+88380_val,ug/m3,AOCIJ+AECIJ,,TC&quot;</span>
+   
+<span class="c1">#&gt; PM2.5 Sharp Cutoff Species</span>
+<span class="c1">#&gt; Requires preprocessing using AERODIAM file</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;SO4f_val,ug/m3, PM25_SO4,,PM25_SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;NO3f_val,ug/m3, PM25_NO3,,PM25_NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;NH4f_val,ug/m3, PM25_NH4,,PM25_NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;88370_val-blank,ug/m3, PM25_OC,,PM25_OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;88380_val,ug/m3, PM25_EC,,PM25_EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;88370_val-blank+88380_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;88502_val,ug/m3,PM25_TOT,ug/m3,PM25_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;88502_val,ug/m3,PM25_FRM,ug/m3,PM25_FRM&quot;</span>
+   
+<span class="c1">#&gt; AERO6 species</span>
+<span class="c1">#&gt; note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium</span>
+<span class="c1">#&gt; all other elemental concentrations (including Cl and K) come from XRF</span>
+ <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;NAf_val,ug/m3, ANAIJ,,Na&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;CLf_val,ug/m3, ACLIJ,,Cl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;FEf_val,ug/m3, AFEJ,,Fe&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;ALf_val,ug/m3,AALJ,,Al&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;SIf_val,ug/m3, ASIJ,,Si&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;TIf_val,ug/m3, ATIJ,,Ti&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;CAf_val,ug/m3,ACAJ,,Ca&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;MGf_val,ug/m3,AMGJ,,Mg&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;Kf_val,ug/m3,AKJ,,K&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;MNf_val,ug/m3,AMNJ,,Mn&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_27</span> <span class="s2">&quot;2.2*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_28</span> <span class="s2">&quot;NAf_val + CLf_val, ug/m3, ANAIJ+ACLIJ,,NaCl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_29</span> <span class="s2">&quot;88502_val-SO4f_val-NO3f_val-NH4f_val-88370_val-blank-88380_val-[NAf_val]-[CLf_val]-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val , ug/m3, AUNSPEC1IJ,,OTHER&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_30</span> <span class="s2">&quot;0.8*88370_val-blank,ug/m3, ANCOMIJ,,NCOM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_31</span> <span class="s2">&quot;88502_val-SO4f_val-NO3f_val-NH4f_val-88370_val-blank-88380_val-[NAf_val]-[CLf_val]-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val-0.8*88370_val-blank,ug/m3, AUNSPEC2IJ,,OTHER_REM&quot;</span>
+  
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AQS_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CSN_data_2011_VIEWS</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</section>
+<section id="csn-for-2014-and-later">
+<h3>CSN for 2014 and later<a class="headerlink" href="#csn-for-2014-and-later" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List Environment Options for CSN (formally STN) </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are three formats of the CSN observed data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the </span>
+<span class="c1">#&gt; time series provided (2001-2009, 2010, 2011-2013, 2014 and later).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; CSN for 2014 and later</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">STN</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;SO4f_val,ug/m3, ASO4IJ,,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;NO3f_val,ug/m3, ANO3IJ,,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;NH4f_val,ug/m3, ANH4IJ,,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;PM25,ug/m3,ATOTIJ,,PM_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;PM25,ug/m3,PMIJ_FRM,,PM_FRM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;88370_val-blank,ug/m3, AOCIJ,,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;88380_val,ug/m3, AECIJ,,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;88370_val-blank+88380_val,ug/m3,AOCIJ+AECIJ,,TC&quot;</span>
+   
+<span class="c1">#&gt; PM2.5 Sharp Cutoff Species</span>
+<span class="c1">#&gt; Requires preprocessing using AERODIAM file</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;SO4f_val,ug/m3, PM25_SO4,,PM25_SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;NO3f_val,ug/m3, PM25_NO3,,PM25_NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;NH4f_val,ug/m3, PM25_NH4,,PM25_NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;88370_val-blank,ug/m3, PM25_OC,,PM25_OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;88380_val,ug/m3, PM25_EC,,PM25_EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;88370_val-blank+88380_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;PM25,ug/m3,PM25_FRM,ug/m3,PM25_FRM&quot;</span>
+   
+<span class="c1">#&gt; AERO6 species</span>
+<span class="c1">#&gt; note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium</span>
+<span class="c1">#&gt; all other elemental concentrations (including Cl and K) come from XRF</span>
+ <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;NAf_val,ug/m3, ANAIJ,,Na&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;CLf_val,ug/m3, ACLIJ,,Cl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;FEf_val,ug/m3, AFEJ,,Fe&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;ALf_val,ug/m3,AALJ,,Al&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;SIf_val,ug/m3, ASIJ,,Si&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;TIf_val,ug/m3, ATIJ,,Ti&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;CAf_val,ug/m3,ACAJ,,Ca&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;MGf_val,ug/m3,AMGJ,,Mg&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;Kf_val,ug/m3,AKJ,,K&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;MNf_val,ug/m3,AMNJ,,Mn&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_27</span> <span class="s2">&quot;2.2*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_28</span> <span class="s2">&quot;NAf_val + CLf_val, ug/m3, ANAIJ+ACLIJ,,NaCl&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_29</span> <span class="s2">&quot;PM25-SO4f_val-NO3f_val-NH4f_val-88370_val-blank-88380_val-[NAf_val]-[CLf_val]-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val , ug/m3, AUNSPEC1IJ,,OTHER&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_30</span> <span class="s2">&quot;0.8*88370_val-blank,ug/m3, ANCOMIJ,,NCOM&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_31</span> <span class="s2">&quot;PM25-SO4f_val-NO3f_val-NH4f_val-88370_val-blank-88380_val-[NAf_val]-[CLf_val]-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val-0.8*88370_val-blank,ug/m3, AUNSPEC2IJ,,OTHER_REM&quot;</span>
+  
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">AQS_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">CSN_data_2011_VIEWS</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for CSN</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sitecmp-configuration-options-for-improve">
+<h2>SITECMP Configuration Options for IMPROVE<a class="headerlink" href="#sitecmp-configuration-options-for-improve" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for IMPROVE</span>
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">IMPROVE</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+  <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;SO4f_val,ug/m3,ASO4IJ,,SO4&quot;</span>                        <span class="c1"># sulfate</span>
+  <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;NO3f_val,ug/m3,ANO3IJ,,NO3&quot;</span>                        <span class="c1"># nitrate</span>
+  <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;0.2903*NO3f_val+0.375*SO4f_val,ug/m3,ANH4IJ,,NH4&quot;</span>  <span class="c1"># ammonium (estimated assuming fully neutralized SO4 and NO3)</span>
+  <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;MF_val,ug/m3,ATOTIJ,ug/m3,PM_TOT&quot;</span>                    <span class="c1"># Total PM2.5 mass </span>
+  <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;OCf_val,ug/m3,AOCIJ,,OC&quot;</span>                           <span class="c1"># Organic Carbon</span>
+  <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;ECf_val,ug/m3,AECIJ,,EC&quot;</span>                           <span class="c1"># Elemental Carbon</span>
+  <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;OCf_val+ECf_val,ug/m3,AOCIJ+AECIJ,,TC&quot;</span>             <span class="c1"># Total Carbon</span>
+  <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;CHLf_val,ug/m3,ACLIJ,ug/m3,Cl&quot;</span>                     <span class="c1"># CL Ion</span>
+  <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;MT_val,ug/m3,PM10,ug/m3,PM10&quot;</span>                      <span class="c1"># PM10</span>
+  <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;CM_calculated_val,ug/m3,PMC_TOT,ug/m3,PMC_TOT&quot;</span>    <span class="c1"># PM Course</span>
+
+<span class="c1">#&gt; PM2.5 Sharp Cutoff Species</span>
+<span class="c1">#&gt; Requires preprocessing using AERODIAM file</span>
+  <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;SO4f_val,ug/m3,PM25_SO4,,PM25_SO4&quot;</span>                        <span class="c1"># sulfate (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;NO3f_val,ug/m3,PM25_NO3,,PM25_NO3&quot;</span>                 	    <span class="c1"># nitrate (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;0.2903*NO3f_val+0.375*SO4f_val,ug/m3,PM25_NH4,,PM25_NH4&quot;</span>  <span class="c1"># ammonium (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;OCf_val,ug/m3,PM25_OC,,PM25_OC&quot;</span>                    	    <span class="c1"># Organic Carbon (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;ECf_val,ug/m3,PM25_EC,,PM25_EC&quot;</span>                    	    <span class="c1"># Elemental Carbon (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;OCf_val+ECf_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC&quot;</span>    	    <span class="c1"># Total Carbon (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;MF_val,ug/m3,PM25_TOT,ug/m3,PM25_TOT&quot;</span>                     <span class="c1"># Total PM2.5 mass (&lt; 2.5um)</span>
+  <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;CHLf_val,ug/m3,PM25_CL,ug/m3,PM25_Cl&quot;</span>                     <span class="c1"># CL Ion (&lt; 2.5um)</span>
+
+<span class="c1">#&gt; New AE6 species</span>
+<span class="c1">#&gt; note: we use XRF sodium because there is not IC sodium mesaurement</span>
+<span class="c1">#&gt; we use IC measurement for chlorid (CHLf_val) instead of XRF chlroine (CLf_Val)</span>
+  <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;NAf_val,ug/m3, ANAIJ,,Na&quot;</span>                            <span class="c1"># sodium</span>
+  <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;NAf_val + CHLf_val,ug/m3,ACLIJ + ANAIJ,,NaCl&quot;</span>        <span class="c1"># sodium chloride</span>
+  <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;FEf_val,ug/m3, AFEJ,,Fe&quot;</span>                             <span class="c1"># iron</span>
+  <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;ALf_val,ug/m3,AALJ,,Al&quot;</span>                              <span class="c1"># aluminum </span>
+  <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;SIf_val,ug/m3, ASIJ,,Si&quot;</span>                             <span class="c1"># silicon</span>
+  <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;TIf_val,ug/m3, ATIJ,,Ti&quot;</span>                            <span class="c1"># titanium</span>
+  <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;CAf_val,ug/m3,ACAJ,,Ca&quot;</span>                              <span class="c1"># calcium</span>
+  <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;MGf_val,ug/m3,AMGJ,,Mg&quot;</span>                              <span class="c1"># magnesium</span>
+  <span class="n">setenv</span> <span class="n">AERO_27</span> <span class="s2">&quot;Kf_val,ug/m3,AKJ,,K&quot;</span>                                 <span class="c1"># potassium</span>
+  <span class="n">setenv</span> <span class="n">AERO_28</span> <span class="s2">&quot;MNf_val,ug/m3,AMNJ,,Mn&quot;</span>                              <span class="c1"># manganese</span>
+  <span class="n">setenv</span> <span class="n">AERO_29</span> <span class="s2">&quot;2.20*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil&quot;</span>  <span class="c1"># IMPROVE soil eqn.</span>
+  <span class="n">setenv</span> <span class="n">AERO_30</span> <span class="s2">&quot;MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3,AUNSPEC1IJ,,OTHER&quot;</span>      <span class="c1"># PM Other</span>
+  <span class="n">setenv</span> <span class="n">AERO_31</span> <span class="s2">&quot;,ug/m3, ANCOMIJ,,NCOM&quot;</span>                              <span class="c1"># PM Other</span>
+  <span class="n">setenv</span> <span class="n">AERO_32</span> <span class="s2">&quot;,ug/m3, AUNSPEC2IJ,,OTHER_REM&quot;</span>                      <span class="c1"># PM Other</span>
+
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">IMPROVE_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">IMPROVE_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for IMPROVE</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="sitecmp-configuration-options-for-nadp">
+<h2>SITECMP Configuration Options for NADP<a class="headerlink" href="#sitecmp-configuration-options-for-nadp" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; SITECMP Species List Configuration Options for NADP</span>
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">NADP</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+
+  <span class="n">setenv</span> <span class="n">CHAR_1</span> <span class="s2">&quot;Valcode&quot;</span>
+  <span class="n">setenv</span> <span class="n">CHAR_2</span> <span class="s2">&quot;Invalcode&quot;</span>
+
+<span class="c1">#&gt; Wet Concentration Variables (1-10) - compute volume-weighted average (VWAVG) in mg/l</span>
+<span class="c1">#&gt; Observed values are already volume-weighted averages for the collection</span>
+<span class="c1">#&gt; period.  Original model output is hourly wet deposition. To calculate</span>
+<span class="c1">#&gt; VWAVG, the modeled wet deposition is accumulated for the collection time</span>
+<span class="c1">#&gt; period, divided by the total precipitation (mm), and * 100. Resultingi</span>
+<span class="c1">#&gt; units are mg/l.</span>
+
+ <span class="n">setenv</span> <span class="n">WETCON_1</span> <span class="s2">&quot;NH4,mg/l,WDEP_NHX,mg/l,NH4_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_2</span> <span class="s2">&quot;NO3,mg/l,WDEP_TNO3,mg/l,NO3_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_3</span> <span class="s2">&quot;SO4,mg/l,WDEP_TSO4,mg/l,SO4_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_4</span> <span class="s2">&quot;Cl,mg/l,WDEP_TCL,mg/l,Cl_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_5</span> <span class="s2">&quot;Na,mg/l,WDEP_ANAJK,mg/l,Na_conc&quot;</span>
+
+<span class="c1">#&gt; Wet Deposition Variables (1-10) - compute accumulated wet deposition in kg/ha</span>
+<span class="c1">#&gt; Observed values are volume-weighted average wet concentrations for thei</span>
+<span class="c1">#&gt; collection period (mg/l). To convert to wet deposition, multiply the wet</span>
+<span class="c1">#&gt; concentration values by the total observed precip (Sub Ppt in mm), and then</span>
+<span class="c1">#&gt; divide by 100. Original model output is hourly wet deposition. The modeled</span>
+<span class="c1">#&gt; wet deposition is accumulated for the collection time period.</span>
+
+ <span class="n">setenv</span> <span class="n">WETDEP_1</span> <span class="s2">&quot;NH4,kg/ha,WDEP_NHX,kg/ha,NH4_dep&quot;</span>   <span class="c1"># Ammonium wet deposition</span>
+ <span class="n">setenv</span> <span class="n">WETDEP_2</span> <span class="s2">&quot;NO3,kg/ha,WDEP_TNO3,kg/ha,NO3_dep&quot;</span>  <span class="c1"># Nitrate wet deposition</span>
+ <span class="n">setenv</span> <span class="n">WETDEP_3</span> <span class="s2">&quot;SO4,kg/ha,WDEP_TSO4,kg/ha,SO4_dep&quot;</span>  <span class="c1"># Sulfate wet deposition </span>
+ <span class="n">setenv</span> <span class="n">WETDEP_4</span> <span class="s2">&quot;Cl,kg/ha,WDEP_TCL,kg/ha,Cl_dep&quot;</span>     <span class="c1"># Chloride wet deposition </span>
+ <span class="n">setenv</span> <span class="n">WETDEP_5</span> <span class="s2">&quot;Na,kg/ha,WDEP_ANAJK,kg/ha,Na_dep&quot;</span>   <span class="c1"># Sodium wet deposition</span>
+
+<span class="c1">#&gt; Precipitation Variables (1-10) - compute accumulated precipitation</span>
+
+ <span class="n">setenv</span> <span class="n">PREC_1</span> <span class="s2">&quot;Sub Ppt,mm,10*RT,mm,Precip&quot;</span>
+
+
+<span class="c1">#&gt; AERO6 species</span>
+ <span class="n">setenv</span> <span class="n">WETCON_6</span> <span class="s2">&quot;Ca,mg/l,WDEP_CAJK,mg/l,CA_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_7</span> <span class="s2">&quot;Mg,mg/l,WDEP_MGJK,mg/l,MG_conc&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETCON_8</span> <span class="s2">&quot;K,mg/l,WDEP_KJK,mg/l,K_conc&quot;</span>
+
+ <span class="n">setenv</span> <span class="n">WETDEP_6</span> <span class="s2">&quot;Ca,kg/ha,WDEP_CAJK,kg/ha,CA_dep&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETDEP_7</span> <span class="s2">&quot;Mg,kg/ha,WDEP_MGJK,kg/ha,MG_dep&quot;</span>
+ <span class="n">setenv</span> <span class="n">WETDEP_8</span> <span class="s2">&quot;K,kg/ha,WDEP_KJK,kg/ha,K_dep&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; site containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">NADP_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">NADP_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for NADP</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-environment-options-for-hourly-search">
+<h2>Runtime Environment Options for Hourly SEARCH<a class="headerlink" href="#runtime-environment-options-for-hourly-search" title="Link to this heading">#</a></h2>
+<section id="hourly-search-for-2004-and-earlier">
+<h3>Hourly SEARCH for 2004 and earlier<a class="headerlink" href="#hourly-search-for-2004-and-earlier" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List Environment Options for Hourly SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are four formats of the SEARCH observed hourly data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2004, 2005, 2006-2010, 2011-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Hourly SEARCH for 2004 and earlier</span>
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;o3,ppb,O3,,O3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;co,ppb,CO,,CO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;so2,ppb,SO2,,SO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;no,ppb,NO,,NO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;no2,ppb,NO2,,NO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;noy,ppb,NOY,ppb,NOY&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;wsp,m/s,WSPD10,m/s,WSPD10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;wdr,m/s,WDIR10,m/s,WDIR10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;rh,%,RH,%,RH&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;temp,C,SFC_TMP,C,SFC_TMP&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;sr,w/m2,SOL_RAD,watts/m2,Solar_Rad&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_hourly_data_2004</span><span class="o">.</span><span class="n">csv</span>
+
+</pre></div>
+</div>
+</section>
+<section id="hourly-search-for-2005">
+<h3>Hourly SEARCH for 2005<a class="headerlink" href="#hourly-search-for-2005" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Environment Options for Hourly SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are four formats of the SEARCH observed hourly data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2004, 2005, 2006-2010, 2011-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Hourly Species List SEARCH for 2005 </span>
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;average o3[ppb],ppb,O3,,O3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;average co[ppb],ppb,CO,,CO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;average so2[ppb],ppb,SO2,,SO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;average no[ppb],ppb,NO,,NO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;average no2[ppb],ppb,NO2,,NO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;average noy[ppb],ppb,NOY,ppb,NOY&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;average wsp[m/s],m/s,WSPD10,m/s,WSPD10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;average wdr[deg],m/s,WDIR10,m/s,WDIR10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;average rh[%],%,RH,%,RH&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;average temp[deg c],C,SFC_TMP,C,SFC_TMP&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;25.4*average rainfall[inches],mm,precip,mm,precip&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;average sr[w/m2],w/m2,SOL_RAD,watts/m2,Solar_Rad&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_hourly_data_2005</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</section>
+<section id="hourly-search-for-2006-to-2010">
+<h3>Hourly SEARCH for 2006 to 2010<a class="headerlink" href="#hourly-search-for-2006-to-2010" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Environment Options for Hourly SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are four formats of the SEARCH observed hourly data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2004, 2005, 2006-2010, 2011-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Hourly Species List SEARCH for 2006 to 2010</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;Average O3[ppb],ppb,O3,,O3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;Average CO[ppb],ppb,CO,,CO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;Average SO2[ppb],ppb,SO2,,SO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;Average NO[ppb],ppb,NO,,NO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;Average NO2[ppb],ppb,NO2,,NO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;Average NOy[ppb],ppb,NOY,ppb,NOY&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;Average HNO3[ppb],ppb,HNO3,ppb,HNO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;Average NH3[ppb],ug/m3,NH3,,NH3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;Average OptEC[ug/m3],ug/m3,AECIJ,ug/m3,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;Average OC[ug/m3],ug/m3,AOCIJ,ug/m3,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;Average TC[ug/m3],ug/m3,AECIJ+AOCIJ,ug/m3,TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;Average WSP[m/s],m/s,WSPD10,m/s,WSPD10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;Average WDR[Deg],m/s,WDIR10,m/s,WDIR10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;Average RH[%],%,RH,%,RH&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;Average TEMP[Deg C],C,SFC_TMP,C,SFC_TMP&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_16</span> <span class="s2">&quot;25.4*Average RAINFALL[Inches],mm,precip,mm,precip&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_17</span> <span class="s2">&quot;Average SR[W/m2],w/m2,SOL_RAD,watts/m2,Solar_Rad&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_18</span> <span class="s2">&quot;Average TEOM[ug/m3],ug/m3,ATOTIJ,,PM_TOT&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_19</span> <span class="s2">&quot;Average NH4[ug/m3],ug/m3,ANH4IJ,,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_20</span> <span class="s2">&quot;Average SO4[ug/m3],ug/m3,ASO4IJ,,SO4&quot;</span>
+   
+ <span class="n">setenv</span> <span class="n">AERO_21</span> <span class="s2">&quot;Average OptEC[ug/m3],ug/m3,PM25_EC,ug/m3,PM25_EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_22</span> <span class="s2">&quot;Average OC[ug/m3],ug/m3,PM25_OC,ug/m3,PM25_OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_23</span> <span class="s2">&quot;Average TC[ug/m3],ug/m3,PM25_EC+PM25_OC,ug/m3,PM25_TC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_24</span> <span class="s2">&quot;Average NH4[ug/m3],ug/m3,PM25_NH4,,PM25_NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_25</span> <span class="s2">&quot;Average NO3[ug/m3],ug/m3,PM25_NO3,,PM25_NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_26</span> <span class="s2">&quot;Average SO4[ug/m3],ug/m3,PM25_SO4,,PM25_SO4&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; SITE FILE containing site-id, longitude, latitude, time zone (tab delimited)</span>
+<span class="c1">#&gt; This file can be downloaded from the CMAS Center Data clearinghouse </span>
+<span class="c1">#&gt; under the heading &quot;2000-2014 North American Air Quality Observation Data&quot;:</span>
+<span class="c1">#&gt; https://www.cmascenter.org/download/data.cfm</span>
+<span class="c1">#&gt; AQS site file is located in AMET12_SITE_FILES.tar.gz</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_hourly_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+</pre></div>
+</div>
+</section>
+<section id="hourly-search-for-2011-and-later">
+<h3>Hourly SEARCH for 2011 and later<a class="headerlink" href="#hourly-search-for-2011-and-later" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Environment Options for Hourly SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are four formats of the SEARCH observed hourly data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2004, 2005, 2006-2010, 2011-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the </span>
+<span class="c1">#&gt; sitecmp program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Hourly Species List SEARCH for 2011 and later</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;Average O3[ppb],ppb,O3,,O3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;Average CO[ppb],ppb,CO,,CO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;Average SO2[ppb],ppb,SO2,,SO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;Average NO[ppb],ppb,NO,,NO&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;Average NO2[ppb],ppb,NO2,,NO2&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;Average NOy[ppb],ppb,NOY,ppb,NOY&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;Average HNO3[ppb],ppb,HNO3,ppb,HNO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;Average NH3[ppb],ug/m3,NH3,,NH3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;Average WSP[m/s],m/s,WSPD10,m/s,WSPD10&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;Average WDR[Deg],m/s,WDIR10,m/s,WDIR10&quot;</span><span class="p">;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;Average RH[%],%,RH,%,RH&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;Average TEMP[Deg C],C,SFC_TMP,C,SFC_TMP&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;25.4*Average RAINFALL[Inches],mm,precip,mm,precip&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;Average SR[W/m2],w/m2,SOL_RAD,watts/m2,Solar_Rad&quot;</span>
+ 
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; site file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_hourly_data_2013</span><span class="o">.</span><span class="n">csv</span>
+
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for Hourly SEARCH</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="runtime-environment-options-for-daily-search">
+<h2>Runtime Environment Options for Daily SEARCH<a class="headerlink" href="#runtime-environment-options-for-daily-search" title="Link to this heading">#</a></h2>
+<section id="daily-search-for-2007-and-earlier">
+<h3>Daily SEARCH for 2007 and earlier<a class="headerlink" href="#daily-search-for-2007-and-earlier" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Species List  Environment Options for Daily SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are two formats of the SEARCH observed daily data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2007, 2008-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the sitecmp </span>
+<span class="c1">#&gt; program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Daily SEARCH for 2007 and earlier</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;pcm1 so4,ug/m3,ASO4IJ,ug/m3,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;pcm1 no3+pcm1 teflon no3,ug/m3,ANO3IJ,ug/m3,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;pcm1 teflon nh4+pcm1 vol nh4,ug/m3,ANH4IJ,ug/m3,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;pcm3 ec,ug/m3,AECIJ,ug/m3,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;pcm3 oc,ug/m3,AOCIJ,ug/m3,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;pcm1 mass,ug/m3,ATOTIJ,ug/m3,PM_TOT&quot;</span>
+  
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+<span class="c1">#&gt; AQS obs data in the format needed for sitecmp are available </span>
+<span class="c1">#&gt; from the CMAS Center Data clearinghouse under the heading &quot;2000-2014 North American Air Quality Observation Data&quot;:</span>
+<span class="c1">#&gt; https://www.cmascenter.org/download/data.cfm</span>
+<span class="c1">#&gt; Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_daily_data_2007</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id1">
+<h2>Runtime Environment Options for Daily SEARCH<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="daily-search-for-2008-and-later">
+<h3>Daily SEARCH for 2008 and later<a class="headerlink" href="#daily-search-for-2008-and-later" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Runtime Environment Options for Daily SEARCH </span>
+<span class="c1">#</span>
+<span class="c1">#&gt; There are two formats of the SEARCH observed daily data .csv files.  </span>
+<span class="c1">#&gt; The number of columns and the column names changes across the time </span>
+<span class="c1">#&gt; series provided (2001-2007, 2008-2014).</span>
+<span class="c1">#&gt; As a result the species defintions with the run script for the sitecmp </span>
+<span class="c1">#&gt; program need to be changed accordingly.</span>
+<span class="c1"># ==================================================================</span>
+<span class="c1"># ==================================================================</span>
+<span class="c1">#&gt; Daily Species List SEARCH for 2008 and later</span>
+<span class="c1"># ==================================================================</span>
+
+<span class="c1">#&gt; Set TABLE TYPE</span>
+ <span class="n">setenv</span> <span class="n">TABLE_TYPE</span> <span class="n">CASTNET</span>
+
+<span class="c1">#&gt; Specify the variable names used in your observation inputs</span>
+<span class="c1">#&gt; and model output files for each of the species you are analyzing below.</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; variable format:</span>
+<span class="c1">#&gt;    Obs_expression, Obs_units, [Mod_expression], [Mod_unit], [Variable_name]</span>
+<span class="c1">#&gt;</span>
+<span class="c1">#&gt; The expression is in the form:</span>
+<span class="c1">#&gt;       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...</span>
+
+ <span class="n">setenv</span> <span class="n">AERO_1</span> <span class="s2">&quot;PM25_Tef_Sulfate [ug/m3],ug/m3,ASO4IJ,ug/m3,SO4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_2</span> <span class="s2">&quot;PM25_Tef_Nitrate [ug/m3],ug/m3,ANO3IJ,ug/m3,NO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_3</span> <span class="s2">&quot;PM25_Tef_Ammonium [ug/m3],ug/m3,ANH4IJ,ug/m3,NH4&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_4</span> <span class="s2">&quot;PM25_Total_Nitrate [ug/m3],ug/m3,ANO3IJ+HNO3_UGM3,ug/m3,TNO3&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_5</span> <span class="s2">&quot;PM25_Tef_Sodium [ug/m3],ug/m3,ANAIJ,ug/m3,Na&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_6</span> <span class="s2">&quot;OCTC [ug/m3],ug/m3,AOCIJ,ug/m3,OC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_7</span> <span class="s2">&quot;ECTC [ug/m3],ug/m3,AECIJ,ug/m3,EC&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_8</span> <span class="s2">&quot;FRM PM2.5 Mass [ug/m3],ug/m3,ATOTIJ,ug/m3,PM_TOT&quot;</span>
+   
+ <span class="n">setenv</span> <span class="n">AERO_9</span> <span class="s2">&quot;XRF Al [ug/m3],ug/m3,AALJ,ug/m3,Al&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_10</span> <span class="s2">&quot;XRF Si [ug/m3],ug/m3,ASIJ,ug/m3,Si&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_11</span> <span class="s2">&quot;XRF K [ug/m3],ug/m3,AKJ,ug/m3,K&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_12</span> <span class="s2">&quot;XRF Ca [ug/m3],ug/m3,ACAJ,ug/m3,Ca&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_13</span> <span class="s2">&quot;XRF Ti [ug/m3],ug/m3,ATIJ,ug/m3,Ti&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_14</span> <span class="s2">&quot;XRF Mn [ug/m3],ug/m3,AMNJ,ug/m3,Mn&quot;</span>
+ <span class="n">setenv</span> <span class="n">AERO_15</span> <span class="s2">&quot;XRF Fe [ug/m3],ug/m3,AFEJ,ug/m3,Fe&quot;</span>
+  
+<span class="c1">#&gt;&gt; End Species List &lt;&lt;#</span>
+
+<span class="c1">#&gt; file containing site-id, longitude, latitude, time zone (tab delimited)</span>
+ <span class="n">setenv</span> <span class="n">SITE_FILE</span> <span class="n">SEARCH_sites</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="c1">#&gt; input table containing site-id, time-period, and data fields</span>
+ <span class="n">setenv</span> <span class="n">IN_TABLE</span> <span class="n">SEARCH_daily_data_2011</span><span class="o">.</span><span class="n">csv</span>
+
+
+<span class="c1"># =====================================================================</span>
+<span class="c1">#&gt; END Options for Daily SEARCH</span>
+<span class="c1"># =====================================================================</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-aeronet">SITECMP Configuration Options for AERONET</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-amon">SITECMP Configuration Options for AMON</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-hourly-castnet-data">SITECMP Configuration Options for Hourly CASTNET data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-weekly-castnet-data">SITECMP Configuration Options for Weekly CASTNET data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-environment-options-for-csn-formally-stn">Runtime Environment Options for CSN (formally STN)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#csn-for-2009-and-earlier">CSN for 2009 and earlier</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#csn-for-2010">CSN for 2010</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#csn-for-2011-2013">CSN for 2011-2013</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#csn-for-2014-and-later">CSN for 2014 and later</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-improve">SITECMP Configuration Options for IMPROVE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sitecmp-configuration-options-for-nadp">SITECMP Configuration Options for NADP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-environment-options-for-hourly-search">Runtime Environment Options for Hourly SEARCH</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hourly-search-for-2004-and-earlier">Hourly SEARCH for 2004 and earlier</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hourly-search-for-2005">Hourly SEARCH for 2005</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hourly-search-for-2006-to-2010">Hourly SEARCH for 2006 to 2010</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hourly-search-for-2011-and-later">Hourly SEARCH for 2011 and later</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-environment-options-for-daily-search">Runtime Environment Options for Daily SEARCH</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#daily-search-for-2007-and-earlier">Daily SEARCH for 2007 and earlier</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Runtime Environment Options for Daily SEARCH</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#daily-search-for-2008-and-later">Daily SEARCH for 2008 and later</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
