@@ -458,7 +458,7 @@
 </section>
 <section id="installing-wrf-cmaq">
 <h2>Installing WRF-CMAQ<a class="headerlink" href="#installing-wrf-cmaq" title="Link to this heading">#</a></h2>
-<p>If you followed the CMAQ_UG_tutorial_build_library_gcc_support_nc4.md tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.</p>
+<p>If you followed the <a class="reference internal" href="CMAQ_UG_tutorial_build_library_gcc_support_nc4.html"><span class="std std-doc">CMAQ_UG_tutorial_build_library_gcc_support_nc4.md</span></a> tutorial then you have installed the required netCDF-C and netCDF-Fortran libraries in to a combined folder, and you can skip to the section Configuring the WRF-CMAQ environment.</p>
 <p>In the directory where you would like to install WRF-CMAQ, create the directory issuing the following command to clone the EPA GitHub repository for CMAQv5.5:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">main</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">USEPA</span><span class="o">/</span><span class="n">CMAQ</span><span class="o">.</span><span class="n">git</span> <span class="n">CMAQ_REPO</span>
 </pre></div>
@@ -563,9 +563,9 @@ Enter selection [1-75] : -------------------------------------------------------
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">setenv</span> <span class="n">WRF_CMAQ</span> <span class="mi">1</span>
 </pre></div>
 </div>
-<p>Set the WRF version to 4.5.1</p>
+<p>Set the WRF version to release-v4.5.1</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> if ( $?build_twoway ) then            # WRF Version used for WRF-CMAQ Model (must be v4.4+)
-    set WRF_VRSN = v4.5.1
+    set WRF_VRSN = release-v4.5.1
  endif
 </pre></div>
 </div>
@@ -579,11 +579,6 @@ Enter selection [1-75] : -------------------------------------------------------
  endif
 </pre></div>
 </div>
-<p>If you are using an older version of git, you need to modify the git clone command to add –recurse-submodule flag to obtain the noahmp submodule, and to also use ssh instead of https:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>git clone --recurse-submodule --branch ${WRF_VRSN} ssh://github.com/wrf-model/WRF.git ./$WRF_BLD &gt;&amp; /dev/null
-</pre></div>
-</div>
-<p>Note, if you use https then the git clone will fail due to conflicts with the environment modules, you can log out and then log in and then retry the git clone command, and then reload the modules, but the better method is to switch to ssh.<br></p>
 <p>Configure CMAQ benchmark Science Modules:</p>
 <p>The build directory parameters for the benchmark test case include the following:</p>
 <ul class="simple">
@@ -604,6 +599,11 @@ Enter selection [1-75] : -------------------------------------------------------
 </section>
 <section id="run-the-build-script">
 <h3>Run the build script<a class="headerlink" href="#run-the-build-script" title="Link to this heading">#</a></h3>
+<p>If you have set up environment modules for your libraries, then load them</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc</span>
+</pre></div>
+</div>
+<p>Run the bldit script to compile wrf-cmaq</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 </div>
@@ -620,20 +620,21 @@ Enter selection [1-75] : -------------------------------------------------------
 </pre></div>
 </div>
 <p>If the User sees this, the WRF-CMAQ model has been successfully compiled and built. If not, the User should double check the library paths above and try again.</p>
-</section>
-</section>
-<section id="if-you-get-this-error">
-<h2>If you get this error:<a class="headerlink" href="#if-you-get-this-error" title="Link to this heading">#</a></h2>
-</section>
-<section id="error-error-error-noahmp-submodule-files-not-populating-wrf-directories">
-<h2>Error Error Error NoahMP submodule files not populating WRF directories<a class="headerlink" href="#error-error-error-noahmp-submodule-files-not-populating-wrf-directories" title="Link to this heading">#</a></h2>
-<p>make: *** [wrf] Error 31</p>
+<p>If you get this error:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span> <span class="n">NoahMP</span> <span class="n">submodule</span> <span class="n">files</span> <span class="ow">not</span> <span class="n">populating</span> <span class="n">WRF</span> <span class="n">directories</span>
+<span class="n">make</span><span class="p">:</span> <span class="o">***</span> <span class="p">[</span><span class="n">wrf</span><span class="p">]</span> <span class="n">Error</span> <span class="mi">31</span>
+</pre></div>
+</div>
 <p>This is because of a conflict between git clone and the environment modules.</p>
 <p>Try the following commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="mi">21</span><span class="n">dayscratch</span><span class="o">/</span><span class="n">scr</span><span class="o">/</span><span class="n">l</span><span class="o">/</span><span class="n">i</span><span class="o">/</span><span class="n">lizadams</span><span class="o">/</span><span class="n">WRF</span><span class="o">-</span><span class="n">CMAQ</span><span class="o">/</span><span class="n">CMAQv5</span><span class="mf">.5</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">openmpi_gcc</span><span class="o">/</span><span class="n">CCTM</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">BLD_WRFv4</span><span class="mf">.5.1</span><span class="n">_CCTM_v55_gcc</span><span class="o">/</span><span class="n">phys</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">./</span><span class="n">BLD_WRF_release</span><span class="o">-</span><span class="n">v4</span><span class="mf">.5.1</span><span class="n">_CCTM_v55_gcc</span><span class="o">/</span><span class="n">phys</span>
 <span class="n">git</span> <span class="n">clone</span> <span class="n">ssh</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NCAR</span><span class="o">/</span><span class="n">noahmp</span><span class="o">/</span>
 <span class="n">cd</span> <span class="o">..</span>
-<span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|&amp;</span> <span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="o">.</span><span class="n">log</span>
+<span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|&amp;</span> <span class="n">tee</span> <span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>If the git clone ssh command doesn’t work, try</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NCAR</span><span class="o">/</span><span class="n">noahmp</span><span class="o">/</span>
 </pre></div>
 </div>
 <p>If you get this error:</p>
@@ -664,7 +665,73 @@ Enter selection [1-75] : -------------------------------------------------------
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="nb">compile</span> <span class="n">em_real</span> <span class="o">|</span> <span class="o">&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="nb">compile</span><span class="o">.</span><span class="n">again</span><span class="mf">.3</span><span class="n">rd</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 </div>
+<p>An additional error can occur if time is not found on your system.
+If this is the case, edit the configure.wrf to remove the time command from the F90 definition.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">BLD_WRF_release</span><span class="o">-</span><span class="n">v4</span><span class="mf">.5.1</span><span class="n">_CCTM_v55_gcc</span>
+<span class="n">vi</span> <span class="n">configure</span><span class="o">.</span><span class="n">wrf</span>
+</pre></div>
+</div>
+<p>edit line 138</p>
+<p>change</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FC              =       time $(DM_FC)
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FC              =       $(DM_FC)
+</pre></div>
+</div>
+<p>If the build fails due to not finding the mpi.h include file, then edit the configure.wrf file to add the following:</p>
+<p>Add the following to the list of the INCLUDE_MODULES =</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>-I$(MPIPATH)/include \
+</pre></div>
+</div>
+<p>Then define MPIPATH (add under the NETCDFPATH settings) to your local path
+Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MPIPATH</span>         <span class="o">=</span>    <span class="o">/</span><span class="n">nas</span><span class="o">/</span><span class="n">sycamore</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">openmpi</span><span class="o">/</span><span class="mf">5.0.5</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
+                     $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
+                      -I$(WRF_SRC_ROOT_DIR)/main \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
+                      -I$(WRF_SRC_ROOT_DIR)/external/io_int \
+                      -I$(WRF_SRC_ROOT_DIR)/frame \
+                      -I$(WRF_SRC_ROOT_DIR)/share \
+                      -I$(WRF_SRC_ROOT_DIR)/phys \
+                      -I$(WRF_SRC_ROOT_DIR)/wrftladj \
+                      -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
+                      -I$(NETCDFPATH)/include \
+                      -I$(MPIPATH)/include \
+
+REGISTRY        =    Registry
+CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
+
+LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(LIB_WRF_HYDRO)  $(NETCDF4_DEP_LIB)
+LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL)
+ENVCOMPDEFS     =     -DWRF_CMAQ
+WRF_CHEM        =       0
+CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG)
+NETCDFPATH      =    /proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc11.2
+MPIPATH         =    /nas/sycamore/apps/openmpi/5.0.5/
+HDF5PATH        =
+WRFPLUSPATH     =
+RTTOVPATH       =
+PNETCDFPATH     =
+ADIOS2PATH      =
+</pre></div>
+</div>
+<p>Also edit the configure.wrf to add the -fallow-argument-mismatch option</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FCOPTIM</span>         <span class="o">=</span>       <span class="o">-</span><span class="n">O2</span> <span class="o">-</span><span class="n">ftree</span><span class="o">-</span><span class="n">vectorize</span> <span class="o">-</span><span class="n">funroll</span><span class="o">-</span><span class="n">loops</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+<span class="n">FCCOMPAT</span>        <span class="o">=</span>        <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">invalid</span><span class="o">-</span><span class="n">boz</span> <span class="o">-</span><span class="n">fallow</span><span class="o">-</span><span class="n">argument</span><span class="o">-</span><span class="n">mismatch</span>
+</pre></div>
+</div>
+<p>Rerun the bldit script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">csh</span> <span class="n">gcc</span> <span class="o">|</span> <span class="o">&amp;</span> <span class="n">tee</span> <span class="o">./</span><span class="n">bldit_wrf4</span><span class="mf">.5.1</span><span class="n">_cctmv55</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+</div>
 <p>If it still fails, please reach post on the <a class="reference external" href="https://forum.cmascenter.org/c/wrf-cmaq" rel="noreferrer" target="_blank">CMAS Forum <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>.</p>
+</section>
 <section id="install-the-wrf-cmaq-reference-input-benchmark-data">
 <h3>Install the WRF-CMAQ reference input benchmark data<a class="headerlink" href="#install-the-wrf-cmaq-reference-input-benchmark-data" title="Link to this heading">#</a></h3>
 <p>Download the CMAQ two day reference input data from the <a class="reference external" href="https://drive.google.com/drive/folders/1AFUB-4kzIXXoZr4hOHNBqRvy9JQ9_MDp?usp=sharing" rel="noreferrer" target="_blank">CMAS Center Data Warehouse Google Drive <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a> or from the <a class="reference external" href="https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/" rel="noreferrer" target="_blank">CMAS Center Data Warehouse Amazon Web Services S3 Bucket <svg version="1.1" width="1.0em" height="1.0em" viewBox="0 0 16 16" aria-hidden="true" style="display: inline-block; vertical-align: middle; fill: currentColor;"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"></path></svg></a>, file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.</p>
@@ -733,12 +800,12 @@ model with short wave radiation feedback turned on.  Reference benchmark output 
 </pre></div>
 </div>
 <p>Set the WRF version number</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="nb">set</span> <span class="n">wrfv</span>    <span class="o">=</span> <span class="mf">4.5.1</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="nb">set</span> <span class="n">wrfv</span>    <span class="o">=</span> <span class="n">release_v4</span><span class="mf">.5.1</span>
 </pre></div>
 </div>
 <p>Now, modify the following section to specify your local paths:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  set WORKDIR     = ${PWD}
-  set WRF_DIR     = $WORKDIR/BLD_WRFv4.5.1_CCTM_v55_gcc  # WRF source code directory
+  set WRF_DIR     = $WORKDIR/BLD_WRF_release-v4.5.1_CCTM_v55_gcc  # WRF source code directory
   set INPDIR      = ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3
   set OUTPUT_ROOT = $WORKDIR  # output root directory
   set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
@@ -757,11 +824,11 @@ set NPROCS =    32
 </div>
 <ul>
 <li><p>Load the environment modules</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span>  <span class="n">gcc</span><span class="o">/</span><span class="mf">9.1.0</span>   <span class="n">openmpi_4</span><span class="mf">.0.1</span><span class="o">/</span><span class="n">gcc_9</span><span class="mf">.1.0</span>   <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">9.1</span> <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">9.1</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">netcdf</span><span class="o">-</span><span class="mf">4.5.3</span><span class="o">-</span><span class="n">for_nc4</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">ioapi</span><span class="o">-</span><span class="mf">3.2</span><span class="o">/</span><span class="n">gcc</span><span class="o">-</span><span class="mf">11.2</span>  <span class="n">openmpi_5</span><span class="mf">.0.5</span><span class="o">/</span><span class="n">gcc</span>
 </pre></div>
 </div>
 </li>
-<li><p>Run the job (if you have a batch queuing system such as SLURM use sbatch):</p></li>
+<li><p>Run the job (if you have a batch queuing system such as SLURM use sbatch after adding the sbatch commands to the top of the run script):</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">run_cctm_Bench_2018_12NE3</span><span class="o">.</span><span class="n">WRFCMAQ</span><span class="o">.</span><span class="n">csh</span>
 </pre></div>
@@ -835,10 +902,6 @@ set NPROCS =    32
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compiling-wrf-cmaq">Compiling WRF-CMAQ</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#modify-the-bldit-cctm-csh">Modify the bldit_cctm.csh</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-build-script">Run the build script</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-you-get-this-error">If you get this error:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-error-error-noahmp-submodule-files-not-populating-wrf-directories">Error Error Error NoahMP submodule files not populating WRF directories</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-wrf-cmaq-reference-input-benchmark-data">Install the WRF-CMAQ reference input benchmark data</a></li>
 </ul>
 </li>
