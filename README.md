@@ -26,9 +26,17 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
-| |[#231](https://github.com/USEPA/CMAQ/pull/231)|CRACMM2 fixes for ISAM and post processing  | 2025-03-19 | Small changes in post-processed concentrations due to missing species. Resolves issue [#221](https://github.com/USEPA/CMAQ/issues/221) |
+| |[#249](https://github.com/USEPA/CMAQ/pull/249)|Increase string size for DDM-3D control file | 2025-05-14 | Updates allows for longer strings of emissions stream names and region names for DDM-3D simulations.|
+| [CMAQv5.5.0.2_13May2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.2_13May2025)  |[#246](https://github.com/USEPA/CMAQ/pull/246)|5.5 Tutorial Updates from CMAS  | 2025-04-29 | Improvements to the WRF-CMAQ Tutorial and supporting documentation for preparing your compute environment prior to running CMAQ.|
+| |[#245](https://github.com/USEPA/CMAQ/pull/245)|Fix bugs in shp2cmaq | 2025-04-29 | Bugfix to shp2cmaq tool to avoid errors when CMAQ Emission Control reads the time information from the CMAQ-ready grid mask file.|
+| |[#242](https://github.com/USEPA/CMAQ/pull/242)|Updated Post-Processing support files and code  | 2025-04-29 | Bug fixes and minor enhancements.|
+| |[#241](https://github.com/USEPA/CMAQ/pull/241)|Adds pcVOC and NOy species to ISAM species lists  | 2025-04-29 | This change supports comprehensive accounting of ISAM source attribution of PM, ozone, and other pollutants.|
+| |[#240](https://github.com/USEPA/CMAQ/pull/240)|Update conversion factor for area-based denominator  | 2025-04-29 | Bugfix will affect predictions for any species that includes emissions normalized to a specific area that is not in units of meters.|
+| |[#239](https://github.com/USEPA/CMAQ/pull/239)| DDM3D Correction to ebi solvers | 2025-05-13 | DDM3D sensitivity calculations were updated for all ebi solvers to resolve some instabilities.|
+| |[#238](https://github.com/USEPA/CMAQ/pull/238)|Corrections to ISAM aerosol and cloud processing  | 2025-04-29 | Resolve some spurious unreasonable results reported by CMAQ-ISAM users.|
+|[CMAQv5.5.0.1_19Mar2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.1_19Mar2025) |[#231](https://github.com/USEPA/CMAQ/pull/231)|CRACMM2 fixes for ISAM and post processing  | 2025-03-19 | Small changes in post-processed concentrations due to missing species. Resolves issue [#221](https://github.com/USEPA/CMAQ/issues/221). |
 | |[#226](https://github.com/USEPA/CMAQ/pull/226)|Fix bug preventing CMAQ from running using SAPRC mechanisms  | 2024-12-06 | The fix is to specify that CLNO2 does undergo dry deposition to avoid a model crash when using any of the SAPRC07 mechanisms.|
-| |[#222](https://github.com/USEPA/CMAQ/pull/222)|Corrected NLCD to BELD3 mapping for shrub/scrub and dwarf scrub| 2024-12-06 | Corrects an error in NLCD40 land use mapping for inline windblown dust calculations. Addresses issue [#220](https://github.com/USEPA/CMAQ/issues/220).|
+| |[#222](https://github.com/USEPA/CMAQ/pull/222)|Corrected NLCD to BELD3 mapping for shrub/scrub and dwarf scrub| 2024-12-06 | Corrects an error in NLCD40 land use mapping for inline windblown dust calculations. Addresses issues [#220](https://github.com/USEPA/CMAQ/issues/220).|
 
 ## Getting the CMAQ Repository
 This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository. The most recently released version of the the model will always be on the branch called 'main'. To clone code from the 5.5+ bugfix branch from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within a working directory on your server:
