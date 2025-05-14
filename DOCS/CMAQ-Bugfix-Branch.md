@@ -11,6 +11,7 @@ To clone code with all of the CMAQv5.5 bug fixes issue the following command fro
 Note, each tagged version of CMAQv5.5+ contains all updates from previous versions.
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+| |[#249](https://github.com/USEPA/CMAQ/pull/249)|Increase string size for DDM-3D control file | 2025-05-14 | Updates allows for longer strings of emissions stream names and region names for DDM-3D simulations.|
 | [CMAQv5.5.0.2_13May2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.2_13May2025)  |[#246](https://github.com/USEPA/CMAQ/pull/246)|5.5 Tutorial Updates from CMAS  | 2025-04-29 | Improvements to the WRF-CMAQ Tutorial and supporting documentation for preparing your compute environment prior to running CMAQ.|
 | |[#245](https://github.com/USEPA/CMAQ/pull/245)|Fix bugs in shp2cmaq | 2025-04-29 | Bugfix to shp2cmaq tool to avoid errors when CMAQ Emission Control reads the time information from the CMAQ-ready grid mask file.|
 | |[#242](https://github.com/USEPA/CMAQ/pull/242)|Updated Post-Processing support files and code  | 2025-04-29 | Bug fixes and minor enhancements.|
