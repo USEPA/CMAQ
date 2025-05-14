@@ -62,7 +62,7 @@ C--------------------------------------------------------------------
 
       INCLUDE SUBST_FILES_ID                 ! file name parameters
 
-      CHARACTER( 256 ) :: TXT, TXT2, EMISTYPE
+      CHARACTER( 1024 ) :: TXT, EMISTYPE
       INTEGER      STDATE                    ! starting date,    format YYYYDDD
       INTEGER      STTIME                    ! starting time,    format HHMMSS
       INTEGER      NSPC( NPMAX )             ! number of species chosen
@@ -104,7 +104,7 @@ c     CHARACTER( 2  ) :: JUNK2
 
       INTEGER      ALLOCSTAT
 
-      CHARACTER( 80 )     :: VARDESC       ! environment variable description
+c     CHARACTER( 80 )     :: VARDESC       ! environment variable description
       INTEGER      STATUS                  ! ENVYN status
 
       INTEGER     LOGDEV
@@ -196,7 +196,7 @@ CCCCCCC Sensitivity to Emissions CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
   30      CONTINUE
 
           ! Check if an emissions label has been specified. Otherwise, assume total.
-          READ( JVUNIT, '(A80)', END = 999 ) EMISTYPE
+          READ( JVUNIT, '(A1024)', END = 999 ) EMISTYPE
 
           IF ( INDEX(EMISTYPE,'SPECIES') .NE. 0 )  THEN ! start reading species
             GOTO 35 ! 
@@ -369,7 +369,7 @@ CCCCCCC Unrecognized or non-implemented sens type CCCCCCCCCCCC
  35     CONTINUE
 
 CCCCCCC Which species? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-        READ( JVUNIT, '(A256)', END = 999 ) TXT
+        READ( JVUNIT, '(A1024)', END = 999 ) TXT
 
         IF ( TXT( :2 ) .NE. BLANK2 ) THEN
           XMSG = 'Need two leading spaces before a species.'
@@ -586,7 +586,7 @@ CCCCCCC Which region(s) ? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         END IF
 
         IF (  INDEX( TXT, 'REGION' ) .NE. 0 ) THEN
-          READ( JVUNIT, '(A80)' ) TXT
+          READ( JVUNIT, '(A1024)' ) TXT
           S_NRGN( NPSEN ) = 1+COUNT(TRANSFER(TXT, 'A', LEN(TXT)) == "," )
           READ(TXT,*) S_RGNLBL( NPSEN, 1:S_NRGN( NPSEN ) )
             ! Process these regions in central_io_module after the regions
