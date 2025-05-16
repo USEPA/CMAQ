@@ -63,7 +63,7 @@ C Local Variables:
 
       INTEGER      ALLOCSTAT
 
-      CHARACTER( 16 ) :: PNAME = 'OPCONC'
+      CHARACTER( 16 ) :: PNAME = 'WR_INIT'
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 28 ) :: SSTR = ' species saved to CONC file:'
 
