@@ -6,11 +6,16 @@ This guide helps you to find and report errors to the CMAS Center Forum and foll
 ## Building CMAQ
 ### Prerequisite: Build Libraries and CMAQ using gcc or intel compilers
 Follow the CMAQ Build Tutorials for the appropriate compiler: 
-Uncompressed netCDF-4 library builds:
-* [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
-* [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md)
-Compressed netCDF-4 Library builds:
-* [Building CMAQ using netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+
+### Uncompressed netCDF library builds:<br>
+
+* [Building CMAQ classic libraries for GNU](CMAQ_UG_tutorial_build_library_gcc.md)
+* [Building CMAQ classic libraries for Intel](CMAQ_UG_tutorial_build_library_intel.md)
+
+### Compressed netCDF-4 Library builds:<br>
+
+* [Building CMAQ libraries netCDF-4 compression for GNU](CMAQ_UG_tutorial_build_library_gcc_support_nc4.md)
+* [Building CMAQ using netCDF-4 compression for Intel](CMAQ_UG_tutorial_build_library_intel_support_nc4.md)
 
 ### Verify that an executable was created
 ```
@@ -35,7 +40,7 @@ Please create a new topic in describing your issue, even if your issue is simila
 
 ## Running CMAQ
 ### Prerequisite: Run the CMAQ Benchmark case
-[Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
+[Follow Benchmark Tutorial instructions](CMAQ_UG_tutorial_benchmark.md)
 (does not require running ICON/BCON as inputs are provided in the Benchmark Input Data).
 
 
@@ -153,6 +158,36 @@ CCTM_s07tic_noche  0000000000406CA9  Unknown               Unknown  Unknown
 ```
 This stack trace indicates that the error occurred on line 503 of the file aero_driver.F.
 
+To rebuild a debug version
+
+```
+cp bldit_cctm.csh bldit_cctmv55_debug.csh
+vi bldit_cctmv55_debug.csh
+```
+
+uncomment the following line 
+
+```
+#set Debug_CCTM 
+```
+
+change to 
+
+```
+set Debug_CCTM 
+```
+
+Rerun the build script
+
+```
+./bldit_cctmv55_debug.csh gcc |& tee ./bldit_cctmv55_debug.log
+```
+
+Edit your run script to use the newly compiled debug version that is in a BLD directory with the following extension `_debug`
+
+Re-run using the debug version
+
+
 ## Submit a new topic issue on the CMAS User Forum
 
 
@@ -211,7 +246,9 @@ error while loading shared libraries  …  cannot open shared object file …
 
 ```
 
-### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
+### Upload additional files 
+
+Click on the up arrow icon in the menu underneath the Create New Topic Title including:
 * your run script
 * standard out log file
 * per-processor log file that contains the error message.

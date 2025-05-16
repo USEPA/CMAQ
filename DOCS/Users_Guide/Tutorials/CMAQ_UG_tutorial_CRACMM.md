@@ -8,7 +8,7 @@ CRACMM was first introduced in CMAQv5.4 as two versions: CRACMM1 and CRACMM1AMOR
 
 ## How is running CRACMM different than running other chemical mechanisms in CMAQ?
 
-Running CRACMM is just like running other mechanisms in CMAQ. No matter what mechanism you choose, CMAQ will require several inputs that are mechanism specific (including the gas and aerosol species lists, initial conditions, boundary conditions, and emissions) as well as other inputs that are mechanism independent (meteorology, land use files, grid description file). Some of these inputs are distributed with CMAQ while others are generated from separate tools. See [Chapter 4 of the CMAQ Users' Guide](https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for a complete list of CMAQ inputs.
+Running CRACMM is just like running other mechanisms in CMAQ. No matter what mechanism you choose, CMAQ will require several inputs that are mechanism specific (including the gas and aerosol species lists, initial conditions, boundary conditions, and emissions) as well as other inputs that are mechanism independent (meteorology, land use files, grid description file). Some of these inputs are distributed with CMAQ while others are generated from separate tools. See [Chapter 4 of the CMAQ Users' Guide](../CMAQ_UG_ch04_model_inputs.md) for a complete list of CMAQ inputs.
 
 ## How do I select CRACMM?
 
@@ -31,7 +31,7 @@ CMAQ-ready emissions are generally prepared using the SMOKE model.
 
 ## How do I obtain initial and boundary conditions?
  
-Initial and boundary conditions can be mapped from other mechanisms including Carbon Bond. The CMAQ repository [bcon PREP tools](https://github.com/USEPA/CMAQ/tree/main/PREP/bcon/map2mech) contain mappings from Carbon Bond to CRACMM. Initial conditions may be obtained in a similar manner. Because Carbon Bond species are not a good match to CRACMM species when emissions are fresh, the initial conditions should be followed by sufficient spin-up time to remove their influence. See the work by [Hogrefe et al.](
+Initial and boundary conditions can be mapped from other mechanisms including Carbon Bond. The CMAQ repository bcon PREP tools (available in the PREP/bcon/map2mech folder) contain mappings from Carbon Bond to CRACMM. Initial conditions may be obtained in a similar manner. Because Carbon Bond species are not a good match to CRACMM species when emissions are fresh, the initial conditions should be followed by sufficient spin-up time to remove their influence. See the work by [Hogrefe et al.](
 https://doi.org/10.1016/j.atmosenv.2017.04.009) for the impact of initial conditions on CMAQ predictions as a function of spin-up time. The larger the domain (e.g., hemisphere vs a country) and the more remote the study area (e.g., free troposphere vs surface), the longer the spin-up time will need to be. Adequate spin-up time can always be checked by adding more spin-up days and verifying the model predictions have not significantly changed.
 
 ## What does CRACMM assume about the volatility of primary organic aerosol and how to I prepare those emissions?
@@ -47,7 +47,7 @@ For emissions to be properly ingested by CMAQ, three files need to be customized
 * The DESID mechanism-specific namelist. This is where species on the emission files are mapped to model species. For older workflows, PMOCN2 and PMNCOMN2 can be mapped to species of different volatility.
 * The DESID mechanism-independent control file. This is where emission files can be grouped so that multiple sources can be treated the same (e.g., wildland fires, prescribed burning, and residential wood burning can have the same volatility profile).
 
-**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ tutorial](https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials).
+**The main CMAQ log file and the log file for at least one processor should be checked for any initial run.** Warnings about potential emission problems will be displayed in those logs. More guidance on using DESID is available in a [CMAQ emissions tutorial](CMAQ_UG_tutorial_emissions.md).
 
 CRACMM mechanisms currently allow traditional nonvolatile 'APOC' and 'ANCOM' as legacy species in the model. The species can be transported and removed but do not undergo any heterogeneous or other chemistry. This species will be removed in a future version. To use the model species 'APOC' and 'ANCOM', the DESID control file would need to include their mappings.
 
