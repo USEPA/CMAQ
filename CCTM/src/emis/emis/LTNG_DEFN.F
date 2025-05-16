@@ -67,6 +67,7 @@
 !C                      US (Lambert projection), when run over the hemisphere and turning lightning NOx on,
 !C                       the run would crash due to uncompatible projection (polar)
 !C 6 Jan 2020 D. Kang: Correct the time steps in the lightning NOx !diagnostic files from 1:00 - 0:00 to 0:00 to 23:00
+!C 15 May 2025 D. Wong: Enabled parallel_io feature for CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE DESID_VARS
@@ -427,6 +428,7 @@
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
          LOGICAL,     SAVE :: FIRSTIME = .TRUE.
+         LOGICAL,     SAVE :: FIRSTIME_LTNGDIAG = .TRUE.
 
          REAL :: LOC_VGTOP_GD
 
@@ -635,6 +637,26 @@ C statement function for ERF approximation
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
                   VDEMIS_LTDIAG = VDEMIS_LTDIAG * DIVFAC   ! array assignment
                   COLUMN_DIAG = COLUMN_DIAG*DIVFAC
+
+                  IF (FIRSTIME_LTNGDIAG) THEN
+#ifdef parallel_io
+                     IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                        IF ( .NOT. OPEN3( CTM_LTNGDIAG_1, FSREAD3, PNAME ) ) THEN
+                           XMSG = 'Could not open ' // CTM_LTNGDIAG_1
+                           CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
+                        END IF
+                     END IF
+
+                     IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                        IF ( .NOT. OPEN3( CTM_LTNGDIAG_2, FSREAD3, PNAME ) ) THEN
+                           XMSG = 'Could not open ' // CTM_LTNGDIAG_2
+                           CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
+                        END IF
+                     END IF
+#endif
+                     FIRSTIME_LTNGDIAG = .FALSE.
+                  END IF
+
                   IF ( .NOT. WRITE3( CTM_LTNGDIAG_1, LTSPC, LDATE, LTIME, VDEMIS_LTDIAG ) )  THEN
                      XMSG = 'Could not write to ' // TRIM( CTM_LTNGDIAG_1 )
                      CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
