@@ -311,7 +311,6 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: CNEW( :, : )    ! Species conc. for cells in block
 #ifdef sens
       REAL( 8 ), ALLOCATABLE       :: CAVEG( :,: )     ! Average species concentrations over time step
-      REAL( 8 ), ALLOCATABLE       :: CINIT( :,: )     ! species concentrations at start of subtime step
       REAL( 8 ), ALLOCATABLE       :: CFINI( :,: )     ! species concentrations at start of subtime step
 #endif
       
@@ -455,11 +454,10 @@ C-----------------------------------------------------------------------
             END IF
 
 #ifdef sens
-           ALLOCATE(  CINIT( BLKSIZE,NUMB_MECH_SPC ),
-     &                CFINI( BLKSIZE,NUMB_MECH_SPC ),
+           ALLOCATE(  CFINI( BLKSIZE,NUMB_MECH_SPC ),
      &                CAVEG( BLKSIZE,NUMB_MECH_SPC ), STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
-              MSG = 'ERROR allocating CINIT,CFINI,CAVEG'
+              MSG = 'ERROR allocating CFINI,CAVEG'
               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
            END IF
 #endif

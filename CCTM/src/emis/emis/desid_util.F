@@ -405,6 +405,9 @@
          CHARACTER( 16 ) :: DENOM2
          LOGICAL         :: LTIME_UNIT
 
+         REAL, PARAMETER  :: AVO  = 6.0221367E23
+         REAL, PARAMETER  :: RAVO = 1.0 / AVO
+
          ! The Default Finding is an unknown Basis unit and conversion
          ! equal to 1.0
          CONV = 1.0
@@ -429,11 +432,21 @@
          ! If there are no slashes or spaces, then exit
          IF ( SLASH_IND .EQ. 0 ) RETURN
 
+         ! Check numerator for molecule units
+         ! This has to come before the check for molar units since the
+         !   check for mole, moles, or mol will also match molecule
+         IF ( NUMER(1:8) .EQ. 'MOLECULE'  .OR.
+     &        NUMER(1:9) .EQ. 'MOLECULES' .OR.
+     &        NUMER(1:5) .EQ. 'MOLEC'     .OR.
+     &        NUMER(1:6) .EQ. 'MOLECS' ) THEN
+            ! Convert molecules -> mol
+            CONV = RAVO
+            BASIS = 'MOLE'
+
          ! Check Numerator for Molar or Mass Units
-         IF ( NUMER(1:4) .EQ. 'MOLE' .OR. NUMER(1:5) .EQ. 'MOLES' .OR.
+         ELSE IF ( NUMER(1:4) .EQ. 'MOLE' .OR. NUMER(1:5) .EQ. 'MOLES' .OR.
      &        NUMER(1:3) .EQ. 'MOL' ) THEN
             ! No Conversion Needed for Moles to Moles
-            CONV = 1.0 
             BASIS = 'MOLE'
          ELSE IF ( NUMER(1:5) .EQ. 'KMOLE' .OR. NUMER(1:6) .EQ. 'KMOLES' .OR.
      &             NUMER(1:4) .EQ. 'KMOL' ) THEN
@@ -454,7 +467,6 @@
      &             NUMER(1:1) .EQ. 'G'    .OR. NUMER(1:2) .EQ. 'GM'    .OR.
      &             NUMER(1:3) .EQ. 'GMS'  .OR. NUMER(1:2) .EQ. 'GS'  ) THEN
             ! No Conversion Needed for Grams to Grams
-            CONV = 1.0
             BASIS = 'MASS'
          ELSE IF ( NUMER(1:5) .EQ. 'KGRAM' .OR. NUMER(1:6) .EQ. 'KGRAMS' .OR.
      &             NUMER(1:2) .EQ. 'KG'    .OR. NUMER(1:3) .EQ. 'KGM'    .OR.
@@ -488,7 +500,6 @@
      &              'emissions, please correct the units (e.g. g/s or moles/s).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
-            CONV = 1.0e0
             BASIS = 'UNKNOWN'
          END IF
          
@@ -504,7 +515,6 @@
      &              'g/m2/s, or g/s/m2, etc.).'
             CALL M3WARN( 'CHECK_EMIS_UNITS', 0, 0, XMSG )
             ! No Conversion and and Unknown Basis
-            CONV = CONV * 1.0e0
             BASIS = 'UNKNOWN' 
             RETURN
          END IF
@@ -591,7 +601,6 @@
      &        DENOM .EQ. 'SECOND'.OR.DENOM .EQ. 'SECOND-1' .OR.
      &        DENOM .EQ. 'SECONDS'.OR.DENOM .EQ. 'SECONDS-1' ) THEN
             ! No Conversion Necessary for seconds -> seconds
-            CONV = CONV * 1.0
             LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'H' .OR. DENOM .EQ. 'H-1' .OR.
      &             DENOM .EQ. 'HR'.OR.DENOM .EQ. 'HR-1' .OR.
@@ -599,14 +608,14 @@
      &             DENOM .EQ. 'HOUR'.OR.DENOM .EQ. 'HOUR-1' .OR.
      &             DENOM .EQ. 'HOURS'.OR.DENOM .EQ. 'HOURS-1' ) THEN
             ! Convert hours -> seconds
-            CONV = CONV * 3600.0
+            CONV = CONV / 3600.0
             LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'M' .OR. DENOM .EQ. 'M-1' .OR.
      &             DENOM .EQ. 'MIN'.OR.DENOM .EQ. 'MIN-1' .OR.
      &             DENOM .EQ. 'MINUTE'.OR.DENOM .EQ. 'MINUTE-1' .OR.
      &             DENOM .EQ. 'MINUTES'.OR.DENOM .EQ. 'MINUTES-1' ) THEN
             ! Convert minutes -> seconds
-            CONV = CONV * 60.0
+            CONV = CONV / 60.0
             LTIME = .TRUE.
          ELSE IF ( DENOM .EQ. 'M2' .OR. DENOM .EQ. 'M-2' .OR.
      &             DENOM .EQ. 'M^2'.OR.DENOM .EQ. 'METER-2' .OR.
@@ -615,7 +624,6 @@
      &             DENOM .EQ. 'METERS^2'.OR.DENOM .EQ. 'METERS^-2' .OR.
      &             DENOM .EQ. 'METERS2'.OR.DENOM .EQ. 'METERS-2' ) THEN
             ! No conversion necessary for meters^2 -> meters^2
-            CONV = CONV * 1.0
             LAREA = .TRUE. 
          ELSE IF ( DENOM .EQ. 'KM2' .OR. DENOM .EQ. 'KM-2' .OR.
      &             DENOM .EQ. 'KM^2'.OR.DENOM .EQ. 'KM^-2' .OR.
@@ -624,8 +632,17 @@
      &             DENOM .EQ. 'KILOMETERS2'.OR.DENOM .EQ. 'KILOMETERS-2' .OR.
      &             DENOM .EQ. 'KILOMETERS^2'.OR.DENOM .EQ. 'KILOMETERS-2' ) THEN
             ! Convert kilometers^2 -> meters^2
-            CONV = CONV * 1.0E6
-            LAREA = .TRUE. 
+            CONV = CONV / 1.0E6
+            LAREA = .TRUE.
+         ELSE IF ( DENOM .EQ. 'CM2' .OR. DENOM .EQ. 'CM-2' .OR.
+     &             DENOM .EQ. 'CM^2'.OR.DENOM .EQ. 'CM^-2' .OR.
+     &             DENOM .EQ. 'CENTIMETER2'.OR.DENOM .EQ. 'CENTIMETER-2' .OR.
+     &             DENOM .EQ. 'CENTIMETER^2'.OR.DENOM .EQ. 'CENTIMETER^-2' .OR.
+     &             DENOM .EQ. 'CENTIMETERS2'.OR.DENOM .EQ. 'CENTIMETERS-2' .OR.
+     &             DENOM .EQ. 'CENTIMETERS^2'.OR.DENOM .EQ. 'CENTIMETERS-2' ) THEN
+            ! Convert centimeters^2 -> meters^2
+            CONV = CONV / 1.0E-4
+            LAREA = .TRUE.
          ELSE IF ( DENOM .EQ. 'MI2' .OR. DENOM .EQ. 'MI-2' .OR.
      &             DENOM .EQ. 'MI^2'.OR.DENOM .EQ. 'MI^-2' .OR.
      &             DENOM .EQ. 'MILE2'.OR.DENOM .EQ. 'MILE-2' .OR.
@@ -633,7 +650,7 @@
      &             DENOM .EQ. 'MILES2'.OR.DENOM .EQ. 'MILES-2' .OR.
      &             DENOM .EQ. 'MILES^2'.OR.DENOM .EQ. 'MILES-2' ) THEN
             ! Convert mile^2 -> meters^2
-            CONV = CONV * 2.59E6
+            CONV = CONV / 2.59E6
             LAREA = .TRUE.  
          ELSE IF ( DENOM .EQ. 'HA' .OR. DENOM .EQ. 'HA-1' .OR.
      &             DENOM .EQ. 'HA^1'.OR.DENOM .EQ. 'HA^-1' .OR.
@@ -642,11 +659,10 @@
      &             DENOM .EQ. 'HECTARES'.OR.DENOM .EQ. 'HECTARES-1' .OR.
      &             DENOM .EQ. 'HECTARES^1'.OR.DENOM .EQ. 'HECTARES^-1' ) THEN
             ! Convert hectares -> meters^2
-            CONV = CONV * 10000.0
+            CONV = CONV / 10000.0
             LAREA = .TRUE.   
          ELSE
             ! No Conversion and and Unknown Basis
-            CONV = CONV * 1.0e0
             BASIS = 'UNKNOWN'
          END IF
 
