@@ -2,35 +2,37 @@
 
 ## Table of Contents
 
-1.  [Background](#background-)
-2.  [Using CHEMMECH](#using-chemmech-)
-    -  [CHEMMECH Inputs](#chemmech-inputs-)
-3.  [Using output files in the CMAQ model](#using-output-files-in-the-cmaq-model-)
-    -  [Output Files for F0AM Box Modeling](#using-output-files-in-the-cmaq-model-)
-4.  [Option for Elemental Balance Check](#option-for-elemental-balance-check-)
-5.  [Chemical Reactions Input Format](#chemical-reactions-input-format-)
-    - [General rules](#general-rules-)
-    - [Defining Elements](#defining-elements-)
-    - [Format of Specific Blocks](#format-of-specific-blocks-)
-        - [Mechanism Name](#mechanism-name-)
-        - [SPECIAL](#special-)
-        - [ELIMINATE](#eliminate-)
-        - [REACTIONS](#reactions-)
-        - [CONSTANTS](#constants-)
-        - [FUNCTIONS](#functions-)
-6.  [Debugging CHEMMECH](#debugging-chemmech-)
-7.  [Reporting errors or problems with CHEMMECH](#reporting-errors-or-problems-with-chemmech-)
-8.  [References](#references-)
+1.  [Background](#background)
+2.  [Using CHEMMECH](#using-chemmech)
+    -  [CHEMMECH Inputs](#chemmech-inputs)
+3.  [Using output files in the CMAQ model](#using-output-files-in-the-cmaq-model)
+    -  [Output Files for F0AM Box Modeling](#using-output-files-in-the-cmaq-model)
+4.  [Option for Elemental Balance Check](#option-for-elemental-balance-check)
+5.  [Chemical Reactions Input Format](#chemical-reactions-input-format)
+    - [General rules](#general-rules)
+    - [Defining Elements](#defining-elements)
+    - [Format of Specific Blocks](#format-of-specific-blocks)
+        - [Mechanism Name](#mechanism-name)
+        - [SPECIAL](#special)
+        - [ELIMINATE](#eliminate)
+        - [REACTIONS](#reactions)
+        - [CONSTANTS](#constants)
+        - [FUNCTIONS](#functions)
+6.  [Debugging CHEMMECH](#debugging-chemmech)
+7.  [Reporting errors or problems with CHEMMECH](#reporting-errors-or-problems-with-chemmech)
+8.  [References](#references)
 
-##  Background <a name="Background."></a>
+<a id=background></a>
+##  Background
 
 The chemical mechanism processor (CHEMMECH) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. 
 
 Two output files implement the photochemical mechanism in CMAQ and are compiled along its source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. CHEMMECH produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. 
 
 Other output files support using the Kinetic PreProcess (KPP) (Damian et al., 2002), document the input data, and aid using the input's chemical mechanism in F0AM box model (Wolfe et al., 2016). The KPP file ares prototypes for the species and equations files used to run the program. They have not been tested in several years so a user should use them with discretion. Documentation files are markdown, csv and, html tables that list reactions, their rate constant formula, and values at specified atmospheric conditions. 
-   
-## Using CHEMMECH <a name="Using CHEMMECH"></a>
+
+<a id=using-chemmech></a>
+## Using CHEMMECH
 
 The UTIL/chemmech directory includes a scripts subdirectory with a template build and run scripts along for creating the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files. 
 
@@ -45,7 +47,7 @@ To create mechanism modules:
 
 Two methods exist for compiling CHEMMECH. The standard method executes the bldit_chemmech.csh script. The other compiles CHEMMECH via the Makefile under build directory created by bldit_chemmech.csh or under the CMAQ repositories UTIL/chemmech/src directory. A user may want to recompile if they are modifying the CHEMMECH source code or wish to use a different compiler from a previous application. When modifying and recompiling CHEMMECH, users should remove the existing object and module files by using the _make clean_ command because the Makefile does not include file dependencies for creating object files.
 
-Running CHEMMECH is accomplished by the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable such as paths for the inputs, outputs, and the CHEMMECH executable. The option, USE_SPCS_NAMELISTS states whether CHEMMECH reads model species namelists to checks whether the mechanism definitions file has a chemistry species not found in the namelists. CHEMMECH will stop when this occurs. Running CHEMMECH using the namelists is not required but the option provides a check when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism. Read the [Option for Elemental Balance Check](#option-for-elemental-balance-check-) section for the run script's COMPUTE_DELTA_ATOMS option.
+Running CHEMMECH is accomplished by the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable such as paths for the inputs, outputs, and the CHEMMECH executable. The option, USE_SPCS_NAMELISTS states whether CHEMMECH reads model species namelists to checks whether the mechanism definitions file has a chemistry species not found in the namelists. CHEMMECH will stop when this occurs. Running CHEMMECH using the namelists is not required but the option provides a check when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism. Read the [Option for Elemental Balance Check](#option-for-elemental-balance-check) section for the run script's COMPUTE_DELTA_ATOMS option.
 
  <center> Table 1. CHEMMECH environment settings or run time options </center>
 
@@ -68,11 +70,13 @@ Running CHEMMECH is accomplished by the run script under the scripts subdirector
 | NAMELISTS_LIST_ATOMS | For atoms or elements composing chemistry species, read comments trailing each species definition in species namelist.  | Default is True but only used if COMPUTE_DELTA_ATOMS is True. |
 | ATOMS_FILE | Full path to file separate from species namelists. It gives composition of each chemistry but can include other model species. | Only read if NAMELIST_LAST_ATOMS is False. |
 
-### CHEMMECH Inputs <a name="CHEMMECH Inputs"></a>
+<a id=chemmech-inputs></a>
+### CHEMMECH Inputs
 
-Input files include a mechanism chemical definitions (MECHDEF or mech.def) file and CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE), Nonreactive (NR) and Tracer (TR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH will check whether species used in the mech.def exist in the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input files follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. Rules for the mech.def are more difficults to interpret. Read the subsection on [_Chemical Reactions Input Format_](#chemical-reactions-input-format-) for more information. 
+Input files include a mechanism chemical definitions (MECHDEF or mech.def) file and CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE), Nonreactive (NR) and Tracer (TR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH will check whether species used in the mech.def exist in the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input files follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. Rules for the mech.def are more difficults to interpret. Read the subsection on [_Chemical Reactions Input Format_](#chemical-reactions-input-format) for more information. 
 
-## Using output files in the CMAQ model <a name="Using output files in the CMAQ model"></a>
+<a id=using-output-files-in-the-cmaq-model></a>
+## Using output files in the CMAQ model 
 
 Outputs includes two FORTRAN 90 modules, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, for compiling the CMAQ Chemical Transport Model (CCTM) to use the photochemical mechanism. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock (Sandu et al., 1997) or Gear (Jacobson and Turco, 1994) chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). 
 
@@ -80,7 +84,7 @@ Besides the species namelists, executing the CCTM requires a CSQY_DATA\_**mechan
 
 If a user wants to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The _create\_ebi_ utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility's subdirectory for more information.
 
-### Output Files for F0AM Box Modeling <a name="Output Files for F0AM Box Modeling"></a>
+### Output Files for F0AM Box Modeling
 
 The output files for running the FOAM boxmodel are listed below.
 
@@ -94,7 +98,8 @@ The output files for running the FOAM boxmodel are listed below.
 3. J_BottomUp_insert_**mechanism_name**.m contains a list  of the datafiles need to accomplish the above task. The file can also be used to modify Chem/Photolysis/J_BottomUp.m.
 4. **mechanism_name**_K.m sets the heterogeneous reaction rate constants. The file sets their values to zero because CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F calculates the values in CCTM and is not controlled by the CHEMMECH utility. 
 
-## Option for Elemental Balance Check. <a name="Option for Elemental Balance Check"></a>
+<a id=option-for-elemental-balance-check></a>
+## Option for Elemental Balance Check.
 
 The CHEMMECH utility has run-time option revising the input mechanism definitions file to show how each reaction changes the balance of elements such as carbon, nitrogen, and sulfur. If a reaction does not balance the initial and final number of elements, the revised file appends the reaction with the variables and coefficients measuring the unbalance. For each unbalance _element_, the added variable is called DELTA\__element_. DELTA\__element_'s are not active chemistry species so CHEMMECH does not output information to solve how the DELTA\__element_'s evolve over time. The option places the revised mechanism definitions file into the output directory. It also produces a diagnostic file called _mechanism-name_\_reactions\_deltas.dat that shows calculations for each reaction's DELTA\__element_'s.
 
@@ -157,13 +162,15 @@ The second way, a brakedown table, brakes down each chemistry species versus ele
     HNO3        ,   1.0, 0.0,0.0
     HONO        ,   1.0, 0.0,0.0
 
-            
+
+<a id=chemical-reactions-input-format></a>
 ## Chemical Reactions Input Format <a name="Chemical Reactions Input Format"></a>
 
 A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules have evolved along with the CMAQ model.  The file consists six sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, constant and functions definitions. Only the reaction list is required. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, CONSTANT, and FUNCTIONS. These blocks terminate with _END_ or _end_ (case sensitive). Their content also follows the below rules and use the same elements to define information.
 
 Each block will be discussed separately below but first the discussion lists rules and elements for entering the mechanism data.
 
+<a id=general-rules></a>
 ### General rules. <a name="General rules"></a>
 
 * Data Lines lie between columns 1 and 80.  
@@ -173,6 +180,7 @@ Each block will be discussed separately below but first the discussion lists rul
 * Data lines cannot contain a comment line.   
 * Text enclosed by _{}_ or _()_ contain comments within a data line.
 
+<a id=defining-elements></a>
 ### Defining Elements. <a name="Defining Elements"></a>
 
 1.  Species Types and Naming Rules.  
@@ -194,13 +202,14 @@ Each block will be discussed separately below but first the discussion lists rul
     4.  With the exponential format, the "E" may be either upper or lowercase; a positive exponent is assumed if the sign of the exponent is missing.  
     5.   All numbers are read in as REAL(4) FORTRAN types but may converted to REAL (8) FORTRAN type in output files.  
 
-### Format of Specific Blocks <a name="Format of Specific Blocks"></a>
-
-#### Mechanism Name. <a name="Mechanism Name"></a>
+<a id=format-of-specific-blocks></a>
+### Format of Specific Blocks
+<a id=mechanism-name></a>
+#### Mechanism Name.
 
 The mechanism name is an optional input. If it is included, it must be the first non-comment entry in the mechanism. Rules for the mechanism name are the same as those for species names except that it can be up to 32 characters long.   No delimiter is required to end of the name but a "hard return" after the entry is suggested for creating a legible input file.
-
-#### SPECIAL. <a name="SPECIAL"></a>
+<a id=special></a>
+#### SPECIAL.
 
 The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constants and species concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA RKB, RKH, and RKI used in a photochemical mechanism.
 
@@ -241,12 +250,14 @@ Operators can increase computational efficiency for solving concentrations. Usin
 are constant over subtime steps within the photochemical solver. Mechanism developers should test the assumption before commiting 
 to them by comparing two mechanisms that do and do not use such operators.
 
-#### ELIMINATE. <a name="Eliminate"></a>
+<a id=eliminate></a>
+#### ELIMINATE.
 
 
 This key word followed by an equal sign lists products used in reactions that are not to be included as a model species or accounted for in CHEMMECH output files. A semicolon must follow each species name in the list. A developer may want to omit specific products because they lack relevance to research goals or because solving their concentrations greatly increases duration of model simulations.
 
-#### REACTIONS. <a name="REACTIONS"></a>
+<a id=reactions></a>
+#### REACTIONS.
 
 The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The bracket's enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
 
@@ -304,7 +315,8 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameterizes effects from by a photochemical mechanism that includes such compounds.
 6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
 
-#### CONSTANTS <a name="CONSTANTS"></a>
+<a id=constants></a>
+#### CONSTANTS
 
 The key word defines volume mixing ratio of the subset of fixed list of constant species as below.
 
@@ -318,7 +330,8 @@ The key word defines volume mixing ratio of the subset of fixed list of constant
 
 The values have units of parts per million. ATM_AIR equals the mixing ratio of M, any gas molecule. The block does not define the mixing ratio for H2O because the meteorological input data specific their values so the values depend on time and location.
 
-#### FUNCTIONS <a name="FUNCTIONS"></a>
+<a id=functions></a>
+#### FUNCTIONS
     
 The FUNCTIONS block defines formulas for calculating rate constant that can used by reaction Type 13. They are limited to one line in lenght but can reference preceeding formulas within the FUNCTIONS block. They can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). The syntax obeys
 FORTRAN mathematical expressions.
@@ -349,7 +362,8 @@ Use reaction type 13 to access the value of a formula expressed in the __FUNCTIO
         <R348> CH3CO3 + NO2 = PAN           %4 # KFPAN;
         <R721> PAN          = CH3CO3 + NO2  %4 # KBPAN;        
 
-## Debugging CHEMMECH <a name="Debugging CHEMMECH"></a>
+<a id=debugging-chemmech></a>
+## Debugging CHEMMECH 
 
 CHEMMECH's Makefile includes debug flags in the compiler option so the user can identify the cause and location when CHEMMECH crashes. Crashes often occur if the mech.def contains information exceeding the parameters defining array dimensions. The UTIL/chemmech/src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then re-compiled CHEMMECH via the Makefile under build directory so the CHEMMECH fits the application. Table 3 lists the parameters.
 
@@ -370,12 +384,13 @@ CHEMMECH's Makefile includes debug flags in the compiler option so the user can 
 | MAXWRDLEN  |   	16 | Maximum Character Length |
 | MAXCONSTS  |   	5 |  Maximum CONSTANT Species |
 
-
-##  Reporting errors or problems with CHEMMECH <a name="Reporting errors or problems with CHEMMECH"></a>
+<a id=reporting-errors-or-problems-with-chemmech></a>
+##  Reporting errors or problems with CHEMMECH
 
 If errors occur at running CHEMMECH, check the _Compiling and debugging CHEMMECH_ subsection for possible solutions. Otherwise,  report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov. 
 
-## References. <a name="References."></a>
+<a id=references></a>
+## References.
 
 Damian V., Sandu A., Damian M., Potra F., Carmichael G.R. (2002). The kinetic preprocessor KPP - A software environment for solving chemical kinetics. Computers and Chemical Engineering,  26(11) , pp. 1567-1579.
 

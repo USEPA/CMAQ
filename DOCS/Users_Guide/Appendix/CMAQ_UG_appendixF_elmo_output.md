@@ -11,7 +11,7 @@ The ELMO module makes aerosol diagnostic parameters as well as aggregated and hi
 
 ### F.1 Output concentration and diagnostic variables
 The ELMO Module streamlines the definition, calculation, and maintenance of gas and particulate concentrations, as well as over 200 aggregate and diagnostic variables, listed in Fig. 1. 
-With ELMO, aggregate and diagnostic variables are registered in the [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F), their calculations are prescribed in [ELMO_PROC.F](../../../CCTM/src/driver/ELMO_PROC.F), and CMAQ calculates them online. 
+With ELMO, aggregate and diagnostic variables are registered in the [ELMO_DATA.F][link_F_Data], their calculations are prescribed in [ELMO_PROC.F][link_F_Proc], and CMAQ calculates them online. 
 Thus, CMAQ can output higher-level parameters without needing to run any particular post-processing tool. 
 As a result, users may choose to limit their output to just the variables they are most interested in (perhaps just O<sub>3</sub> and PM2.5, for example). Or they may elect to output a more complex selection of scalar and aggregate variables. 
 Post-processing is still needed to concatenate days of output together onto monthly, seasonal, or annual files. 
@@ -56,7 +56,7 @@ For example, total PM2.5 have some small deviations when it is calculated as the
 
 
 ### F.3 Prescribing features of ELMO output files
-The interface for prescribing ELMO file properties is located in the [CMAQ Miscellaneous Control File](https://github.com/USEPA/CMAQ_Dev/blob/research/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#miscctrl). The following lines activate or deactivate instantaneous (CCTM_ELMO) and average (CCTM_AELMO) files, respectively:
+The interface for prescribing ELMO file properties is located in the [CMAQ Miscellaneous Control File](../CMAQ_UG_ch04_model_inputs.md#miscctrl). The following lines activate or deactivate instantaneous (CCTM_ELMO) and average (CCTM_AELMO) files, respectively:
 ```
 &elmo_activate
   instant = .FALSE.
@@ -87,7 +87,7 @@ When 2D variables are output on a 3D ELMO file, ELMO will put real data in layer
 
 ### F.4 Selecting ELMO output variables
 All CMAQ scalar variables and all variables in Fig. F-1 are available for output on ELMO files. 
-The [CMAQ Miscellaneous Control File](https://github.com/USEPA/CMAQ_Dev/blob/research/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#miscctrl) variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
+The [CMAQ Miscellaneous Control File](../CMAQ_UG_ch04_model_inputs.md#miscctrl) variables Inst_Vars_Nml and Avrg_Vars_Nml (shown in section F.3) control the variables output to the instantaneous and average ELMO files, respectively. 
 Up to 1000 strings may be specified here. 
 To avoid relying on intimidatingly long lists of variable names, ELMO uses Keywords that expand to groups of variables (often particularly meaningful or useful ones). 
 In this way, ELMO improves transparency and reduces the risk of needing to rerun simulations to produce mistakenly omitted variables. 
@@ -126,7 +126,7 @@ This and other ELMO keywords are defined in Table F-1.
 
 <sub>#</sup>As noted for red variables in Fig. F-1, several variables are populated for each aerosol mode including diameters, standard deviation, and density, etc.
 
-The ELMO variables are defined in [ELMO_DATA.F](../../../CCTM/src/driver/ELMO_DATA.F). 
+The ELMO variables are defined in [ELMO_DATA.F][link_F_Data]. 
 Before ELMO maps output variables to internal model species or meteorological inputs, ELMO recursively expands all Keywords to their members and then filters out duplicates. There is no disadvantage to specifying a variable twice in the CMAQ Control namelist. 
 
 
@@ -155,3 +155,14 @@ Follow the example of existing variables to prescribe the species to be added, t
 CMAQv5.5 User's Guide<br>
 
 <!-- END COMMENT -->
+
+<!-- START_OF_COMMENT --> 
+
+[link_F_Data]: ../../../CCTM/src/driver/ELMO_DATA.F
+[link_F_Proc]: ../../../CCTM/src/driver/ELMO_PROC.F
+
+
+<!-- END_OF_COMMENT -->
+
+[link_F_Data]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_DATA.F
+[link_F_Proc]: https://github.com/USEPA/CMAQ/blob/main/CCTM/src/driver/ELMO_PROC.F

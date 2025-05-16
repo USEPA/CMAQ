@@ -1,33 +1,18 @@
 # CMAQ Installation & Benchmarking Tutorial for CB6R5 
 
-Purpose: This guide describes how to install and run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to run the CMAQ test case for the CB6R5 mechanism with the M3DRY dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
 - Installation on a new server     
 - Following kernel upgrades
-- Following Fortran/C compiler upgrades
-- Following netCDF or I/O API library upgrades
-
+- Following compiler or system library updates
+  
 ## System Checks 
 
-The following support software are required for compiling and running CMAQ.  
+CMAQ requires a specific hardware and software configuration. To learn about these requirements, please refer to the tutorial on [preparing your compute environment for CMAQ simulations](CMAQ_UG_tutorial_configure_linux_environment.md).
 
-1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
-2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built with netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
-4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
-(note: if you have not installed the above libraries, please see the [CMAQ_UG_tutorial_build_library_gcc_support_nc4.md](https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_build_library_gcc_support_nc4.md) tutorial available here: 
-https://github.com/USEPA/CMAQ/tree/main/DOCS/Users_Guide/Tutorials
-
-The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
-
-1. Linux environment with a 16 processors
-2. 16 GB RAM
-3. 400 GB hard drive storage
-
-## Install CMAQ and Required Libraries 
+## Install CMAQ 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.5:
 
@@ -95,6 +80,7 @@ You may also identify the version of the compiler if you wish it to be identifie
 source config_cmaq.csh gcc 9.5
 ```
 
+
 ## Install the CMAQ reference input and output benchmark data
 
 Download the CMAQ two day reference input and output data for the cb6r5_ae7 mechanism (using inputs from CMAQv5.4 Benchmark release) from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
@@ -113,11 +99,18 @@ tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
 
 *Note that there is also benchmark output data for CMAQv5.5 with CB6r5 and the STAGE dry deposition module. Look for output_CCTM_v55_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_stage.tar.gz in the AWS link above.* 
 
-## Compiling CMAQ
+## Compiling CMAQ 
 
 *Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
 
 Create the model executables for CCTM using the steps shown below. 
+
+Create a bldit_cctm script for this benchmark and verify or modify the settings listed below.
+
+```
+cp bldit_cctm.csh bldit_cctm_cb6r5_m3dry.csh
+vi bldit_cctm_cb6r5_m3dry.csh
+```
 
 ##### Configuration for multi-processor runs (default):
 

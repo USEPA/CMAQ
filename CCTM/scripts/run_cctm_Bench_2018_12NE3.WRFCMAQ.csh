@@ -1,8 +1,9 @@
 #!/bin/csh -f
 
+
 # ===================== WRF-CMAQ Run Script =========================
-# Usage: run_cctm_Bench_2018_12SE1.WRFCMAQ.csh >& run_cctm_Bench_2018_12SE1.WRFCMAQ.log &
-# Slurm Usage: sbatch run_cctm_Bench_2018_12SE1.WRFCMAQ.csh 
+# Usage: run_cctm_Bench_2018_12NE3.WRFCMAQ.csh >& run_cctm_Bench_2018_12NE3.WRFCMAQ.log &
+# Slurm Usage: sbatch run_cctm_Bench_2018_12NE3.WRFCMAQ.csh 
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -11,7 +12,7 @@
 
 set NPROCS = 32
 
-set wrfv    = 4.4
+set wrfv    = 4.5.1
 set version = sw_feedback
 set option  = 3
 
@@ -24,7 +25,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel
+   setenv compiler gcc
  endif
  if ( ! $?compilerVrsn ) then
    setenv compilerVrsn Empty
@@ -57,11 +58,11 @@ set EXEC      = wrf.exe
 
 # Set Working, Input, and Output Directories
 set WORKDIR     = ${PWD}                                  # Pathname of current Working Directory
-set WRF_DIR     = $WORKDIR/BLD_WRFv4.4_CCTM_v55_intel18.0 # Location of WRF-CMAQ Install
+set WRF_DIR     = $WORKDIR/BLD_WRFv${wrfv}_CCTM_v55_gcc # Location of WRF-CMAQ Install
 set INPDIR      = ${CMAQ_DATA}/2018_12NE3               # Input directory for WRF & CMAQ
 set OUTPUT_ROOT = $WORKDIR                                # output root directory
 set output_direct_name = WRFCMAQ-output-${version}        # Output Directory Name
-setenv OUTDIR $OUTPUT_ROOT/$output_direct_name   # output files and directories
+setenv OUTDIR ${CMAQ_DATA}/$output_direct_name   # output files and directories
 set NMLpath     = $WRF_DIR/cmaq                           # path with *.nml file mechanism dependent
 
 echo ""
@@ -76,7 +77,7 @@ echo "Executable Name is $EXEC"
 #> Set Start and End Days for looping
 setenv NEW_START TRUE             # Set to FALSE for model restart
 set START_DATE = "2018-07-01"     # beginning date (July 1, 2016)
-set END_DATE   = "2018-07-01"     # ending date    (July 14, 2016)
+set END_DATE   = "2018-07-02"     # ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000           # beginning GMT time (HHMMSS)
@@ -161,8 +162,8 @@ set wrf_hr = $NSTEPS
 
 # Output Species and Layer Options
 # CONC file species; comment or set to "ALL" to write all species to CONC
-setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-setenv CONC_BLEV_ELEV " 1 1"  # CONC file layer range; comment to write all layers to CONC
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+#setenv CONC_BLEV_ELEV " 1 1"  # CONC file layer range; comment to write all layers to CONC
 
 # ACONC file species; comment or set to "ALL" to write all species to ACONC
 # setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -962,9 +963,9 @@ End_Of_Namelist
       ln -sf $METpath/wrffdda_d01 wrffdda_d01
       ln -sf $METpath/wrfsfdda_d01 wrfsfdda_d01
       if (${WRF_RSTFLAG} == .false.) then
-         ln -sf $METpath/wrfinput_d01 wrfinput_d01
+    	 ln -sf $METpath/wrfinput_d01 wrfinput_d01
       else if (${WRF_RSTFLAG} == .TRUE.) then
-         ln -sf $METpath/wrfrst_d01_${TODAYG}_00:00:00
+	 ln -sf $METpath/wrfrst_d01_${TODAYG}_00:00:00
       endif
       ln -sf $METpath/wrflowinp_d01 wrflowinp_d01
 
