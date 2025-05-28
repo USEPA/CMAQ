@@ -72,6 +72,10 @@ C Arguments:
       REAL,    INTENT( IN ) :: LAI  ( NCOLS,NROWS )        ! leaf area index (m2/m2)
       REAL,    INTENT( OUT ) :: BDSNP_NO ( NCOLS,NROWS ) ! output NO emissions in nanomol/m^2/s
 
+#ifdef parallel_io
+      LOGICAL, EXTERNAL :: FLUSH3
+#endif
+
 C Parameters:
       ! Value calculated by running the 2x2.5 GEOS-Chem model
       REAL*8,  PARAMETER :: TAU_MONTHS   = 6. ! this is the decay time for dep. N reservoir, fert is 4 months

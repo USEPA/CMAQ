@@ -3464,6 +3464,7 @@
       SUBROUTINE WRITE_ELMO ( JDATE, JTIME, TSTEP, INIT_TIME )
 ! Revision history
 !   20 Feb - B. Murphy: Created
+!   15 May, 2025 - D. Wong: Enabled parallel_io feature for CTM_ELMO_1 and CTM_AELMO_1
 !-------------------------------------------------------------------------
 
       USE RUNTIME_VARS
@@ -3478,6 +3479,8 @@
       CHARACTER( 300 ) XMSG
 
       CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_ELMO'
+      LOGICAL, SAVE :: FIRSTIME_ELMO  = .TRUE.
+      LOGICAL, SAVE :: FIRSTIME_AELMO = .TRUE.
 
 C *** If IO Proceesor, then Write Data
          MDATE = JDATE
@@ -3486,6 +3489,18 @@ C *** If IO Proceesor, then Write Data
 C *** Write data to the scalar output file.
          IF ( INST_ACTIVE ) THEN
 #ifndef mpas
+            IF (FIRSTIME_ELMO) THEN
+#ifdef parallel_io
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_ELMO_1, FSREAD3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // CTM_ELMO_1
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
+#endif
+               FIRSTIME_ELMO = .FALSE.
+            END IF
+
             IF ( .NOT. WRITE3( CTM_ELMO_1, 
      &           ALLVAR3, MDATE, MTIME,
      &           ELMO_INST(:,:,:,:) ) ) THEN
@@ -3508,6 +3523,18 @@ C *** Write data to the average aerosol diagnostic file.
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
           
+            IF (FIRSTIME_AELMO) THEN
+#ifdef parallel_io
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_AELMO_1, FSREAD3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // CTM_AELMO_1
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
+#endif
+               FIRSTIME_AELMO = .FALSE.
+            END IF
+
             IF ( .NOT. WRITE3( CTM_AELMO_1, 
      &             ALLVAR3, MDATE, MTIME, 
      &             ELMO_AVRG(:,:,:,:) / 2.0 / 
