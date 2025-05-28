@@ -26,6 +26,7 @@ Potential updates include bugfixes that resolves runtime failures, segmentation 
 
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+| |[#252](https://github.com/USEPA/CMAQ/pull/252)|enable parallel I/O for ELMO, AELMO, and lightning diagnostic files | 2025-05-28 | Bugfix to avoid a model crash when using a parallel file system. This resolves an [issue](https://forum.cmascenter.org/t/unable-to-write-to-aelmo-even-though-new-aelmo-file-successfully-created/5762/20) raised on the CMAS User Forum.|
 | |[#249](https://github.com/USEPA/CMAQ/pull/249)|Increase string size for DDM-3D control file | 2025-05-14 | Updates allows for longer strings of emissions stream names and region names for DDM-3D simulations.|
 | [CMAQv5.5.0.2_13May2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.2_13May2025)  |[#246](https://github.com/USEPA/CMAQ/pull/246)|5.5 Tutorial Updates from CMAS  | 2025-04-29 | Improvements to the WRF-CMAQ Tutorial and supporting documentation for preparing your compute environment prior to running CMAQ.|
 | |[#245](https://github.com/USEPA/CMAQ/pull/245)|Fix bugs in shp2cmaq | 2025-04-29 | Bugfix to shp2cmaq tool to avoid errors when CMAQ Emission Control reads the time information from the CMAQ-ready grid mask file.|
