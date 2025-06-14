@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE ll2xy_lam_tan (phi, lambda, phi0, lambda0, xx, yy)
+SUBROUTINE ll2xy_lam_tan (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
 
 !-------------------------------------------------------------------------------
 ! Name:     Latitude-Longitude to (X,Y) for Lambert Conformal Projection
@@ -41,14 +41,22 @@ SUBROUTINE ll2xy_lam_tan (phi, lambda, phi0, lambda0, xx, yy)
   REAL,          INTENT(IN)    :: lambda0 ! standard longitude [deg]
   REAL,          INTENT(IN)    :: phi     ! latitude [deg]
   REAL(8)                      :: phirad  ! latitude [rad]
-  REAL,          INTENT(IN)    :: phi0    ! true latitude [deg]
-  REAL(8)                      :: phi0rad ! true latitude [rad]
+  REAL,          INTENT(IN)    :: phi0    ! reference latitude [deg]
+  REAL(8)                      :: phi0rad ! reference latitude [rad]
+  REAL,          INTENT(IN)    :: phi1    ! true latitude [deg]
+  REAL(8)                      :: phi1rad ! true latitude [rad]
+  REAL,          INTENT(IN)    :: phi2    ! true latitude [deg]
+  !phi2    (not used)
+  !phi2rad (not used)
   REAL(8)                      :: pi
   REAL(8)                      :: piover4 ! pi/4
+  REAL(8)                      :: psi     !auxiliary function
   REAL(8)                      :: rho     ! polar radius to origin
   REAL(8)                      :: rho0    ! polar radius to latitude phi
   REAL(8)                      :: term
   REAL(8)                      :: term0
+  REAL(8)                      :: term1
+  !term2  (not used)
   REAL(8)                      :: theta   ! polar angle
   REAL(8)                      :: sinphi0 ! cone constant
   REAL,          INTENT(OUT)   :: xx      ! X-coordinate from origin
@@ -68,36 +76,43 @@ SUBROUTINE ll2xy_lam_tan (phi, lambda, phi0, lambda0, xx, yy)
 ! Compute cone constant, SINPHI0.
 !-------------------------------------------------------------------------------
 
-  phi0rad = phi0 * deg2rad  ! convert PHI0 from degrees to radians
-  sinphi0 = DSIN (phi0rad)
+  phi0rad = DBLE(phi0) * deg2rad  ! convert PHI0 from degrees to radians
+  phi1rad = DBLE(phi1) * deg2rad  ! convert PHI1 from degrees to radians
+
+  term0 = DTAN (piover4 - phi0rad/2.0d0)
+  term1 = DTAN (piover4 - phi1rad/2.0d0)
+  !term2 (not used)
+
+
+  sinphi0 = DSIN (phi1rad)   !this is the only difference with the secant case.
 
 !-------------------------------------------------------------------------------
 ! Compute polar angle, THETA.
 !-------------------------------------------------------------------------------
 
-  dlambda = (lambda - lambda0) * deg2rad
+  dlambda = DBLE(lambda - lambda0) * deg2rad
   theta   = dlambda * sinphi0
 
 !-------------------------------------------------------------------------------
 ! Compute polar radius to origin, RHO0, where origin is at PHI0.
 !-------------------------------------------------------------------------------
 
-  rho0 = drearth * DCOS(phi0rad) / sinphi0
+  psi  = drearth * DCOS(phi1rad) / sinphi0 / (term1**sinphi0)
+  rho0 = psi * (term0**sinphi0)
 
 !-------------------------------------------------------------------------------
 ! Compute polar radius to latitude PHI, RHO.
 !-------------------------------------------------------------------------------
 
-  phirad = phi  * deg2rad  ! convert PHI from degrees to radians
-  term   = DTAN (piover4 - phirad /2.0d0)
-  term0  = DTAN (piover4 - phi0rad/2.0d0)
-  rho    = rho0 * (( term / term0 )**sinphi0)
+  phirad = DBLE(phi) * deg2rad  ! convert PHI from degrees to radians
+  term   = DTAN (piover4 - phirad/2.0d0)
+  rho    = psi * (term**sinphi0)
 
 !-------------------------------------------------------------------------------
 ! Compute Cartesian coordinates, XX and YY.
 !-------------------------------------------------------------------------------
 
-  xx = REAL(       rho * DSIN(theta))
-  yy = REAL(rho0 - rho * DCOS(theta))
+  xx = REAL(        rho * DSIN(theta) )
+  yy = REAL( rho0 - rho * DCOS(theta) )
 
 END SUBROUTINE ll2xy_lam_tan
