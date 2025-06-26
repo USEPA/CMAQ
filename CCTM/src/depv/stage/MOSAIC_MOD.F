@@ -203,7 +203,8 @@ C...include files
          End If
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         Allocate ( Tile_Data%Grd_Vd        ( ncols,nrows,N_SPC_DEPV ),  
+         Allocate ( Tile_Data%Lu_Vd         (ncols,nrows,N_SPC_DEPV,Tile_Data%n_lufrac ),
+     &              Tile_Data%Grd_Vd        ( ncols,nrows,N_SPC_DEPV ),  
      &              Tile_Data%Bidi_Emis     ( ncols,nrows,N_SPC_DEPV ),
      &              Tile_Data%Bidi_Emis_Bio ( ncols,nrows,N_SPC_DEPV ),
      &              Tile_Data%Bidi_Emis_Ag  ( ncols,nrows,N_SPC_DEPV ),
