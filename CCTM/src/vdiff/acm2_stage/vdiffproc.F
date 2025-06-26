@@ -134,6 +134,8 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: DDEP       ( :,:,: )   ! ddep accumulator
       REAL, ALLOCATABLE, SAVE :: DDEP0    ( :,:,: )   ! ddep initial before call to vdiffacmx
       REAL, ALLOCATABLE, SAVE :: TOT_BD_EMIS( :,:,: )   ! bidi emissions accumlator 
+      REAL, ALLOCATABLE, SAVE :: TOT_BD_EMIS_Ag ( :,:,: )   ! bidi emissions accumlator 
+      REAL, ALLOCATABLE, SAVE :: TOT_BD_EMIS_Bio( :,:,: )   ! bidi emissions accumlator 
       REAL, ALLOCATABLE, SAVE :: DDEPJ      ( :,:,:,: ) ! ddep for mosaic
 
       REAL     :: WRDD( NCOLS,NROWS )                 ! ddep write buffer
@@ -171,11 +173,15 @@ C Local Variables
          SUBROUTINE EDDYX ( EDDYV )
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, TOT_BD_EMIS, ddepj, cngrd )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, TOT_BD_EMIS,  
+     &                               TOT_BD_EMIS_Ag, TOT_BD_EMIS_Bio, 
+     &                               ddepj, cngrd )
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
             REAL, INTENT( INOUT ) :: TOT_BD_EMIS ( :,:,: )
+            REAL, INTENT( INOUT ) :: TOT_BD_EMIS_Ag  ( :,:,: )
+            REAL, INTENT( INOUT ) :: TOT_BD_EMIS_Bio ( :,:,: )
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
@@ -248,13 +254,18 @@ C Allocate and initialize dry deposition array
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          DDEP0 = 0.0   ! array assignment
-  
-         ALLOCATE ( TOT_BD_EMIS( N_BD_EMIS,NCOLS,NROWS ), STAT = ASTAT )
+ 
+
+          ALLOCATE ( TOT_BD_EMIS( N_BD_EMIS,NCOLS,NROWS ),
+     &              TOT_BD_EMIS_Ag  ( N_BD_EMIS,NCOLS,NROWS ), 
+     &              TOT_BD_EMIS_Bio ( N_BD_EMIS,NCOLS,NROWS ), STAT = ASTAT ) 
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TOT_BD_EMIS'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         TOT_BD_EMIS = 0.0   ! array assignment
+         TOT_BD_EMIS = 0.0     ! array assignment
+         TOT_BD_EMIS_Ag  = 0.0 ! array assignment
+         TOT_BD_EMIS_Bio = 0.0 ! array assignment
 
          CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
 
@@ -377,6 +388,8 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          TOT_BD_EMIS = 0.0                      ! array assignment
+         TOT_BD_EMIS_Ag  = 0.0           ! array assignment
+         TOT_BD_EMIS_Bio = 0.0           ! array assignment
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0                  ! array assignment
          END IF
@@ -388,11 +401,11 @@ C Store Deposition Change in Budget and Process Analysis Arrays
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
       IF ( .NOT. MOSAIC ) THEN
-         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS,
-     &                   cngrd = CNGRD )
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, TOT_BD_EMIS_Ag, 
+     &                         TOT_BD_EMIS_Bio, cngrd = CNGRD )
       ELSE
-         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS,
-     &                   ddepj = DDEPJ, cngrd = CNGRD )
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, TOT_BD_EMIS_Ag, 
+     &                         TOT_BD_EMIS_Bio, ddepj = DDEPJ, cngrd = CNGRD )
       END IF 
 
       IF ( VDIFFDIAG ) THEN
@@ -486,7 +499,17 @@ C If last call this hour:  write accumulated depositions:
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF          
-         ENDIF
+           END IF       
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Emis_Ag',
+     &           MDATE, MTIME, TOT_BD_EMIS_Ag( NH3_E,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Emis_Bio',
+     &           MDATE, MTIME, TOT_BD_EMIS_Bio( NH3_E,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
          IF ( HGBIDI ) THEN
             IF ( .NOT. WRITE3( CTM_DRY_DEP_1, BD_EMIS_SPC( HG_E ),
      &           MDATE, MTIME, TOT_BD_EMIS( HG_E,:,: ) ) ) THEN

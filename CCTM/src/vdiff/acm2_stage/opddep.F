@@ -59,9 +59,9 @@ C Local variables:
 
 ! component flux varialbes      
       INTEGER,         SAVE :: N_BD_EMIS 
-      CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 3 )
+      CHARACTER( 16 ), SAVE :: BD_EMIS_SPC( 4 )
       INTEGER,         SAVE :: N_BD_FLUX 
-      CHARACTER( 16 ), SAVE :: BD_FLUX_SPC( 1 )
+      CHARACTER( 16 ), SAVE :: BD_FLUX_SPC( 3 )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -79,6 +79,12 @@ C Try to open existing file for update
             BD_EMIS_SPC( N_BD_EMIS ) = 'NH3_Emis'
             N_BD_FLUX = 1
             BD_FLUX_SPC( 1 ) = 'NH3_Flux'
+            N_BD_FLUX  = 1
+            BD_FLUX_SPC( N_BD_FLUX ) = 'NH3_Flux'
+            N_BD_FLUX  = 2
+            BD_FLUX_SPC( N_BD_FLUX ) = 'NH3_Emis_Ag'
+            N_BD_FLUX  = 3
+            BD_FLUX_SPC( N_BD_FLUX ) = 'NH3_Emis_Bio'
          End If 
          If( HGBIDI ) Then
             N_BD_EMIS = N_BD_EMIS + 1
@@ -191,7 +197,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = BD_FLUX_SPC( N )
                UNITS3D( V ) = 'kg/hectare'
-               VDESC3D( V ) = 'hourly flux values'
+               VDESC3D( V ) = 'hourly flux or emission values'
             END DO
          END IF
          IF ( HGBIDI ) THEN
