@@ -87,8 +87,10 @@ C Buffer variables
          Integer,         Allocatable :: dep2vdiff    ( : ) ! Vdiff location for dep species
          Real,            Allocatable :: Vd_fac       ( : ) ! Vd factor from the GC, NR, and TR namelists
 !> Mean grid cell output 
-         Real,            Allocatable :: Grd_Vd     ( :,:,: ) ! Grid mean gaseous and aerosol deposition velocity
-         Real,            Allocatable :: Bidi_Emis  ( :,:,: ) ! Grid bidirectional Emissions
+         Real,            Allocatable :: Grd_Vd        ( :,:,: ) ! Grid mean gaseous and aerosol deposition velocity
+         Real,            Allocatable :: Bidi_Emis     ( :,:,: ) ! Grid bidirectional Emissions
+         Real,            Allocatable :: Bidi_Emis_Bio ( :,:,: ) ! Grid bidirectional Emissions from biogenic sources
+         Real,            Allocatable :: Bidi_Emis_Ag  ( :,:,: ) ! Grid bidirectional Emissions from natural sources
 !> Aggrigated fractional land use       
          Real,            Allocatable :: LUfrac     ( :,:,: ) ! land use fraction (ratio)
 !> Sub grid cell output:
@@ -201,14 +203,15 @@ C...include files
          End If
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         Allocate ( Tile_Data%Lu_Vd     ( ncols,nrows,N_SPC_DEPV,Tile_Data%n_lufrac ), 
-     &              Tile_Data%Grd_Vd    ( ncols,nrows,N_SPC_DEPV ),  
-     &              Tile_Data%Bidi_Emis ( ncols,nrows,N_SPC_DEPV ),
-     &              Tile_Data%LUfrac    ( ncols,nrows,Tile_Data%n_lufrac ),
-     &              Tile_Data%Vd_Name   ( N_SPC_DEPV ),
-     &              Tile_Data%Vd_Fac    ( N_SPC_DEPV ),
-     &              Tile_Data%Vd_Out    ( N_SPC_DEPV ),        
-     &              Tile_Data%dep2vdiff ( N_SPC_DEPV ),  
+         Allocate ( Tile_Data%Grd_Vd        ( ncols,nrows,N_SPC_DEPV ),  
+     &              Tile_Data%Bidi_Emis     ( ncols,nrows,N_SPC_DEPV ),
+     &              Tile_Data%Bidi_Emis_Bio ( ncols,nrows,N_SPC_DEPV ),
+     &              Tile_Data%Bidi_Emis_Ag  ( ncols,nrows,N_SPC_DEPV ),
+     &              Tile_Data%LUfrac        ( ncols,nrows,Tile_Data%n_lufrac ),
+     &              Tile_Data%Vd_Name       ( N_SPC_DEPV ),
+     &              Tile_Data%Vd_Fac        ( N_SPC_DEPV ),
+     &              Tile_Data%Vd_Out        ( N_SPC_DEPV ),        
+     &              Tile_Data%dep2vdiff     ( N_SPC_DEPV ),  
      &              STAT = ALLOCSTAT ) 
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'

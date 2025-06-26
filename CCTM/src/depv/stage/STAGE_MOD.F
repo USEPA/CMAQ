@@ -432,6 +432,8 @@ C Fuller-Schettler-Giddings (https://doi.org/10.1021/ie50677a007; Table I) Diffu
             n = n + 1
             Tile_Data%Grd_Vd( C, R, n )    = 0.0
             Tile_Data%Bidi_Emis( C, R, n ) = 0.0
+            Tile_Data%Bidi_Emis_Ag  ( C, R, n ) = 0.0
+            Tile_Data%Bidi_Emis_Bio ( C, R, n ) = 0.0
 ! Special cases
             if( s .eq. s_NH3 ) NH3_hit = .True.
             if( s .eq. s_O3 ) O3_hit  = .True.
@@ -614,6 +616,14 @@ C Calculate Rst
 ! Generalization of the production and deposition velocity terms
                Tile_Data%Bidi_Emis( C, R, n ) = Tile_Data%Bidi_Emis( C, R, n )  + 
      &                                          frac_lu * LU_Emis
+! split emissions between agricultural and biogenic sources
+               If( Ag( l ) ) Then
+                  Tile_Data%Bidi_Emis_Ag( C, R, n ) = Tile_Data%Bidi_Emis_Ag( C, R, n )  + 
+     &                                                frac_lu * LU_Emis                  
+               Else
+                  Tile_Data%Bidi_Emis_Bio( C, R, n ) = Tile_Data%Bidi_Emis_Bio( C, R, n )  + 
+     &                                                 frac_lu * LU_Emis
+               End If
                Tile_Data%Grd_Vd( C, R, n ) = Tile_Data%Grd_Vd( C, R, n ) + 
      &                           frac_lu * Tile_Data%Lu_Vd( c,r,n,l )
             End If ! frac_lu > 0
