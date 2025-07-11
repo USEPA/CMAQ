@@ -17,7 +17,8 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, DDEPJ, CNGRD )
+      SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, TOT_BD_EMIS, TOT_BD_EMIS_Ag, 
+     &                       TOT_BD_EMIS_Bio, DDEPJ, CNGRD )
 
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2/ACM1) -- Pleim(2006/2014)
@@ -74,11 +75,13 @@ C-----------------------------------------------------------------------
 C Arguments:
       REAL, INTENT( IN )    :: DTSEC                ! model time step in seconds
 C--- SEDDY is strictly an input, but it gets modified here
-      REAL, INTENT( INOUT ) :: SEDDY       ( :,:,: )   ! flipped EDDYV
-      REAL, INTENT( INOUT ) :: DDEP        ( :,:,: )   ! ddep accumulator
-      REAL, INTENT( INOUT ) :: TOT_BD_EMIS ( :,:,: )   ! bidi emissions accumlator 
-      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, INTENT( INOUT ) :: CNGRD       ( :,:,:,: ) ! cgrid replacement
+      REAL, INTENT( INOUT ) :: SEDDY           ( :,:,: )   ! flipped EDDYV
+      REAL, INTENT( INOUT ) :: DDEP            ( :,:,: )   ! ddep accumulator
+      REAL, INTENT( INOUT ) :: TOT_BD_EMIS     ( :,:,: )   ! bidi emissions accumlator 
+      REAL, INTENT( INOUT ) :: TOT_BD_EMIS_Ag  ( :,:,: )   ! bidi emissions accumlator from agriculture sources
+      REAL, INTENT( INOUT ) :: TOT_BD_EMIS_Bio ( :,:,: )   ! bidi emissions accumlator from biogenic sources 
+      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ ( :,:,:,: ) ! ddep for mosaic
+      REAL, INTENT( INOUT ) :: CNGRD           ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
 
@@ -97,14 +100,16 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: SPECLOG = .TRUE.             ! For BDSNP
 
-      REAL, ALLOCATABLE, SAVE :: DD_FAC     ( : )   ! combined subexpression
-      REAL, ALLOCATABLE, SAVE :: DD_FACJ    ( :,: ) ! combined subexpression for mosaic
-      REAL, ALLOCATABLE, SAVE :: DDBF       ( : )   ! secondary DDEP
-      REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: ) ! secondary DDEP for mosaic
-      REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS( : )   ! intermediate bidi emissions
-      REAL, ALLOCATABLE, SAVE :: CONC       ( :,: ) ! secondary CGRID expression
-      REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: ) ! emissions subexpression
-      REAL        DTDENS1                       ! DT * layer 1 air density
+      REAL, ALLOCATABLE, SAVE :: DD_FAC     ( : )     ! combined subexpression
+      REAL, ALLOCATABLE, SAVE :: DD_FACJ    ( :,: )   ! combined subexpression for mosaic
+      REAL, ALLOCATABLE, SAVE :: DDBF       ( : )     ! secondary DDEP
+      REAL, ALLOCATABLE, SAVE :: DDBFJ      ( :,: )   ! secondary DDEP for mosaic
+      REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS( : )     ! intermediate bidi emissions
+      REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS_Ag ( : ) ! intermediate bidi emissions from agriculture sources
+      REAl, ALLOCATABLE, SAVE :: TMP_BD_EMIS_Bio( : ) ! intermediate bidi emissions from biogenic sources
+      REAL, ALLOCATABLE, SAVE :: CONC       ( :,: )   ! secondary CGRID expression
+      REAL, ALLOCATABLE, SAVE :: EMIS       ( :,: )   ! emissions subexpression
+      REAL        DTDENS1                             ! DT * layer 1 air density
 
 C ACM Local Variables
       REAL     :: EDDY  ( NLAYS )               ! local converted eddyv
@@ -241,7 +246,9 @@ C set auxiliary depv arrays
             END IF
          END IF   ! if Mosaic
 
-         ALLOCATE ( TMP_BD_EMIS( N_BD_EMIS ), STAT = ASTAT )
+         ALLOCATE ( TMP_BD_EMIS    ( N_BD_EMIS ),
+     &              TMP_BD_EMIS_AG ( N_BD_EMIS ),
+     &              TMP_BD_EMIS_Bio( N_BD_EMIS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating TMP_BD_EMIS'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -587,7 +594,9 @@ C-----------------------------------------------------------------------
                EMIS_OVER_VD( V ) = Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) / DEPVCR( V )                        
             End If
             IF ( ABFLUX ) THEN
-               TMP_BD_EMIS( NH3_E ) = TOT_BD_EMIS( NH3_E,C,R )
+               TMP_BD_EMIS    ( NH3_E ) = TOT_BD_EMIS    ( NH3_E,C,R )
+               TMP_BD_EMIS_Ag ( NH3_E ) = TOT_BD_EMIS_Ag ( NH3_E,C,R )
+               TMP_BD_EMIS_Bio( NH3_E ) = TOT_BD_EMIS_Bio( NH3_E,C,R )
             END IF
             IF ( HGBIDI ) THEN
                TMP_BD_EMIS( HG_E ) = TOT_BD_EMIS( HG_E,C,R )
@@ -735,6 +744,10 @@ C Pass selected N species to the BDSNP Soil NO emissions scheme
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + 
      &                  THETA * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1
+                     TMP_BD_EMIS_Ag( NH3_E )  = TMP_BD_EMIS_Ag( NH3_E ) + 
+     &                  THETA * Tile_Data%Bidi_Emis_Ag( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1
+                     TMP_BD_EMIS_Bio( NH3_E ) = TMP_BD_EMIS_Bio( NH3_E ) + 
+     &                  THETA * Tile_Data%Bidi_Emis_Bio( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) +  
@@ -955,6 +968,10 @@ C --------- END of HET HONO RX ----------
                   IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      TMP_BD_EMIS( NH3_E ) = TMP_BD_EMIS( NH3_E ) + 
      &                  THBAR * Tile_Data%Bidi_Emis( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                                 
+                     TMP_BD_EMIS_Ag( NH3_E )  = TMP_BD_EMIS_Ag( NH3_E ) + 
+     &                  THBAR * Tile_Data%Bidi_Emis_Ag( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1                                 
+                     TMP_BD_EMIS_Bio( NH3_E ) = TMP_BD_EMIS_Bio( NH3_E ) + 
+     &                  THBAR * Tile_Data%Bidi_Emis_Bio( C, R, Tile_Data%dep2vdiff( V ) ) * DD_CONV( V ) * DTDENS1
                   END IF
                   IF ( HGBIDI .AND. V .EQ. HG_HIT ) THEN
                      TMP_BD_EMIS( HG_E ) = TMP_BD_EMIS( HG_E ) + 
@@ -1025,7 +1042,9 @@ C Update ISAM Dry Deposition
          END DO
 
          IF ( ABFLUX ) THEN
-            TOT_BD_EMIS( NH3_E,C,R ) = TMP_BD_EMIS( NH3_E )
+            TOT_BD_EMIS( NH3_E,C,R )     = TMP_BD_EMIS( NH3_E )
+            TOT_BD_EMIS_Ag( NH3_E,C,R )  = TMP_BD_EMIS_Ag( NH3_E )
+            TOT_BD_EMIS_Bio( NH3_E,C,R ) = TMP_BD_EMIS_Bio( NH3_E )
          END IF
          IF ( HGBIDI ) THEN
             TOT_BD_EMIS( HG_E,C,R ) = TMP_BD_EMIS( HG_E )
