@@ -1,7 +1,7 @@
 #!/bin/csh -fx
 
 # ============ CSQY_TABLE_PROCESSOR_v5.4.x Build Script ================= #
-# Usage: bldrun_create_ebi.csh [compiler] >&! bldrun_create_ebi.log   #
+# Usage: bldrun.inline_phot_preproc.csh [compiler] >&! bldrun_phot_preproc.log   #
 # Options for [compiler]: intel | gcc | pgi                           #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -62,7 +62,7 @@ unset echo
 
 #> User choices: working directory and application ID
  if ( ! $?MECH ) then
-   set MECH =     'cb6r3_ae7_aq'
+   set MECH =     'saprc22_ae65_aq'
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
 

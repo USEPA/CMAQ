@@ -43,12 +43,14 @@
             INCLUDE 'MAP_CV2CB05.EXT'
             INCLUDE 'SPC_SAPRC07.EXT'      ! new in MEGAN3
             INCLUDE 'SPC_SAPRC07T.EXT'    ! new in MEGAN3
+            INCLUDE 'SPC_SAPRC22.EXT'      ! SAPRC-22 Updates, PK, Ramboll, 05162025
             INCLUDE 'MAP_CV2CB6.EXT'      
             INCLUDE 'MAP_CV2CB6_AE7.EXT'      
             INCLUDE 'MAP_CV2RACM2.EXT'
             INCLUDE 'MAP_CV2CRACMM.EXT'
             INCLUDE 'MAP_CV2SAPRC07.EXT'
             INCLUDE 'MAP_CV2SAPRC07T.EXT'
+            INCLUDE 'MAP_CV2SAPRC22.EXT'   !Updates for SAPRC-22 Mechanism, PK, Ramboll, 05162025
 
          CONTAINS
 
@@ -62,7 +64,7 @@
 
            CHARACTER( 16 ) :: MECHANISM              ! Mechanism name
            INTEGER ios,INDX
-         INTEGER,        PARAMETER :: NMECHS = 16   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 17   ! dimension for number of mechanisms considered
 
          INTEGER I
 
@@ -88,6 +90,7 @@
      &         MIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','SAPRC07T'),
      &         MIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQKMT2 ','SAPRC07T'),     
+     &         MIOG_MECH_TYPE( 'SAPRC22_AE65_AQ        ','SAPRC22'),
      &         MIOG_MECH_TYPE( 'CRACMM1_AQ             ','CRACMM  '),
      &         MIOG_MECH_TYPE( 'CRACMM1AMORE_AQ        ','CRACMM  ') /)
 
@@ -102,6 +105,9 @@
             CASE ('SAPRC07T')
               n_scon_spc = n_saprc07t
               NMGNSPC = n_saprc07t_spc
+            CASE ('SAPRC22')
+              n_scon_spc = n_saprc22
+              NMGNSPC = n_saprc22_spc
             CASE ('CB05')
               n_scon_spc = n_cb05
               NMGNSPC = n_cb05_spc
@@ -167,6 +173,13 @@
               conv_fac(1:n_scon_spc) = conv_fac_saprc07t(1:n_scon_spc)
               mech_spc(1:NMGNSPC)    = mech_spc_saprc07t(1:NMGNSPC)
               mech_mwt(1:NMGNSPC)    = mech_mwt_saprc07t(1:NMGNSPC)
+              MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
+            CASE ('SAPRC22')
+              spmh_map(1:n_scon_spc) = spmh_map_saprc22(1:n_scon_spc)
+              mech_map(1:n_scon_spc) = mech_map_saprc22(1:n_scon_spc)
+              conv_fac(1:n_scon_spc) = conv_fac_saprc22(1:n_scon_spc)
+              mech_spc(1:NMGNSPC)    = mech_spc_saprc22(1:NMGNSPC)
+              mech_mwt(1:NMGNSPC)    = mech_mwt_saprc22(1:NMGNSPC)
               MEGAN_NAMES(1:NMGNSPC)     = mech_spc(1:NMGNSPC)
             CASE ('CB6_ae7')
               spmh_map(1:n_scon_spc) = spmh_map_cb6_ae7(1:n_scon_spc)

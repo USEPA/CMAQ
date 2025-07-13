@@ -1,0 +1,89 @@
+C=======================================================================
+C  SPC_SAPRC22.EXT
+C  This include file contains SAPRC22 species and their MW.
+C
+C
+C  Mechanism Name: SAPRC22
+C  MEGAN v3
+C  INPUT version x.x
+C
+C  History:
+C  Who                    When       What
+C  ---------------------------------------------------------------------
+C  Ling Huang             06/13/17 - Created for MEGAN3
+C  Prakash Karamchandani  05/14/25 - Updated for SAPRC22
+C=======================================================================
+
+      CHARACTER*16   SPC_SAPRC22MECH
+      PARAMETER     (SPC_SAPRC22MECH = 'SAPRC22         ')
+
+      INTEGER        N_SAPRC22_SPC
+      PARAMETER     (N_SAPRC22_SPC = 62)
+
+      CHARACTER*16   MECH_SPC_SAPRC22( N_SAPRC22_SPC )  ! Mechanism species name
+      REAL           MECH_MWT_SAPRC22( N_SAPRC22_SPC )  ! Mechanism species molecular weight
+
+! Note conversion between 134 species and SAPRC22 is done by 1:1 mole
+
+      DATA  MECH_SPC_SAPRC22(  1), MECH_MWT_SAPRC22(  1) / 'CH4             ', 16.04   /
+      DATA  MECH_SPC_SAPRC22(  2), MECH_MWT_SAPRC22(  2) / 'ALK1            ', 74.08   /
+      DATA  MECH_SPC_SAPRC22(  3), MECH_MWT_SAPRC22(  3) / 'ALK2            ', 88.11   /
+      DATA  MECH_SPC_SAPRC22(  4), MECH_MWT_SAPRC22(  4) / 'ALK3            ', 80.54   /
+      DATA  MECH_SPC_SAPRC22(  5), MECH_MWT_SAPRC22(  5) / 'ALK4            ', 71.04   /
+      DATA  MECH_SPC_SAPRC22(  6), MECH_MWT_SAPRC22(  6) / 'ALK5            ', 96.98   /
+      DATA  MECH_SPC_SAPRC22(  7), MECH_MWT_SAPRC22(  7) / 'ETHEN           ', 28.05   / !Name change
+      DATA  MECH_SPC_SAPRC22(  8), MECH_MWT_SAPRC22(  8) / 'OLE1            ', 68.66   /
+      DATA  MECH_SPC_SAPRC22(  9), MECH_MWT_SAPRC22(  9) / 'OLE2            ', 64.92   /
+      DATA  MECH_SPC_SAPRC22( 10), MECH_MWT_SAPRC22( 10) / 'ISOP            ', 68.12   / !Name change
+      DATA  MECH_SPC_SAPRC22( 11), MECH_MWT_SAPRC22( 11) / 'TERP            ', 136.23  /
+      DATA  MECH_SPC_SAPRC22( 12), MECH_MWT_SAPRC22( 12) / 'BENZ            ', 78.11   /
+      DATA  MECH_SPC_SAPRC22( 13), MECH_MWT_SAPRC22( 13) / 'ARO1            ', 128.78  /
+      DATA  MECH_SPC_SAPRC22( 14), MECH_MWT_SAPRC22( 14) / 'ARO2            ', 126.42  / !Name change
+      DATA  MECH_SPC_SAPRC22( 15), MECH_MWT_SAPRC22( 15) / 'ACETL           ', 26.04   / !Name change
+      DATA  MECH_SPC_SAPRC22( 16), MECH_MWT_SAPRC22( 16) / 'HCHO            ', 30.03   /
+      DATA  MECH_SPC_SAPRC22( 17), MECH_MWT_SAPRC22( 17) / 'MECHO           ', 44.05   / !Name change
+      DATA  MECH_SPC_SAPRC22( 18), MECH_MWT_SAPRC22( 18) / 'RCHO            ', 100.45  /
+      DATA  MECH_SPC_SAPRC22( 19), MECH_MWT_SAPRC22( 19) / 'BALD            ', 72.06   /
+      DATA  MECH_SPC_SAPRC22( 20), MECH_MWT_SAPRC22( 20) / 'ACET            ', 58.08   / !Name change
+      DATA  MECH_SPC_SAPRC22( 21), MECH_MWT_SAPRC22( 21) / 'MEK             ', 72.11   /
+      DATA  MECH_SPC_SAPRC22( 22), MECH_MWT_SAPRC22( 22) / 'KET2            ', 99.82   / !Equivalent of PRD2
+      DATA  MECH_SPC_SAPRC22( 23), MECH_MWT_SAPRC22( 23) / 'MEOH            ', 32.04   /
+      DATA  MECH_SPC_SAPRC22( 24), MECH_MWT_SAPRC22( 24) / 'HCOOH           ', 46.03   /
+      DATA  MECH_SPC_SAPRC22( 25), MECH_MWT_SAPRC22( 25) / 'OACID           ', 60.05   / !Name change
+      DATA  MECH_SPC_SAPRC22( 26), MECH_MWT_SAPRC22( 26) / 'PACID           ', 76.05   / !Name change
+      DATA  MECH_SPC_SAPRC22( 27), MECH_MWT_SAPRC22( 27) / 'GLY             ', 58.04   /
+      DATA  MECH_SPC_SAPRC22( 28), MECH_MWT_SAPRC22( 28) / 'MGLY            ', 72.06   /
+      DATA  MECH_SPC_SAPRC22( 29), MECH_MWT_SAPRC22( 29) / 'BACL            ', 86.09   /
+      DATA  MECH_SPC_SAPRC22( 30), MECH_MWT_SAPRC22( 30) / 'CRES            ', 108.14  /
+      DATA  MECH_SPC_SAPRC22( 31), MECH_MWT_SAPRC22( 31) / 'MACR            ', 70.09   /
+      DATA  MECH_SPC_SAPRC22( 32), MECH_MWT_SAPRC22( 32) / 'MVK             ', 70.09   /
+      DATA  MECH_SPC_SAPRC22( 33), MECH_MWT_SAPRC22( 33) / 'LVKS            ', 154.23  / !Equivalent of IPRD
+      DATA  MECH_SPC_SAPRC22( 34), MECH_MWT_SAPRC22( 34) / 'RNO3            ', 147.18  / !Not used
+      DATA  MECH_SPC_SAPRC22( 35), MECH_MWT_SAPRC22( 35) / 'CO              ', 28.01   /
+      DATA  MECH_SPC_SAPRC22( 36), MECH_MWT_SAPRC22( 36) / 'SESQ            ', 204.35  /
+      DATA  MECH_SPC_SAPRC22( 37), MECH_MWT_SAPRC22( 37) / 'HCN             ', 27.03   / !Not used
+      DATA  MECH_SPC_SAPRC22( 38), MECH_MWT_SAPRC22( 38) / 'CH3BR           ', 94.94   / !Not used
+      DATA  MECH_SPC_SAPRC22( 39), MECH_MWT_SAPRC22( 39) / 'CH3CL           ', 50.49   / !Not used
+      DATA  MECH_SPC_SAPRC22( 40), MECH_MWT_SAPRC22( 40) / 'CH3I            ', 141.94  / !Not used
+      DATA  MECH_SPC_SAPRC22( 41), MECH_MWT_SAPRC22( 41) / 'TRS             ', 32.00   / !Not used
+      DATA  MECH_SPC_SAPRC22( 42), MECH_MWT_SAPRC22( 42) / 'NO              ', 30.01   /
+      DATA  MECH_SPC_SAPRC22( 43), MECH_MWT_SAPRC22( 43) / 'NH3             ', 17.03   /
+      DATA  MECH_SPC_SAPRC22( 44), MECH_MWT_SAPRC22( 44) / 'N2O             ', 44.01   / !Not used
+      DATA  MECH_SPC_SAPRC22( 45), MECH_MWT_SAPRC22( 45) / 'APINE           ', 136.23  / !Name change
+      DATA  MECH_SPC_SAPRC22( 46), MECH_MWT_SAPRC22( 46) / 'HCHO_PRIMARY    ', 30.03   /
+      DATA  MECH_SPC_SAPRC22( 47), MECH_MWT_SAPRC22( 47) / 'CCHO_PRIMARY    ', 44.05   /
+      DATA  MECH_SPC_SAPRC22( 48), MECH_MWT_SAPRC22( 48) / 'MXYL            ', 106.17  / ! 1
+      DATA  MECH_SPC_SAPRC22( 49), MECH_MWT_SAPRC22( 49) / 'OXYL            ', 106.17  / ! 2
+      DATA  MECH_SPC_SAPRC22( 50), MECH_MWT_SAPRC22( 50) / 'PXYL            ', 106.17  / ! 3
+      DATA  MECH_SPC_SAPRC22( 51), MECH_MWT_SAPRC22( 51) / 'NAPS            ', 142.20  / ! Name change 
+      DATA  MECH_SPC_SAPRC22( 52), MECH_MWT_SAPRC22( 52) / 'OCS             ', 60.07   / ! 5
+      DATA  MECH_SPC_SAPRC22( 53), MECH_MWT_SAPRC22( 53) / 'TOLU            ', 92.14   / ! 6
+      DATA  MECH_SPC_SAPRC22( 54), MECH_MWT_SAPRC22( 54) / 'PROPE           ', 42.08   / ! Name change
+      DATA  MECH_SPC_SAPRC22( 55), MECH_MWT_SAPRC22( 55) / 'ETOH            ', 46.07   / ! 8
+      DATA  MECH_SPC_SAPRC22( 56), MECH_MWT_SAPRC22( 56) / 'PYRYACID        ', 70.09   / ! 9 not used
+      DATA  MECH_SPC_SAPRC22( 57), MECH_MWT_SAPRC22( 57) / 'BPINE           ', 136.23  / ! Explicit in SAPRC-22
+      DATA  MECH_SPC_SAPRC22( 58), MECH_MWT_SAPRC22( 58) / 'ETHAN           ', 30.07   / ! Explicit in SAPRC-22
+      DATA  MECH_SPC_SAPRC22( 59), MECH_MWT_SAPRC22( 59) / 'PROP            ', 44.10   / ! Explicit in SAPRC-22
+      DATA  MECH_SPC_SAPRC22( 60), MECH_MWT_SAPRC22( 60) / 'FURNS           ', 68.07   / ! New species
+      DATA  MECH_SPC_SAPRC22( 61), MECH_MWT_SAPRC22( 61) / 'OLEA1           ', 143.12  / ! New species
+      DATA  MECH_SPC_SAPRC22( 62), MECH_MWT_SAPRC22( 62) / 'XYNL            ', 124.84  / ! New species

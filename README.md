@@ -31,6 +31,7 @@ particulates, toxics, and acid deposition.
 * Introduction of a domain-wide Budget Reporting tool 
 * Online integration of common pollutant post-processing tasks (i.e. output total PM2.5 mass and more directly!)
 * Community Contribution: Incorporation of the Two-Dimensional Volatility Bases Set [(2D-VBS)](https://github.com/USEPA/CMAQ/tree/2DVBS) chemical mechanism
+* Community Contribution by Ramboll: SAPRC-22 Chemistry Mechanism Option [SAPRC-22 in CMAQv5.4](DOCS/README_SAPRC22.md)
 * **See the full list of CMAQv5.4 updates on our new CMAQ Wiki page. [**CMAQv5.4 Updates**](https://github.com/USEPA/CMAQ/wiki/CMAQv5.4-Series-FAQ#do-i-need-to-update-from-v533-to-v54)**
 
 ## Important update for WRF-CMAQ users

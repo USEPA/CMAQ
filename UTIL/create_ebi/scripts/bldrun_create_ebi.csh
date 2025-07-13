@@ -28,7 +28,8 @@
    setenv compiler $1
    setenv compilerVrsn $2
  else
-   setenv compiler intel
+#   setenv compiler intel
+   setenv compiler pgi
    setenv compilerVrsn Empty
    echo "compiler and version not set"
    echo "usage: $0 <compiler>"
@@ -45,6 +46,7 @@
     echo ${offline}
     setenv compilerString ${compiler}
     setenv CMAQ_HOME $cwd/..
+    #setenv CMAQ_HOME $cwd/
  endif
  echo ${CMAQ_HOME}
 
@@ -61,7 +63,7 @@
 
 #> User choices: working directory and application ID
  if ( ! $?MECH ) then
-   set MECH =     'cb6r5m_ae7_aq'
+   set MECH =     'saprc22_ae65_aq'
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
 
@@ -170,6 +172,10 @@
       setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                   # significant figures in general or scientific notation
                                   # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+   else if ( ${MECH} =~ *"saprc22"* || ${MECH} =~ *"SAPRC22"* ) then
+      setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four
+                                  # significant figures in general or scientific notation
+                                  # For saprc07tic based mechanisms, 1.25 minutes is recommended.
    else
       setenv SOLVER_DELT     2.50 # maximum time step (minutes) of solver integration up to four
                                   # significant figures in general or scientific notation
@@ -178,7 +184,7 @@
    endif
 
    #                 #Mech   # Description
-   #                SAPRC07  #
+   #              SAPRC07/22 #
     setenv MECH_NO    NO     # Species name for nitric oxide
     setenv MECH_NO2   NO2    # Species name for nitrogen dioxide
     setenv MECH_O3    O3     # Species name for ozone

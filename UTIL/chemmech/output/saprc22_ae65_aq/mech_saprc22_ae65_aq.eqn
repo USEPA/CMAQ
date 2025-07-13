@@ -1,0 +1,1508 @@
+#INLINE F90_RATES
+REAL(kind=dp) FUNCTION FALL_OFF ( A0,B0,C0,A1,B1,C1,CE,CF)
+  IMPLICIT NONE
+  REAL(kind=dp), INTENT( IN ) :: A0,B0,C0,A1,B1,C1,CE,CF
+  REAL(kind=dp) K0, K1, KEND
+! K0 = A0 * COEFF_FALLOFF * DEXP(B0/TEMP)* (TEMP/300.0_dp)**C0
+! K1 = A1 * DEXP(B1/TEMP) * (TEMP/300.0_dp)**C1
+  K0 = A0 * COEFF_FALLOFF * DEXP(B0*INV_TEMP)* (TEMP/300.0_dp)**C0
+  K1 = A1 * DEXP(B1*INV_TEMP) * (TEMP/300.0_dp)**C1
+  KEND = ( ( 1.0_dp + ( ( 1.0_dp / CE ) * DLOG10( K0 / K1 ) ) ** 2.0_dp ) )
+  KEND = 1.0_dp / KEND
+  FALL_OFF = ( K0 / ( 1.0_dp + K0/K1 ) ) * CF ** KEND
+END FUNCTION FALL_OFF
+REAL( kind=dp ) FUNCTION HALOGEN_FALLOFF(A1,B1,A2,B2,A3)
+   IMPLICIT NONE
+   REAL( kind=dp ), INTENT( IN ) :: A1
+   REAL( kind=dp ), INTENT( IN ) :: B1
+   REAL( kind=dp ), INTENT( IN ) :: A2
+   REAL( kind=dp ), INTENT( IN ) :: B2
+   REAL( kind=dp ), INTENT( IN ) :: A3
+   INTRINSIC DEXP
+   IF( OPEN_WATER )THEN
+       HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
+       HALOGEN_FALLOFF = DMIN1( A3, HALOGEN_FALLOFF) 
+   ELSE
+       HALOGEN_FALLOFF = 0.0_dp
+   END IF
+   RETURN
+END FUNCTION HALOGEN_FALLOFF
+#ENDINLINE
+#INLINE F90_GLOBAL
+! Name of Mechanism 
+CHARACTER(32), PARAMETER :: MECHNAME = 'SAPRC22_AE65_AQ'
+!
+!
+REAL(dp), PARAMETER :: INV_T300 = 1.0D0 / 300.0D0 ! reciprocal 300K
+REAL(dp)            :: CAIR          ! air number density (wet) [molec/cm^3]
+REAL(dp)            :: INV_TEMP      ! reciprocal of air temperature, K-1
+REAL(dp)            :: PRESS         ! pressure [Atm] 
+REAL(dp)            :: INV_RFACTOR   ! Convertor: ppm/min to molec/(cm^3*sec)
+REAL(dp)            :: RFACTOR_SQU   ! Convertor cm^6/(molec^2*sec) to 1/(ppm^2*min)
+REAL(dp)            :: RFACTOR       ! Convertor cm^3/(molec*sec) to 1/(ppm*min)
+REAL(dp)            :: COEFF_FALLOFF ! Factor in pressure limiting rate constants, [molec/cm^3] 
+REAL                :: H2O                ! Cell H2O mixing ratio (ppmV)
+INTEGER, PARAMETER  :: NPHOTAB  =  33     ! number of photolysis rates 
+CHARACTER(16), SAVE :: PHOTAB( NPHOTAB )  ! Names of  photolysis 
+REAL(dp)            :: RJCELL( NPHOTAB )  ! grid cell photolysis rates ,[min-1]
+LOGICAL             :: OPEN_WATER         ! Is land category ice free open water?
+LOGICAL             :: CALC_RCONST        ! compute temp and dens dependent rate constants
+INTEGER,  SAVE       ::          indf_N2 = 0 
+! number mixing ratios of constant atmospheric species, ppmV
+REAL(dp), PARAMETER :: ATM_AIR          = 1.00000D+06
+REAL(dp), PARAMETER :: ATM_O2           = 2.09500D+05
+REAL(dp), PARAMETER :: ATM_N2           = 7.80800D+05
+REAL(dp), PARAMETER :: ATM_H2           = 5.60000D-01
+REAL(dp), PARAMETER :: ATM_CH4          = 1.85000D+00
+REAL(dp)  :: RKI_RXN_4                ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_6                ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_11               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_12               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_22               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_25               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_33               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_34               ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_Q1N2             ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_S2OH             ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_P1UI             ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_E1OH             ! rate constant for stated reaction label
+REAL(dp)  :: RKI_RXN_ACOH             ! rate constant for stated reaction label
+!Flag to call SPECIAL_RATES rountine in Integrator 
+  LOGICAL,  PARAMETER :: USE_SPECIAL_RATES = .FALSE.
+! pointers and names to specific photolysis rates
+INTEGER, PARAMETER  :: IJ_NO2_06           =   1
+INTEGER, PARAMETER  :: IJ_NO3NO_06         =   2
+INTEGER, PARAMETER  :: IJ_NO3NO2_6         =   3
+INTEGER, PARAMETER  :: IJ_O3O1D_06         =   4
+INTEGER, PARAMETER  :: IJ_O3O3P_06         =   5
+INTEGER, PARAMETER  :: IJ_HONO_06          =   6
+INTEGER, PARAMETER  :: IJ_HNO3             =   7
+INTEGER, PARAMETER  :: IJ_HNO4_06          =   8
+INTEGER, PARAMETER  :: IJ_H2O2             =   9
+INTEGER, PARAMETER  :: IJ_HCHOR_13         =  10
+INTEGER, PARAMETER  :: IJ_HCHOM_13         =  11
+INTEGER, PARAMETER  :: IJ_PAN_11           =  12
+INTEGER, PARAMETER  :: IJ_GLY_I13R         =  13
+INTEGER, PARAMETER  :: IJ_GLY_I13M         =  14
+INTEGER, PARAMETER  :: IJ_BALD_11          =  15
+INTEGER, PARAMETER  :: IJ_PPN_11           =  16
+INTEGER, PARAMETER  :: IJ_BACL_11          =  17
+INTEGER, PARAMETER  :: IJ_COOH             =  18
+INTEGER, PARAMETER  :: IJ_CCHOR_13         =  19
+INTEGER, PARAMETER  :: IJ_GLALD_14         =  20
+INTEGER, PARAMETER  :: IJ_C2CHOabs         =  21
+INTEGER, PARAMETER  :: IJ_ACROL_16         =  22
+INTEGER, PARAMETER  :: IJ_ACET_06          =  23
+INTEGER, PARAMETER  :: IJ_MEK_06           =  24
+INTEGER, PARAMETER  :: IJ_MACR_06          =  25
+INTEGER, PARAMETER  :: IJ_MVK_16           =  26
+INTEGER, PARAMETER  :: IJ_AFGS             =  27
+INTEGER, PARAMETER  :: IJ_PAA              =  28
+INTEGER, PARAMETER  :: IJ_MGLY_13          =  29
+INTEGER, PARAMETER  :: IJ_CRBNIT           =  30
+INTEGER, PARAMETER  :: IJ_IC3ONO2          =  31
+INTEGER, PARAMETER  :: IJ_DIONO2           =  32
+INTEGER, PARAMETER  :: IJ_HPALDS           =  33
+DATA PHOTAB(  1 ) / 'NO2_06          ' /
+DATA PHOTAB(  2 ) / 'NO3NO_06        ' /
+DATA PHOTAB(  3 ) / 'NO3NO2_6        ' /
+DATA PHOTAB(  4 ) / 'O3O1D_06        ' /
+DATA PHOTAB(  5 ) / 'O3O3P_06        ' /
+DATA PHOTAB(  6 ) / 'HONO_06         ' /
+DATA PHOTAB(  7 ) / 'HNO3            ' /
+DATA PHOTAB(  8 ) / 'HNO4_06         ' /
+DATA PHOTAB(  9 ) / 'H2O2            ' /
+DATA PHOTAB( 10 ) / 'HCHOR_13        ' /
+DATA PHOTAB( 11 ) / 'HCHOM_13        ' /
+DATA PHOTAB( 12 ) / 'PAN_11          ' /
+DATA PHOTAB( 13 ) / 'GLY_I13R        ' /
+DATA PHOTAB( 14 ) / 'GLY_I13M        ' /
+DATA PHOTAB( 15 ) / 'BALD_11         ' /
+DATA PHOTAB( 16 ) / 'PPN_11          ' /
+DATA PHOTAB( 17 ) / 'BACL_11         ' /
+DATA PHOTAB( 18 ) / 'COOH            ' /
+DATA PHOTAB( 19 ) / 'CCHOR_13        ' /
+DATA PHOTAB( 20 ) / 'GLALD_14        ' /
+DATA PHOTAB( 21 ) / 'C2CHOabs        ' /
+DATA PHOTAB( 22 ) / 'ACROL_16        ' /
+DATA PHOTAB( 23 ) / 'ACET_06         ' /
+DATA PHOTAB( 24 ) / 'MEK_06          ' /
+DATA PHOTAB( 25 ) / 'MACR_06         ' /
+DATA PHOTAB( 26 ) / 'MVK_16          ' /
+DATA PHOTAB( 27 ) / 'AFGS            ' /
+DATA PHOTAB( 28 ) / 'PAA             ' /
+DATA PHOTAB( 29 ) / 'MGLY_13         ' /
+DATA PHOTAB( 30 ) / 'CRBNIT          ' /
+DATA PHOTAB( 31 ) / 'IC3ONO2         ' /
+DATA PHOTAB( 32 ) / 'DIONO2          ' /
+DATA PHOTAB( 33 ) / 'HPALDS          ' /
+
+INTEGER, PARAMETER  :: NHETERO  =  10  ! number of heterogeneous rates 
+CHARACTER(16), SAVE :: HETERO(  NHETERO )  ! Names of  heterogeneous 
+REAL(dp)            :: KHETERO( NHETERO )  ! grid cell heterogeneous rates ,[min-1]
+INTEGER, PARAMETER  :: IK_HETERO_NO2       =   1
+INTEGER, PARAMETER  :: IK_HETERO_N2O5IJ    =   2
+INTEGER, PARAMETER  :: IK_HETERO_N2O5K     =   3
+INTEGER, PARAMETER  :: IK_HETERO_H2NO3PAIJ =   4
+INTEGER, PARAMETER  :: IK_HETERO_H2NO3PAK  =   5
+INTEGER, PARAMETER  :: IK_HETERO_NO3       =   6
+INTEGER, PARAMETER  :: IK_HETERO_PNCOMLI   =   7
+INTEGER, PARAMETER  :: IK_HETERO_PNCOMLJ   =   8
+INTEGER, PARAMETER  :: IK_HETERO_GLY       =   9
+INTEGER, PARAMETER  :: IK_HETERO_MGLY      =  10
+DATA HETERO(  1 ) / 'HETERO_NO2      ' /
+DATA HETERO(  2 ) / 'HETERO_N2O5IJ   ' /
+DATA HETERO(  3 ) / 'HETERO_N2O5K    ' /
+DATA HETERO(  4 ) / 'HETERO_H2NO3PAIJ' /
+DATA HETERO(  5 ) / 'HETERO_H2NO3PAK ' /
+DATA HETERO(  6 ) / 'HETERO_NO3      ' /
+DATA HETERO(  7 ) / 'HETERO_PNCOMLI  ' /
+DATA HETERO(  8 ) / 'HETERO_PNCOMLJ  ' /
+DATA HETERO(  9 ) / 'HETERO_GLY      ' /
+DATA HETERO( 10 ) / 'HETERO_MGLY     ' /
+#ENDINLINE
+#INLINE F90_UTIL
+SUBROUTINE SPECIAL_RATES( N, Y)
+!Purpose: calculate special rate operators and update
+!         appropriate rate constants
+
+  USE mech_saprc22_ae65_aq_Global
+  IMPLICIT NONE
+
+!Arguments:
+
+   INTEGER,       INTENT( IN ) :: N      ! number of species
+   REAL(kind=dp), INTENT( IN ) :: Y( N ) ! species concs
+
+
+RETURN
+END SUBROUTINE SPECIAL_RATES
+#ENDINLINE
+#INLINE F90_RCONST
+!If( .Not. CALC_RCONST )Then
+!   Return
+!Else
+!   CALC_RCONST = .False.
+!End If
+! Rate Constant Units produce reaction rates in ppm/min
+RKI_RXN_4                 = FALL_OFF(   9.0000D-32,   0.0000D+00,  & 
+ & -1.5000D+00,   3.0000D-11,   0.0000D+00,   0.0000D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_6                 = FALL_OFF(   2.5000D-31,   0.0000D+00,  & 
+ & -1.8000D+00,   2.2000D-11,   0.0000D+00,  -7.0000D-01,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_11                = FALL_OFF(   3.6000D-30,   0.0000D+00,  & 
+ & -4.1000D+00,   1.9000D-12,   0.0000D+00,   2.0000D-01,   1.3300D+00,  & 
+ &  3.5000D-01 )
+RKI_RXN_12                = FALL_OFF(   1.3000D-03,  -1.1000D+04,  & 
+ & -3.5000D+00,   9.7000D+14,  -1.1080D+04,   1.0000D-01,   1.3300D+00,  & 
+ &  3.5000D-01 )
+RKI_RXN_22                = FALL_OFF(   7.0000D-31,   0.0000D+00,  & 
+ & -2.6000D+00,   3.6000D-11,   0.0000D+00,  -1.0000D-01,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_25                = FALL_OFF(   3.2000D-30,   0.0000D+00,  & 
+ & -4.5000D+00,   3.0000D-11,   0.0000D+00,   0.0000D+00,   1.2400D+00,  & 
+ &  4.1000D-01 )
+RKI_RXN_33                = FALL_OFF(   1.4000D-31,   0.0000D+00,  & 
+ & -3.1000D+00,   4.0000D-12,   0.0000D+00,   0.0000D+00,   1.2600D+00,  & 
+ &  4.0000D-01 )
+RKI_RXN_34                = FALL_OFF(   4.1000D-05,  -1.0650D+04,  & 
+ &  0.0000D+00,   6.0000D+15,  -1.1170D+04,   0.0000D+00,   1.2600D+00,  & 
+ &  4.0000D-01 )
+RKI_RXN_Q1N2              = FALL_OFF(   9.7000D-29,   0.0000D+00,  & 
+ & -5.6000D+00,   9.3000D-12,   0.0000D+00,  -1.5000D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_S2OH              = FALL_OFF(   3.3000D-31,   0.0000D+00,  & 
+ & -4.3000D+00,   1.6000D-12,   0.0000D+00,   0.0000D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_P1UI              = FALL_OFF(   1.0800D+00,  -1.4000D+04,  & 
+ & -5.6000D+00,   1.0300D+17,  -1.4000D+04,  -1.5000D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_E1OH              = FALL_OFF(   1.1000D-28,   0.0000D+00,  & 
+ & -3.5000D+00,   8.4000D-12,   0.0000D+00,  -1.7500D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+RKI_RXN_ACOH              = FALL_OFF(   5.5000D-30,   0.0000D+00,  & 
+ &  0.0000D+00,   8.3000D-13,   0.0000D+00,   2.0000D+00,   1.0000D+00,  & 
+ &  6.0000D-01 )
+#ENDINLINE
+#EQNTAGS ON
+#EQUATIONS
+// All rate constants converted from  molec/cm3 to ppm
+// and 1/sec to 1/min
+ <1> NO2 = NO + O3P  : RJCELL( IJ_NO2_06 ) ;
+ <2> O3P + O2 + M = O3  :  RFACTOR_SQU * ARRD(   6.0000D-34, 0.0000D+0,  2.4000D+00 ) ;
+ <3> O3P + O3 = DUMMY   :  RFACTOR * ARR2D(   8.0000D-12,  -2.0600D+03 ) ;
+ <4> O3P + NO = NO2  :  RFACTOR * RKI_RXN_4                ;
+ <5> O3P + NO2 = NO  :  RFACTOR * ARR2D(   5.1000D-12,   2.1000D+02 ) ;
+ <6> O3P + NO2 = NO3  :  RFACTOR * RKI_RXN_6                ;
+ <7> O3 + NO = NO2  :  RFACTOR * ARR2D(   3.0000D-12,  -1.5000D+03 ) ;
+ <8> O3 + NO2 = NO3  :  RFACTOR * ARR2D(   1.2000D-13,  -2.4500D+03 ) ;
+ <9> NO + NO3 = 2.00000*NO2  :  RFACTOR * ARR2D(   1.5000D-11,   1.7000D+02 ) ;
+ <10> NO + NO + O2 = 2.00000*NO2  :  RFACTOR_SQU * ARR2D(   3.3000D-39,   5.3000D+02 ) ;
+ <11> NO2 + NO3 = N2O5  :  RFACTOR * RKI_RXN_11               ;
+ <12> N2O5 = NO2 + NO3  :  60.0D0 * RKI_RXN_12               ;
+ <13> N2O5 + H2O = 2.00000*HNO3  :  RFACTOR *   0.0000D+00 ;
+ <14> N2O5 + H2O + H2O = 2.00000*HNO3  :  RFACTOR_SQU *   0.0000D+00 ;
+ <15> NO2 + NO3 = NO + NO2  :  RFACTOR * ARR2D(   4.5000D-14,  -1.2600D+03 ) ;
+ <16> NO3 = NO  : RJCELL( IJ_NO3NO_06 ) ;
+ <17> NO3 = NO2 + O3P  : RJCELL( IJ_NO3NO2_6 ) ;
+ <18> O3 = O1D  : RJCELL( IJ_O3O1D_06 ) ;
+ <19> O3 = O3P  : RJCELL( IJ_O3O3P_06 ) ;
+ <20> O1D + H2O = 2.00000*OH  :  RFACTOR * ARR2D(   1.6300D-10,   6.0000D+01 ) ;
+ <21> O1D + M = O3P  :  RFACTOR * ARR2D(   2.6500D-11,   9.8000D+01 ) ;
+ <22> OH + NO = HONO  :  RFACTOR * RKI_RXN_22               ;
+ <23> HONO = OH + NO  : RJCELL( IJ_HONO_06 ) ;
+ <24> OH + HONO = NO2  :  RFACTOR * ARR2D(   1.8000D-11,  -3.9000D+02 ) ;
+ <25> OH + NO2 = HNO3  :  RFACTOR * RKI_RXN_25               ;
+ <26> OH + NO3 = HO2 + NO2  :  RFACTOR *   2.2000D-11 ;
+ <27> OH + HNO3 = NO3  :  RFACTOR * EP2D(   2.4000D-14,   4.6000D+02,   2.7000D-17,   2.1990D+03,   6.5000D-34,   1.3350D+03 ) ;
+ <28> HNO3 = OH + NO2  : RJCELL( IJ_HNO3 ) ;
+ <29> OH + O3 = HO2  :  RFACTOR * ARR2D(   1.7000D-12,  -9.4000D+02 ) ;
+ <30> HO2 + NO = OH + NO2  :  RFACTOR * ARR2D(   3.3000D-12,   2.7000D+02 ) ;
+ <31> HO2 + NO = HNO3  :  RFACTOR * EP4D(   2.3900D-12,  -1.3770D+01,  -1.7110D+03,   1.8300D-32,  -4.8500D+00,  -7.7200D+02,   0.0000D+00,   0.0000D+00 ) ;
+ <32> HO2 + NO + H2O = HNO3  :  RFACTOR_SQU * ARR2D(   1.2000D-35,   2.9440D+03 ) ;
+ <33> HO2 + NO2 = HNO4  :  RFACTOR * RKI_RXN_33               ;
+ <34> HNO4 = HO2 + NO2  :  60.0D0 * RKI_RXN_34               ;
+ <35> HNO4 = 0.80000*HO2 +  0.80000*NO2 +  0.20000*OH +  0.20000*NO3  : RJCELL( IJ_HNO4_06 ) ;
+ <36> HNO4 + OH = NO2  :  RFACTOR * ARR2D(   1.3000D-12,   3.8000D+02 ) ;
+ <37> HO2 + O3 = OH  :  RFACTOR * ARR2D(   1.0000D-14,  -4.9000D+02 ) ;
+ <38> HO2 + HO2 = HO2H  :  RFACTOR * EP3D(   3.0000D-13,   4.6000D+02,   2.1000D-33,   9.2000D+02 ) ;
+ <39> HO2 + HO2 + H2O = HO2H  :  RFACTOR_SQU * EP3D(   4.2000D-34,   2.6600D+03,   2.9400D-54,   3.1200D+03 ) ;
+ <40> NO3 + HO2 = OH + NO2  :  RFACTOR *   3.5000D-12 ;
+ <41> NO3 + NO3 = 2.00000*NO2  :  RFACTOR * ARR2D(   8.5000D-13,  -2.4500D+03 ) ;
+ <42> HO2H = 2.00000*OH  : RJCELL( IJ_H2O2 ) ;
+ <43> HO2H + OH = HO2  :  RFACTOR *   1.8000D-12 ;
+ <44> OH + HO2 = DUMMY   :  RFACTOR * ARR2D(   4.8000D-11,   2.5000D+02 ) ;
+ <45> CO + OH = HO2 + CO2  :  RFACTOR * EP3D(   1.4400D-13,   0.0000D+00,   3.4300D-33,   0.0000D+00 ) ;
+ <46> OH + H2 = HO2  :  RFACTOR * ARR2D(   2.8000D-12,  -1.8000D+03 ) ;
+ <R2NO> SumRO2 + NO = NO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <R2H2> SumRO2 + HO2 = HO2  :  RFACTOR *   1.4900D-11 ;
+ <R2N3> SumRO2 + NO3 = NO3  :  RFACTOR *   2.3000D-12 ;
+ <R2R2> SumRO2 + SumRO2 = DUMMY   :  RFACTOR *   1.6000D-14 ;
+ <R3N2> SumRCO3 + NO2 = NO2  :  RFACTOR * ARRD(   7.7000D-12, 0.0000D+0, -2.0000D-01 ) ;
+ <R3NO> SumRCO3 + NO = NO  :  RFACTOR * ARR2D(   6.7000D-12,   3.4000D+02 ) ;
+ <R3H2> SumRCO3 + HO2 = HO2  :  RFACTOR * ARR2D(   3.1400D-12,   5.8000D+02 ) ;
+ <R3N3> SumRCO3 + NO3 = NO3  :  RFACTOR *   4.0000D-12 ;
+ <R3R2> SumRCO3 + SumRO2 = DUMMY   :  RFACTOR * ARR2D(   4.4000D-13,   1.0700D+03 ) ;
+ <R3R3> SumRCO3 + SumRCO3 = DUMMY   :  RFACTOR *   1.7000D-11 ;
+ <57> RO2C + NO = NO2  :   RCONST(   47 )  ;
+ <58> RO2C + HO2 = DUMMY   :   RCONST(   48 )  ;
+ <59> RO2C + NO3 = NO2  :   RCONST(   49 )  ;
+ <60> RO2C + SumRO2 = SumRO2  :   RCONST(   50 )  ;
+ <61> RO2C + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <62> RO2XC + NO = DUMMY   :   RCONST(   47 )  ;
+ <63> RO2XC + HO2 = DUMMY   :   RCONST(   48 )  ;
+ <64> RO2XC + NO3 = NO2  :   RCONST(   49 )  ;
+ <65> RO2XC + SumRO2 = SumRO2  :   RCONST(   50 )  ;
+ <66> RO2XC + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <67> MEO2 + NO = NO2 + HCHO + HO2  :  RFACTOR * ARR2D(   2.8000D-12,   3.0000D+02 ) ;
+ <68> MEO2 + HO2 = 0.90000*MEOOH +  0.10000*HCHO  :  RFACTOR * ARR2D(   3.8000D-13,   7.8000D+02 ) ;
+ <69> MEO2 + NO3 = HCHO + HO2 + NO2  :  RFACTOR *   1.2000D-12 ;
+ <70> MEO2 + SumRO2 = 0.30000*HO2 +  0.65000*HCHO +  0.35000*MEOH  :  RFACTOR *   2.1600D-13 ;
+ <71> MEO2 + SumRCO3 = 0.90000*HO2 + HCHO  :  RFACTOR * ARR2D(   2.0000D-12,   5.0000D+02 ) ;
+ <72> ETO2 + NO = NO2 + HO2 + MECHO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <73> ETO2 + HO2 = ROOH  :  RFACTOR *   7.4400D-12 ;
+ <74> ETO2 + NO3 = NO2 + HO2 + MECHO  :  RFACTOR *   2.3000D-12 ;
+ <75> ETO2 + SumRO2 = 0.50000*HO2 +  0.25000*ETOH +  0.75000*MECHO  :  RFACTOR *   2.9000D-14 ;
+ <76> ETO2 + SumRCO3 = 0.80000*HO2 + MECHO  :  RFACTOR *   1.6000D-11 ;
+ <77> BZO2 + NO = NO2 + BZO  :   RCONST(   47 )  ;
+ <78> BZO2 + HO2 = ROOH  :   RCONST(   48 )  ;
+ <79> BZO2 + NO3 = BZO + NO2  :   RCONST(   49 )  ;
+ <80> BZO2 + SumRO2 = SumRO2 + BZO  :   RCONST(   50 )  ;
+ <81> BZO2 + SumRCO3 = SumRCO3 + BZO  :   RCONST(   55 )  ;
+ <Q1NO> MECO3 + NO = NO2 + MEO2 + CO2 + SumRO2  :  RFACTOR * ARR2D(   8.1000D-12,   2.7000D+02 ) ;
+ <Q1N2> MECO3 + NO2 = PAN  :  RFACTOR * RKI_RXN_Q1N2             ;
+ <Q1N3> MECO3 + NO3 = NO2 + MEO2 + CO2 + SumRO2  :  RFACTOR *   4.0000D-12 ;
+ <Q1H2> MECO3 + HO2 = 0.13000*O3 +  0.50000*OH +  0.50000*MEO2 +  0.13000*OACID +  0.37000*PACID   
+                +  0.50000*CO2 +  0.50000*SumRO2  :  RFACTOR *   2.2000D-11 ;
+ <Q1R2> MECO3 + SumRO2 = 0.90000*MEO2 +  0.10000*OACID +  0.90000*CO2 +  0.90000*SumRO2  :  RFACTOR *   1.6000D-11 ;
+ <Q1R3> MECO3 + SumRCO3 = MEO2 + CO2 + SumRO2  :  RFACTOR *   1.4000D-11 ;
+ <Q6N2> BZCO3 + NO2 = PBZN  :  RFACTOR *   1.1100D-11 ;
+ <Q6NO> BZCO3 + NO = NO2 + CO2 + BZO2 + SumRO2  :  RFACTOR *   1.6000D-11 ;
+ <Q6H2> BZCO3 + HO2 = 0.50000*ALK5 +  0.13000*O3 +  0.50000*OH +  0.50000*BZO2 +  0.50000*CO2   
+                +  0.50000*SumRO2  :   RCONST(   53 )  ;
+ <Q6N3> BZCO3 + NO3 = NO2 + CO2 + BZO2 + SumRO2  :   RCONST(   54 )  ;
+ <Q6R2> BZCO3 + SumRO2 = 2.00000*SumRO2 + BZO2 + CO2  :   RCONST(   55 )  ;
+ <Q6R3> BZCO3 + SumRCO3 = SumRCO3 + CO2 + BZO2 + SumRO2  :   RCONST(   56 )  ;
+ <94> TBUO + NO2 = R1NO3  :  RFACTOR * ARR2D(   3.5000D-12,   5.5300D+02 ) ;
+ <95> TBUO = ACET + MEO2 + SumRO2  :  60.0D0 * ARR2D(   1.4000D+13,  -6.8560D+03 ) ;
+ <96> BZO + NO2 = NPHE  :  RFACTOR *   2.0800D-12 ;
+ <97> BZO + HO2 = CRES  :   RCONST(   48 )  ;
+ <98> BZO + O3 = BZO2 + SumRO2  :  RFACTOR *   2.8600D-13 ;
+ <99> BZO + BZO = DUMMY   :  RFACTOR *   1.4900D-11 ;
+ <100> NPRAD + NO2 = NPHE  :   RCONST(   51 )  ;
+ <101> NPRAD + HO2 = NAPPRD  :   RCONST(   53 )  ;
+ <102> NPRAD = NAPPRD  :  60.0D0 *   1.0000D-03 ;
+ <103> PNAMIN + NO2 = NAMIN  :   RCONST(   51 )  ;
+ <104> PNAMIN + HO2 = AMINS  :   RCONST(   53 )  ;
+ <105> PNAMIN = AMINS  :  60.0D0 *   1.0000D-03 ;
+ <G1N2> HCHO2 + NO2 = HCHO + NO3  :  RFACTOR *   7.0000D-12 ;
+ <G1WA> HCHO2 + H2O = HCOOH  :  RFACTOR *   2.4000D-15 ;
+ <G1S2> HCHO2 + SO2 = SULF + HCHO + SULRXN  :  RFACTOR *   3.8000D-11 ;
+ <G2N2> MECHO2 + NO2 = MECHO + NO3  :  RFACTOR *   7.0000D-12 ;
+ <G2WA> MECHO2 + H2O = OACID  :  RFACTOR *   2.4000D-15 ;
+ <G2S2> MECHO2 + SO2 = SULF + MECHO + SULRXN  :  RFACTOR *   3.8000D-11 ;
+ <G3N2> RCHO2 + NO2 = RCHO + NO3  :  RFACTOR *   7.0000D-12 ;
+ <G3WA> RCHO2 + H2O = OACID  :  RFACTOR *   2.4000D-15 ;
+ <G3S2> RCHO2 + SO2 = SULF + RCHO + SULRXN  :  RFACTOR *   3.8000D-11 ;
+ <S2OH> SO2 + OH = HO2 + SULF + SULRXN  :  RFACTOR * RKI_RXN_S2OH             ;
+ <C1OH> OH + CH4 = MEO2 + SumRO2  :  RFACTOR * ARR2D(   2.4500D-12,  -1.7750D+03 ) ;
+ <117> HCHO = 2.00000*HO2 + CO  : RJCELL( IJ_HCHOR_13 ) ;
+ <118> HCHO = CO  : RJCELL( IJ_HCHOM_13 ) ;
+ <119> HCHO + OH = HO2 + CO  :  RFACTOR * ARR2D(   5.5000D-12,   1.2500D+02 ) ;
+ <120> HCHO + NO3 = HNO3 + HO2 + CO  :  RFACTOR *   5.8000D-16 ;
+ <P1UI> PAN = NO2 + MECO3 + SumRCO3  :  60.0D0 * RKI_RXN_P1UI             ;
+ <P1HV> PAN = 0.60000*NO2 +  0.40000*NO3 +  0.40000*MEO2 +  0.60000*MECO3 +  0.40000*CO2   
+                +  0.40000*SumRO2 +  0.60000*SumRCO3  : RJCELL( IJ_PAN_11 ) ;
+ <123> GLY = 2.00000*CO +  2.00000*HO2  : RJCELL( IJ_GLY_I13R ) ;
+ <124> GLY = HCHO + CO  : RJCELL( IJ_GLY_I13M ) ;
+ <125> GLY + OH = 1.70000*CO +  0.70000*HO2 +  0.30000*OH +  0.30000*CO2  :  RFACTOR *   1.1500D-11 ;
+ <126> GLY + NO3 = HNO3 +  1.70000*CO +  0.70000*HO2 +  0.30000*OH +  0.30000*CO2  :  RFACTOR *   4.0000D-16 ;
+ <BLOH> BALD + OH = BZCO3 + SumRCO3  :  RFACTOR *   1.2000D-11 ;
+ <BLHV> BALD = DUMMY   :   9.0000D-02 * RJCELL( IJ_BALD_11 ) ;
+ <BLN3> BALD + NO3 = HNO3 + BZCO3 + SumRCO3  :  RFACTOR *   4.0000D-15 ;
+ <PBUI> PBZN = BZCO3 + NO2 + SumRCO3  :  60.0D0 * ARR2D(   2.1000D+16,  -1.3600D+04 ) ;
+ <PBHV> PBZN = 0.60000*BZCO3 +  0.60000*NO2 +  0.40000*CO2 +  0.40000*BZO2 +  0.40000*NO3   
+                +  0.40000*SumRO2 +  0.60000*SumRCO3  : RJCELL( IJ_PPN_11 ) ;
+ <NPOH> NPHE + OH = BZO + NO2  :  RFACTOR *   3.5000D-12 ;
+ <NPHV> NPHE = HONO + PHEN  :   1.5000D-03 * RJCELL( IJ_NO2_06 ) ;
+ <NAOH> NAPS + OH = 0.74100*HO2 +  0.70700*CATL +  0.03400*RO2C +  0.01700*AFG2A +  0.01700*AFG2B   
+                +  0.03400*GLY +  0.33000*NPRAD +  0.25000*MACO3 +  0.03400*SumRO2 +  0.25000*SumRCO3   
+                + PAHRO2  :  RFACTOR * ARR2D(   1.5500D-11,   1.1700D+02 ) ;
+ <CTOH> CATL3 + OH = HO2 + OTHN  :  RFACTOR *   5.9700D-10 ;
+ <CTN3> CATL3 + NO3 = HNO3 + OTHN  :  RFACTOR *   4.8600D-10 ;
+ <PNOH> NAPPRD + OH = HO2 + OTHN  :  RFACTOR *   2.0000D-10 ;
+ <PNN3> NAPPRD + NO3 = HNO3 + OTHN  :  RFACTOR *   1.7000D-10 ;
+ <139> PHOT = 2.00000*HO2 +  2.00000*RO2C +  2.00000*SumRO2 + ALK3  : RJCELL( IJ_BACL_11 ) ;
+ <140> IMINE = MECHO  :  60.0D0 *   2.7800D-04 ;
+ <141> CLETHE + OH = xHO2 + RO2C + xHCHO + yROOH + SumRO2  :  RFACTOR * ARR2D(   2.5400D-12,   3.2500D+02 ) ;
+ <142> ACRLNT + OH = xHO2 + RO2C + xHCHO + yROOH + SumRO2  :  RFACTOR *   4.1300D-12 ;
+ <143> PCE + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   3.5000D-12,  -9.2000D+02 ) ;
+ <144> PCLBEN + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR *   4.0300D-13 ;
+ <145> MECL2 + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   1.8000D-12,  -8.6000D+02 ) ;
+ <146> ETBR2 + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   7.6900D-12,  -1.0560D+03 ) ;
+ <147> ETCL2 + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   8.6900D-12,  -1.0700D+03 ) ;
+ <148> ETOX + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   1.6300D-12,  -8.5600D+02 ) ;
+ <149> CHCL3 + OH = xHO2 + RO2C + yROOH + SumRO2  :  RFACTOR * ARR2D(   1.8000D-12,  -8.5000D+02 ) ;
+ <150> xHO2 + NO = NO + HO2  :   RCONST(   47 )  ;
+ <151> xHO2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <152> xHO2 + NO3 = NO3 + HO2  :   RCONST(   49 )  ;
+ <153> xHO2 + SumRO2 = SumRO2 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <154> xHO2 + SumRCO3 = SumRCO3 + HO2  :   RCONST(   55 )  ;
+ <155> xOH + NO = NO + OH  :   RCONST(   47 )  ;
+ <156> xOH + HO2 = HO2  :   RCONST(   48 )  ;
+ <157> xOH + NO3 = NO3 + OH  :   RCONST(   49 )  ;
+ <158> xOH + SumRO2 = SumRO2 +  0.50000*OH  :   RCONST(   50 )  ;
+ <159> xOH + SumRCO3 = SumRCO3 + OH  :   RCONST(   55 )  ;
+ <160> xNO2 + NO = NO + NO2  :   RCONST(   47 )  ;
+ <161> xNO2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <162> xNO2 + NO3 = NO3 + NO2  :   RCONST(   49 )  ;
+ <163> xNO2 + SumRO2 = SumRO2 +  0.50000*NO2  :   RCONST(   50 )  ;
+ <164> xNO2 + SumRCO3 = SumRCO3 + NO2  :   RCONST(   55 )  ;
+ <165> xNO3 + NO = NO + NO3  :   RCONST(   47 )  ;
+ <166> xNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <167> xNO3 + NO3 = 2.00000*NO3  :   RCONST(   49 )  ;
+ <168> xNO3 + SumRO2 = SumRO2 +  0.50000*NO3  :   RCONST(   50 )  ;
+ <169> xNO3 + SumRCO3 = SumRCO3 + NO3  :   RCONST(   55 )  ;
+ <170> xHCHO + NO = NO + HCHO  :   RCONST(   47 )  ;
+ <171> xHCHO + HO2 = HO2  :   RCONST(   48 )  ;
+ <172> xHCHO + NO3 = NO3 + HCHO  :   RCONST(   49 )  ;
+ <173> xHCHO + SumRO2 = SumRO2 +  0.50000*HCHO  :   RCONST(   50 )  ;
+ <174> xHCHO + SumRCO3 = SumRCO3 + HCHO  :   RCONST(   55 )  ;
+ <175> xGLY + NO = NO + GLY  :   RCONST(   47 )  ;
+ <176> xGLY + HO2 = HO2  :   RCONST(   48 )  ;
+ <177> xGLY + NO3 = NO3 + GLY  :   RCONST(   49 )  ;
+ <178> xGLY + SumRO2 = SumRO2 +  0.50000*GLY  :   RCONST(   50 )  ;
+ <179> xGLY + SumRCO3 = SumRCO3 + GLY  :   RCONST(   55 )  ;
+ <180> xHCOOH + NO = NO + HCOOH  :   RCONST(   47 )  ;
+ <181> xHCOOH + HO2 = HO2  :   RCONST(   48 )  ;
+ <182> xHCOOH + NO3 = NO3 + HCOOH  :   RCONST(   49 )  ;
+ <183> xHCOOH + SumRO2 = SumRO2 +  0.50000*HCOOH  :   RCONST(   50 )  ;
+ <184> xHCOOH + SumRCO3 = SumRCO3 + HCOOH  :   RCONST(   55 )  ;
+ <185> xMECHO + NO = NO + MECHO  :   RCONST(   47 )  ;
+ <186> xMECHO + HO2 = HO2  :   RCONST(   48 )  ;
+ <187> xMECHO + NO3 = NO3 + MECHO  :   RCONST(   49 )  ;
+ <188> xMECHO + SumRO2 = SumRO2 +  0.50000*MECHO  :   RCONST(   50 )  ;
+ <189> xMECHO + SumRCO3 = SumRCO3 + MECHO  :   RCONST(   55 )  ;
+ <190> xETCHO + NO = NO + ETCHO  :   RCONST(   47 )  ;
+ <191> xETCHO + HO2 = HO2  :   RCONST(   48 )  ;
+ <192> xETCHO + NO3 = NO3 + ETCHO  :   RCONST(   49 )  ;
+ <193> xETCHO + SumRO2 = SumRO2 +  0.50000*ETCHO  :   RCONST(   50 )  ;
+ <194> xETCHO + SumRCO3 = SumRCO3 + ETCHO  :   RCONST(   55 )  ;
+ <195> xGLCHO + NO = NO + GLCHO  :   RCONST(   47 )  ;
+ <196> xGLCHO + HO2 = HO2  :   RCONST(   48 )  ;
+ <197> xGLCHO + NO3 = NO3 + GLCHO  :   RCONST(   49 )  ;
+ <198> xGLCHO + SumRO2 = SumRO2 +  0.50000*GLCHO  :   RCONST(   50 )  ;
+ <199> xGLCHO + SumRCO3 = SumRCO3 + GLCHO  :   RCONST(   55 )  ;
+ <200> xMEK + NO = NO + MEK  :   RCONST(   47 )  ;
+ <201> xMEK + HO2 = HO2  :   RCONST(   48 )  ;
+ <202> xMEK + NO3 = NO3 + MEK  :   RCONST(   49 )  ;
+ <203> xMEK + SumRO2 = SumRO2 +  0.50000*MEK  :   RCONST(   50 )  ;
+ <204> xMEK + SumRCO3 = SumRCO3 + MEK  :   RCONST(   55 )  ;
+ <205> xACRO + NO = NO + ACRO  :   RCONST(   47 )  ;
+ <206> xACRO + HO2 = HO2  :   RCONST(   48 )  ;
+ <207> xACRO + NO3 = NO3 + ACRO  :   RCONST(   49 )  ;
+ <208> xACRO + SumRO2 = SumRO2 +  0.50000*ACRO  :   RCONST(   50 )  ;
+ <209> xACRO + SumRCO3 = SumRCO3 + ACRO  :   RCONST(   55 )  ;
+ <210> xACET + NO = NO + ACET  :   RCONST(   47 )  ;
+ <211> xACET + HO2 = HO2  :   RCONST(   48 )  ;
+ <212> xACET + NO3 = NO3 + ACET  :   RCONST(   49 )  ;
+ <213> xACET + SumRO2 = SumRO2 +  0.50000*ACET  :   RCONST(   50 )  ;
+ <214> xACET + SumRCO3 = SumRCO3 + ACET  :   RCONST(   55 )  ;
+ <215> xMACR + NO = NO + MACR  :   RCONST(   47 )  ;
+ <216> xMACR + HO2 = HO2  :   RCONST(   48 )  ;
+ <217> xMACR + NO3 = NO3 + MACR  :   RCONST(   49 )  ;
+ <218> xMACR + SumRO2 = SumRO2 +  0.50000*MACR  :   RCONST(   50 )  ;
+ <219> xMACR + SumRCO3 = SumRCO3 + MACR  :   RCONST(   55 )  ;
+ <220> xMVK + NO = NO + MVK  :   RCONST(   47 )  ;
+ <221> xMVK + HO2 = HO2  :   RCONST(   48 )  ;
+ <222> xMVK + NO3 = NO3 + MVK  :   RCONST(   49 )  ;
+ <223> xMVK + SumRO2 = SumRO2 +  0.50000*MVK  :   RCONST(   50 )  ;
+ <224> xMVK + SumRCO3 = SumRCO3 + MVK  :   RCONST(   55 )  ;
+ <225> xBACL + NO = NO + BACL  :   RCONST(   47 )  ;
+ <226> xBACL + HO2 = HO2  :   RCONST(   48 )  ;
+ <227> xBACL + NO3 = NO3 + BACL  :   RCONST(   49 )  ;
+ <228> xBACL + SumRO2 = SumRO2 +  0.50000*BACL  :   RCONST(   50 )  ;
+ <229> xBACL + SumRCO3 = SumRCO3 + BACL  :   RCONST(   55 )  ;
+ <230> xMGLY + NO = NO + MGLY  :   RCONST(   47 )  ;
+ <231> xMGLY + HO2 = HO2  :   RCONST(   48 )  ;
+ <232> xMGLY + NO3 = NO3 + MGLY  :   RCONST(   49 )  ;
+ <233> xMGLY + SumRO2 = SumRO2 +  0.50000*MGLY  :   RCONST(   50 )  ;
+ <234> xMGLY + SumRCO3 = SumRCO3 + MGLY  :   RCONST(   55 )  ;
+ <235> xBUDAL + NO = NO + BUDAL  :   RCONST(   47 )  ;
+ <236> xBUDAL + HO2 = HO2  :   RCONST(   48 )  ;
+ <237> xBUDAL + NO3 = NO3 + BUDAL  :   RCONST(   49 )  ;
+ <238> xBUDAL + SumRO2 = SumRO2 +  0.50000*BUDAL  :   RCONST(   50 )  ;
+ <239> xBUDAL + SumRCO3 = SumRCO3 + BUDAL  :   RCONST(   55 )  ;
+ <240> xFURNS + NO = NO + FURNS  :   RCONST(   47 )  ;
+ <241> xFURNS + HO2 = HO2  :   RCONST(   48 )  ;
+ <242> xFURNS + NO3 = NO3 + FURNS  :   RCONST(   49 )  ;
+ <243> xFURNS + SumRO2 = SumRO2 +  0.50000*FURNS  :   RCONST(   50 )  ;
+ <244> xFURNS + SumRCO3 = SumRCO3 + FURNS  :   RCONST(   55 )  ;
+ <245> xBALD + NO = NO + BALD  :   RCONST(   47 )  ;
+ <246> xBALD + HO2 = HO2  :   RCONST(   48 )  ;
+ <247> xBALD + NO3 = NO3 + BALD  :   RCONST(   49 )  ;
+ <248> xBALD + SumRO2 = SumRO2 +  0.50000*BALD  :   RCONST(   50 )  ;
+ <249> xBALD + SumRCO3 = SumRCO3 + BALD  :   RCONST(   55 )  ;
+ <250> xBENX + NO = NO + BENX  :   RCONST(   47 )  ;
+ <251> xBENX + HO2 = HO2  :   RCONST(   48 )  ;
+ <252> xBENX + NO3 = NO3 + BENX  :   RCONST(   49 )  ;
+ <253> xBENX + SumRO2 = SumRO2 +  0.50000*BENX  :   RCONST(   50 )  ;
+ <254> xBENX + SumRCO3 = SumRCO3 + BENX  :   RCONST(   55 )  ;
+ <255> xRCHO + NO = NO + RCHO  :   RCONST(   47 )  ;
+ <256> xRCHO + HO2 = HO2  :   RCONST(   48 )  ;
+ <257> xRCHO + NO3 = NO3 + RCHO  :   RCONST(   49 )  ;
+ <258> xRCHO + SumRO2 = SumRO2 +  0.50000*RCHO  :   RCONST(   50 )  ;
+ <259> xRCHO + SumRCO3 = SumRCO3 + RCHO  :   RCONST(   55 )  ;
+ <260> xKET2 + NO = NO + KET2  :   RCONST(   47 )  ;
+ <261> xKET2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <262> xKET2 + NO3 = NO3 + KET2  :   RCONST(   49 )  ;
+ <263> xKET2 + SumRO2 = SumRO2 +  0.50000*KET2  :   RCONST(   50 )  ;
+ <264> xKET2 + SumRCO3 = SumRCO3 + KET2  :   RCONST(   55 )  ;
+ <265> xLVKS + NO = NO + LVKS  :   RCONST(   47 )  ;
+ <266> xLVKS + HO2 = HO2  :   RCONST(   48 )  ;
+ <267> xLVKS + NO3 = NO3 + LVKS  :   RCONST(   49 )  ;
+ <268> xLVKS + SumRO2 = SumRO2 +  0.50000*LVKS  :   RCONST(   50 )  ;
+ <269> xLVKS + SumRCO3 = SumRCO3 + LVKS  :   RCONST(   55 )  ;
+ <270> xOLEA1 + NO = NO + OLEA1  :   RCONST(   47 )  ;
+ <271> xOLEA1 + HO2 = HO2  :   RCONST(   48 )  ;
+ <272> xOLEA1 + NO3 = NO3 + OLEA1  :   RCONST(   49 )  ;
+ <273> xOLEA1 + SumRO2 = SumRO2 +  0.50000*OLEA1  :   RCONST(   50 )  ;
+ <274> xOLEA1 + SumRCO3 = SumRCO3 + OLEA1  :   RCONST(   55 )  ;
+ <275> xOLEA2 + NO = NO + OLEA2  :   RCONST(   47 )  ;
+ <276> xOLEA2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <277> xOLEA2 + NO3 = NO3 + OLEA2  :   RCONST(   49 )  ;
+ <278> xOLEA2 + SumRO2 = SumRO2 +  0.50000*OLEA2  :   RCONST(   50 )  ;
+ <279> xOLEA2 + SumRCO3 = SumRCO3 + OLEA2  :   RCONST(   55 )  ;
+ <280> xOLEP + NO = NO + OLEP  :   RCONST(   47 )  ;
+ <281> xOLEP + HO2 = HO2  :   RCONST(   48 )  ;
+ <282> xOLEP + NO3 = NO3 + OLEP  :   RCONST(   49 )  ;
+ <283> xOLEP + SumRO2 = SumRO2 +  0.50000*OLEP  :   RCONST(   50 )  ;
+ <284> xOLEP + SumRCO3 = SumRCO3 + OLEP  :   RCONST(   55 )  ;
+ <285> xOACID + NO = NO + OACID  :   RCONST(   47 )  ;
+ <286> xOACID + HO2 = HO2  :   RCONST(   48 )  ;
+ <287> xOACID + NO3 = NO3 + OACID  :   RCONST(   49 )  ;
+ <288> xOACID + SumRO2 = SumRO2 +  0.50000*OACID  :   RCONST(   50 )  ;
+ <289> xOACID + SumRCO3 = SumRCO3 + OACID  :   RCONST(   55 )  ;
+ <290> xPACID + NO = NO + PACID  :   RCONST(   47 )  ;
+ <291> xPACID + HO2 = HO2  :   RCONST(   48 )  ;
+ <292> xPACID + NO3 = NO3 + PACID  :   RCONST(   49 )  ;
+ <293> xPACID + SumRO2 = SumRO2 +  0.50000*PACID  :   RCONST(   50 )  ;
+ <294> xPACID + SumRCO3 = SumRCO3 + PACID  :   RCONST(   55 )  ;
+ <295> xAMINS + NO = NO + AMINS  :   RCONST(   47 )  ;
+ <296> xAMINS + HO2 = HO2  :   RCONST(   48 )  ;
+ <297> xAMINS + NO3 = NO3 + AMINS  :   RCONST(   49 )  ;
+ <298> xAMINS + SumRO2 = SumRO2 +  0.50000*AMINS  :   RCONST(   50 )  ;
+ <299> xAMINS + SumRCO3 = SumRCO3 + AMINS  :   RCONST(   55 )  ;
+ <305> xRPNO3 + NO = NO + RPNO3  :   RCONST(   47 )  ;
+ <306> xRPNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <307> xRPNO3 + NO3 = NO3 + RPNO3  :   RCONST(   49 )  ;
+ <308> xRPNO3 + SumRO2 = SumRO2 +  0.50000*RPNO3  :   RCONST(   50 )  ;
+ <309> xRPNO3 + SumRCO3 = SumRCO3 + RPNO3  :   RCONST(   55 )  ;
+ <310> xRCNO3 + NO = NO + RCNO3  :   RCONST(   47 )  ;
+ <311> xRCNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <312> xRCNO3 + NO3 = NO3 + RCNO3  :   RCONST(   49 )  ;
+ <313> xRCNO3 + SumRO2 = SumRO2 +  0.50000*RCNO3  :   RCONST(   50 )  ;
+ <314> xRCNO3 + SumRCO3 = SumRCO3 + RCNO3  :   RCONST(   55 )  ;
+ <315> xRHNO3 + NO = NO + RHNO3  :   RCONST(   47 )  ;
+ <316> xRHNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <317> xRHNO3 + NO3 = NO3 + RHNO3  :   RCONST(   49 )  ;
+ <318> xRHNO3 + SumRO2 = SumRO2 +  0.50000*RHNO3  :   RCONST(   50 )  ;
+ <319> xRHNO3 + SumRCO3 = SumRCO3 + RHNO3  :   RCONST(   55 )  ;
+ <320> xRDNO3 + NO = NO + RDNO3  :   RCONST(   47 )  ;
+ <321> xRDNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <322> xRDNO3 + NO3 = NO3 + RDNO3  :   RCONST(   49 )  ;
+ <323> xRDNO3 + SumRO2 = SumRO2 +  0.50000*RDNO3  :   RCONST(   50 )  ;
+ <324> xRDNO3 + SumRCO3 = SumRCO3 + RDNO3  :   RCONST(   55 )  ;
+ <330> xHPCRB + NO = NO + HPCRB  :   RCONST(   47 )  ;
+ <331> xHPCRB + HO2 = HO2  :   RCONST(   48 )  ;
+ <332> xHPCRB + NO3 = NO3 + HPCRB  :   RCONST(   49 )  ;
+ <333> xHPCRB + SumRO2 = SumRO2 +  0.50000*HPCRB  :   RCONST(   50 )  ;
+ <334> xHPCRB + SumRCO3 = SumRCO3 + HPCRB  :   RCONST(   55 )  ;
+ <335> xAFG1 + NO = NO + AFG1  :   RCONST(   47 )  ;
+ <336> xAFG1 + HO2 = HO2  :   RCONST(   48 )  ;
+ <337> xAFG1 + NO3 = NO3 + AFG1  :   RCONST(   49 )  ;
+ <338> xAFG1 + SumRO2 = SumRO2 +  0.50000*AFG1  :   RCONST(   50 )  ;
+ <339> xAFG1 + SumRCO3 = SumRCO3 + AFG1  :   RCONST(   55 )  ;
+ <340> xAFG2A + NO = NO + AFG2A  :   RCONST(   47 )  ;
+ <341> xAFG2A + HO2 = HO2  :   RCONST(   48 )  ;
+ <342> xAFG2A + NO3 = NO3 + AFG2A  :   RCONST(   49 )  ;
+ <343> xAFG2A + SumRO2 = SumRO2 +  0.50000*AFG2A  :   RCONST(   50 )  ;
+ <344> xAFG2A + SumRCO3 = SumRCO3 + AFG2A  :   RCONST(   55 )  ;
+ <345> xAFG2B + NO = NO + AFG2B  :   RCONST(   47 )  ;
+ <346> xAFG2B + HO2 = HO2  :   RCONST(   48 )  ;
+ <347> xAFG2B + NO3 = NO3 + AFG2B  :   RCONST(   49 )  ;
+ <348> xAFG2B + SumRO2 = SumRO2 +  0.50000*AFG2B  :   RCONST(   50 )  ;
+ <349> xAFG2B + SumRCO3 = SumRCO3 + AFG2B  :   RCONST(   55 )  ;
+ <350> xAFG3 + NO = NO + AFG3  :   RCONST(   47 )  ;
+ <351> xAFG3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <352> xAFG3 + NO3 = NO3 + AFG3  :   RCONST(   49 )  ;
+ <353> xAFG3 + SumRO2 = SumRO2 +  0.50000*AFG3  :   RCONST(   50 )  ;
+ <354> xAFG3 + SumRCO3 = SumRCO3 + AFG3  :   RCONST(   55 )  ;
+ <355> xPAN2 + NO = NO + PAN2  :   RCONST(   47 )  ;
+ <356> xPAN2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <357> xPAN2 + NO3 = NO3 + PAN2  :   RCONST(   49 )  ;
+ <358> xPAN2 + SumRO2 = SumRO2 +  0.50000*PAN2  :   RCONST(   50 )  ;
+ <359> xPAN2 + SumRCO3 = SumRCO3 + PAN2  :   RCONST(   55 )  ;
+ <365> xMEO2 + NO = NO + MEO2 + SumRO2  :   RCONST(   47 )  ;
+ <366> xMEO2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <367> xMEO2 + NO3 = NO3 + MEO2 + SumRO2  :   RCONST(   49 )  ;
+ <368> xMEO2 + SumRO2 = 1.50000*SumRO2 +  0.50000*MEO2  :   RCONST(   50 )  ;
+ <369> xMEO2 + SumRCO3 = SumRCO3 + MEO2 + SumRO2  :   RCONST(   55 )  ;
+ <370> xETO2 + NO = NO + ETO2 + SumRO2  :   RCONST(   47 )  ;
+ <371> xETO2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <372> xETO2 + NO3 = NO3 + ETO2 + SumRO2  :   RCONST(   49 )  ;
+ <373> xETO2 + SumRO2 = 1.50000*SumRO2 +  0.50000*ETO2  :   RCONST(   50 )  ;
+ <374> xETO2 + SumRCO3 = SumRCO3 + ETO2 + SumRO2  :   RCONST(   55 )  ;
+ <375> xMECO3 + NO = NO + MECO3 + SumRCO3  :   RCONST(   47 )  ;
+ <376> xMECO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <377> xMECO3 + NO3 = NO3 + MECO3 + SumRCO3  :   RCONST(   49 )  ;
+ <378> xMECO3 + SumRO2 = SumRO2 +  0.50000*MECO3 +  0.50000*SumRCO3  :   RCONST(   50 )  ;
+ <379> xMECO3 + SumRCO3 = 2.00000*SumRCO3 + MECO3  :   RCONST(   55 )  ;
+ <380> xR2CO3 + NO = NO + R2CO3 + SumRCO3  :   RCONST(   47 )  ;
+ <381> xR2CO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <382> xR2CO3 + NO3 = NO3 + R2CO3 + SumRCO3  :   RCONST(   49 )  ;
+ <383> xR2CO3 + SumRO2 = SumRO2 +  0.50000*R2CO3 +  0.50000*SumRCO3  :   RCONST(   50 )  ;
+ <384> xR2CO3 + SumRCO3 = 2.00000*SumRCO3 + R2CO3  :   RCONST(   55 )  ;
+ <385> xMACO3 + NO = NO + MACO3 + SumRCO3  :   RCONST(   47 )  ;
+ <386> xMACO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <387> xMACO3 + NO3 = NO3 + MACO3 + SumRCO3  :   RCONST(   49 )  ;
+ <388> xMACO3 + SumRO2 = SumRO2 +  0.50000*MACO3 +  0.50000*SumRCO3  :   RCONST(   50 )  ;
+ <389> xMACO3 + SumRCO3 = 2.00000*SumRCO3 + MACO3  :   RCONST(   55 )  ;
+ <390> xTBUO + NO = NO + TBUO  :   RCONST(   47 )  ;
+ <391> xTBUO + HO2 = HO2  :   RCONST(   48 )  ;
+ <392> xTBUO + NO3 = NO3 + TBUO  :   RCONST(   49 )  ;
+ <393> xTBUO + SumRO2 = SumRO2 +  0.50000*TBUO  :   RCONST(   50 )  ;
+ <394> xTBUO + SumRCO3 = SumRCO3 + TBUO  :   RCONST(   55 )  ;
+ <395> xBZO + NO = NO + BZO  :   RCONST(   47 )  ;
+ <396> xBZO + HO2 = HO2  :   RCONST(   48 )  ;
+ <397> xBZO + NO3 = NO3 + BZO  :   RCONST(   49 )  ;
+ <398> xBZO + SumRO2 = SumRO2 +  0.50000*BZO  :   RCONST(   50 )  ;
+ <399> xBZO + SumRCO3 = SumRCO3 + BZO  :   RCONST(   55 )  ;
+ <400> yROOH + NO = NO  :   RCONST(   47 )  ;
+ <401> yROOH + HO2 = HO2 + ROOH  :   RCONST(   48 )  ;
+ <402> yROOH + NO3 = NO3  :   RCONST(   49 )  ;
+ <403> yROOH + SumRO2 = SumRO2 +  0.50000*KET2  :   RCONST(   50 )  ;
+ <404> yROOH + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <405> yRUOOH + NO = NO  :   RCONST(   47 )  ;
+ <406> yRUOOH + HO2 = HO2 + RUOOH  :   RCONST(   48 )  ;
+ <407> yRUOOH + NO3 = NO3  :   RCONST(   49 )  ;
+ <408> yRUOOH + SumRO2 = SumRO2 +  0.50000*OLEP  :   RCONST(   50 )  ;
+ <409> yRUOOH + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <410> yRAOOH + NO = NO  :   RCONST(   47 )  ;
+ <411> yRAOOH + HO2 = HO2 + RAOOH  :   RCONST(   48 )  ;
+ <412> yRAOOH + NO3 = NO3  :   RCONST(   49 )  ;
+ <413> yRAOOH + SumRO2 = SumRO2 +  0.50000*OLEP  :   RCONST(   50 )  ;
+ <414> yRAOOH + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <415> yHPCRB + NO = NO  :   RCONST(   47 )  ;
+ <416> yHPCRB + HO2 = HO2 + HPCRB  :   RCONST(   48 )  ;
+ <417> yHPCRB + NO3 = NO3  :   RCONST(   49 )  ;
+ <418> yHPCRB + SumRO2 = SumRO2 +  0.50000*KET2  :   RCONST(   50 )  ;
+ <419> yHPCRB + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <420> yRPNO3 + NO = NO  :   RCONST(   47 )  ;
+ <421> yRPNO3 + HO2 = HO2 + RPNO3  :   RCONST(   48 )  ;
+ <422> yRPNO3 + NO3 = NO3  :   RCONST(   49 )  ;
+ <423> yRPNO3 + SumRO2 = SumRO2 +  0.50000*R1NO3  :   RCONST(   50 )  ;
+ <424> yRPNO3 + SumRCO3 = SumRCO3  :   RCONST(   55 )  ;
+ <425> zR1NO3 + NO = NO + R1NO3  :   RCONST(   47 )  ;
+ <426> zR1NO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <427> zR1NO3 + NO3 = NO3 + KET2 + HO2  :   RCONST(   49 )  ;
+ <428> zR1NO3 + SumRO2 = SumRO2 +  0.50000*KET2 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <429> zR1NO3 + SumRCO3 = SumRCO3 + KET2 + HO2  :   RCONST(   55 )  ;
+ <430> zR2NO3 + NO = NO + R2NO3  :   RCONST(   47 )  ;
+ <431> zR2NO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <432> zR2NO3 + NO3 = NO3 + KET2 + HO2  :   RCONST(   49 )  ;
+ <433> zR2NO3 + SumRO2 = SumRO2 +  0.50000*KET2 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <434> zR2NO3 + SumRCO3 = SumRCO3 + KET2 + HO2  :   RCONST(   55 )  ;
+ <435> zRHNO3 + NO = NO + RHNO3  :   RCONST(   47 )  ;
+ <436> zRHNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <437> zRHNO3 + NO3 = NO3 + KET2 + HO2  :   RCONST(   49 )  ;
+ <438> zRHNO3 + SumRO2 = SumRO2 +  0.50000*KET2 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <439> zRHNO3 + SumRCO3 = SumRCO3 + KET2 + HO2  :   RCONST(   55 )  ;
+ <440> zRCNO3 + NO = NO + RCNO3  :   RCONST(   47 )  ;
+ <441> zRCNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <442> zRCNO3 + NO3 = NO3 + KET2 + HO2  :   RCONST(   49 )  ;
+ <443> zRCNO3 + SumRO2 = SumRO2 +  0.50000*KET2 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <444> zRCNO3 + SumRCO3 = SumRCO3 + KET2 + HO2  :   RCONST(   55 )  ;
+ <445> zRANO3 + NO = NO + RANO3  :   RCONST(   47 )  ;
+ <446> zRANO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <447> zRANO3 + NO3 = NO3 + RUOOH + HO2  :   RCONST(   49 )  ;
+ <448> zRANO3 + SumRO2 = SumRO2 +  0.50000*RUOOH +  0.50000*HO2  :   RCONST(   50 )  ;
+ <449> zRANO3 + SumRCO3 = SumRCO3 + RUOOH + HO2  :   RCONST(   55 )  ;
+ <450> zRPNO3 + NO = NO + RPNO3  :   RCONST(   47 )  ;
+ <451> zRPNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <452> zRPNO3 + NO3 = NO3 + RUOOH + HO2  :   RCONST(   49 )  ;
+ <453> zRPNO3 + SumRO2 = SumRO2 +  0.50000*RUOOH +  0.50000*HO2  :   RCONST(   50 )  ;
+ <454> zRPNO3 + SumRCO3 = SumRCO3 + RUOOH + HO2  :   RCONST(   55 )  ;
+ <455> zRDNO3 + NO = NO + RDNO3  :   RCONST(   47 )  ;
+ <456> zRDNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <457> zRDNO3 + NO3 = NO3 + R1NO3 + HO2  :   RCONST(   49 )  ;
+ <458> zRDNO3 + SumRO2 = SumRO2 +  0.50000*R1NO3 +  0.50000*HO2  :   RCONST(   50 )  ;
+ <459> zRDNO3 + SumRCO3 = SumRCO3 + R1NO3 + HO2  :   RCONST(   55 )  ;
+ <460> zRNNO3 + NO = NO + RNNO3  :   RCONST(   47 )  ;
+ <461> zRNNO3 + HO2 = HO2  :   RCONST(   48 )  ;
+ <462> zRNNO3 + NO3 = NO3 + OTHN + HO2  :   RCONST(   49 )  ;
+ <463> zRNNO3 + SumRO2 = SumRO2 +  0.50000*OTHN +  0.50000*HO2  :   RCONST(   50 )  ;
+ <464> zRNNO3 + SumRCO3 = SumRCO3 + OTHN + HO2  :   RCONST(   55 )  ;
+ <465> zPAN2 + NO = NO + PAN2  :   RCONST(   47 )  ;
+ <466> zPAN2 + HO2 = HO2  :   RCONST(   48 )  ;
+ <467> zPAN2 + NO3 = NO3 + RCHO + HO2  :   RCONST(   49 )  ;
+ <468> zPAN2 + SumRO2 = SumRO2 +  0.50000*RCHO +  0.50000*HO2  :   RCONST(   50 )  ;
+ <469> zPAN2 + SumRCO3 = SumRCO3 + RCHO + HO2  :   RCONST(   55 )  ;
+ <Q2NO> R2CO3 + NO = NO2 +  0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO   
+                +  0.04000*zR1NO3 + yROOH + CO2 + SumRO2  :  RFACTOR * ARR2D(   6.7000D-12,   3.4000D+02 ) ;
+ <Q2N2> R2CO3 + NO2 = PAN2  :  RFACTOR *   7.7000D-12 ;
+ <Q2N3> R2CO3 + NO3 = NO2 +  0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO   
+                +  0.04000*zR1NO3 + yROOH + CO2 + SumRO2  :  RFACTOR *   4.0000D-12 ;
+ <Q2H2> R2CO3 + HO2 = 0.13000*O3 +  0.50000*OH +  0.48000*xHO2 +  0.48000*RO2C +  0.02000*RO2XC   
+                +  0.48000*xETCHO +  0.13000*OACID +  0.37000*PACID +  0.02000*zR1NO3 +  0.50000*yROOH   
+                +  0.50000*CO2 +  0.50000*SumRO2  :  RFACTOR *   2.2000D-11 ;
+ <Q2R2> R2CO3 + SumRO2 = 0.86000*xHO2 +  0.86000*RO2C +  0.04000*RO2XC +  0.86000*xETCHO +  0.10000*OACID   
+                +  0.04000*zR1NO3 +  0.90000*yROOH +  0.90000*CO2 +  0.90000*SumRO2  :  RFACTOR *   1.6000D-11 ;
+ <Q2R3> R2CO3 + SumRCO3 = 0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO +  0.04000*zR1NO3   
+                + yROOH + CO2 + SumRO2  :  RFACTOR *   1.4000D-11 ;
+ <Q5UI> MACO3 = 0.93000*xHO2 +  0.93000*RO2C +  0.07000*RO2XC +  0.93000*xPACID +  0.07000*zRCNO3   
+                + SumRO2  :  60.0D0 * ARR2D(   7.7900D+08,  -5.0030D+03 ) ;
+ <Q5NO> MACO3 + NO = NO2 + MEO2 + HCHO + CO2 + CO + SumRO2  :  RFACTOR * ARR2D(   6.7000D-12,   3.4000D+02 ) ;
+ <Q5N2> MACO3 + NO2 = APANS  :  RFACTOR *   7.7000D-12 ;
+ <Q5N3> MACO3 + NO3 = NO2 + MEO2 + HCHO + CO2 + CO + SumRO2  :  RFACTOR *   4.0000D-12 ;
+ <Q5H2> MACO3 + HO2 = 0.13000*O3 +  0.50000*OH +  0.50000*MEO2 +  0.50000*HCHO +  0.37000*PACID   
+                +  0.13000*OLEP +  0.50000*CO2 +  0.50000*CO +  0.50000*SumRO2  :  RFACTOR *   2.2000D-11 ;
+ <Q5R2> MACO3 + SumRO2 = 0.90000*MEO2 +  0.90000*HCHO +  0.10000*OLEP +  0.90000*CO2 +  0.90000*CO   
+                +  0.90000*SumRO2  :  RFACTOR *   1.6000D-11 ;
+ <Q5R3> MACO3 + SumRCO3 = MEO2 + HCHO + CO2 + CO + SumRO2  :  RFACTOR *   1.4000D-11 ;
+ <C2OH> ETHAN + OH = ETO2 + SumRO2  :  RFACTOR * ARRD(   1.5100D-12,  -5.3300D+02,   1.9200D+00 ) ;
+ <C3OH> PROP + OH = 0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.01000*xMEO2 +  0.01000*xMECHO   
+                +  0.27000*xETCHO +  0.68000*xACET +  0.04000*zR1NO3 + yROOH + SumRO2  :  RFACTOR * ARRD(   2.0000D-12,  -1.7200D+02,   1.7600D+00 ) ;
+ <C4OH> NC4 + OH = 0.59000*xHO2 +  1.02000*RO2C +  0.08000*RO2XC +  0.33000*xETO2 +  0.33000*xMECHO   
+                +  0.12000*xRCHO +  0.48000*xMEK +  0.07000*zR1NO3 +  0.01000*zRHNO3 +  1.10000*yROOH   
+                +  1.10000*SumRO2  :  RFACTOR * ARRD(   2.0900D-12,   4.2000D+01,   1.8200D+00 ) ;
+ <E1OH> ETHEN + OH = xHO2 + RO2C +  1.48000*xHCHO +  0.26000*xGLCHO + yROOH + SumRO2  :  RFACTOR * RKI_RXN_E1OH             ;
+ <E1O3> ETHEN + O3 = 0.17000*OH +  0.27000*HO2 +  0.42000*HCHO2 + HCHO +  0.23000*CO2   
+                +  0.35000*CO  :  RFACTOR * ARR2D(   6.8200D-15,  -2.5000D+03 ) ;
+ <E1N3> ETHEN + NO3 = 0.01000*xNO2 +  0.99000*xHO2 + RO2C +  0.01000*xHCHO +  0.99000*xRCNO3   
+                + yRPNO3 + SumRO2  :  RFACTOR * ARR2D(   3.3000D-12,  -2.8800D+03 ) ;
+ <E1OP> ETHEN + O3P = ETHEN_OP +  0.80000*HO2 +  0.22000*xHO2 +  0.29000*RO2C +  0.51000*MEO2   
+                +  0.07000*xHCHO +  0.10000*MECHO +  4.41000*NROG +  0.51000*CO +  0.80000*SumRO2  :  RFACTOR * ARR2D(   1.0700D-11,  -8.0000D+02 ) ;
+ <495> ETHEN_OP = 0.07000*xOH +  0.22000*xPACID +  0.07000*CO2  :  60.0D0 *   2.5700D+00 ;
+ <496> ETHEN_OP + NO = NO +  0.07000*xHO2 +  0.20000*xHCHO +  0.02000*xGLY +  0.24000*yHPCRB   
+                +  0.27000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <E2OH> PROPE + OH = 0.97000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.97000*xHCHO +  0.97000*xMECHO   
+                +  0.03000*zRHNO3 + yROOH + SumRO2  :  RFACTOR * ARRD(   1.2000D-11,   2.1000D+02,  -6.2000D-01 ) ;
+ <E2O3> PROPE + O3 = PROPE_O3 +  0.30000*OH +  0.17000*HO2 +  0.16000*xHO2 +  0.22000*RO2C   
+                +  0.03000*MEO2 +  0.21000*HCHO2 +  0.12000*MECHO2 +  0.50000*HCHO +  0.05000*xHCHO   
+                +  0.50000*MECHO +  0.05000*MEOH +  0.24000*CO2 +  0.22000*CO +  0.25000*SumRO2  :  RFACTOR * ARR2D(   5.7700D-15,  -1.8800D+03 ) ;
+ <499> PROPE_O3 = 0.05000*xOH +  0.16000*xPACID +  0.05000*CO2  :  60.0D0 *   2.4500D+00 ;
+ <500> PROPE_O3 + NO = NO +  0.06000*xHO2 +  0.15000*xHCHO +  0.18000*yHPCRB +  0.20000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <E2N3> PROPE + NO3 = 0.29000*xNO2 +  0.68000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.29000*xHCHO   
+                +  0.29000*xMECHO +  0.68000*xRCNO3 + yRPNO3 +  0.03000*zRDNO3 + SumRO2  :  RFACTOR * ARR2D(   4.6000D-13,  -1.1550D+03 ) ;
+ <E2OP> PROPE + O3P = 0.25000*ETCHO +  0.25000*ACET +  0.50000*ALK2  :  RFACTOR * ARR2D(   1.0200D-11,  -2.8000D+02 ) ;
+ <IPOH> ISOP + OH = ISOP_OH +  0.55000*xHO2 +  0.55000*RO2C +  0.05000*RO2XC +  0.50000*xHCHO   
+                +  0.23000*xMACR +  0.27000*xMVK +  0.05000*zRHNO3 +  0.60000*yRUOOH +  0.05000*xFURNS   
+                +  0.60000*SumRO2  :  RFACTOR * ARR2D(   2.7000D-11,   3.9000D+02 ) ;
+ <504> ISOP_OH = 0.06000*OH +  0.34000*HO2 +  0.39000*HPCRB  :  60.0D0 *   1.2900D+00 ;
+ <505> ISOP_OH + NO = NO +  0.35000*xHO2 +  0.38000*RO2C +  0.05000*RO2XC +  0.03000*xHCHO   
+                +  0.34000*xOLEA1 +  0.05000*zRHNO3 +  0.42000*yRUOOH +  0.43000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <IPO3> ISOP + O3 = ISOP_O3 +  0.13000*OH +  0.29000*HO2 +  0.12000*xHO2 +  0.33000*RO2C   
+                +  0.01000*RO2XC +  0.16000*MECO3 +  0.13000*xMECO3 +  0.04000*xMACO3 +  0.23000*HCHO2   
+                +  0.06000*RCHO2 +  0.40000*HCHO +  0.21000*xHCHO +  0.39000*MACR +  0.16000*MVK   
+                +  0.05000*OLEP +  0.01000*zRCNO3 +  0.15000*yHPCRB +  0.13000*CO2 +  0.33000*CO   
+                +  0.34000*SumRO2 +  0.16000*SumRCO3 + ISOPRXN  :  RFACTOR * ARR2D(   1.0500D-14,  -2.0000D+03 ) ;
+ <507> ISOP_O3 = 0.04000*xOH +  0.12000*xPACID +  0.04000*CO2  :  60.0D0 *   2.8100D+00 ;
+ <508> ISOP_O3 + NO = NO +  0.04000*xHO2 +  0.11000*xHCHO +  0.13000*yHPCRB +  0.14000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <IPN3> ISOP + NO3 = ISOP_N3 +  0.70000*xNO2 +  0.03000*xHO2 +  0.90000*RO2C +  0.10000*RO2XC   
+                +  0.48000*xHCHO +  0.22000*xOLEA1 +  0.48000*xMVK +  0.03000*xRCNO3 + yRPNO3 +  0.10000*zRDNO3   
+                + SumRO2 + ISOPRXN  :  RFACTOR * ARR2D(   2.9500D-12,  -4.5000D+02 ) ;
+ <510> ISOP_N3 = 0.12000*NO2 +  0.04000*HO2 +  0.04000*RPNO3 +  0.12000*HPCRB  :  60.0D0 *   1.0300D+00 ;
+ <511> ISOP_N3 + NO = NO +  0.15000*xHO2 +  0.15000*RO2C +  0.01000*RO2XC +  0.10000*xHCHO   
+                +  0.10000*xRCNO3 +  0.05000*xRHNO3 +  0.17000*yRPNO3 +  0.01000*zRDNO3 +  0.16000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <IPOP> ISOP + O3P = 0.23000*RO2C +  0.02000*RO2XC +  0.25000*MEO2 +  0.23000*xMACO3 +  0.23000*xHCHO   
+                +  0.75000*OLEP +  0.02000*zRCNO3 +  0.21000*yHPCRB +  0.50000*SumRO2  :  RFACTOR *   3.5000D-11 ;
+ <E3OH> BUT13 + OH = BUT13_OH +  0.63000*xHO2 +  0.63000*RO2C +  0.04000*RO2XC +  0.58000*xHCHO   
+                +  0.58000*xACRO +  0.04000*zRHNO3 +  0.67000*yRUOOH +  0.05000*xFURNS +  0.67000*SumRO2  :  RFACTOR * ARR2D(   1.1200D-11,   5.3000D+02 ) ;
+ <514> BUT13_OH = 0.31000*HO2 +  0.33000*HPCRB  :  60.0D0 *   1.0700D+00 ;
+ <515> BUT13_OH + NO = NO +  0.31000*xHO2 +  0.33000*RO2C +  0.02000*RO2XC +  0.03000*xHCHO   
+                +  0.31000*xOLEA1 +  0.02000*zRHNO3 +  0.35000*yRUOOH +  0.35000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <E3O3> BUT13 + O3 = BUT13_O3 +  0.08000*OH +  0.50000*HO2 +  0.27000*xHO2 +  0.36000*RO2C   
+                +  0.21000*HCHO2 +  0.14000*RCHO2 +  0.50000*HCHO +  0.09000*xHCHO +  0.50000*ACRO   
+                +  0.12000*CO2 +  0.54000*CO +  0.36000*SumRO2  :  RFACTOR * ARR2D(   1.3400D-14,  -2.2830D+03 ) ;
+ <517> BUT13_O3 = 0.09000*xOH +  0.27000*xPACID +  0.09000*CO2  :  60.0D0 *   2.5500D+00 ;
+ <518> BUT13_O3 + NO = NO +  0.09000*xHO2 +  0.25000*xHCHO +  0.02000*xGLY +  0.30000*yHPCRB   
+                +  0.33000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <E3N3> BUT13 + NO3 = 0.89000*xNO2 +  0.06000*xHO2 +  0.94000*RO2C +  0.06000*RO2XC +  0.74000*xHCHO   
+                +  0.14000*xOLEA1 +  0.74000*xACRO +  0.06000*xRCNO3 + yRPNO3 +  0.06000*zRDNO3 + SumRO2  :  RFACTOR *   1.1000D-13 ;
+ <E3OP> BUT13 + O3P = 0.25000*OLEA2 +  0.25000*MVK +  0.50000*OLEP  :  RFACTOR * ARR2D(   2.2600D-11,  -4.0000D+01 ) ;
+ <APOH> APINE + OH = APINE_OH +  0.02000*HO2 +  0.59000*xHO2 +  1.07000*RO2C +  0.30000*RO2XC   
+                +  0.08000*xHCHO +  0.51000*xRCHO +  0.08000*xOLEA2 +  0.17000*xACET +  0.06000*xMVK   
+                +  0.03000*xLVKS +  0.01000*zR2NO3 +  0.01000*zRCNO3 +  0.28000*zRHNO3 +  0.53000*yROOH   
+                +  0.71000*yRUOOH +  0.02000*HPCRB +  0.13000*yHPCRB +  1.37000*SumRO2 + TRPRXN  :  RFACTOR * ARR2D(   1.3400D-11,   4.1000D+02 ) ;
+ <522> APINE_OH = 0.01000*OH +  0.08000*HO2 +  0.07000*HPCRB  :  60.0D0 *   7.4900D+00 ;
+ <523> APINE_OH + NO = NO +  0.06000*xHO2 +  0.08000*RO2C +  0.02000*RO2XC +  0.01000*xHCHO   
+                +  0.06000*xOLEA2 +  0.02000*zRHNO3 +  0.09000*yHPCRB +  0.10000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <APO3> APINE + O3 = 0.69000*OH +  0.01000*xOH +  0.01000*HO2 +  0.17000*xHO2 +  0.79000*RO2C   
+                +  0.26000*RO2XC +  0.03000*xMECO3 +  0.20000*xR2CO3 +  0.29000*RCHO2 +  0.20000*xHCHO   
+                +  0.02000*RCHO +  0.13000*xRCHO +  0.03000*xBACL +  0.09000*xACET +  0.03000*KET2   
+                +  0.07000*xPACID +  0.26000*zRCNO3 +  0.82000*yHPCRB +  0.03000*CO2 +  0.17000*CO   
+                +  1.05000*SumRO2 + TRPRXN  :  RFACTOR * ARR2D(   8.2200D-16,  -6.4000D+02 ) ;
+ <APN3> APINE + NO3 = 0.81000*xNO2 +  0.81000*RO2C +  0.19000*RO2XC +  0.81000*xRCHO + yRPNO3   
+                +  0.19000*zRDNO3 + SumRO2  :  RFACTOR * ARR2D(   1.2000D-12,   4.9000D+02 ) ;
+ <APOP> APINE + O3P = 0.50000*KET2 +  0.50000*ALK4 + TRPRXN  :  RFACTOR *   3.2000D-11 ;
+ <BPOH> BPINE + OH = BPINE_OH +  0.01000*xOH +  0.01000*HO2 +  0.37000*xHO2 +  1.43000*RO2C   
+                +  0.42000*RO2XC +  0.03000*xR2CO3 +  0.35000*xHCHO +  0.03000*xRCHO +  0.23000*xOLEA2   
+                +  0.29000*xACET +  0.11000*xKET2 +  0.02000*xPACID +  0.02000*zR2NO3 +  0.09000*zRCNO3   
+                +  0.31000*zRHNO3 +  0.32000*yROOH + yRUOOH +  0.01000*HPCRB +  0.45000*yHPCRB +  1.85000*SumRO2   
+                + TRPRXN  :  RFACTOR * ARR2D(   1.6200D-11,   4.6000D+02 ) ;
+ <528> BPINE_OH = 0.04000*OH +  0.12000*HO2 +  0.03000*PACID +  0.01000*xPACID +  0.11000*HPCRB   
+                +  0.01000*CO2  :  60.0D0 *   3.4500D+00 ;
+ <529> BPINE_OH + NO = NO +  0.11000*xHO2 +  0.15000*RO2C +  0.04000*RO2XC +  0.02000*xHCHO   
+                +  0.01000*xRCHO +  0.08000*xOLEA2 +  0.01000*zRCNO3 +  0.03000*zRHNO3 +  0.01000*yRUOOH   
+                +  0.21000*yHPCRB +  0.19000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <BPO3> BPINE + O3 = 0.39000*OH +  0.14000*HO2 +  0.23000*RO2C +  0.08000*RO2XC +  0.23000*xR2CO3   
+                +  0.21000*HCHO2 +  0.20000*RCHO2 +  0.50000*HCHO +  0.50000*KET2 +  0.08000*zRCNO3   
+                +  0.26000*yHPCRB +  0.12000*CO2 +  0.17000*CO +  0.31000*SumRO2 + TRPRXN  :  RFACTOR * ARR2D(   1.3900D-15,  -1.2800D+03 ) ;
+ <BPN3> BPINE + NO3 = 0.02000*OH +  0.04000*xOH +  0.18000*xHO2 +  2.25000*RO2C +  0.63000*RO2XC   
+                +  0.14000*xR2CO3 +  0.04000*xHCHO +  0.02000*xRCHO +  0.27000*xACET +  0.14000*xPACID   
+                +  0.02000*RCNO3 +  0.22000*xRCNO3 +  0.43000*zRCNO3 + yRPNO3 +  0.19000*zRDNO3 +  0.04000*CO2   
+                +  2.88000*SumRO2 + TRPRXN  :  RFACTOR *   2.5000D-12 ;
+ <BPOP> BPINE + O3P = 0.50000*RCHO +  0.50000*ALK5 + TRPRXN  :  RFACTOR *   2.7000D-11 ;
+ <ACOH> ACETL + OH = 0.67000*OH +  0.33000*HO2 +  0.67000*GLY +  0.33000*HCOOH +  0.33000*CO  :  RFACTOR * RKI_RXN_ACOH             ;
+ <ACO3> ACETL + O3 = 0.26000*HO2 +  0.34000*RCHO2 +  0.34000*HCHO +  0.18000*HCOOH +  0.47000*CO2   
+                +  0.31000*CO  :  RFACTOR *   1.0000D-20 ;
+ <BZOH> BENZ + OH = 0.69000*HO2 +  0.28000*xHO2 +  0.28000*RO2C +  0.04000*RO2XC +  0.12000*OLEA2   
+                +  0.28000*xGLY +  0.28000*xBUDAL +  0.57000*PHEN +  0.04000*zRANO3 +  0.31000*yRAOOH   
+                +  0.32000*SumRO2 + BENZRO2  :  RFACTOR * ARR2D(   2.3000D-12,  -1.9000D+02 ) ;
+ <TLOH> TOLU + OH = 0.41000*HO2 +  0.50000*xHO2 +  0.50000*RO2C +  0.08000*RO2XC +  0.01000*OLEA1   
+                +  0.21000*OLEA2 +  0.22000*xGLY +  0.22000*xMGLY +  0.22000*xBUDAL +  0.02000*xAFG1   
+                +  0.19000*xAFG2A +  0.06000*xBALD +  0.19000*CRES +  0.01000*zR1NO3 +  0.07000*zRANO3   
+                +  0.08000*yROOH +  0.51000*yRAOOH +  0.58000*SumRO2 + TOLRO2  :  RFACTOR * ARR2D(   1.8000D-12,   3.4000D+02 ) ;
+ <OXOH> OXYL + OH = 0.35000*HO2 +  0.54000*xHO2 +  0.54000*RO2C +  0.11000*RO2XC +  0.10000*OLEA1   
+                +  0.10000*OLEA2 +  0.12000*xGLY +  0.22000*xMGLY +  0.15000*xBACL +  0.15000*xBUDAL   
+                +  0.01000*xAFG1 +  0.22000*xAFG2A +  0.11000*xAFG2B +  0.06000*xBALD +  0.06000*LVKS   
+                +  0.08000*XYNL +  0.02000*zR2NO3 +  0.09000*zRANO3 +  0.08000*yROOH +  0.57000*yRAOOH   
+                +  0.65000*SumRO2 + XYLRO2  :  RFACTOR *   1.3600D-11 ;
+ <MXOH> MXYL + OH = 0.21000*HO2 +  0.66000*xHO2 +  0.66000*RO2C +  0.13000*RO2XC +  0.01000*OLEA1   
+                +  0.13000*OLEA2 +  0.04000*xGLY +  0.59000*xMGLY +  0.05000*xAFG1 +  0.58000*xAFG2A   
+                +  0.03000*xBALD +  0.07000*XYNL +  0.01000*zR2NO3 +  0.12000*zRANO3 +  0.03000*yROOH   
+                +  0.75000*yRAOOH +  0.79000*SumRO2 + XYLRO2  :  RFACTOR *   2.3100D-11 ;
+ <PXOH> PXYL + OH = 0.38000*HO2 +  0.52000*xHO2 +  0.52000*RO2C +  0.11000*RO2XC +  0.02000*OLEA1   
+                +  0.23000*OLEA2 +  0.16000*xGLY +  0.29000*xMGLY +  0.29000*xAFG1 +  0.07000*xBALD   
+                +  0.16000*xAFG3 +  0.14000*XYNL +  0.02000*zR2NO3 +  0.09000*zRANO3 +  0.09000*yROOH   
+                +  0.53000*yRAOOH +  0.63000*SumRO2 + XYLRO2  :  RFACTOR * ARR2D(   4.1400D-12,   3.1900D+02 ) ;
+ <X1OH> BZ123 + OH = 0.18000*HO2 +  0.67000*xHO2 +  0.67000*RO2C +  0.15000*RO2XC +  0.03000*OLEA1   
+                +  0.03000*OLEA2 +  0.03000*xGLY +  0.07000*xMGLY +  0.54000*xBACL +  0.54000*xAFG2A   
+                +  0.10000*xAFG2B +  0.02000*xBALD +  0.10000*LVKS +  0.02000*XYNL +  0.01000*zR2NO3   
+                +  0.14000*zRANO3 +  0.03000*yROOH +  0.78000*yRAOOH +  0.82000*SumRO2 + XYLRO2  :  RFACTOR *   3.2700D-11 ;
+ <X2OH> BZ124 + OH = 0.23000*HO2 +  0.63000*xHO2 +  0.63000*RO2C +  0.14000*RO2XC +  0.04000*OLEA1   
+                +  0.11000*OLEA2 +  0.03000*xGLY +  0.51000*xMGLY +  0.06000*xBACL +  0.08000*xAFG1   
+                +  0.04000*xAFG2A +  0.27000*xAFG2B +  0.03000*xBALD +  0.02000*LVKS +  0.21000*xAFG3   
+                +  0.05000*XYNL +  0.01000*zR2NO3 +  0.13000*zRANO3 +  0.04000*yROOH +  0.73000*yRAOOH   
+                +  0.77000*SumRO2 + XYLRO2  :  RFACTOR *   3.2500D-11 ;
+ <X3OH> BZ135 + OH = 0.17000*HO2 +  0.68000*xHO2 +  0.68000*RO2C +  0.15000*RO2XC +  0.11000*OLEA2   
+                +  0.67000*xMGLY +  0.67000*xAFG2A +  0.02000*xBALD +  0.05000*XYNL +  0.01000*zR2NO3   
+                +  0.15000*zRANO3 +  0.02000*yROOH +  0.81000*yRAOOH +  0.83000*SumRO2 + XYLRO2  :  RFACTOR *   5.8600D-11 ;
+ <EBOH> C2BEN + OH = 0.36000*HO2 +  0.51000*xHO2 +  0.54000*RO2C +  0.12000*RO2XC +  0.01000*xMEO2   
+                +  0.02000*xHCHO +  0.01000*OLEA1 +  0.18000*OLEA2 +  0.18000*xGLY +  0.18000*xMGLY   
+                +  0.18000*xBUDAL +  0.02000*xAFG1 +  0.16000*xAFG2A +  0.03000*xBALD +  0.16000*XYNL   
+                +  0.05000*zR2NO3 +  0.07000*zRANO3 +  0.23000*yROOH +  0.44000*yRAOOH +  0.13000*xBENX   
+                +  0.66000*SumRO2  :  RFACTOR *   7.0000D-12 ;
+ <MTOH> MTBE + OH = 0.72000*xHO2 +  1.12000*RO2C +  0.09000*RO2XC +  0.19000*xMEO2 +  0.20000*xHCHO   
+                +  0.09000*zR1NO3 +  0.89000*yROOH +  0.17000*ALK1 +  0.72000*ALK2 +  0.01000*ALK3   
+                +  1.21000*SumRO2  :  RFACTOR * ARRD(   1.8700D-13,   8.4300D+02,   3.3400D+00 ) ;
+ <MLOH> MEOH + OH = HO2 + HCHO  :  RFACTOR * ARRD(   2.3200D-13,   4.0200D+02,   2.7200D+00 ) ;
+ <FAOH> HCOOH + OH = HO2 + CO2  :  RFACTOR *   4.5000D-13 ;
+ <H1OH> MEOOH + OH = 0.03000*OH +  0.97000*MEO2 +  0.03000*HCHO +  0.97000*SumRO2  :  RFACTOR * ARR2D(   5.3000D-12,   1.9000D+02 ) ;
+ <H1HV> MEOOH = OH + HO2 + HCHO  : RJCELL( IJ_COOH ) ;
+ <A2OH> MECHO + OH = MECHO_OH +  0.04000*xHO2 +  0.05000*RO2C +  0.95000*MECO3 +  0.01000*xHCHO   
+                +  0.05000*SumRO2 +  0.95000*SumRCO3  :  RFACTOR * ARRD(   2.4000D-12,   5.4600D+02,   7.7000D-01 ) ;
+ <550> MECHO_OH = 0.01000*xOH +  0.04000*xPACID +  0.01000*CO2  :  60.0D0 *   3.7500D+00 ;
+ <551> MECHO_OH + NO = NO +  0.01000*xHO2 +  0.04000*xHCHO +  0.04000*yHPCRB +  0.05000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A2N3> MECHO + NO3 = HNO3 + MECO3 + SumRCO3  :  RFACTOR * ARR2D(   1.4000D-12,  -1.8600D+03 ) ;
+ <A2HV> MECHO = HO2 +  0.90000*MEO2 +  0.10000*MECO3 +  0.90000*CO +  0.90000*SumRO2   
+                +  0.10000*SumRCO3  : RJCELL( IJ_CCHOR_13 ) ;
+ <EAOH> ETOH + OH = 0.95000*HO2 +  0.05000*xHO2 +  0.05000*RO2C +  0.07000*xHCHO +  0.95000*MECHO   
+                +  0.01000*xGLCHO +  0.05000*yROOH +  0.05000*SumRO2  :  RFACTOR * ARRD(   4.4200D-13,   6.0600D+02,   2.2900D+00 ) ;
+ <GAOH> GLCHO + OH = 0.20000*HO2 +  0.80000*R2CO3 +  0.20000*GLY +  0.80000*SumRCO3  :  RFACTOR *   1.1000D-11 ;
+ <GAN3> GLCHO + NO3 = HNO3 +  0.10000*HO2 +  0.90000*R2CO3 +  0.10000*GLY +  0.90000*SumRCO3  :  RFACTOR *   1.8400D-14 ;
+ <GAHV> GLCHO = GLCHO_HV +  0.07000*OH +  1.66000*HO2 +  0.05000*xHO2 +  0.07000*RO2C   
+                +  0.83000*HCHO +  0.02000*xHCHO +  0.10000*MEOH +  0.93000*CO +  0.07000*SumRO2  : RJCELL( IJ_GLALD_14 ) ;
+ <558> GLCHO_HV = 0.02000*xOH +  0.05000*xPACID +  0.02000*CO2  :  60.0D0 *   2.6200D+00 ;
+ <559> GLCHO_HV + NO = NO +  0.02000*xHO2 +  0.04000*xHCHO +  0.06000*yHPCRB +  0.06000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A3OH> ETCHO + OH = 0.04000*xHO2 +  0.04000*RO2C +  0.96000*R2CO3 +  0.04000*xMECHO +  0.01000*xPACID   
+                +  0.03000*yHPCRB +  0.04000*CO +  0.04000*SumRO2 +  0.96000*SumRCO3  :  RFACTOR * ARRD(   6.6300D-13,   1.0180D+03,   1.9900D+00 ) ;
+ <A3N3> ETCHO + NO3 = HNO3 + R2CO3 + SumRCO3  :  RFACTOR *   6.3000D-15 ;
+ <A3HV> ETCHO = HO2 + ETO2 + CO + SumRO2  : RJCELL( IJ_C2CHOabs ) ;
+ <AROH> ACRO + OH = ACRO_OH +  0.31000*xHO2 +  0.31000*RO2C +  0.01000*RO2XC +  0.68000*MACO3   
+                +  0.07000*xHCHO +  0.01000*xGLY +  0.24000*xGLCHO +  0.01000*zRHNO3 +  0.22000*yHPCRB   
+                +  0.24000*CO +  0.32000*SumRO2 +  0.68000*SumRCO3  :  RFACTOR * ARR2D(   7.1000D-12,   3.3300D+02 ) ;
+ <564> ACRO_OH = 0.06000*xPACID  :  60.0D0 *   1.6900D+00 ;
+ <565> ACRO_OH + NO = NO +  0.06000*xGLY +  0.06000*yHPCRB  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <ARO3> ACRO + O3 = 0.15000*OH +  0.27000*HO2 +  0.38000*HCHO2 +  0.03000*RCHO2 +  0.13000*HCHO   
+                +  0.90000*GLY +  0.02000*HCOOH +  0.26000*CO2 +  0.34000*CO  :  RFACTOR *   2.8000D-19 ;
+ <ARN3> ACRO + NO3 = 0.94000*HNO3 +  0.06000*xHO2 +  0.06000*RO2C +  0.94000*MACO3 +  0.06000*xRCNO3   
+                +  0.05000*yRPNO3 +  0.06000*CO +  0.06000*SumRO2 +  0.94000*SumRCO3  :  RFACTOR *   1.1000D-15 ;
+ <ARHV> ACRO = ACRO_HV +  0.22000*OH +  0.49000*HO2 +  0.17000*xHO2 +  0.22000*RO2C   
+                +  0.05000*MEO2 +  0.15000*MACO3 +  0.15000*HCHO +  0.06000*xHCHO +  0.06000*MEOH   
+                +  0.25000*ETHEN +  0.16000*CO2 +  1.06000*CO +  0.27000*SumRO2 +  0.15000*SumRCO3  : RJCELL( IJ_ACROL_16 ) ;
+ <569> ACRO_HV = 0.06000*xOH +  0.17000*xPACID +  0.06000*CO2  :  60.0D0 *   2.4000D+00 ;
+ <570> ACRO_HV + NO = NO +  0.05000*xHO2 +  0.15000*xHCHO +  0.19000*yHPCRB +  0.21000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <K3OH> ACET + OH = 0.96000*RO2C +  0.04000*RO2XC +  0.96000*xMECO3 +  0.96000*xHCHO +  0.04000*zRCNO3   
+                +  0.85000*yHPCRB + SumRO2  :  RFACTOR * ARRD(   1.9700D-14,   6.7800D+02,   3.8800D+00 ) ;
+ <K3HV> ACET = MEO2 + MECO3 + SumRO2 + SumRCO3  : RJCELL( IJ_ACET_06 ) ;
+ <K4OH> MEK + OH = 0.29000*xHO2 +  0.94000*RO2C +  0.07000*RO2XC +  0.55000*xMECO3 +  0.08000*xR2CO3   
+                +  0.11000*xHCHO +  0.54000*xMECHO +  0.29000*xRCHO +  0.07000*zRCNO3 +  0.91000*yHPCRB   
+                +  1.01000*SumRO2  :  RFACTOR * ARRD(   5.4200D-14,   8.8900D+02,   3.5700D+00 ) ;
+ <K4HV> MEK = 0.15000*MEO2 +  0.85000*ETO2 +  0.85000*MECO3 +  0.15000*R2CO3 + SumRO2   
+                + SumRCO3  :   1.7500D-01 * RJCELL( IJ_MEK_06 ) ;
+ <MAOH> MACR + OH = MACR_OH +  0.05000*xHO2 +  0.75000*RO2C +  0.04000*RO2XC +  0.21000*MACO3   
+                +  0.05000*xHCHO +  0.61000*xKET2 +  0.79000*SumRO2 +  0.21000*SumRCO3  :  RFACTOR * ARR2D(   8.0000D-12,   3.8000D+02 ) ;
+ <576> MACR_OH = 0.69000*xOH +  0.08000*xKET2 +  0.05000*xPACID +  0.04000*zRCNO3 +  0.69000*CO2  :  60.0D0 *   5.2600D-01 ;
+ <577> MACR_OH + NO = NO +  0.69000*xHO2 +  0.09000*xHCHO +  0.14000*xMGLY +  0.04000*zRHNO3   
+                +  0.68000*yHPCRB +  0.61000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <MAO3> MACR + O3 = 0.19000*OH +  0.01000*xOH +  0.25000*HO2 +  0.03000*xHO2 +  0.04000*RO2C   
+                +  0.01000*MECO3 +  0.38000*HCHO2 +  0.03000*RCHO2 +  0.10000*HCHO +  0.02000*xHCHO   
+                +  0.02000*MECHO +  0.90000*MGLY +  0.01000*OACID +  0.02000*xPACID +  0.01000*yHPCRB   
+                +  0.24000*CO2 +  0.38000*CO +  0.04000*SumRO2 +  0.01000*SumRCO3  :  RFACTOR * ARR2D(   1.4000D-15,  -2.1000D+03 ) ;
+ <MAN3> MACR + NO3 = MACR_N3 +  0.30000*HNO3 +  0.66000*RO2C +  0.04000*RO2XC +  0.30000*MACO3   
+                +  0.66000*xRCNO3 +  0.70000*SumRO2 +  0.30000*SumRCO3  :  RFACTOR *   3.4000D-15 ;
+ <580> MACR_N3 = 0.66000*xOH +  0.04000*zRCNO3 +  0.66000*CO2  :  60.0D0 *   5.2400D-01 ;
+ <581> MACR_N3 + NO = NO +  0.66000*xHO2 +  0.59000*yRPNO3 +  0.04000*zRDNO3 +  0.66000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <MAHV> MACR = 0.45000*OH +  0.30000*HO2 +  0.43000*RO2C +  0.02000*RO2XC +  0.15000*MEO2   
+                +  0.43000*xMECO3 +  0.15000*MACO3 +  0.15000*HCHO +  0.43000*xHCHO +  0.02000*zRCNO3   
+                +  0.38000*yHPCRB +  0.25000*PROPE + CO +  0.60000*SumRO2 +  0.15000*SumRCO3  : RJCELL( IJ_MACR_06 ) ;
+ <MVOH> MVK + OH = 0.28000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.66000*xMECO3 +  0.28000*xHCHO   
+                +  0.66000*xGLCHO +  0.28000*xMGLY +  0.05000*zRCNO3 +  0.90000*yHPCRB + SumRO2  :  RFACTOR * ARR2D(   2.6000D-12,   6.1000D+02 ) ;
+ <MVO3> MVK + O3 = 0.18000*OH +  0.26000*HO2 +  0.02000*xHO2 +  0.02000*RO2C +  0.40000*HCHO2   
+                +  0.01000*RCHO2 +  0.05000*HCHO +  0.01000*xHCHO +  0.01000*MECHO +  0.95000*MGLY   
+                +  0.01000*xPACID +  0.01000*yHPCRB +  0.23000*CO2 +  0.36000*CO +  0.02000*SumRO2  :  RFACTOR * ARR2D(   8.5000D-16,  -1.5200D+03 ) ;
+ <MVHV> MVK = 0.40000*MEO2 +  0.40000*MACO3 +  0.60000*PROPE +  0.60000*CO +  0.40000*SumRO2   
+                +  0.40000*SumRCO3  : RJCELL( IJ_MVK_16 ) ;
+ <F1OH> BUDAL + OH = BUDAL_OH +  0.54000*OH +  0.44000*xHO2 +  0.44000*RO2C +  0.02000*RO2XC   
+                +  0.41000*xGLY +  0.54000*MALAH +  0.05000*xPACID +  0.02000*CO +  0.46000*SumRO2  :  RFACTOR *   5.2900D-11 ;
+ <587> BUDAL_OH = 0.39000*xPACID +  0.02000*zRCNO3  :  60.0D0 *   2.0200D+01 ;
+ <588> BUDAL_OH + NO = NO +  0.37000*xGLY +  0.35000*yHPCRB  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F1HV> BUDAL = OH + HO2 + MALAH  :   2.5000D-01 * RJCELL( IJ_AFGS ) ;
+ <PHOH> PHEN + OH = 0.85000*HO2 +  0.07000*xHO2 +  0.07000*RO2C +  0.01000*RO2XC +  0.07000*BZO   
+                +  0.01000*OLEA1 +  0.04000*OLEA2 +  0.03000*xGLY +  0.04000*xMGLY +  0.04000*xBUDAL   
+                +  0.01000*xAFG1 +  0.02000*xAFG2A +  0.03000*OLEP +  0.77000*CATL +  0.01000*zRANO3   
+                +  0.08000*yRAOOH +  0.08000*SumRO2  :  RFACTOR * ARR2D(   4.7000D-13,   1.2200D+03 ) ;
+ <PHN3> PHEN + NO3 = HNO3 + BZO  :  RFACTOR *   4.5000D-12 ;
+ <L1OH> ALK1 + OH = 0.96000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.01000*xMECO3 +  0.01000*xHCHO   
+                +  0.09000*xMGLY +  0.43000*xOACID +  0.03000*zRCNO3 +  0.62000*yHPCRB + 39.33000*NROG   
+                +  0.43000*CO + SumRO2  :  RFACTOR *   3.3500D-13 ;
+ <L2OH> ALK2 + OH = 0.10000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.01000*xMEO2 +  0.84000*xMECO3   
+                +  0.01000*xHCHO +  0.08000*xRCHO +  0.01000*xMGLY +  0.84000*xOACID +  0.05000*zRCNO3   
+                +  0.64000*yHPCRB +  1.38000*NROG + SumRO2  :  RFACTOR *   1.6700D-12 ;
+ <L3OH> ALK3 + OH = 0.34000*xHO2 +  1.20000*RO2C +  0.12000*RO2XC +  0.14000*xETO2 +  0.07000*xR2CO3   
+                +  0.33000*xTBUO +  0.10000*xHCHO +  0.10000*xMECHO +  0.09000*xRCHO +  0.07000*xACET   
+                +  0.01000*xKET2 +  0.12000*xOACID +  0.07000*zR1NO3 +  0.03000*zRCNO3 +  0.02000*zRHNO3   
+                +  0.81000*yROOH +  0.33000*yHPCRB +  0.12000*ALK1 + 16.91000*NROG +  0.05000*CO   
+                +  1.32000*SumRO2  :  RFACTOR *   2.8500D-12 ;
+ <L4OH> ALK4 + OH = 0.01000*xOH +  0.27000*HO2 +  0.36000*xHO2 +  0.96000*RO2C +  0.12000*RO2XC   
+                +  0.23000*xETO2 +  0.06000*xHCHO +  0.13000*xMECHO +  0.05000*xETCHO +  0.07000*xRCHO   
+                +  0.26000*ACET +  0.30000*xACET +  0.03000*xMEK +  0.15000*xKET2 +  0.09000*zR1NO3   
+                +  0.03000*zRHNO3 +  1.05000*yROOH +  0.01000*HPCRB +  0.01000*yHPCRB +  0.01000*CO2   
+                +  1.08000*SumRO2  :  RFACTOR *   4.5400D-12 ;
+ <L5OH> ALK5 + OH = ALK5_OH +  0.30000*HO2 +  0.33000*xHO2 + RO2C +  0.22000*RO2XC   
+                +  0.02000*xETO2 +  0.01000*xR2CO3 +  0.01000*HCHO +  0.03000*xHCHO +  0.04000*xMECHO   
+                +  0.02000*xETCHO +  0.11000*RCHO +  0.04000*xRCHO +  0.06000*GLCHO +  0.01000*xGLCHO   
+                +  0.05000*xACET +  0.05000*xMEK +  0.13000*KET2 +  0.23000*xKET2 +  0.01000*xPACID   
+                +  0.08000*zR1NO3 +  0.05000*zR2NO3 +  0.02000*zRCNO3 +  0.06000*zRHNO3 +  1.05000*yROOH   
+                +  0.12000*yHPCRB +  0.01000*ALK4 +  0.01000*ALK5 +  1.22000*SumRO2  :  RFACTOR *   1.1400D-11 ;
+ <597> ALK5_OH = 0.11000*HO2 +  0.03000*PACID +  0.08000*HPCRB  :  60.0D0 *   2.8700D-01 ;
+ <598> ALK5_OH + NO = NO +  0.06000*xHO2 +  0.11000*RO2C +  0.02000*RO2XC +  0.02000*xMECO3   
+                +  0.01000*xR2CO3 +  0.02000*xETCHO +  0.06000*xRCHO +  0.01000*xKET2 +  0.01000*zRCNO3   
+                +  0.01000*zRHNO3 +  0.05000*yROOH +  0.08000*yHPCRB +  0.01000*ALK5 +  0.12000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <L6OH> ALK6 + OH = ALK6_OH +  0.16000*HO2 +  0.40000*xHO2 +  0.97000*RO2C +  0.33000*RO2XC   
+                +  0.01000*xR2CO3 +  0.01000*xTBUO +  0.08000*xHCHO +  0.01000*xMECHO +  0.01000*xETCHO   
+                +  0.07000*RCHO +  0.08000*xRCHO +  0.15000*xACET +  0.09000*KET2 +  0.26000*xKET2   
+                +  0.01000*zR1NO3 +  0.15000*zR2NO3 +  0.05000*zRCNO3 +  0.12000*zRHNO3 +  1.05000*yROOH   
+                +  0.24000*yHPCRB +  0.06000*ALK3 +  0.01000*ALK4 +  0.01000*ALK5 +  1.31000*SumRO2  :  RFACTOR *   1.6300D-11 ;
+ <600> ALK6_OH = 0.03000*HO2 +  0.08000*HPCRB  :  60.0D0 *   2.7000D-01 ;
+ <601> ALK6_OH + NO = NO +  0.06000*xHO2 +  0.12000*RO2C +  0.02000*RO2XC +  0.01000*xR2CO3   
+                +  0.02000*xHCHO +  0.01000*xMECHO +  0.02000*xRCHO +  0.04000*xACET +  0.01000*xKET2   
+                +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.06000*yROOH +  0.04000*yHPCRB +  0.04000*ALK2   
+                +  0.01000*ALK5 +  0.14000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <O1OH> OLE1 + OH = 0.78000*xHO2 +  1.12000*RO2C +  0.10000*RO2XC +  0.01000*xMEO2 +  0.11000*xTBUO   
+                +  0.69000*xHCHO +  0.01000*xMECHO +  0.35000*xETCHO +  0.35000*xRCHO +  0.15000*xGLCHO   
+                +  0.02000*xACRO +  0.03000*xACET +  0.02000*xKET2 +  0.01000*xMVK +  0.01000*zR1NO3   
+                +  0.01000*zR2NO3 +  0.08000*zRHNO3 +  1.15000*yROOH +  0.07000*yRUOOH +  1.22000*SumRO2  :  RFACTOR *   3.1800D-11 ;
+ <O1O3> OLE1 + O3 = 0.26000*OH +  0.01000*xOH +  0.17000*HO2 +  0.16000*xHO2 +  0.18000*RO2C   
+                +  0.01000*RO2XC +  0.01000*ETO2 +  0.01000*xTBUO +  0.21000*HCHO2 +  0.17000*RCHO2   
+                +  0.50000*HCHO +  0.08000*xMECHO +  0.19000*ETCHO +  0.04000*xETCHO +  0.31000*RCHO   
+                +  0.02000*xRCHO +  0.04000*xACET +  0.02000*ETOH +  0.01000*zRCNO3 +  0.02000*yROOH   
+                +  0.14000*yHPCRB +  0.03000*ETHAN +  0.02000*PROP +  0.01000*NC4 +  0.01000*ALK2   
+                +  0.02000*ALK3 +  0.01000*ALK4 +  0.24000*CO2 +  0.37000*CO +  0.20000*SumRO2  :  RFACTOR *   8.7000D-18 ;
+ <O1N3> OLE1 + NO3 = 0.09000*xNO2 +  0.55000*xHO2 +  1.41000*RO2C +  0.13000*RO2XC +  0.09000*xETO2   
+                +  0.15000*xTBUO +  0.09000*xHCHO +  0.09000*xETCHO +  0.01000*xRCHO +  0.14000*xACET   
+                +  0.02000*zR1NO3 +  0.81000*xRCNO3 +  1.22000*yRPNO3 +  0.11000*zRDNO3 +  0.31000*yROOH   
+                +  1.53000*SumRO2  :  RFACTOR *   1.4400D-14 ;
+ <O1OP> OLE1 + O3P = 0.25000*RCHO +  0.10000*MEK +  0.15000*KET2 +  0.09000*ALK2 +  0.36000*ALK3   
+                +  0.05000*ALK4  :  RFACTOR *   4.4300D-12 ;
+ <O2OH> OLE2 + OH = 0.92000*xHO2 +  0.94000*RO2C +  0.07000*RO2XC +  1.25000*xMECHO +  0.40000*xETCHO   
+                +  0.12000*xRCHO +  0.01000*xACRO +  0.07000*zRHNO3 +  0.99000*yROOH +  0.01000*yRUOOH   
+                +  1.01000*SumRO2  :  RFACTOR *   6.2900D-11 ;
+ <O2O3> OLE2 + O3 = OLE2_O3 +  0.46000*OH +  0.06000*HO2 +  0.32000*xHO2 +  0.40000*RO2C   
+                +  0.01000*RO2XC +  0.04000*MEO2 +  0.01000*ETO2 +  0.16000*MECHO2 +  0.10000*RCHO2   
+                +  0.07000*xHCHO +  0.67000*MECHO +  0.09000*xMECHO +  0.22000*ETCHO +  0.01000*xETCHO   
+                +  0.07000*RCHO +  0.01000*xACET +  0.06000*MEOH +  0.02000*ETOH +  0.01000*zRCNO3   
+                +  0.09000*yHPCRB +  0.04000*ETHAN +  0.23000*CO2 +  0.18000*CO +  0.46000*SumRO2  :  RFACTOR *   1.9000D-16 ;
+ <608> OLE2_O3 = 0.01000*OH +  0.08000*xOH +  0.01000*RCHO +  0.22000*xPACID +  0.08000*CO2  :  60.0D0 *   2.4500D+00 ;
+ <609> OLE2_O3 + NO = NO +  0.08000*xHO2 +  0.01000*RO2C +  0.01000*xR2CO3 +  0.20000*xHCHO   
+                +  0.02000*xGLY +  0.26000*yHPCRB +  0.29000*CO +  0.01000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <O2N3> OLE2 + NO3 = 0.80000*xNO2 +  0.11000*xHO2 +  1.01000*RO2C +  0.08000*RO2XC +  1.11000*xMECHO   
+                +  0.33000*xETCHO +  0.09000*xRCHO +  0.01000*xACET +  0.11000*xRCNO3 +  1.08000*yRPNO3   
+                +  0.08000*zRDNO3 +  0.01000*yROOH +  1.09000*SumRO2  :  RFACTOR *   4.3400D-13 ;
+ <O2OP> OLE2 + O3P = 0.21000*MEK +  0.29000*KET2 +  0.21000*ALK1 +  0.22000*ALK2 +  0.07000*ALK3  :  RFACTOR *   1.9500D-11 ;
+ <O3OH> OLE3 + OH = 0.94000*xHO2 +  0.94000*RO2C +  0.05000*RO2XC +  0.94000*xHCHO +  0.82000*xACET   
+                +  0.12000*xMEK +  0.05000*zRHNO3 + yROOH + SumRO2  :  RFACTOR *   5.2600D-11 ;
+ <O3O3> OLE3 + O3 = 0.58000*OH +  0.14000*HO2 +  0.48000*RO2C +  0.02000*RO2XC +  0.45000*xMECO3   
+                +  0.03000*xR2CO3 +  0.21000*HCHO2 +  0.50000*HCHO +  0.45000*xHCHO +  0.03000*xMECHO   
+                +  0.43000*ACET +  0.07000*MEK +  0.02000*zRCNO3 +  0.42000*yHPCRB +  0.12000*CO2   
+                +  0.17000*CO +  0.50000*SumRO2  :  RFACTOR *   1.1800D-17 ;
+ <O3N3> OLE3 + NO3 = 0.86000*xNO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.01000*xMEO2 +  0.07000*xETO2   
+                +  0.86000*xHCHO +  0.80000*xACET +  0.06000*xMEK +  0.08000*xRCNO3 + yRPNO3 +  0.05000*zRDNO3   
+                + SumRO2  :  RFACTOR *   3.6200D-13 ;
+ <O3OP> OLE3 + O3P = 0.50000*RCHO +  0.50000*ALK2  :  RFACTOR *   1.7000D-11 ;
+ <O4OH> OLE4 + OH = 0.92000*xHO2 +  0.92000*RO2C +  0.08000*RO2XC +  0.83000*xMECHO +  0.09000*xETCHO   
+                +  0.92000*xACET +  0.08000*zRHNO3 + yROOH + SumRO2  :  RFACTOR *   8.7100D-11 ;
+ <O4O3> OLE4 + O3 = OLE4_O3 +  0.72000*OH +  0.03000*HO2 +  0.16000*xHO2 +  0.70000*RO2C   
+                +  0.02000*RO2XC +  0.03000*MEO2 +  0.48000*xMECO3 +  0.11000*MECHO2 +  0.01000*RCHO2   
+                +  0.53000*xHCHO +  0.45000*MECHO +  0.02000*xMECHO +  0.05000*ETCHO +  0.50000*ACET   
+                +  0.05000*MEOH +  0.02000*zRCNO3 +  0.44000*yHPCRB +  0.01000*ETHAN +  0.12000*CO2   
+                +  0.07000*CO +  0.75000*SumRO2  :  RFACTOR *   4.0500D-16 ;
+ <618> OLE4_O3 = 0.05000*xOH +  0.14000*xPACID +  0.05000*CO2  :  60.0D0 *   2.4500D+00 ;
+ <619> OLE4_O3 + NO = NO +  0.05000*xHO2 +  0.14000*xHCHO +  0.17000*yHPCRB +  0.18000*CO  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <O4N3> OLE4 + NO3 = 0.92000*xNO2 +  0.92000*RO2C +  0.08000*RO2XC +  0.83000*xMECHO +  0.09000*xETCHO   
+                +  0.92000*xACET + yRPNO3 +  0.08000*zRDNO3 + SumRO2  :  RFACTOR *   9.3100D-12 ;
+ <O4OP> OLE4 + O3P = 0.50000*KET2 +  0.50000*ALK2  :  RFACTOR *   5.1100D-11 ;
+ <TPOH> TERP + OH = TERP_OH +  0.02000*HO2 +  0.53000*xHO2 +  1.07000*RO2C +  0.28000*RO2XC   
+                +  0.01000*xMACO3 +  0.15000*xHCHO +  0.29000*xRCHO +  0.13000*xOLEA2 +  0.09000*xACET   
+                +  0.05000*xKET2 +  0.01000*xMVK +  0.04000*xLVKS +  0.05000*xOLEP +  0.02000*zR2NO3   
+                +  0.06000*zRCNO3 +  0.20000*zRHNO3 +  0.51000*yROOH +  0.55000*yRUOOH +  0.01000*HPCRB   
+                +  0.24000*yHPCRB +  1.35000*SumRO2 + TRPRXN  :  RFACTOR *   1.1000D-10 ;
+ <623> TERP_OH = 0.06000*OH +  0.01000*xOH +  0.09000*HO2 +  0.02000*AFG2A +  0.01000*xKET2   
+                +  0.03000*PACID +  0.01000*xPACID +  0.06000*HPCRB  :  60.0D0 *   1.4800D+00 ;
+ <624> TERP_OH + NO = NO +  0.07000*xHO2 +  0.16000*RO2C +  0.05000*RO2XC +  0.03000*xR2CO3   
+                +  0.02000*xHCHO +  0.03000*xRCHO +  0.02000*xOLEA1 +  0.02000*xOLEA2 +  0.01000*xAFG2A   
+                +  0.01000*xOLEP +  0.04000*zRCNO3 +  0.01000*zRHNO3 +  0.01000*yRUOOH +  0.22000*yHPCRB   
+                +  0.21000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <TPO3> TERP + O3 = TERP_O3 +  0.58000*OH +  0.02000*xOH +  0.07000*HO2 +  0.08000*xHO2   
+                +  0.37000*RO2C +  0.12000*RO2XC +  0.08000*xMECO3 +  0.11000*xR2CO3 +  0.08000*HCHO2   
+                +  0.25000*RCHO2 +  0.18000*HCHO +  0.06000*xHCHO +  0.13000*xRCHO +  0.03000*xGLY   
+                +  0.01000*xMACR +  0.01000*ACET +  0.01000*xACET +  0.17000*KET2 +  0.01000*LVKS   
+                +  0.01000*xAFG3 +  0.01000*xPACID +  0.02000*OLEP +  0.12000*zRCNO3 +  0.01000*yROOH   
+                +  0.01000*xHPCRB +  0.41000*yHPCRB +  0.06000*CO2 +  0.12000*CO +  0.49000*SumRO2   
+                + TRPRXN  :  RFACTOR *   1.1700D-16 ;
+ <626> TERP_O3 = 0.06000*OH +  0.07000*HO2 +  0.01000*PACID +  0.01000*OTHN +  0.05000*HPCRB  :  60.0D0 *   1.0700D+00 ;
+ <627> TERP_O3 + NO = NO +  0.02000*xHO2 +  0.12000*RO2C +  0.04000*RO2XC +  0.04000*xMECO3   
+                +  0.04000*xMACO3 +  0.04000*xHCHO +  0.04000*xOLEA2 +  0.04000*zRCNO3 +  0.13000*yHPCRB   
+                +  0.16000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <TPN3> TERP + NO3 = TERP_N3 +  0.51000*xNO2 +  0.01000*OH +  0.01000*xOH +  0.05000*xHO2   
+                +  1.12000*RO2C +  0.28000*RO2XC +  0.01000*xHCHO +  0.29000*xRCHO +  0.21000*xOLEA2   
+                +  0.15000*xACET +  0.01000*xMVK +  0.01000*xOLEP +  0.01000*RCNO3 +  0.07000*xRCNO3   
+                +  0.08000*zRCNO3 + yRPNO3 +  0.19000*zRDNO3 +  0.04000*yROOH +  0.01000*yRUOOH +  1.40000*SumRO2   
+                + TRPRXN  :  RFACTOR *   1.1100D-11 ;
+ <629> TERP_N3 = 0.10000*OH +  0.04000*HO2 +  0.10000*RCNO3 +  0.01000*HPCRB  :  60.0D0 *   1.2700D+00 ;
+ <630> TERP_N3 + NO = NO +  0.06000*xHO2 +  0.17000*RO2C +  0.05000*RO2XC +  0.03000*xR2CO3   
+                +  0.01000*xHCHO +  0.01000*xACET +  0.06000*xRCNO3 +  0.05000*zRCNO3 +  0.01000*yRPNO3   
+                +  0.01000*yROOH +  0.01000*yHPCRB +  0.01000*CO +  0.22000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <TPOP> TERP + O3P = 0.16000*RCHO +  0.04000*OLEA2 +  0.18000*KET2 +  0.01000*LVKS +  0.27000*OLEP   
+                +  0.18000*ALK3 +  0.08000*ALK4 +  0.08000*ALK5 + TRPRXN  :  RFACTOR *   4.2400D-11 ;
+ <SQOH> SESQ + OH = SESQ_OH +  0.05000*OH +  0.05000*HO2 +  0.47000*xHO2 +  0.77000*RO2C   
+                +  0.23000*RO2XC +  0.02000*xHCHO +  0.44000*xOLEA2 +  0.05000*OLEP +  0.02000*xOLEP   
+                +  0.03000*zRCNO3 +  0.18000*zRHNO3 +  0.84000*yRUOOH +  0.02000*HPCRB +  0.09000*yHPCRB   
+                + SumRO2 + SESQRXN  :  RFACTOR *   2.0000D-10 ;
+ <633> SESQ_OH = 0.07000*OH +  0.13000*HO2 +  0.01000*OLEP +  0.01000*zRPNO3 +  0.01000*OTHN   
+                +  0.12000*HPCRB  :  60.0D0 *   5.5800D+00 ;
+ <634> SESQ_OH + NO = NO +  0.08000*xHO2 +  0.32000*RO2C +  0.12000*RO2XC +  0.10000*xHCHO   
+                +  0.08000*xOLEA2 +  0.10000*xACET +  0.01000*zRCNO3 +  0.12000*zRHNO3 +  0.01000*yROOH   
+                +  0.24000*yRUOOH +  0.21000*yHPCRB +  0.44000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <SQO3> SESQ + O3 = SESQ_O3 +  0.66000*OH +  0.01000*HO2 +  0.19000*RO2C +  0.07000*RO2XC   
+                +  0.15000*xMACO3 +  0.33000*RCHO2 +  0.01000*HCHO +  0.15000*xHCHO +  0.01000*OLEP   
+                +  0.07000*zRCNO3 +  0.01000*HPCRB +  0.22000*yHPCRB +  0.26000*SumRO2 + SESQRXN  :  RFACTOR *   3.1400D-16 ;
+ <636> SESQ_O3 = 0.07000*OH +  0.36000*HO2 +  0.06000*OTHN +  0.01000*HPCRB  :  60.0D0 *   4.3200D+00 ;
+ <637> SESQ_O3 + NO = NO +  0.01000*xOH +  0.43000*RO2C +  0.17000*RO2XC +  0.17000*xMECO3   
+                +  0.02000*xHCHO +  0.02000*xRCHO +  0.22000*xOLEA2 +  0.17000*zRCNO3 +  0.01000*xHPCRB   
+                +  0.51000*yHPCRB +  0.04000*CO +  0.60000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <SQN3> SESQ + NO3 = SESQ_N3 +  0.74000*xNO2 +  0.02000*OH +  0.82000*RO2C +  0.22000*RO2XC   
+                +  0.74000*xOLEA2 +  0.02000*RCNO3 +  0.01000*zRCNO3 + yRPNO3 +  0.21000*zRDNO3 +  1.04000*SumRO2   
+                + SESQRXN  :  RFACTOR *   1.9000D-11 ;
+ <639> SESQ_N3 = 0.01000*OH +  0.01000*HO2 +  0.01000*RCNO3  :  60.0D0 *   2.5300D+00 ;
+ <640> SESQ_N3 + NO = NO +  0.04000*RO2C +  0.01000*RO2XC +  0.01000*zRCNO3 +  0.05000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <SQOP> SESQ + O3P = 0.13000*OLEA2 +  0.87000*OLEP + SESQRXN  :  RFACTOR *   6.8500D-11 ;
+ <BXOH> BENX + OH = 0.69000*HO2 +  0.28000*xHO2 +  0.28000*RO2C +  0.04000*RO2XC +  0.12000*OLEA2   
+                +  0.28000*xGLY +  0.28000*xBUDAL +  0.57000*PHEN +  0.04000*zRANO3 +  0.31000*yRAOOH   
+                +  0.32000*SumRO2  :  RFACTOR *   1.2100D-12 ;
+ <B1OH> ARO1 + OH = 0.27000*HO2 +  0.48000*xHO2 +  0.75000*RO2C +  0.21000*RO2XC +  0.05000*xETO2   
+                +  0.01000*xHCHO +  0.06000*xMECHO +  0.11000*xETCHO +  0.01000*xRCHO +  0.01000*OLEA1   
+                +  0.13000*OLEA2 +  0.13000*xGLY +  0.13000*xMGLY +  0.13000*xBUDAL +  0.01000*xAFG1   
+                +  0.12000*xAFG2A +  0.20000*xBALD +  0.12000*XYNL +  0.03000*zR1NO3 +  0.11000*zR2NO3   
+                +  0.01000*zRHNO3 +  0.06000*zRANO3 +  0.64000*yROOH +  0.32000*yRAOOH +  0.04000*ARO1   
+                +  3.11000*NROG +  0.96000*SumRO2 + TOLRO2  :  RFACTOR *   7.6900D-12 ;
+ <B2OH> ARO2 + OH = ARO2_OH +  0.29000*HO2 +  0.56000*xHO2 +  0.60000*RO2C +  0.14000*RO2XC   
+                +  0.03000*OLEA1 +  0.13000*OLEA2 +  0.07000*xGLY +  0.39000*xMGLY +  0.03000*xBACL   
+                +  0.03000*xBUDAL +  0.07000*xAFG1 +  0.30000*xAFG2A +  0.04000*xAFG2B +  0.04000*BALD   
+                +  0.03000*xBALD +  0.01000*xKET2 +  0.01000*LVKS +  0.04000*xAFG3 +  0.08000*XYNL   
+                +  0.02000*zR2NO3 +  0.01000*zRCNO3 +  0.11000*zRANO3 +  0.10000*yROOH +  0.59000*yRAOOH   
+                +  0.04000*yHPCRB +  0.03000*xBENX +  1.38000*NROG +  0.74000*SumRO2 + XYLRO2  :  RFACTOR *   2.1300D-11 ;
+ <645> ARO2_OH = 0.01000*HPCRB  :  60.0D0 *   1.7600D-01 ;
+ <646> ARO2_OH + NO = NO +  0.01000*RO2C +  0.01000*yHPCRB +  0.32000*NROG +  0.01000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <FUOH> FURNS + OH = 0.75000*HO2 +  0.24000*xHO2 +  0.24000*RO2C +  0.01000*RO2XC +  0.07000*xRCHO   
+                +  0.03000*xOLEA1 +  0.75000*BUDAL +  0.14000*xOLEP +  0.01000*zRHNO3 +  0.15000*yRUOOH   
+                +  0.01000*yHPCRB +  0.08000*CO +  0.25000*SumRO2  :  RFACTOR *   3.8400D-11 ;
+ <FUO3> FURNS + O3 = 0.39000*HO2 +  0.38000*xHO2 +  0.38000*RO2C +  0.01000*RO2XC +  0.40000*RCHO2   
+                +  0.14000*OLEA1 +  0.05000*xGLY +  0.01000*zRCNO3 +  0.07000*HPCRB +  0.25000*yHPCRB   
+                +  0.33000*ALK1 +  0.19000*CO2 +  0.79000*CO +  0.39000*SumRO2  :  RFACTOR *   2.4000D-18 ;
+ <FUN3> FURNS + NO3 = 0.08000*xNO2 +  0.87000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.07000*xOLEA1   
+                +  0.01000*xOLEP +  0.87000*xRCNO3 +  0.63000*yRPNO3 +  0.05000*zRDNO3 +  0.28000*CO   
+                + SumRO2  :  RFACTOR *   1.2000D-12 ;
+ <STOH> STYRS + OH = 0.06000*HO2 +  0.79000*xHO2 +  0.79000*RO2C +  0.15000*RO2XC +  0.74000*xHCHO   
+                +  0.03000*OLEA2 +  0.02000*xGLY +  0.02000*xMGLY +  0.03000*xBUDAL +  0.02000*xAFG2A   
+                +  0.74000*xBALD +  0.02000*XYNL +  0.14000*zRHNO3 +  0.01000*zRANO3 +  0.88000*yROOH   
+                +  0.06000*yRAOOH +  0.94000*SumRO2 + XYLRO2  :  RFACTOR *   5.8000D-11 ;
+ <STO3> STYRS + O3 = 0.08000*OH +  0.17000*HO2 +  0.03000*RO2C +  0.03000*xBZO +  0.21000*HCHO2   
+                +  0.34000*RCHO2 +  0.50000*HCHO +  0.50000*BALD +  0.05000*PHEN +  0.03000*yROOH   
+                +  0.09000*BENZ +  0.23000*CO2 +  0.22000*CO +  0.03000*SumRO2  :  RFACTOR *   1.6000D-17 ;
+ <AMOH> AMINS + OH = 0.02000*HO2 +  0.96000*xHO2 +  0.97000*RO2C +  0.02000*RO2XC +  0.01000*xMEO2   
+                +  0.08000*xHCHO +  0.02000*RCHO +  0.02000*zR2NO3 +  0.99000*yROOH +  0.97000*xAMINS   
+                +  0.99000*SumRO2  :  RFACTOR *   4.3500D-11 ;
+ <AMO3> AMINS + O3 = 0.61000*AMINS + 29.54000*NROG  :  RFACTOR *   3.0900D-18 ;
+ <TAOH> TAMNS + OH = 0.06000*RO2C +  0.03000*xMEO2 +  0.03000*xHCHO +  0.06000*yROOH +  0.97000*PNAMIN   
+                +  0.03000*xAMINS +  0.06000*SumRO2  :  RFACTOR *   1.0100D-11 ;
+ <A4OH> RCHO + OH = 0.01000*OH +  0.01000*xOH +  0.10000*HO2 +  0.07000*xHO2 +  0.09000*RO2C   
+                +  0.01000*RO2XC +  0.80000*R2CO3 +  0.04000*xHCHO +  0.01000*xMECHO +  0.06000*RCHO   
+                +  0.02000*xRCHO +  0.05000*MGLY +  0.01000*xACET +  0.03000*xPACID +  0.01000*zRCNO3   
+                +  0.04000*yHPCRB +  0.01000*ALK4 +  0.14000*NROG +  0.01000*CO2 +  0.02000*CO   
+                +  0.10000*SumRO2 +  0.80000*SumRCO3  :  RFACTOR *   3.2900D-11 ;
+ <A4N3> RCHO + NO3 = HNO3 +  0.07000*HO2 +  0.01000*RO2C +  0.92000*R2CO3 +  0.04000*RCHO   
+                +  0.03000*MGLY +  0.01000*SumRO2 +  0.92000*SumRCO3  :  RFACTOR *   2.2300D-14 ;
+ <A4HV> RCHO = 1.40000*HO2 +  0.51000*xHO2 +  0.65000*RO2C +  0.04000*RO2XC +  0.01000*xETO2   
+                +  0.05000*xMECO3 +  0.15000*xHCHO +  0.17000*MECHO +  0.05000*xMECHO +  0.05000*xETCHO   
+                +  0.01000*RCHO +  0.23000*xRCHO +  0.22000*GLCHO +  0.01000*xGLCHO +  0.01000*xMGLY   
+                +  0.07000*xACET +  0.01000*xMEK +  0.06000*xKET2 +  0.01000*zR1NO3 +  0.03000*zRHNO3   
+                +  0.59000*yROOH +  0.08000*yHPCRB +  0.03000*ALK4 +  0.08000*NROG + CO +  0.69000*SumRO2  : RJCELL( IJ_C2CHOabs ) ;
+ <A5OH> OLEA1 + OH = OLEA1_OH +  0.22000*HO2 +  0.26000*xHO2 +  0.59000*RO2C +  0.05000*RO2XC   
+                +  0.03000*MACO3 +  0.01000*xHCHO +  0.06000*RCHO +  0.05000*xGLY +  0.20000*xGLCHO   
+                +  0.05000*AFG1 +  0.03000*AFG2A +  0.08000*AFG2B +  0.17000*xKET2 +  0.02000*xPACID   
+                +  0.01000*HPCRB +  0.05000*yHPCRB +  0.65000*SumRO2 +  0.03000*SumRCO3  :  RFACTOR *   5.0600D-11 ;
+ <659> OLEA1_OH = 0.33000*xOH +  0.10000*HO2 +  0.20000*xKET2 +  0.19000*xPACID +  0.05000*zRCNO3   
+                +  0.10000*HPCRB +  0.33000*CO2  :  60.0D0 *   7.5200D-01 ;
+ <660> OLEA1_OH + NO = NO +  0.42000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC +  0.09000*xGLY   
+                +  0.20000*xGLCHO +  0.48000*xMGLY +  0.09000*xHCOOH +  0.05000*zRHNO3 +  0.60000*yHPCRB   
+                +  0.04000*CO +  0.10000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A5O3> OLEA1 + O3 = 0.62000*OH +  0.01000*xOH +  0.59000*HO2 +  0.02000*xHO2 +  0.12000*RO2C   
+                +  0.01000*MECO3 +  0.09000*xR2CO3 +  0.16000*RCHO2 +  0.04000*HCHO +  0.10000*xHCHO   
+                +  0.02000*MECHO +  0.42000*GLY +  0.06000*GLCHO +  0.81000*MGLY +  0.02000*KET2   
+                +  0.10000*MEOH +  0.02000*HCOOH +  0.01000*OACID +  0.02000*xPACID +  0.08000*yHPCRB   
+                +  0.05000*ALK4 +  0.33000*CO2 +  0.11000*CO +  0.12000*SumRO2 +  0.01000*SumRCO3  :  RFACTOR *   3.5000D-18 ;
+ <A5N3> OLEA1 + NO3 = OLEA1_N3 +  0.56000*xNO2 +  0.04000*HNO3 +  0.22000*HO2 +  0.16000*xHO2   
+                +  0.71000*RO2C +  0.06000*RO2XC +  0.01000*xHCHO +  0.03000*xGLY +  0.53000*xGLCHO   
+                +  0.02000*AFG1 +  0.01000*AFG2B +  0.03000*xKET2 +  0.22000*xPACID +  0.19000*RCNO3   
+                +  0.01000*xRCNO3 +  0.02000*zRCNO3 +  0.15000*xRHNO3 +  0.17000*yRPNO3 +  0.02000*zRDNO3   
+                +  0.15000*CO +  0.78000*SumRO2  :  RFACTOR *   9.6400D-14 ;
+ <663> OLEA1_N3 = 0.01000*AFG2B +  0.31000*xPACID +  0.03000*zRCNO3  :  60.0D0 *   5.5100D+01 ;
+ <664> OLEA1_N3 + NO = NO +  0.01000*RO2C +  0.31000*xMGLY +  0.34000*yRPNO3 +  0.03000*zRDNO3   
+                +  0.01000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A5HV> OLEA1 = 0.43000*OH +  0.01000*xOH +  0.49000*HO2 +  0.11000*xHO2 +  0.36000*RO2C   
+                +  0.02000*RO2XC +  0.10000*MEO2 +  0.13000*xMECO3 +  0.10000*xR2CO3 +  0.03000*MACO3   
+                +  0.13000*xHCHO +  0.01000*xMECHO +  0.06000*xRCHO +  0.09000*GLCHO +  0.13000*xGLCHO   
+                +  0.06000*MGLY +  0.03000*AFG2A +  0.08000*AFG2B +  0.03000*KET2 +  0.04000*xKET2   
+                +  0.01000*HCOOH +  0.01000*xPACID +  0.25000*OLEP +  0.02000*zRCNO3 +  0.01000*yROOH   
+                +  0.29000*yHPCRB +  0.02000*ALK4 +  0.01000*ALK5 +  0.05000*CO2 +  1.02000*CO   
+                +  0.48000*SumRO2 +  0.03000*SumRCO3  : RJCELL( IJ_MACR_06 ) ;
+ <A6OH> OLEA2 + OH = OLEA2_OH +  0.06000*OH +  0.09000*xOH +  0.05000*HO2 +  0.31000*xHO2   
+                +  0.65000*RO2C +  0.13000*RO2XC +  0.01000*xMECO3 +  0.03000*xR2CO3 +  0.18000*MACO3   
+                +  0.03000*xMACO3 +  0.22000*xHCHO +  0.31000*xRCHO +  0.02000*OLEA1 +  0.02000*OLEA2   
+                +  0.02000*xGLY +  0.01000*xGLCHO +  0.01000*xMGLY +  0.08000*xKET2 +  0.01000*LVKS   
+                +  0.05000*MALAH +  0.12000*xPACID +  0.02000*OLEP +  0.11000*zRCNO3 +  0.01000*zRHNO3   
+                +  0.04000*HPCRB +  0.47000*yHPCRB +  0.04000*CO2 +  0.09000*CO +  0.78000*SumRO2   
+                +  0.18000*SumRCO3  :  RFACTOR *   8.7800D-11 ;
+ <667> OLEA2_OH = 0.04000*OH +  0.03000*xOH +  0.03000*HO2 +  0.02000*xKET2 +  0.05000*xPACID   
+                +  0.05000*HPCRB +  0.02000*CO2  :  60.0D0 *   4.1400D+00 ;
+ <668> OLEA2_OH + NO = NO +  0.06000*xHO2 +  0.07000*RO2C +  0.02000*RO2XC +  0.02000*xMECO3   
+                +  0.01000*xR2CO3 +  0.02000*xHCHO +  0.05000*xRCHO +  0.03000*xMGLY +  0.01000*xACET   
+                +  0.01000*MALAH +  0.02000*zRCNO3 +  0.18000*yHPCRB +  0.02000*CO +  0.09000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A6O3> OLEA2 + O3 = OLEA2_O3 +  0.52000*OH +  0.12000*HO2 +  0.08000*xHO2 +  0.35000*RO2C   
+                +  0.07000*RO2XC +  0.12000*xMECO3 +  0.13000*HCHO2 +  0.15000*RCHO2 +  0.29000*HCHO   
+                +  0.08000*xHCHO +  0.38000*RCHO +  0.11000*xRCHO +  0.16000*GLY +  0.01000*xGLY   
+                +  0.20000*MGLY +  0.01000*xPACID +  0.07000*zRCNO3 +  0.14000*yHPCRB +  0.14000*CO2   
+                +  0.29000*CO +  0.43000*SumRO2  :  RFACTOR *   1.6500D-17 ;
+ <670> OLEA2_O3 = 0.15000*xOH +  0.03000*xBACL +  0.10000*xKET2 +  0.08000*xPACID +  0.05000*CO2  :  60.0D0 *   1.5300D+00 ;
+ <671> OLEA2_O3 + NO = NO +  0.02000*OH +  0.05000*xHO2 +  0.01000*RO2C +  0.01000*RO2XC   
+                +  0.07000*xR2CO3 +  0.01000*xRCHO +  0.03000*xGLY +  0.07000*xMGLY +  0.02000*KET2   
+                +  0.01000*zRCNO3 +  0.24000*yHPCRB +  0.08000*CO +  0.02000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A6N3> OLEA2 + NO3 = OLEA2_N3 +  0.09000*xNO2 +  0.28000*HNO3 +  0.13000*xOH +  0.20000*xHO2   
+                +  1.17000*RO2C +  0.22000*RO2XC +  0.03000*xMECO3 +  0.14000*xR2CO3 +  0.07000*MACO3   
+                +  0.07000*xMACO3 +  0.05000*xHCHO +  0.28000*xRCHO +  0.01000*xMGLY +  0.01000*xAFG3   
+                +  0.05000*MALAH +  0.26000*xPACID +  0.32000*xRCNO3 +  0.21000*zRCNO3 +  0.02000*xRHNO3   
+                +  0.07000*yRPNO3 +  0.01000*zRDNO3 +  0.02000*yHPCRB +  0.07000*CO2 +  0.03000*CO   
+                +  1.40000*SumRO2 +  0.07000*SumRCO3  :  RFACTOR *   1.1900D-12 ;
+ <673> OLEA2_N3 = 0.01000*NO2 +  0.02000*OH +  0.03000*xOH +  0.13000*xPACID +  0.01000*RCNO3   
+                +  0.01000*HPCRB +  0.03000*CO2  :  60.0D0 *   3.1700D+01 ;
+ <674> OLEA2_N3 + NO = NO +  0.02000*xNO2 +  0.02000*xHO2 +  0.03000*RO2C +  0.01000*xMECO3   
+                +  0.07000*xHCHO +  0.05000*xRCHO +  0.02000*xMGLY +  0.01000*xRCNO3 +  0.03000*yRPNO3   
+                +  0.24000*yHPCRB +  0.07000*CO +  0.03000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <A6HV> OLEA2 = OLEA2_HV +  0.15000*OH +  0.01000*xOH +  1.04000*HO2 +  0.35000*xHO2   
+                +  1.06000*RO2C +  0.26000*RO2XC +  0.04000*xMECO3 +  0.45000*xHCHO +  0.17000*xRCHO   
+                +  0.01000*OLEA2 +  0.06000*xOLEA2 +  0.19000*xMACR +  0.13000*xAFG2A +  0.01000*xAFG2B   
+                +  0.01000*xLVKS +  0.13000*OLEP +  0.24000*zRCNO3 +  0.02000*zRHNO3 +  0.07000*yRUOOH   
+                +  0.04000*HPCRB +  1.23000*yHPCRB +  1.11000*CO +  1.33000*SumRO2  : RJCELL( IJ_C2CHOabs ) ;
+ <676> OLEA2_HV = 0.14000*OH +  0.02000*HO2 +  0.01000*AFG2A +  0.11000*HPCRB +  0.01000*CO2  :  60.0D0 *   2.2200D+00 ;
+ <677> OLEA2_HV + NO = NO +  0.09000*xHO2 +  0.22000*RO2C +  0.06000*RO2XC +  0.01000*xMECO3   
+                +  0.04000*xHCHO +  0.03000*xOLEA2 +  0.03000*xLVKS +  0.05000*zRCNO3 +  0.01000*zRHNO3   
+                +  0.01000*yRUOOH +  0.27000*yHPCRB +  0.28000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <K5OH> KET2 + OH = 0.56000*HO2 +  0.16000*xHO2 +  0.45000*RO2C +  0.07000*RO2XC +  0.02000*MECO3   
+                +  0.05000*xMECO3 +  0.01000*R2CO3 +  0.12000*xR2CO3 +  0.02000*HCHO +  0.14000*xHCHO   
+                +  0.09000*xMECHO +  0.01000*xETCHO +  0.13000*RCHO +  0.16000*xRCHO +  0.37000*MGLY   
+                +  0.01000*xACET +  0.07000*KET2 +  0.03000*xKET2 +  0.07000*zRCNO3 +  0.50000*yHPCRB   
+                +  0.52000*SumRO2 +  0.02000*SumRCO3  :  RFACTOR *   9.5600D-12 ;
+ <K5HV> KET2 = 0.37000*HO2 +  0.30000*xHO2 +  0.37000*RO2C +  0.02000*RO2XC +  0.09000*MEO2   
+                +  0.13000*ETO2 +  0.51000*MECO3 +  0.40000*R2CO3 +  0.36000*HCHO +  0.03000*xHCHO   
+                +  0.02000*xMECHO +  0.04000*xETCHO +  0.26000*xRCHO +  0.02000*zRHNO3 +  0.39000*yROOH   
+                +  0.08000*ALK4 +  0.01000*ALK5 +  0.09000*CO +  0.61000*SumRO2 +  0.91000*SumRCO3  :   7.5300D-02 * RJCELL( IJ_MEK_06 ) ;
+ <K6OH> LVKS + OH = LVKS_OH +  0.22000*HO2 +  0.04000*xHO2 +  0.39000*RO2C +  0.03000*RO2XC   
+                +  0.13000*MECO3 +  0.09000*xMECO3 +  0.25000*xR2CO3 +  0.04000*xHCHO +  0.20000*RCHO   
+                +  0.09000*xRCHO +  0.13000*OLEA1 +  0.01000*MGLY +  0.04000*xBACL +  0.25000*xKET2   
+                +  0.03000*zRCNO3 +  0.36000*yHPCRB +  0.42000*SumRO2 +  0.13000*SumRCO3  :  RFACTOR *   6.0900D-11 ;
+ <681> LVKS_OH = 0.23000*OH +  0.01000*HO2 +  0.23000*HPCRB  :  60.0D0 *   4.6800D-01 ;
+ <682> LVKS_OH + NO = NO +  0.01000*xOH +  0.09000*xHO2 +  0.21000*RO2C +  0.04000*RO2XC   
+                +  0.10000*xMECO3 +  0.09000*xRCHO +  0.01000*xBACL +  0.01000*xAFG2B +  0.01000*xPACID   
+                +  0.04000*zRCNO3 +  0.09000*xHPCRB +  0.23000*yHPCRB +  0.01000*CO +  0.25000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <K6O3> LVKS + O3 = LVKS_O3 +  0.53000*OH +  0.38000*HO2 +  0.02000*xHO2 +  0.18000*RO2C   
+                +  0.01000*RO2XC +  0.01000*MECO3 +  0.09000*xMECO3 +  0.01000*xR2CO3 +  0.13000*HCHO2   
+                +  0.13000*RCHO2 +  0.03000*HCHO +  0.02000*xHCHO +  0.01000*MECHO +  0.03000*RCHO   
+                +  0.01000*xGLY +  0.59000*MGLY +  0.01000*xMGLY +  0.32000*BACL +  0.01000*xBACL   
+                +  0.06000*KET2 +  0.03000*HCOOH +  0.01000*OACID +  0.02000*xPACID +  0.01000*zRCNO3   
+                +  0.04000*yHPCRB +  0.40000*CO2 +  0.30000*CO +  0.19000*SumRO2 +  0.01000*SumRCO3  :  RFACTOR *   3.0400D-17 ;
+ <684> LVKS_O3 = 0.02000*OH +  0.01000*xOH +  0.04000*xMECO3 +  0.12000*xPACID +  0.01000*CO2  :  60.0D0 *   5.1300D+00 ;
+ <685> LVKS_O3 + NO = NO +  0.05000*xHO2 +  0.02000*RO2C +  0.01000*RO2XC +  0.02000*xHCHO   
+                +  0.10000*xMGLY +  0.01000*zRCNO3 +  0.13000*yHPCRB +  0.02000*CO +  0.03000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <K6HV> LVKS = 0.06000*xOH +  0.14000*HO2 +  0.12000*RO2C +  0.03000*RO2XC +  0.26000*MEO2   
+                +  0.06000*xMECO3 +  0.25000*MACO3 +  0.14000*HCHO +  0.06000*xMGLY +  0.06000*MALAH   
+                +  0.06000*xPACID +  0.60000*OLEP +  0.03000*zRCNO3 +  0.60000*CO +  0.41000*SumRO2   
+                +  0.25000*SumRCO3  : RJCELL( IJ_MVK_16 ) ;
+ <O5OH> OLEP + OH = OLEP_OH +  0.01000*OH +  0.13000*HO2 +  0.55000*xHO2 +  0.65000*RO2C   
+                +  0.14000*RO2XC +  0.02000*xHCHO +  0.53000*xRCHO +  0.11000*OLEA1 +  0.01000*xBACL   
+                +  0.02000*xKET2 +  0.01000*xMVK +  0.01000*OLEP +  0.14000*zRCNO3 +  0.03000*yROOH   
+                +  0.01000*yRUOOH +  0.01000*HPCRB +  0.74000*yHPCRB +  0.80000*SumRO2  :  RFACTOR *   8.3400D-11 ;
+ <688> OLEP_OH = 0.05000*OH +  0.01000*xOH +  0.10000*HO2 +  0.12000*HPCRB +  0.01000*CO2  :  60.0D0 *   2.3000D+00 ;
+ <689> OLEP_OH + NO = NO +  0.07000*xHO2 +  0.25000*RO2C +  0.03000*RO2XC +  0.06000*xMECO3   
+                +  0.11000*xHCHO +  0.06000*xGLCHO +  0.02000*xMGLY +  0.03000*xKET2 +  0.02000*zRCNO3   
+                +  0.01000*zRHNO3 +  0.07000*yRUOOH +  0.14000*yHPCRB +  0.04000*CO +  0.28000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <O5O3> OLEP + O3 = OLEP_O3 +  0.61000*OH +  0.05000*HO2 +  0.08000*xHO2 +  0.33000*RO2C   
+                +  0.09000*RO2XC +  0.04000*xMECO3 +  0.11000*xR2CO3 +  0.06000*HCHO2 +  0.23000*RCHO2   
+                +  0.14000*HCHO +  0.14000*xHCHO +  0.08000*RCHO +  0.09000*xRCHO +  0.02000*xGLY   
+                +  0.13000*KET2 +  0.09000*zRCNO3 +  0.35000*yHPCRB +  0.03000*ALK2 +  0.09000*CO2   
+                +  0.18000*CO +  0.41000*SumRO2  :  RFACTOR *   1.5000D-16 ;
+ <691> OLEP_O3 = 0.17000*OH +  0.04000*HO2 +  0.01000*KET2 +  0.17000*HPCRB  :  60.0D0 *   9.3600D-01 ;
+ <692> OLEP_O3 + NO = NO +  0.17000*RO2C +  0.06000*RO2XC +  0.15000*xMECO3 +  0.01000*xR2CO3   
+                +  0.15000*xRCHO +  0.06000*zRCNO3 +  0.18000*yHPCRB +  0.22000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <O5N3> OLEP + NO3 = 0.74000*xNO2 +  0.08000*xHO2 +  0.88000*RO2C +  0.16000*RO2XC +  0.01000*xMECO3   
+                +  0.18000*xHCHO +  0.64000*xRCHO +  0.11000*xKET2 +  0.09000*xRCNO3 +  0.14000*zRCNO3   
+                +  0.28000*yRPNO3 +  0.02000*zRDNO3 +  0.01000*yHPCRB +  1.04000*SumRO2  :  RFACTOR *   8.5000D-12 ;
+ <OAOH> OACID + OH = 0.30000*xHO2 +  0.30000*RO2C +  0.70000*MEO2 +  0.02000*xHCHO +  0.28000*xMGLY   
+                +  0.26000*yHPCRB +  0.72000*CO2 + SumRO2  :  RFACTOR *   7.4700D-13 ;
+ <PAOH> PACID + OH = 0.19000*xOH +  0.56000*xHO2 +  0.74000*RO2C +  0.26000*MECO3 +  0.19000*xHCHO   
+                +  0.56000*xPACID +  0.19000*CO2 +  0.74000*SumRO2 +  0.26000*SumRCO3  :  RFACTOR *   3.0000D-14 ;
+ <PAHV> PACID = OH + MEO2 + CO2 + SumRO2  : RJCELL( IJ_PAA ) ;
+ <MGOH> MGLY + OH = 0.01000*xHO2 +  0.01000*RO2C +  0.99000*MECO3 +  0.01000*xHCHO +  0.01000*xPACID   
+                + CO +  0.01000*SumRO2 +  0.99000*SumRCO3  :  RFACTOR *   1.1900D-11 ;
+ <MGN3> MGLY + NO3 = HNO3 + MECO3 + CO + SumRCO3  :  RFACTOR *   5.0000D-16 ;
+ <MGHV> MGLY = HO2 + MECO3 + CO + SumRCO3  : RJCELL( IJ_MGLY_13 ) ;
+ <BAHV> BACL = 2.00000*MECO3 +  2.00000*SumRCO3  : RJCELL( IJ_BACL_11 ) ;
+ <CROH> CRES + OH = 0.84000*HO2 +  0.11000*xHO2 +  0.11000*RO2C +  0.02000*RO2XC +  0.03000*BZO   
+                +  0.02000*OLEA1 +  0.08000*OLEA2 +  0.02000*xGLY +  0.05000*xMGLY +  0.03000*xBACL   
+                +  0.03000*xBUDAL +  0.01000*xAFG1 +  0.05000*xAFG2A +  0.02000*xAFG2B +  0.01000*xBALD   
+                +  0.17000*LVKS +  0.14000*OLEP +  0.42000*CATL +  0.02000*zRANO3 +  0.02000*yROOH   
+                +  0.12000*yRAOOH +  0.13000*SumRO2  :  RFACTOR *   4.6500D-11 ;
+ <CRN3> CRES + NO3 = HNO3 + BZO  :  RFACTOR *   1.2700D-11 ;
+ <XLOH> XYNL + OH = 0.78000*HO2 +  0.16000*xHO2 +  0.17000*RO2C +  0.04000*RO2XC +  0.02000*BZO   
+                +  0.02000*OLEA1 +  0.06000*OLEA2 +  0.01000*xGLY +  0.04000*xMGLY +  0.10000*xBACL   
+                +  0.01000*xBUDAL +  0.01000*xAFG1 +  0.09000*xAFG2A +  0.03000*xAFG2B +  0.01000*xBALD   
+                +  0.26000*LVKS +  0.01000*xAFG3 +  0.16000*OLEP +  0.01000*XYNL +  0.27000*CATL   
+                +  0.03000*zRANO3 +  0.02000*yROOH +  0.18000*yRAOOH +  0.20000*SumRO2  :  RFACTOR *   6.7300D-11 ;
+ <XLN3> XYNL + NO3 = HNO3 + BZO  :  RFACTOR *   3.0900D-11 ;
+ <CAOH> CATL + OH = 0.96000*HO2 +  0.03000*xHO2 +  0.03000*RO2C +  0.01000*RO2XC +  0.01000*BZO   
+                +  0.01000*OLEA1 +  0.02000*OLEA2 +  0.02000*xBACL +  0.02000*xAFG2A +  0.73000*LVKS   
+                +  0.06000*OLEP +  0.12000*CATL3 +  0.01000*zRANO3 +  0.03000*yRAOOH +  0.03000*SumRO2  :  RFACTOR *   1.5600D-10 ;
+ <CAN3> CATL + NO3 = HNO3 + BZO  :  RFACTOR *   4.0400D-11 ;
+ <N4OH> RCNO3 + OH = RCNO3_OH +  0.34000*NO2 +  0.10000*xNO2 +  0.02000*OH +  0.01000*xOH   
+                +  0.05000*HO2 +  0.13000*xHO2 +  0.49000*RO2C +  0.07000*RO2XC +  0.05000*xMECO3   
+                +  0.07000*R2CO3 +  0.08000*xR2CO3 +  0.03000*MACO3 +  0.13000*xHCHO +  0.05000*xMECHO   
+                +  0.05000*RCHO +  0.05000*xRCHO +  0.01000*xGLY +  0.05000*MGLY +  0.02000*xACET   
+                +  0.12000*KET2 +  0.01000*xKET2 +  0.01000*PACID +  0.04000*xPACID +  0.04000*OLEP   
+                +  0.07000*RCNO3 +  0.21000*xRCNO3 +  0.07000*zRCNO3 +  0.03000*yRPNO3 +  0.03000*yHPCRB   
+                +  0.06000*ALK2 +  4.74000*NROG +  0.01000*CO2 +  0.01000*CO +  0.56000*SumRO2   
+                +  0.09000*SumRCO3  :  RFACTOR *   2.0600D-11 ;
+ <708> RCNO3_OH = 0.05000*HO2 +  0.01000*xPACID +  0.05000*RCNO3  :  60.0D0 *   2.7600D+00 ;
+ <709> RCNO3_OH + NO = NO +  0.01000*xHO2 +  0.07000*RO2C +  0.02000*RO2XC +  0.03000*xR2CO3   
+                +  0.03000*xHCHO +  0.01000*xGLY +  0.04000*xRCNO3 +  0.02000*zRCNO3 +  0.01000*yRPNO3   
+                +  0.02000*yHPCRB +  0.09000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <N4HV> RCNO3 = RCNO3_HV +  0.77000*NO2 +  0.04000*xNO2 +  0.01000*xOH +  0.38000*HO2   
+                +  0.19000*xHO2 +  0.53000*RO2C +  0.10000*RO2XC +  0.07000*ETO2 +  0.11000*MECO3   
+                +  0.04000*R2CO3 +  0.03000*xR2CO3 +  0.11000*HCHO +  0.02000*xHCHO +  0.05000*MECHO   
+                +  0.02000*RCHO +  0.07000*xRCHO +  0.09000*OLEA2 +  0.03000*MACR +  0.04000*AFG2A   
+                +  0.07000*xACET +  0.04000*xKET2 +  0.04000*OACID +  0.03000*xOACID +  0.02000*PACID   
+                +  0.04000*xPACID +  0.02000*xRCNO3 +  0.08000*zRCNO3 +  0.03000*xRHNO3 +  0.17000*yRPNO3   
+                +  0.02000*zRDNO3 +  0.22000*yHPCRB +  8.77000*NROG +  0.01000*CO2 +  0.34000*CO   
+                +  0.71000*SumRO2 +  0.14000*SumRCO3  : RJCELL( IJ_CRBNIT ) ;
+ <711> RCNO3_HV = 0.25000*HO2 +  0.06000*PACID +  0.02000*xPACID +  0.06000*RCNO3 +  0.02000*RPNO3   
+                +  0.10000*HPCRB  :  60.0D0 *   3.1500D-01 ;
+ <712> RCNO3_HV + NO = NO +  0.05000*xOH +  0.06000*xHO2 +  0.21000*RO2C +  0.04000*RO2XC   
+                +  0.05000*xMECO3 +  0.05000*xR2CO3 +  0.01000*xHCHO +  0.14000*xRCHO +  0.01000*xMGLY   
+                +  0.04000*zRCNO3 +  0.07000*xRHNO3 +  0.02000*yRPNO3 +  0.14000*yHPCRB +  0.05000*CO2   
+                +  0.02000*CO +  0.25000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <N3OH> RHNO3 + OH = 0.60000*NO2 +  0.08000*HO2 +  0.26000*xHO2 +  0.30000*RO2C +  0.05000*RO2XC   
+                +  0.07000*xHCHO +  0.03000*xGLCHO +  0.01000*KET2 +  0.07000*xKET2 +  0.01000*LVKS   
+                +  0.08000*RCNO3 +  0.21000*xRCNO3 +  0.05000*xRHNO3 +  0.34000*yRPNO3 +  0.05000*zRDNO3   
+                +  0.02000*ALK4 +  0.56000*ALK5 +  0.35000*SumRO2  :  RFACTOR *   3.8000D-11 ;
+ <N3HV> RHNO3 = NO2 +  0.94000*HO2 +  0.03000*xHO2 +  0.09000*RO2C +  0.02000*RO2XC   
+                +  0.74000*HCHO +  0.02000*xHCHO +  0.02000*MECHO +  0.06000*OLEA1 +  0.06000*OLEA2   
+                +  0.02000*xOLEA2 +  0.32000*MACR +  0.02000*ACET +  0.03000*KET2 +  0.37000*MVK   
+                +  0.02000*OLEP +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.05000*yRUOOH +  0.01000*HPCRB   
+                +  0.05000*yHPCRB +  0.07000*FURNS +  0.11000*SumRO2  : RJCELL( IJ_IC3ONO2 ) ;
+ <N5OH> RANO3 + OH = 0.42000*NO2 +  0.58000*HO2 +  0.02000*AFG2A +  0.01000*OLEP +  0.47000*RCNO3   
+                +  0.11000*RHNO3 +  0.01000*ALK5 +  0.37000*ALK6  :  RFACTOR *   4.4900D-11 ;
+ <N5HV> RANO3 = 0.66000*RCNO3 +  0.34000*RHNO3  : RJCELL( IJ_COOH ) ;
+ <N6OH> RPNO3 + OH = RPNO3_OH +  0.01000*zRNNO3 +  0.37000*NO2 +  0.07000*xNO2 +  0.19000*OH   
+                +  0.12000*HO2 +  0.11000*xHO2 +  0.23000*RO2C +  0.05000*RO2XC +  0.10000*xHCHO   
+                +  0.04000*xOLEA1 +  0.01000*xOLEA2 +  0.03000*xKET2 +  0.02000*xMVK +  0.03000*RCNO3   
+                +  0.10000*xRCNO3 +  0.16000*RHNO3 +  0.12000*RPNO3 +  0.01000*xRPNO3 +  0.14000*yRPNO3   
+                +  0.03000*zRDNO3 +  0.32000*ROOH +  0.05000*HPCRB +  0.01000*xHPCRB +  0.28000*SumRO2  :  RFACTOR *   5.1900D-11 ;
+ <718> RPNO3_OH = 0.03000*NO2 +  0.05000*OH +  0.02000*HO2 +  0.05000*RCNO3 +  0.01000*RPNO3   
+                +  0.03000*HPCRB  :  60.0D0 *   4.7700D-01 ;
+ <719> RPNO3_OH + NO = NO +  0.03000*xNO2 +  0.05000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC   
+                +  0.02000*xHCHO +  0.03000*xGLY +  0.02000*xOLEP +  0.03000*xRCNO3 +  0.02000*xRPNO3   
+                +  0.10000*yRPNO3 +  0.01000*zRDNO3 +  0.02000*xHPCRB +  0.11000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <N6HV> RPNO3 = RPNO3_HV +  0.81000*NO2 + OH +  0.14000*HO2 +  0.01000*RO2C   
+                +  0.63000*HCHO +  0.43000*OLEA1 +  0.10000*OLEA2 +  0.12000*MVK +  0.15000*OLEP   
+                +  0.14000*RCNO3 +  0.01000*yRPNO3 +  0.01000*SumRO2  : RJCELL( IJ_COOH ) ;
+ <721> RPNO3_HV = 0.03000*NO2 +  0.01000*HO2 +  0.01000*RPNO3 +  0.03000*HPCRB  :  60.0D0 *   1.1100D+00 ;
+ <722> RPNO3_HV + NO = NO +  0.04000*xHO2 +  0.05000*RO2C +  0.01000*RO2XC +  0.03000*xHCHO   
+                +  0.03000*xRCNO3 +  0.01000*xRHNO3 +  0.05000*yRPNO3 +  0.05000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <NDOH> RDNO3 + OH = 0.53000*NO2 +  0.04000*xNO2 +  0.01000*HO2 +  0.25000*xHO2 +  0.60000*RO2C   
+                +  0.15000*RO2XC +  0.20000*xHCHO +  0.03000*xACET +  0.10000*xKET2 +  0.02000*RCNO3   
+                +  0.25000*xRCNO3 +  0.01000*zRCNO3 +  0.52000*RHNO3 +  0.05000*xRDNO3 +  0.13000*zRDNO3   
+                +  0.01000*CO +  0.75000*SumRO2  :  RFACTOR *   3.6000D-11 ;
+ <NDHV> RDNO3 = RDNO3_HV +  1.86000*NO2 +  0.03000*HO2 +  0.01000*xHO2 +  0.08000*RO2C   
+                +  0.03000*RO2XC +  0.01000*xR2CO3 +  0.30000*HCHO +  0.21000*OLEA1 +  0.35000*OLEA2   
+                +  0.02000*xACET +  0.05000*KET2 +  0.25000*MVK +  0.03000*RCNO3 +  0.01000*xRCNO3   
+                +  0.03000*zRCNO3 +  0.11000*SumRO2  : RJCELL( IJ_DIONO2 ) ;
+ <725> RDNO3_HV = 0.04000*NO2 +  0.02000*HO2 +  0.02000*RPNO3 +  0.04000*HPCRB  :  60.0D0 *   1.0900D+00 ;
+ <726> RDNO3_HV + NO = NO +  0.06000*xHO2 +  0.06000*RO2C +  0.01000*RO2XC +  0.04000*xHCHO   
+                +  0.04000*xRCNO3 +  0.02000*xRHNO3 +  0.06000*yRPNO3 +  0.01000*zRDNO3 +  0.07000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <N1OH> R1NO3 + OH = 0.17000*NO2 +  0.41000*xNO2 +  0.01000*HO2 +  0.29000*xHO2 +  0.99000*RO2C   
+                +  0.12000*RO2XC +  0.10000*xHCHO +  0.29000*xMECHO +  0.05000*xETCHO +  0.02000*xRCHO   
+                +  0.05000*ACET +  0.25000*xACET +  0.05000*MEK +  0.04000*xMEK +  0.07000*KET2   
+                +  0.05000*xKET2 +  0.19000*xRCNO3 +  0.10000*xRHNO3 +  0.01000*RPNO3 +  1.12000*yRPNO3   
+                +  0.12000*zRDNO3 +  1.12000*SumRO2  :  RFACTOR *   1.4700D-12 ;
+ <N1HV> R1NO3 = NO2 +  0.19000*HO2 +  0.38000*xHO2 +  0.45000*RO2C +  0.06000*RO2XC   
+                +  0.32000*ETO2 +  0.04000*TBUO +  0.01000*xTBUO +  0.05000*xHCHO +  0.12000*MECHO   
+                +  0.03000*ETCHO +  0.03000*xETCHO +  0.02000*xRCHO +  0.34000*ACET +  0.12000*xACET   
+                +  0.11000*MEK +  0.05000*KET2 +  0.22000*xKET2 +  0.01000*zR1NO3 +  0.06000*zRHNO3   
+                +  0.51000*yROOH +  0.83000*SumRO2  : RJCELL( IJ_IC3ONO2 ) ;
+ <N2OH> R2NO3 + OH = 0.06000*NO2 +  0.12000*xNO2 +  0.01000*HO2 +  0.52000*xHO2 +  1.12000*RO2C   
+                +  0.29000*RO2XC +  0.06000*xRCHO +  0.04000*KET2 +  0.07000*xKET2 +  0.01000*RCNO3   
+                +  0.49000*xRCNO3 +  0.01000*zRCNO3 +  0.03000*xRHNO3 +  1.36000*yRPNO3 +  0.29000*zRDNO3   
+                +  0.01000*HPCRB +  0.01000*CO +  1.42000*SumRO2  :  RFACTOR *   2.5100D-11 ;
+ <N2HV> R2NO3 = R2NO3_HV + NO2 +  0.10000*HO2 +  0.46000*xHO2 +  0.74000*RO2C   
+                +  0.21000*RO2XC +  0.05000*xMACO3 +  0.04000*xRCHO +  0.08000*KET2 +  0.37000*xKET2   
+                +  0.04000*xMVK +  0.03000*xPACID +  0.07000*zRCNO3 +  0.14000*zRHNO3 +  0.51000*yROOH   
+                +  0.02000*HPCRB +  0.36000*yHPCRB +  0.01000*CO +  0.95000*SumRO2  : RJCELL( IJ_IC3ONO2 ) ;
+ <731> R2NO3_HV = 0.09000*OH +  0.09000*HO2 +  0.07000*PACID +  0.03000*xPACID +  0.10000*HPCRB  :  60.0D0 *   9.6900D-01 ;
+ <732> R2NO3_HV + NO = NO +  0.13000*xHO2 +  0.22000*RO2C +  0.05000*RO2XC +  0.03000*xHCHO   
+                +  0.11000*xRCHO +  0.04000*xOLEA2 +  0.03000*zRCNO3 +  0.02000*zRHNO3 +  0.29000*yHPCRB   
+                +  0.01000*CO +  0.27000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <H4OH> RAOOH + OH = 0.76000*OH +  0.17000*HO2 +  0.06000*xHO2 +  0.06000*RO2C +  0.01000*RO2XC   
+                +  0.31000*RCHO +  0.02000*xGLY +  0.04000*xMGLY +  0.02000*xBUDAL +  0.02000*AFG2A   
+                +  0.03000*xAFG2A +  0.01000*KET2 +  0.03000*OLEP +  0.01000*zRANO3 +  0.07000*yRAOOH   
+                +  0.17000*HPCRB +  0.01000*ALK5 +  0.37000*ALK6 +  0.07000*SumRO2  :  RFACTOR *   8.2700D-11 ;
+ <H4HV> RAOOH = HPCRB  : RJCELL( IJ_COOH ) ;
+ <H3OH> RUOOH + OH = RUOOH_OH +  0.63000*OH +  0.08000*HO2 +  0.10000*xHO2 +  0.11000*RO2C   
+                +  0.01000*RO2XC +  0.08000*xHCHO +  0.03000*xMACR +  0.05000*xMVK +  0.02000*LVKS   
+                +  0.01000*zRHNO3 +  0.01000*yROOH +  0.10000*yRUOOH +  0.08000*HPCRB +  0.01000*xHPCRB   
+                +  0.02000*ALK4 +  0.59000*ALK5 +  0.01000*xFURNS +  0.12000*SumRO2  :  RFACTOR *   5.9700D-11 ;
+ <736> RUOOH_OH = 0.06000*OH +  0.12000*HO2 +  0.17000*HPCRB  :  60.0D0 *   1.2800D-02 ;
+ <737> RUOOH_OH + NO = NO +  0.16000*xHO2 +  0.16000*RO2C +  0.01000*RO2XC +  0.03000*xHCHO   
+                +  0.03000*xGLCHO +  0.05000*xKET2 +  0.01000*zRPNO3 +  0.17000*yROOH +  0.16000*xHPCRB   
+                +  0.17000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <H3HV> RUOOH = OH +  0.99000*HO2 +  0.02000*RO2C +  0.86000*HCHO +  0.04000*OLEA1   
+                +  0.39000*MACR +  0.01000*KET2 +  0.46000*MVK +  0.01000*OLEP +  0.01000*yRUOOH   
+                +  0.01000*yHPCRB +  0.09000*FURNS +  0.02000*SumRO2  : RJCELL( IJ_COOH ) ;
+ <H5OH> HPCRB + OH = HPCRB_OH +  0.50000*OH +  0.01000*HO2 +  0.03000*xHO2 +  0.03000*RO2C   
+                +  0.03000*xHCHO +  0.35000*RCHO +  0.01000*OLEA1 +  0.02000*AFG1 +  0.03000*xPACID   
+                +  0.13000*OLEP +  0.01000*HPCRB +  0.03000*SumRO2  :  RFACTOR *   5.4000D-11 ;
+ <740> HPCRB_OH = 0.44000*OH +  0.02000*HO2 +  0.01000*AFG2B +  0.01000*PACID +  0.08000*OLEP   
+                +  0.36000*HPCRB  :  60.0D0 *   6.3700D-01 ;
+ <741> HPCRB_OH + NO = NO +  0.42000*xHO2 +  0.43000*RO2C +  0.04000*RO2XC +  0.01000*xHCHO   
+                +  0.05000*xGLY +  0.01000*xGLCHO +  0.24000*xMGLY +  0.05000*xAFG2B +  0.01000*xPACID   
+                +  0.01000*zRCNO3 +  0.03000*zRPNO3 +  0.34000*xHPCRB +  0.45000*yHPCRB +  0.04000*CO   
+                +  0.47000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <H5HV> HPCRB = OH +  0.01000*xOH +  0.90000*HO2 +  0.08000*xHO2 +  0.09000*RO2C   
+                +  0.01000*RO2XC +  0.11000*HCHO +  0.06000*xHCHO +  0.11000*OLEA1 +  0.05000*AFG1   
+                +  0.21000*AFG2A +  0.53000*AFG2B +  0.02000*xAFG2B +  0.01000*xLVKS +  0.06000*xPACID   
+                +  0.01000*zRCNO3 +  0.01000*CO2 +  0.10000*SumRO2  :   1.0000D-01 * RJCELL( IJ_HPALDS ) ;
+ <H2OH> ROOH + OH = ROOH_OH +  0.19000*OH +  0.03000*xOH +  0.22000*HO2 +  0.37000*xHO2   
+                +  0.56000*RO2C +  0.04000*RO2XC +  0.07000*xETO2 +  0.02000*xTBUO +  0.01000*HCHO   
+                +  0.35000*xHCHO +  0.11000*xMECHO +  0.01000*xETCHO +  0.01000*RCHO +  0.01000*xRCHO   
+                +  0.06000*GLCHO +  0.04000*xGLCHO +  0.02000*ACET +  0.15000*xACET +  0.02000*MEK   
+                +  0.02000*xMEK +  0.08000*KET2 +  0.04000*xKET2 +  0.02000*zR1NO3 +  0.01000*zRHNO3   
+                +  0.01000*zRPNO3 +  0.59000*yROOH +  0.22000*HPCRB +  0.01000*yHPCRB +  0.60000*SumRO2  :  RFACTOR *   1.1600D-11 ;
+ <744> ROOH_OH = 0.04000*OH +  0.01000*HO2 +  0.05000*HPCRB  :  60.0D0 *   6.7800D-02 ;
+ <745> ROOH_OH + NO = NO +  0.03000*xOH +  0.01000*xHO2 +  0.05000*RO2C +  0.01000*RO2XC   
+                +  0.01000*xHCHO +  0.03000*xMECHO +  0.01000*xETCHO +  0.01000*xRCHO +  0.01000*xACET   
+                +  0.01000*zRPNO3 +  0.06000*yROOH +  0.01000*xHPCRB +  0.06000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <H2HV> ROOH = OH +  0.74000*HO2 +  0.09000*xHO2 +  0.13000*RO2C +  0.02000*RO2XC   
+                +  0.12000*ETO2 +  0.02000*TBUO +  0.77000*HCHO +  0.25000*MECHO +  0.01000*ETCHO   
+                +  0.01000*xETCHO +  0.01000*xRCHO +  0.10000*GLCHO +  0.18000*ACET +  0.03000*xACET   
+                +  0.04000*MEK +  0.06000*KET2 +  0.05000*xKET2 +  0.01000*zRCNO3 +  0.01000*zRHNO3   
+                +  0.10000*yROOH +  0.03000*yHPCRB +  0.27000*SumRO2  : RJCELL( IJ_COOH ) ;
+ <F2OH> AFG1 + OH = AFG1_OH +  0.43000*OH +  0.02000*HO2 +  0.19000*xHO2 +  0.19000*RO2C   
+                +  0.02000*RO2XC +  0.18000*xGLY +  0.41000*MALAH +  0.03000*xPACID +  0.03000*HPCRB   
+                +  0.01000*CO +  0.21000*SumRO2  :  RFACTOR *   3.3900D-11 ;
+ <748> AFG1_OH = 0.02000*OH +  0.33000*HO2 +  0.02000*PACID +  0.16000*xPACID +  0.02000*zRCNO3   
+                +  0.33000*HPCRB  :  60.0D0 *   1.3100D+01 ;
+ <749> AFG1_OH + NO = NO +  0.30000*xHO2 +  0.32000*RO2C +  0.03000*RO2XC +  0.30000*xGLY   
+                +  0.46000*xMGLY +  0.02000*MALAH +  0.43000*yHPCRB +  0.35000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F2HV> AFG1 = AFG1_HV +  0.30000*OH +  0.94000*HO2 +  0.03000*xHO2 +  0.03000*RO2C   
+                +  0.06000*MEO2 +  0.01000*AFG1 +  0.02000*AFG2A +  0.26000*PACID +  0.03000*xPACID   
+                +  0.02000*HPCRB +  0.03000*CO +  0.09000*SumRO2  :   2.2000D-01 * RJCELL( IJ_AFGS ) ;
+ <751> AFG1_HV = 0.67000*OH +  0.33000*PACID +  0.33000*HPCRB  :  60.0D0 *   1.7500D+01 ;
+ <752> AFG1_HV + NO = NO +  0.52000*xOH +  0.07000*xHO2 +  0.59000*RO2C +  0.08000*RO2XC   
+                +  0.52000*MALAH +  0.08000*zRCNO3 +  0.67000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F3OH> AFG2A + OH = AFG2A_OH +  0.57000*xHO2 +  0.73000*RO2C +  0.07000*RO2XC +  0.15000*xMECO3   
+                +  0.01000*xR2CO3 +  0.20000*MACO3 +  0.03000*xRCHO +  0.47000*xGLY +  0.54000*xMGLY   
+                +  0.02000*xPACID +  0.07000*zRCNO3 +  0.46000*yHPCRB +  0.03000*CO +  0.80000*SumRO2   
+                +  0.20000*SumRCO3  :  RFACTOR *   5.9900D-11 ;
+ <754> AFG2A_OH = 0.22000*xPACID  :  60.0D0 *   2.3400D+01 ;
+ <755> AFG2A_OH + NO = NO +  0.14000*xRCHO +  0.06000*xGLY +  0.20000*yHPCRB  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F3HV> AFG2A = OH +  0.91000*MEO2 +  0.09000*ETO2 + MALAH + SumRO2  :   2.5000D-01 * RJCELL( IJ_AFGS ) ;
+ <F4OH> AFG2B + OH = AFG2B_OH +  0.02000*HO2 +  0.40000*xHO2 +  0.40000*RO2C +  0.05000*RO2XC   
+                +  0.17000*MACO3 +  0.39000*xGLY +  0.39000*xBACL +  0.05000*zRCNO3 +  0.02000*HPCRB   
+                +  0.38000*yHPCRB +  0.45000*SumRO2 +  0.17000*SumRCO3  :  RFACTOR *   4.5800D-11 ;
+ <758> AFG2B_OH = 0.36000*HO2 +  0.36000*HPCRB  :  60.0D0 *   1.1600D+01 ;
+ <759> AFG2B_OH + NO = NO +  0.20000*xHO2 +  0.32000*RO2C +  0.04000*RO2XC +  0.12000*xMECO3   
+                +  0.13000*xRCHO +  0.20000*xGLY +  0.20000*xBACL +  0.04000*zRCNO3 +  0.31000*yHPCRB   
+                +  0.36000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F4HV> AFG2B = AFG2B_HV +  0.88000*OH +  0.03000*xHO2 +  0.03000*RO2C + MEO2   
+                +  0.87000*MALAH +  0.03000*xPACID +  0.03000*CO +  1.03000*SumRO2  :   2.2000D-01 * RJCELL( IJ_AFGS ) ;
+ <761> AFG2B_HV = 0.09000*OH +  0.05000*PACID +  0.05000*HPCRB  :  60.0D0 *   8.6200D+00 ;
+ <762> AFG2B_HV + NO = NO +  0.08000*RO2C +  0.08000*MALAH +  0.09000*SumRO2  :  RFACTOR * ARR2D(   2.5500D-12,   3.8000D+02 ) ;
+ <F5OH> AFG3 + OH = 0.27000*xHO2 +  0.89000*RO2C +  0.11000*RO2XC +  0.62000*xMECO3 +  0.62000*xRCHO   
+                +  0.54000*xMGLY +  0.11000*zRCNO3 +  0.85000*yHPCRB + SumRO2  :  RFACTOR *   7.2000D-11 ;
+ <P2UI> PAN2 = NO2 + R2CO3 + SumRCO3  :  60.0D0 *   3.3900D-04 ;
+ <P2OH> PAN2 + OH = 0.07000*zPAN2 +  0.05000*NO3 +  0.73000*xNO3 +  1.15000*xHO2 +  1.55000*RO2C   
+                +  0.07000*RO2XC +  0.17000*xHCHO +  0.66000*xMECHO +  0.07000*xETCHO +  0.15000*xPAN2   
+                +  0.05000*ALK3 +  0.73000*CO2 +  0.50000*CO +  1.62000*SumRO2  :  RFACTOR *   3.4200D-12 ;
+ <P2HV> PAN2 = NO2 + R2CO3 + SumRCO3  + DUMMY   : RJCELL( IJ_PPN_11 ) ;
+ <P4UI> APANS = NO2 + MACO3 + SumRCO3  :  60.0D0 *   3.3900D-04 ;
+ <P4OH> APANS + OH = 0.01000*zPAN2 +  0.74000*NO3 +  0.18000*xNO3 +  0.07000*xHO2 +  0.25000*RO2C   
+                +  0.01000*RO2XC +  0.07000*xHCHO +  0.18000*xKET2 +  0.19000*OACID +  0.07000*xPAN2   
+                +  0.56000*ALK4 +  0.18000*CO2 +  0.26000*SumRO2  :  RFACTOR *   2.9000D-11 ;
+ <P4O3> APANS + O3 = 0.05000*NO2 +  0.19000*OH +  0.25000*HO2 +  0.09000*RO2C +  0.09000*xR2CO3   
+                +  0.38000*HCHO2 +  0.01000*RCHO2 +  0.10000*HCHO +  0.04000*xHCHO +  0.90000*PAN2   
+                +  0.21000*CO2 +  0.31000*CO +  0.09000*SumRO2  :  RFACTOR *   8.2000D-18 ;
+ <P4N3> APANS + NO3 = 0.05000*zPAN2 +  0.95000*xNO3 +  0.95000*RO2C +  0.05000*RO2XC +  0.95000*xRCNO3   
+                +  0.95000*CO2 + SumRO2  :  RFACTOR *   1.6000D-16 ;
+ <P4HV> APANS = 0.60000*NO2 +  0.40000*NO3 +  0.40000*MEO2 +  0.60000*MACO3 +  0.40000*HCHO   
+                +  0.40000*CO2 +  0.40000*CO +  0.40000*SumRO2 +  0.60000*SumRCO3  : RJCELL( IJ_PPN_11 ) ;
+ <AALK> SOAALK + OH = OH +  0.00600*SVAVB2 +  0.05200*SVAVB3 +  0.08100*SVAVB4  :  RFACTOR * ARR2D(   2.7000D-12,   3.7400D+02 ) ;
+ <AE51> BENZRO2 + NO = NO +  0.03400*SVAVB2 +  0.39200*SVAVB4  :   RCONST(   47 )  ;
+ <AE52> BENZRO2 + HO2 = HO2 +  0.14600*SVAVB1  :   RCONST(   48 )  ;
+ <AE53> XYLRO2 + NO = NO +  0.01500*SVAVB2 +  0.02300*SVAVB3 +  0.06000*SVAVB4  :   RCONST(   47 )  ;
+ <AE54> XYLRO2 + HO2 = HO2 +  0.19300*SVAVB1  :   RCONST(   48 )  ;
+ <AE55> TOLRO2 + NO = NO +  0.01600*SVAVB2 +  0.05100*SVAVB3 +  0.04700*SVAVB4  :   RCONST(   47 )  ;
+ <AE56> TOLRO2 + HO2 = HO2 +  0.14000*SVAVB1  :   RCONST(   48 )  ;
+ <AE57> PAHRO2 + NO = NO +  0.02800*SVAVB2 +  0.22500*SVAVB3 +  0.19100*SVAVB4  :   RCONST(   47 )  ;
+ <AE58> PAHRO2 + HO2 = HO2 +  0.47300*SVAVB1  :   RCONST(   48 )  ;
+ <HET_NO2> NO2 = 0.50000*HONO +  0.50000*HNO3  : KHETERO( IK_HETERO_NO2 ) ;
+ <HET_N2O5IJ> N2O5 = HNO3 + H2NO3PIJ  : KHETERO( IK_HETERO_N2O5IJ ) ;
+ <HET_N2O5K> N2O5 = HNO3 + H2NO3PK  : KHETERO( IK_HETERO_N2O5K ) ;
+ <HET_H2NO3PIJA> H2NO3PIJ = HNO3  : KHETERO( IK_HETERO_H2NO3PAIJ ) ;
+ <HET_H2NO3PKA> H2NO3PK = HNO3  : KHETERO( IK_HETERO_H2NO3PAK ) ;
+ <HAL_Ozone> O3 = DUMMY   :  60.0D0 * HALOGEN_FALLOFF(   6.7006D-11,   1.0743D+01,   3.4153D-08,  -6.7130D-01,   2.0000D-06 ) ;
+ <HET_NO3> NO3 = HNO3  : KHETERO( IK_HETERO_NO3 ) ;
+ <OLIG_ISOPRENE1> AISO1J = 0.50000*AOLGBJ  :  60.0D0 *   9.4882D-06 ;
+ <OLIG_ISOPRENE2> AISO2J = 0.50000*AOLGBJ  :  60.0D0 *   9.4882D-06 ;
+ <OLIG_SESQT1> ASQTJ = 1.50000*AOLGBJ  :  60.0D0 *   9.4882D-06 ;
+ <OLIG_AROMATIC1> AAVB2J = 0.90700*AOLGAJ  :  60.0D0 *   9.4882D-06 ;
+ <OLIG_AROMATIC2> AAVB3J = 0.92500*AOLGAJ  :  60.0D0 *   9.4882D-06 ;
+ <OLIG_AROMATIC3> AAVB4J = 0.94300*AOLGAJ  :  60.0D0 *   9.4882D-06 ;
+ <RPOAGEPI> APOCI + OH = 1.25000*APNCOMI + APOCI + OH  :  RFACTOR *   2.5000D-12 ;
+ <RPOAGELI> APNCOMI + OH = OH  : KHETERO( IK_HETERO_PNCOMLI ) ;
+ <RPOAGEPJ> APOCJ + OH = 1.25000*APNCOMJ + APOCJ + OH  :  RFACTOR *   2.5000D-12 ;
+ <RPOAGELJ> APNCOMJ + OH = OH  : KHETERO( IK_HETERO_PNCOMLJ ) ;
+ <PCSOA> PCVOC + OH = OH + PCSOARXN  :  RFACTOR *   1.2500D-11 ;
+ <POA_AGE1> VLVPO1 + OH = OH +  0.48570*VLVPO1 +  0.00620*VSVPO1 +  0.00250*VSVPO2 +  0.00260*VSVPO3   
+                +  0.00230*VIVPO1 +  0.29440*VLVOO1 +  0.20210*VLVOO2 +  0.00190*VSVOO2 +  0.00230*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE2> VSVPO1 + OH = OH +  0.30030*VLVPO1 +  0.28620*VSVPO1 +  0.00410*VSVPO2 +  0.00350*VSVPO3   
+                +  0.22390*VLVOO1 +  0.18200*VLVOO2  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE3> VSVPO2 + OH = OH +  0.38560*VLVPO1 +  0.09500*VSVPO1 +  0.13730*VSVPO2 +  0.00050*VSVPO3   
+                +  0.20510*VLVOO1 +  0.17640*VLVOO2  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE4> VSVPO3 + OH = OH +  0.21810*VLVPO1 +  0.30630*VSVPO1 +  0.01530*VSVPO2 +  0.10430*VSVPO3   
+                +  0.18930*VLVOO1 +  0.16680*VLVOO2  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE5> VIVPO1 + OH = OH +  0.24120*VLVPO1 +  0.20890*VSVPO1 +  0.30000*VSVPO2 +  0.20280*VLVOO1   
+                +  0.04710*VLVOO2  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE6> VLVOO1 + OH = OH +  0.66640*VLVOO1 +  0.01430*VLVOO2 +  0.01230*VSVOO1 +  0.12390*VSVOO2   
+                +  0.18310*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE7> VLVOO2 + OH = OH +  0.28580*VLVOO1 +  0.39310*VLVOO2 +  0.01390*VSVOO1 +  0.10270*VSVOO2   
+                +  0.20450*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE8> VSVOO1 + OH = OH +  0.33030*VLVOO1 +  0.22720*VLVOO2 +  0.26070*VSVOO1 +  0.07020*VSVOO2   
+                +  0.11160*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE9> VSVOO2 + OH = OH +  0.34440*VLVOO1 +  0.27490*VLVOO2 +  0.04910*VSVOO1 +  0.25770*VSVOO2   
+                +  0.07390*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <POA_AGE10> VSVOO3 + OH = OH +  0.38860*VLVOO1 +  0.24210*VLVOO2 +  0.06400*VSVOO1 +  0.03850*VSVOO2   
+                +  0.26670*VSVOO3  :  RFACTOR *   4.0000D-11 ;
+ <HET_GLY> GLY = AGLYJ  : KHETERO( IK_HETERO_GLY ) ;
+ <HET_MGLY> MGLY = AGLYJ  : KHETERO( IK_HETERO_MGLY ) ;
+ <TR01> HCHO_PRIMARY = DUMMY   : RJCELL( IJ_HCHOR_13 ) ;
+ <TR02> HCHO_PRIMARY = 2.00000*DUMMY   : RJCELL( IJ_HCHOM_13 ) ;
+ <TR03> HCHO_PRIMARY + OH = OH  :  RFACTOR * ARR2D(   5.5000D-12,   1.2500D+02 ) ;
+ <TR05> HCHO_PRIMARY + NO3 = NO3  :  RFACTOR *   5.8000D-16 ;
+ <TR07> CCHO_PRIMARY + OH = OH  :  RFACTOR * ARRD(   2.4000D-12,   5.4600D+02,   7.7000D-01 ) ;
+ <TR08> CCHO_PRIMARY = DUMMY   : RJCELL( IJ_CCHOR_13 ) ;
+ <TR09> CCHO_PRIMARY + NO3 = NO3  :  RFACTOR * ARR2D(   1.4000D-12,  -1.8600D+03 ) ;
+ <TR11> ACRO_PRIMARY + OH = OH  :  RFACTOR * ARR2D(   7.1000D-12,   3.3300D+02 ) ;
+ <TR12> ACRO_PRIMARY + O3 = O3  :  RFACTOR *   2.8000D-19 ;
+ <TR13> ACRO_PRIMARY + NO3 = NO3  :  RFACTOR *   1.1000D-15 ;
+ <TR15> ACRO_PRIMARY = DUMMY   : RJCELL( IJ_ACROL_16 ) ;

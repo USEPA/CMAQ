@@ -347,7 +347,7 @@ c..K8,8 term ( C2O3+C2O3=)
          E1 = LEN_TRIM( LINOUT )
          WRITE( IOUT, 92000 ) LINOUT( 1 : E1 )
       ELSE
-         LINOUT = '      K8_8  = 0.0D0'
+         LINOUT = '      K8_8  = 1.0D-18'
          WRITE( IOUT, 92000 ) TRIM( LINOUT )      
       END IF
 

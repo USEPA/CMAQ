@@ -1,0 +1,29 @@
+DIONO2             
+! Photolysis of lumped dinitrates
+! Values from SAPRC22 documentation (https://intra.engr.ucr.edu/~carter/SAPRC/22/); Table B-3 of S22supp.xls
+! SAPRC22 values based on Barnes 1993 recommendations
+!                                                                                
+Points (the mechanism evaluated with this format)                                
+! With FAC, units are (cm^2/molecule)                                            
+FAC=1.0
+245.0 1.03E-19 1.0000
+250.0 8.85E-20 1.0000
+255.0 8.03E-20 1.0000
+260.0 7.43E-20 1.0000
+265.0 6.78E-20 1.0000
+270.0 6.02E-20 1.0000
+275.0 5.21E-20 1.0000
+280.0 4.22E-20 1.0000
+285.0 3.27E-20 1.0000
+290.0 2.43E-20 1.0000
+295.0 1.75E-20 1.0000
+300.0 1.25E-20 1.0000
+305.0 9.22E-21 1.0000
+310.0 6.30E-21 1.0000
+315.0 4.22E-21 1.0000
+320.0 3.32E-21 1.0000
+325.0 2.22E-21 1.0000
+330.0 1.56E-21 1.0000
+335.0 1.14E-21 1.0000
+340.0 6.80E-22 1.0000
+345.0 0.00E+00 1.0000

@@ -6,7 +6,7 @@
 
 #> Choose compiler and set up CMAQ environment with correct
 #> libraries using config.cmaq. Options: intel | gcc | pgi
- setenv compiler intel
+ setenv compiler pgi
 
 #> Check that the host system is Linux-based
  set BLD_OS = `uname -s`
@@ -49,8 +49,8 @@ set echo
 
 #> Check CCTM/src/MECHS for other values available for setting MECH
  if ( ! $?MECH ) then
-    set MECH      = cb6r5_ae7_aq       #> Mechanism ID
-#   set MECH      = cracmm1_aq         #> Mechanism ID    
+    set MECH      = saprc22_ae65_aq       #> Mechanism ID
+#    set MECH      = saprc07tic_ae7i_aq         #> Mechanism ID    
  endif
  setenv CLEAR "TRUE" #> over-write existing output files
                                                       
@@ -64,10 +64,12 @@ set echo
  
  set WORKDIR = ${CHEMMECH_DIR}/scripts
  if ( ! $?CHEMMECH_INPUT ) then
-   set CHEMMECH_INPUT =  ${CHEMMECH_DIR}/input/${MECH}
+    set CHEMMECH_INPUT =  ${CHEMMECH_DIR}/input/${MECH}
+#   set CHEMMECH_INPUT = /disk1/UNC_SAPRC22/CMAQv5.4/CCTM/src/MECHS/${MECH}
  endif
  if ( ! $?TRAC_NML ) then
     set TRAC_NML  = ${CHEMMECH_INPUT}/Species_Table_TR_0.nml #> Tracer namelist ID
+#    set TRAC_NML  = /disk1/UNC_SAPRC22/CMAQv5.4/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml #> Tracer namelist ID
  endif
  if ( ! $?OUTDIR ) then
 # setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}_${VRSN}_${compilerString}

@@ -21,6 +21,7 @@
 #             emissions when in-line option is enabled with RACM2
 #      Replaced "B10RD" with "B3V10" for RACM2 (06/08/2021)
 #      B10SP: SAPRC07t-based mechanisms (aero6 and aero7 compatible)
+#      B10SP22: SAPRC-22 Mechanism (AERO65), PK, Ramboll, 5/2025
 #      CRACMM1: CRACMM1-based biogenic mapping (added 9/2021, dev by K.S. and H.O.T.P)
 #               valid for CRACMM1_AQ and CRACMM1AMORE_AQ
 # POLNAM
@@ -159,6 +160,45 @@ B10SP;"PROPE";"PROPENE";1.0;36.0;1.1667  ! Corrected mapping for Propene
 B10SP;"SABI";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
 B10SP;"SESQT";"SESQ";1.0;180.0;1.1333
 B10SP;"TRPO";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"ACET";"ACET";1.0;36.0;1.6111
+B10SP22;"ACTAC";"OACID";1.0;24.0;2.5     ! Corrected mapping for Acetic Acid*
+B10SP22;"ACTAL";"MECHO";1.0;24.0;1.8333  ! Corrected mapping for ACETALDEHYDE*
+B10SP22;"ACTAL";"CCHO_PRIMARY";1.0;24.0;1.8333  ! Corrected mapping for ACETALDEHYDE
+B10SP22;"APIN";"APINE";1.0;120.0;1.1333  ! Corrected mapping for Alpha-Pinene
+B10SP22;"ATERP";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
+B10SP22;"ATHU";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"BPHE";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"BPIN";"BPINE";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"BUTE";"OLE1";1.0;48.0;1.1667
+B10SP22;"BUTO";"MVK";1.0;48.0;1.4583
+B10SP22;"CAMPH";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
+B10SP22;"CO";"CO";1.0;12.0;2.3333
+B10SP22;"D3CAR";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
+B10SP22;"DLIM";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"ETHA";"ETHAN";1.0;24.0;1.25
+B10SP22;"ETHE";"ETHEN";1.0;24.0;1.1667   ! Corrected mapping for Ethene
+B10SP22;"ETHO";"ETOH";1.0;24.0;1.9167   ! Corrected mapping for Ethanol
+B10SP22;"FORAC";"HCOOH";1.0;12.0;3.8333  ! Corrected mapping for Formic Acid*
+B10SP22;"FORM";"HCHO";1.0;12.0;2.5
+B10SP22;"FORM";"HCHO_PRIMARY";1.0;12.0;2.5
+B10SP22;"GTERP";"TERP";1.0;120.0;1.1333 ! Changed all mappings for lumped Terpenes
+B10SP22;"HEXA";"RCHO";1.0;72.0;1.3611
+B10SP22;"HEXE";"OLE1";1.0;72.0;1.3889
+B10SP22;"HEXY";"OLE2";1.0;96.0;1.4792
+B10SP22;"ISOP";"ISOP";1.0;60.0;1.1333   ! corrected mapping for isoprene
+B10SP22;"MBO";"OLE2";1.0;60.0;1.4333
+B10SP22;"METH";"MEOH";1.0;12.0;2.6667
+B10SP22;"MYRC";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"NO";"NO";1.0;14.0;2.1429
+B10SP22;"OCIM";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"ORVOC";"ALK2";0.85;120.0;0.9633
+B10SP22;"ORVOC";"NROG";0.05;120.0;0.0567
+B10SP22;"ORVOC";"OLE2";0.1;120.0;0.1133
+B10SP22;"PCYM";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"PROPE";"PROPE";1.0;36.0;1.1667  ! Corrected mapping for Propene
+B10SP22;"SABI";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
+B10SP22;"SESQT";"SESQ";1.0;180.0;1.1333
+B10SP22;"TRPO";"TERP";1.0;120.0;1.1333  ! Changed all mappings for lumped Terpenes
 B10C6;"ACET";"ACET";1;36;1.6111
 B10C6;"ACTAC";"AACD";1;24;2.5
 B10C6;"ACTAL";"ALD2";1;24;1.8333

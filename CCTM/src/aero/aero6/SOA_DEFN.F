@@ -425,7 +425,11 @@ C-----------------------------------------------------------------------
              iso2_idx   = findVapor( req_sviso2, .True. )
              aiso1_idx  = findAero( req_aeiso1, .True. )
              aiso2_idx  = findAero( req_aeiso2, .True. )
-             aiso3_idx  = findAero( req_aeiso3, .True. )
+             IF ( Index( mechname, 'AE65' ) .EQ. 0 ) Then
+                aiso3_idx  = findAero( req_aeiso3, .True. )
+             ELSE
+                aiso3_idx  = findAero( req_aeiso3, .False. )
+             ENDIF
          Else
              iso1_idx   = findVapor( req_sviso1, .False. )
              iso2_idx   = findVapor( req_sviso2, .False. )

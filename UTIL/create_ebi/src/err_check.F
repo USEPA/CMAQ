@@ -386,7 +386,8 @@ c..check for a C2O3+C2O3= reaction
       END DO
       IF( .NOT. LFOUND ) THEN
          WRITE( LOGDEV, 95240 )
-         LERROR = .TRUE.
+!         LERROR = .TRUE.
+         RXN_C2O3_SELF = -1
       END IF
 
 c..If NO2EX cycle in group1, check cycle reactions
@@ -537,7 +538,7 @@ c..check to make sure no group 1-4 species are also steady-state species
 95180 FORMAT(/5X, 'ERROR: HNO4-->HO2+NO2 reaction not found in mechanism' )
 95200 FORMAT(/5X, 'ERROR: HO2+NO2-->HNO4 reaction not found in mechanism' )
 95220 FORMAT(/5X, 'ERROR: HO2+HO2--> reaction not found in mechanism' )
-95240 FORMAT(/5X, 'ERROR: C2O3+C2O3--> reaction not found in mechanism' )
+95240 FORMAT(/5X, 'WARNING: C2O3+C2O3--> reaction not found in mechanism' )
 95260 FORMAT(/5X, 'ERROR: NO2-->NO2EX reaction not found inmechanism' )
 95280 FORMAT(/5X, 'ERROR: The mechanism includes a non psuedo 1st-order',
      &            ' loss reaction for NO2EX' )         

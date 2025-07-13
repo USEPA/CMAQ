@@ -1,0 +1,1629 @@
+Information is based on the mech.def file.
+*Fall-off/pressure dependent reaction rate constants ([M] equals air number density):
+**For rate constants with k<sub>o</sub>, k<sub>inf</sub>, n, F values: k = [ k<sub>o</sub>[M]/(1+k<sub>o</sub>[M]/k<sub>inf</sub>)]F<sup>G</sup>, where G=(1+(log<sub>10</sub>(k<sub>o</sub>[M]/k<sub>inf</sub>)/n)<sup>2</sup>))<sup>-1</sup> 
+**For rate constants with k<sub>1</sub>, k<sub>2</sub>: k = k<sub>1</sub> + k<sub>2</sub> [M]
+**For rate constants with k<sub>0</sub>, k<sub>2</sub>, k<sub>3</sub>: k = k<sub>0</sub> + k<sub>3</sub>[M]/(1+k<sub>3</sub>[M]/k<sub>2</sub>)
+**For rate constants with k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub>: k = k<sub>1</sub> + k<sub>2</sub>[M] + k<sub>3</sub> 
+
+*For rate constants with the form A<''Reference''>, k equals A times a reference that represents photolysis rate, a heteorogeneous rate constant, rate constant for the given reaction or an operator. A equals one if not given.
+
+*In the mechanism definition file, the rate is formatted as
+**A~<''HETEOROGENEOUS''>
+**A*K<''REACTION''>
+**A/<''PHOTOLYSIS''>
+**A?<'OPERATOR''>
+
+{|class="wikitable"
+|-
+!Reaction Number
+!Reaction Label
+!Reaction
+!Rate Constant Formula
+!Value at 298.15 K;   2.4615E+19 molec/cm<sup>3</sup>;   1.00 Atm.
+!Value at 275.15 K;   2.0936E+19 molec/cm<sup>3</sup>;   0.78 Atm.
+!Notes
+!References
+|-
+||     1 || <1>   || NO2 ----> NO + O3P  || <''NO2_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||     2 || <2>   || O3P + O2 + M ----> O3  ||   6.0000E-34*(T/300)<sup>(  2.4000E+00)</sup> ||   5.9116E-34 ||   4.8756E-34 || || 
+|-
+||     3 || <3>   || O3P + O3 ----> ||   8.0000E-12*exp<sup>( -2.0600E+03/T)</sup> ||   7.9879E-15 ||   4.4834E-15 || || 
+|-
+||     4 || <4>   || O3P + NO ----> NO2  ||  k<sub>o</sub> =   9.0000E-32*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -1.5000E+00</sup>; k<sub>inf</sub> =   3.0000E-11*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   1.6618E-12 ||   1.6052E-12 || || 
+|-
+||     5 || <5>   || O3P + NO2 ----> NO  ||   5.1000E-12*exp<sup>(  2.1000E+02/T)</sup> ||   1.0315E-11 ||   1.0940E-11 || || 
+|-
+||     6 || <6>   || O3P + NO2 ----> NO3  ||  k<sub>o</sub> =   2.5000E-31*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -1.8000E+00</sup>; k<sub>inf</sub> =   2.2000E-11*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -7.0000E-01</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   3.2805E-12 ||   3.3099E-12 || || 
+|-
+||     7 || <7>   || O3 + NO ----> NO2  ||   3.0000E-12*exp<sup>( -1.5000E+03/T)</sup> ||   1.9596E-14 ||   1.2869E-14 || || 
+|-
+||     8 || <8>   || O3 + NO2 ----> NO3  ||   1.2000E-13*exp<sup>( -2.4500E+03/T)</sup> ||   3.2392E-17 ||   1.6298E-17 || || 
+|-
+||     9 || <9>   || NO + NO3 ----> 2.00000*NO2  ||   1.5000E-11*exp<sup>(  1.7000E+02/T)</sup> ||   2.6529E-11 ||   2.7824E-11 || || 
+|-
+||    10 || <10>   || NO + NO + O2 ----> 2.00000*NO2  ||   3.3000E-39*exp<sup>(  5.3000E+02/T)</sup> ||   1.9522E-38 ||   2.2650E-38 || || 
+|-
+||    11 || <11>   || NO2 + NO3 ----> N2O5  ||  k<sub>o</sub> =   3.6000E-30*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -4.1000E+00</sup>; k<sub>inf</sub> =   1.9000E-12*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  2.0000E-01</sup>; n =   1.3300E+00; F =   3.5000E-01 ||   1.2406E-12 ||   1.2532E-12 || || 
+|-
+||    12 || <12>   || N2O5 ----> NO2 + NO3  ||  k<sub>o</sub> =   1.3000E-03*exp<sup>( -1.1000E+04/T)</sup>*(T/300)<sup> -3.5000E+00</sup>; k<sub>inf</sub> =   9.7000E+14*exp<sup>( -1.1080E+04/T)</sup>*(T/300)<sup>  1.0000E-01</sup>; n =   1.3300E+00; F =   3.5000E-01 ||   4.5396E-02 ||   2.0612E-03 || || 
+|-
+||    13 || <13>   || N2O5 + H2O ----> 2.00000*HNO3  ||   0.0000E+00 ||   0.0000E+00 ||   0.0000E+00 || || 
+|-
+||    14 || <14>   || N2O5 + H2O + H2O ----> 2.00000*HNO3  ||   0.0000E+00 ||   0.0000E+00 ||   0.0000E+00 || || 
+|-
+||    15 || <15>   || NO2 + NO3 ----> NO + NO2  ||   4.5000E-14*exp<sup>( -1.2600E+03/T)</sup> ||   6.5744E-16 ||   4.6178E-16 || || 
+|-
+||    16 || <16>   || NO3 ----> NO  || <''NO3NO_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    17 || <17>   || NO3 ----> NO2 + O3P  || <''NO3NO2_6''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    18 || <18>   || O3 ----> O1D  || <''O3O1D_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    19 || <19>   || O3 ----> O3P  || <''O3O3P_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    20 || <20>   || O1D + H2O ----> 2.00000*OH  ||   1.6300E-10*exp<sup>(  6.0000E+01/T)</sup> ||   1.9934E-10 ||   2.0272E-10 || || 
+|-
+||    21 || <21>   || O1D + M ----> O3P  ||   2.6500E-11*exp<sup>(  9.8000E+01/T)</sup> ||   3.6813E-11 ||   3.7838E-11 || || 
+|-
+||    22 || <22>   || OH + NO ----> HONO  ||  k<sub>o</sub> =   7.0000E-31*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -2.6000E+00</sup>; k<sub>inf</sub> =   3.6000E-11*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -1.0000E-01</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   7.3998E-12 ||   7.6220E-12 || || 
+|-
+||    23 || <23>   || HONO ----> OH + NO  || <''HONO_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    24 || <24>   || OH + HONO ----> NO2  ||   1.8000E-11*exp<sup>( -3.9000E+02/T)</sup> ||   4.8662E-12 ||   4.3621E-12 || || 
+|-
+||    25 || <25>   || OH + NO2 ----> HNO3  ||  k<sub>o</sub> =   3.2000E-30*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -4.5000E+00</sup>; k<sub>inf</sub> =   3.0000E-11*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; n =   1.2400E+00; F =   4.1000E-01 ||   9.8821E-12 ||   1.0773E-11 || || 
+|-
+||    26 || <26>   || OH + NO3 ----> HO2 + NO2  ||   2.2000E-11 ||   2.2000E-11 ||   2.2000E-11 || || 
+|-
+||    27 || <27>   || OH + HNO3 ----> NO3  ||  k<sub>0</sub> =   2.4000E-14*exp<sup>(  4.6000E+02/T)</sup>; k<sub>1</sub> =   2.7000E-17*exp<sup>(  2.1990E+03/T)</sup>; k<sub>3</sub> =   6.5000E-34*exp<sup>(  1.3350E+03/T)</sup> ||   1.5409E-13 ||   2.0407E-13 || || 
+|-
+||    28 || <28>   || HNO3 ----> OH + NO2  || <''HNO3''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    29 || <29>   || OH + O3 ----> HO2  ||   1.7000E-12*exp<sup>( -9.4000E+02/T)</sup> ||   7.2647E-14 ||   5.5816E-14 || || 
+|-
+||    30 || <30>   || HO2 + NO ----> OH + NO2  ||   3.3000E-12*exp<sup>(  2.7000E+02/T)</sup> ||   8.1621E-12 ||   8.8040E-12 || || 
+|-
+||    31 || <31>   || HO2 + NO ----> HNO3  ||  k<sub>0</sub> =   2.3900E-12*exp<sup>( -1.7110E+03/T)</sup>*(T/300)<sup> -1.3770E+01</sup>; k<sub>2</sub> =   1.8300E-32*exp<sup>( -7.7200E+02/T)</sup>*(T/300)<sup> -4.8500E+00</sup>; k<sub>3</sub> =   0.0000E+00*exp<sup>(  0.0000E+00/T)</sup> ||   4.3224E-14 ||   5.0896E-14 || || 
+|-
+||    32 || <32>   || HO2 + NO + H2O ----> HNO3  ||   1.2000E-35*exp<sup>(  2.9440E+03/T)</sup> ||   2.3308E-31 ||   5.3207E-31 || || 
+|-
+||    33 || <33>   || HO2 + NO2 ----> HNO4  ||  k<sub>o</sub> =   1.4000E-31*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -3.1000E+00</sup>; k<sub>inf</sub> =   4.0000E-12*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; n =   1.2600E+00; F =   4.0000E-01 ||   7.4949E-13 ||   7.8300E-13 || || 
+|-
+||    34 || <34>   || HNO4 ----> HO2 + NO2  ||  k<sub>o</sub> =   4.1000E-05*exp<sup>( -1.0650E+04/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; k<sub>inf</sub> =   6.0000E+15*exp<sup>( -1.1170E+04/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; n =   1.2600E+00; F =   4.0000E-01 ||   6.3131E-02 ||   2.7332E-03 || || 
+|-
+||    35 || <35>   || HNO4 ----> 0.80000*HO2 +  0.80000*NO2 +  0.20000*OH +  0.20000*NO3  || <''HNO4_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    36 || <36>   || HNO4 + OH ----> NO2  ||   1.3000E-12*exp<sup>(  3.8000E+02/T)</sup> ||   4.6501E-12 ||   5.1729E-12 || || 
+|-
+||    37 || <37>   || HO2 + O3 ----> OH  ||   1.0000E-14*exp<sup>( -4.9000E+02/T)</sup> ||   1.9331E-15 ||   1.6850E-15 || || 
+|-
+||    38 || <38>   || HO2 + HO2 ----> HO2H  ||  k<sub>0</sub> =   3.0000E-13*exp<sup>(  4.6000E+02/T)</sup>; k<sub>1</sub> =   2.1000E-33*exp<sup>(  9.2000E+02/T)</sup> ||   2.5345E-12 ||   2.8417E-12 || || 
+|-
+||    39 || <39>   || HO2 + HO2 + H2O ----> HO2H  ||  k<sub>0</sub> =   4.2000E-34*exp<sup>(  2.6600E+03/T)</sup>; k<sub>1</sub> =   2.9400E-54*exp<sup>(  3.1200E+03/T)</sup> ||   5.6834E-30 ||   1.1808E-29 || || 
+|-
+||    40 || <40>   || NO3 + HO2 ----> OH + NO2  ||   3.5000E-12 ||   3.5000E-12 ||   3.5000E-12 || || 
+|-
+||    41 || <41>   || NO3 + NO3 ----> 2.00000*NO2  ||   8.5000E-13*exp<sup>( -2.4500E+03/T)</sup> ||   2.2944E-16 ||   1.1544E-16 || || 
+|-
+||    42 || <42>   || HO2H ----> 2.00000*OH  || <''H2O2''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||    43 || <43>   || HO2H + OH ----> HO2  ||   1.8000E-12 ||   1.8000E-12 ||   1.8000E-12 || || 
+|-
+||    44 || <44>   || OH + HO2 ----> ||   4.8000E-11*exp<sup>(  2.5000E+02/T)</sup> ||   1.1102E-10 ||   1.1908E-10 || || 
+|-
+||    45 || <45>   || CO + OH ----> HO2 + CO2  ||  k<sub>0</sub> =   1.4400E-13*exp<sup>(  0.0000E+00/T)</sup>; k<sub>1</sub> =   3.4300E-33*exp<sup>(  0.0000E+00/T)</sup> ||   2.2843E-13 ||   2.1581E-13 || || 
+|-
+||    46 || <46>   || OH + H2 ----> HO2  ||   2.8000E-12*exp<sup>( -1.8000E+03/T)</sup> ||   6.6869E-15 ||   4.0369E-15 || || 
+|-
+||    47 || <R2NO>   || SumRO2 + NO ----> NO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||    48 || <R2H2>   || SumRO2 + HO2 ----> HO2  ||   1.4900E-11 ||   1.4900E-11 ||   1.4900E-11 || || 
+|-
+||    49 || <R2N3>   || SumRO2 + NO3 ----> NO3  ||   2.3000E-12 ||   2.3000E-12 ||   2.3000E-12 || || 
+|-
+||    50 || <R2R2>   || SumRO2 + SumRO2 ----> ||   1.6000E-14 ||   1.6000E-14 ||   1.6000E-14 || || 
+|-
+||    51 || <R3N2>   || SumRCO3 + NO2 ----> NO2  ||   7.7000E-12*(T/300)<sup>( -2.0000E-01)</sup> ||   7.7095E-12 ||   7.8343E-12 || || 
+|-
+||    52 || <R3NO>   || SumRCO3 + NO ----> NO  ||   6.7000E-12*exp<sup>(  3.4000E+02/T)</sup> ||   2.0957E-11 ||   2.3053E-11 || || 
+|-
+||    53 || <R3H2>   || SumRCO3 + HO2 ----> HO2  ||   3.1400E-12*exp<sup>(  5.8000E+02/T)</sup> ||   2.1967E-11 ||   2.5846E-11 || || 
+|-
+||    54 || <R3N3>   || SumRCO3 + NO3 ----> NO3  ||   4.0000E-12 ||   4.0000E-12 ||   4.0000E-12 || || 
+|-
+||    55 || <R3R2>   || SumRCO3 + SumRO2 ----> ||   4.4000E-13*exp<sup>(  1.0700E+03/T)</sup> ||   1.5924E-11 ||   2.1495E-11 || || 
+|-
+||    56 || <R3R3>   || SumRCO3 + SumRCO3 ----> ||   1.7000E-11 ||   1.7000E-11 ||   1.7000E-11 || || 
+|-
+||    57 || <57>   || RO2C + NO ----> NO2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    58 || <58>   || RO2C + HO2 ----> ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    59 || <59>   || RO2C + NO3 ----> NO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||    60 || <60>   || RO2C + SumRO2 ----> SumRO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||    61 || <61>   || RO2C + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    62 || <62>   || RO2XC + NO ----> ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    63 || <63>   || RO2XC + HO2 ----> ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    64 || <64>   || RO2XC + NO3 ----> NO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||    65 || <65>   || RO2XC + SumRO2 ----> SumRO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||    66 || <66>   || RO2XC + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    67 || <67>   || MEO2 + NO ----> NO2 + HCHO + HO2  ||   2.8000E-12*exp<sup>(  3.0000E+02/T)</sup> ||   7.6586E-12 ||   8.3306E-12 || || 
+|-
+||    68 || <68>   || MEO2 + HO2 ----> 0.90000*MEOOH +  0.10000*HCHO  ||   3.8000E-13*exp<sup>(  7.8000E+02/T)</sup> ||   5.1994E-12 ||   6.4704E-12 || || 
+|-
+||    69 || <69>   || MEO2 + NO3 ----> HCHO + HO2 + NO2  ||   1.2000E-12 ||   1.2000E-12 ||   1.2000E-12 || || 
+|-
+||    70 || <70>   || MEO2 + SumRO2 ----> 0.30000*HO2 +  0.65000*HCHO +  0.35000*MEOH  ||   2.1600E-13 ||   2.1600E-13 ||   2.1600E-13 || || 
+|-
+||    71 || <71>   || MEO2 + SumRCO3 ----> 0.90000*HO2 + HCHO  ||   2.0000E-12*exp<sup>(  5.0000E+02/T)</sup> ||   1.0699E-11 ||   1.2309E-11 || || 
+|-
+||    72 || <72>   || ETO2 + NO ----> NO2 + HO2 + MECHO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||    73 || <73>   || ETO2 + HO2 ----> ROOH  ||   7.4400E-12 ||   7.4400E-12 ||   7.4400E-12 || || 
+|-
+||    74 || <74>   || ETO2 + NO3 ----> NO2 + HO2 + MECHO  ||   2.3000E-12 ||   2.3000E-12 ||   2.3000E-12 || || 
+|-
+||    75 || <75>   || ETO2 + SumRO2 ----> 0.50000*HO2 +  0.25000*ETOH +  0.75000*MECHO  ||   2.9000E-14 ||   2.9000E-14 ||   2.9000E-14 || || 
+|-
+||    76 || <76>   || ETO2 + SumRCO3 ----> 0.80000*HO2 + MECHO  ||   1.6000E-11 ||   1.6000E-11 ||   1.6000E-11 || || 
+|-
+||    77 || <77>   || BZO2 + NO ----> NO2 + BZO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    78 || <78>   || BZO2 + HO2 ----> ROOH  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    79 || <79>   || BZO2 + NO3 ----> BZO + NO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||    80 || <80>   || BZO2 + SumRO2 ----> SumRO2 + BZO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||    81 || <81>   || BZO2 + SumRCO3 ----> SumRCO3 + BZO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    82 || <Q1NO>   || MECO3 + NO ----> NO2 + MEO2 + CO2 + SumRO2  ||   8.1000E-12*exp<sup>(  2.7000E+02/T)</sup> ||   2.0034E-11 ||   2.1610E-11 || || 
+|-
+||    83 || <Q1N2>   || MECO3 + NO2 ----> PAN  ||  k<sub>o</sub> =   9.7000E-29*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -5.6000E+00</sup>; k<sub>inf</sub> =   9.3000E-12*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -1.5000E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   8.6800E-12 ||   9.8327E-12 || || 
+|-
+||    84 || <Q1N3>   || MECO3 + NO3 ----> NO2 + MEO2 + CO2 + SumRO2  ||   4.0000E-12 ||   4.0000E-12 ||   4.0000E-12 || || 
+|-
+||    85 || <Q1H2>   || MECO3 + HO2 ----> 0.13000*O3 +  0.50000*OH +  0.50000*MEO2 +  0.13000*OACID +  0.37000*PACID +  0.50000*CO2 +  0.50000*SumRO2  ||   2.2000E-11 ||   2.2000E-11 ||   2.2000E-11 || || 
+|-
+||    86 || <Q1R2>   || MECO3 + SumRO2 ----> 0.90000*MEO2 +  0.10000*OACID +  0.90000*CO2 +  0.90000*SumRO2  ||   1.6000E-11 ||   1.6000E-11 ||   1.6000E-11 || || 
+|-
+||    87 || <Q1R3>   || MECO3 + SumRCO3 ----> MEO2 + CO2 + SumRO2  ||   1.4000E-11 ||   1.4000E-11 ||   1.4000E-11 || || 
+|-
+||    88 || <Q6N2>   || BZCO3 + NO2 ----> PBZN  ||   1.1100E-11 ||   1.1100E-11 ||   1.1100E-11 || || 
+|-
+||    89 || <Q6NO>   || BZCO3 + NO ----> NO2 + CO2 + BZO2 + SumRO2  ||   1.6000E-11 ||   1.6000E-11 ||   1.6000E-11 || || 
+|-
+||    90 || <Q6H2>   || BZCO3 + HO2 ----> 0.50000*ALK5 +  0.13000*O3 +  0.50000*OH +  0.50000*BZO2 +  0.50000*CO2 +  0.50000*SumRO2  ||   <''R3H2''> ||   2.1967E-11 ||   2.5846E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    91 || <Q6N3>   || BZCO3 + NO3 ----> NO2 + CO2 + BZO2 + SumRO2  ||   <''R3N3''> ||   4.0000E-12 ||   4.0000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||    92 || <Q6R2>   || BZCO3 + SumRO2 ----> 2.00000*SumRO2 + BZO2 + CO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    93 || <Q6R3>   || BZCO3 + SumRCO3 ----> SumRCO3 + CO2 + BZO2 + SumRO2  ||   <''R3R3''> ||   1.7000E-11 ||   1.7000E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    94 || <94>   || TBUO + NO2 ----> R1NO3  ||   3.5000E-12*exp<sup>(  5.5300E+02/T)</sup> ||   2.2366E-11 ||   2.6117E-11 || || 
+|-
+||    95 || <95>   || TBUO ----> ACET + MEO2 + SumRO2  ||   1.4000E+13*exp<sup>( -6.8560E+03/T)</sup> ||   1.4437E+03 ||   2.1119E+02 || || 
+|-
+||    96 || <96>   || BZO + NO2 ----> NPHE  ||   2.0800E-12 ||   2.0800E-12 ||   2.0800E-12 || || 
+|-
+||    97 || <97>   || BZO + HO2 ----> CRES  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||    98 || <98>   || BZO + O3 ----> BZO2 + SumRO2  ||   2.8600E-13 ||   2.8600E-13 ||   2.8600E-13 || || 
+|-
+||    99 || <99>   || BZO + BZO ----> ||   1.4900E-11 ||   1.4900E-11 ||   1.4900E-11 || || 
+|-
+||   100 || <100>   || NPRAD + NO2 ----> NPHE  ||   <''R3N2''> ||   7.7095E-12 ||   7.8343E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   101 || <101>   || NPRAD + HO2 ----> NAPPRD  ||   <''R3H2''> ||   2.1967E-11 ||   2.5846E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   102 || <102>   || NPRAD ----> NAPPRD  ||   1.0000E-03 ||   1.0000E-03 ||   1.0000E-03 || || 
+|-
+||   103 || <103>   || PNAMIN + NO2 ----> NAMIN  ||   <''R3N2''> ||   7.7095E-12 ||   7.8343E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   104 || <104>   || PNAMIN + HO2 ----> AMINS  ||   <''R3H2''> ||   2.1967E-11 ||   2.5846E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   105 || <105>   || PNAMIN ----> AMINS  ||   1.0000E-03 ||   1.0000E-03 ||   1.0000E-03 || || 
+|-
+||   106 || <G1N2>   || HCHO2 + NO2 ----> HCHO + NO3  ||   7.0000E-12 ||   7.0000E-12 ||   7.0000E-12 || || 
+|-
+||   107 || <G1WA>   || HCHO2 + H2O ----> HCOOH  ||   2.4000E-15 ||   2.4000E-15 ||   2.4000E-15 || || 
+|-
+||   108 || <G1S2>   || HCHO2 + SO2 ----> SULF + HCHO + SULRXN  ||   3.8000E-11 ||   3.8000E-11 ||   3.8000E-11 || || 
+|-
+||   109 || <G2N2>   || MECHO2 + NO2 ----> MECHO + NO3  ||   7.0000E-12 ||   7.0000E-12 ||   7.0000E-12 || || 
+|-
+||   110 || <G2WA>   || MECHO2 + H2O ----> OACID  ||   2.4000E-15 ||   2.4000E-15 ||   2.4000E-15 || || 
+|-
+||   111 || <G2S2>   || MECHO2 + SO2 ----> SULF + MECHO + SULRXN  ||   3.8000E-11 ||   3.8000E-11 ||   3.8000E-11 || || 
+|-
+||   112 || <G3N2>   || RCHO2 + NO2 ----> RCHO + NO3  ||   7.0000E-12 ||   7.0000E-12 ||   7.0000E-12 || || 
+|-
+||   113 || <G3WA>   || RCHO2 + H2O ----> OACID  ||   2.4000E-15 ||   2.4000E-15 ||   2.4000E-15 || || 
+|-
+||   114 || <G3S2>   || RCHO2 + SO2 ----> SULF + RCHO + SULRXN  ||   3.8000E-11 ||   3.8000E-11 ||   3.8000E-11 || || 
+|-
+||   115 || <S2OH>   || SO2 + OH ----> HO2 + SULF + SULRXN  ||  k<sub>o</sub> =   3.3000E-31*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -4.3000E+00</sup>; k<sub>inf</sub> =   1.6000E-12*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   9.5810E-13 ||   1.0094E-12 || || 
+|-
+||   116 || <C1OH>   || OH + CH4 ----> MEO2 + SumRO2  ||   2.4500E-12*exp<sup>( -1.7750E+03/T)</sup> ||   6.3628E-15 ||   3.8683E-15 || || 
+|-
+||   117 || <117>   || HCHO ----> 2.00000*HO2 + CO  || <''HCHOR_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   118 || <118>   || HCHO ----> CO  || <''HCHOM_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   119 || <119>   || HCHO + OH ----> HO2 + CO  ||   5.5000E-12*exp<sup>(  1.2500E+02/T)</sup> ||   8.3645E-12 ||   8.6629E-12 || || 
+|-
+||   120 || <120>   || HCHO + NO3 ----> HNO3 + HO2 + CO  ||   5.8000E-16 ||   5.8000E-16 ||   5.8000E-16 || || 
+|-
+||   121 || <P1UI>   || PAN ----> NO2 + MECO3 + SumRCO3  ||  k<sub>o</sub> =   1.0800E+00*exp<sup>( -1.4000E+04/T)</sup>*(T/300)<sup> -5.6000E+00</sup>; k<sub>inf</sub> =   1.0300E+17*exp<sup>( -1.4000E+04/T)</sup>*(T/300)<sup> -1.5000E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   3.8914E-04 ||   8.7016E-06 || || 
+|-
+||   122 || <P1HV>   || PAN ----> 0.60000*NO2 +  0.40000*NO3 +  0.40000*MEO2 +  0.60000*MECO3 +  0.40000*CO2 +  0.40000*SumRO2 +  0.60000*SumRCO3  || <''PAN_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   123 || <123>   || GLY ----> 2.00000*CO +  2.00000*HO2  || <''GLY_I13R''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   124 || <124>   || GLY ----> HCHO + CO  || <''GLY_I13M''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   125 || <125>   || GLY + OH ----> 1.70000*CO +  0.70000*HO2 +  0.30000*OH +  0.30000*CO2  ||   1.1500E-11 ||   1.1500E-11 ||   1.1500E-11 || || 
+|-
+||   126 || <126>   || GLY + NO3 ----> HNO3 +  1.70000*CO +  0.70000*HO2 +  0.30000*OH +  0.30000*CO2  ||   4.0000E-16 ||   4.0000E-16 ||   4.0000E-16 || || 
+|-
+||   127 || <BLOH>   || BALD + OH ----> BZCO3 + SumRCO3  ||   1.2000E-11 ||   1.2000E-11 ||   1.2000E-11 || || 
+|-
+||   128 || <BLHV>   || BALD ----> ||   9.0000E-02<''BALD_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   129 || <BLN3>   || BALD + NO3 ----> HNO3 + BZCO3 + SumRCO3  ||   4.0000E-15 ||   4.0000E-15 ||   4.0000E-15 || || 
+|-
+||   130 || <PBUI>   || PBZN ----> BZCO3 + NO2 + SumRCO3  ||   2.1000E+16*exp<sup>( -1.3600E+04/T)</sup> ||   3.2512E-04 ||   7.1795E-06 || || 
+|-
+||   131 || <PBHV>   || PBZN ----> 0.60000*BZCO3 +  0.60000*NO2 +  0.40000*CO2 +  0.40000*BZO2 +  0.40000*NO3 +  0.40000*SumRO2 +  0.60000*SumRCO3  || <''PPN_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   132 || <NPOH>   || NPHE + OH ----> BZO + NO2  ||   3.5000E-12 ||   3.5000E-12 ||   3.5000E-12 || || 
+|-
+||   133 || <NPHV>   || NPHE ----> HONO + PHEN  ||   1.5000E-03<''NO2_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   134 || <NAOH>   || NAPS + OH ----> 0.74100*HO2 +  0.70700*CATL +  0.03400*RO2C +  0.01700*AFG2A +  0.01700*AFG2B +  0.03400*GLY +  0.33000*NPRAD +  0.25000*MACO3 +  0.03400*SumRO2 +  0.25000*SumRCO3 + PAHRO2  ||   1.5500E-11*exp<sup>(  1.1700E+02/T)</sup> ||   2.2949E-11 ||   2.3714E-11 || || 
+|-
+||   135 || <CTOH>   || CATL3 + OH ----> HO2 + OTHN  ||   5.9700E-10 ||   5.9700E-10 ||   5.9700E-10 || || 
+|-
+||   136 || <CTN3>   || CATL3 + NO3 ----> HNO3 + OTHN  ||   4.8600E-10 ||   4.8600E-10 ||   4.8600E-10 || || 
+|-
+||   137 || <PNOH>   || NAPPRD + OH ----> HO2 + OTHN  ||   2.0000E-10 ||   2.0000E-10 ||   2.0000E-10 || || 
+|-
+||   138 || <PNN3>   || NAPPRD + NO3 ----> HNO3 + OTHN  ||   1.7000E-10 ||   1.7000E-10 ||   1.7000E-10 || || 
+|-
+||   139 || <139>   || PHOT ----> 2.00000*HO2 +  2.00000*RO2C +  2.00000*SumRO2 + ALK3  || <''BACL_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   140 || <140>   || IMINE ----> MECHO  ||   2.7800E-04 ||   2.7800E-04 ||   2.7800E-04 || || 
+|-
+||   141 || <141>   || CLETHE + OH ----> xHO2 + RO2C + xHCHO + yROOH + SumRO2  ||   2.5400E-12*exp<sup>(  3.2500E+02/T)</sup> ||   7.5551E-12 ||   8.2758E-12 || || 
+|-
+||   142 || <142>   || ACRLNT + OH ----> xHO2 + RO2C + xHCHO + yROOH + SumRO2  ||   4.1300E-12 ||   4.1300E-12 ||   4.1300E-12 || || 
+|-
+||   143 || <143>   || PCE + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   3.5000E-12*exp<sup>( -9.2000E+02/T)</sup> ||   1.5994E-13 ||   1.2358E-13 || || 
+|-
+||   144 || <144>   || PCLBEN + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   4.0300E-13 ||   4.0300E-13 ||   4.0300E-13 || || 
+|-
+||   145 || <145>   || MECL2 + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   1.8000E-12*exp<sup>( -8.6000E+02/T)</sup> ||   1.0059E-13 ||   7.9042E-14 || || 
+|-
+||   146 || <146>   || ETBR2 + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   7.6900E-12*exp<sup>( -1.0560E+03/T)</sup> ||   2.2270E-13 ||   1.6563E-13 || || 
+|-
+||   147 || <147>   || ETCL2 + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   8.6900E-12*exp<sup>( -1.0700E+03/T)</sup> ||   2.4012E-13 ||   1.7789E-13 || || 
+|-
+||   148 || <148>   || ETOX + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   1.6300E-12*exp<sup>( -8.5600E+02/T)</sup> ||   9.2323E-14 ||   7.2625E-14 || || 
+|-
+||   149 || <149>   || CHCL3 + OH ----> xHO2 + RO2C + yROOH + SumRO2  ||   1.8000E-12*exp<sup>( -8.5000E+02/T)</sup> ||   1.0402E-13 ||   8.1967E-14 || || 
+|-
+||   150 || <150>   || xHO2 + NO ----> NO + HO2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   151 || <151>   || xHO2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   152 || <152>   || xHO2 + NO3 ----> NO3 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   153 || <153>   || xHO2 + SumRO2 ----> SumRO2 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   154 || <154>   || xHO2 + SumRCO3 ----> SumRCO3 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   155 || <155>   || xOH + NO ----> NO + OH  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   156 || <156>   || xOH + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   157 || <157>   || xOH + NO3 ----> NO3 + OH  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   158 || <158>   || xOH + SumRO2 ----> SumRO2 +  0.50000*OH  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   159 || <159>   || xOH + SumRCO3 ----> SumRCO3 + OH  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   160 || <160>   || xNO2 + NO ----> NO + NO2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   161 || <161>   || xNO2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   162 || <162>   || xNO2 + NO3 ----> NO3 + NO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   163 || <163>   || xNO2 + SumRO2 ----> SumRO2 +  0.50000*NO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   164 || <164>   || xNO2 + SumRCO3 ----> SumRCO3 + NO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   165 || <165>   || xNO3 + NO ----> NO + NO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   166 || <166>   || xNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   167 || <167>   || xNO3 + NO3 ----> 2.00000*NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   168 || <168>   || xNO3 + SumRO2 ----> SumRO2 +  0.50000*NO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   169 || <169>   || xNO3 + SumRCO3 ----> SumRCO3 + NO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   170 || <170>   || xHCHO + NO ----> NO + HCHO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   171 || <171>   || xHCHO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   172 || <172>   || xHCHO + NO3 ----> NO3 + HCHO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   173 || <173>   || xHCHO + SumRO2 ----> SumRO2 +  0.50000*HCHO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   174 || <174>   || xHCHO + SumRCO3 ----> SumRCO3 + HCHO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   175 || <175>   || xGLY + NO ----> NO + GLY  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   176 || <176>   || xGLY + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   177 || <177>   || xGLY + NO3 ----> NO3 + GLY  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   178 || <178>   || xGLY + SumRO2 ----> SumRO2 +  0.50000*GLY  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   179 || <179>   || xGLY + SumRCO3 ----> SumRCO3 + GLY  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   180 || <180>   || xHCOOH + NO ----> NO + HCOOH  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   181 || <181>   || xHCOOH + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   182 || <182>   || xHCOOH + NO3 ----> NO3 + HCOOH  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   183 || <183>   || xHCOOH + SumRO2 ----> SumRO2 +  0.50000*HCOOH  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   184 || <184>   || xHCOOH + SumRCO3 ----> SumRCO3 + HCOOH  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   185 || <185>   || xMECHO + NO ----> NO + MECHO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   186 || <186>   || xMECHO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   187 || <187>   || xMECHO + NO3 ----> NO3 + MECHO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   188 || <188>   || xMECHO + SumRO2 ----> SumRO2 +  0.50000*MECHO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   189 || <189>   || xMECHO + SumRCO3 ----> SumRCO3 + MECHO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   190 || <190>   || xETCHO + NO ----> NO + ETCHO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   191 || <191>   || xETCHO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   192 || <192>   || xETCHO + NO3 ----> NO3 + ETCHO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   193 || <193>   || xETCHO + SumRO2 ----> SumRO2 +  0.50000*ETCHO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   194 || <194>   || xETCHO + SumRCO3 ----> SumRCO3 + ETCHO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   195 || <195>   || xGLCHO + NO ----> NO + GLCHO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   196 || <196>   || xGLCHO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   197 || <197>   || xGLCHO + NO3 ----> NO3 + GLCHO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   198 || <198>   || xGLCHO + SumRO2 ----> SumRO2 +  0.50000*GLCHO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   199 || <199>   || xGLCHO + SumRCO3 ----> SumRCO3 + GLCHO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   200 || <200>   || xMEK + NO ----> NO + MEK  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   201 || <201>   || xMEK + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   202 || <202>   || xMEK + NO3 ----> NO3 + MEK  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   203 || <203>   || xMEK + SumRO2 ----> SumRO2 +  0.50000*MEK  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   204 || <204>   || xMEK + SumRCO3 ----> SumRCO3 + MEK  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   205 || <205>   || xACRO + NO ----> NO + ACRO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   206 || <206>   || xACRO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   207 || <207>   || xACRO + NO3 ----> NO3 + ACRO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   208 || <208>   || xACRO + SumRO2 ----> SumRO2 +  0.50000*ACRO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   209 || <209>   || xACRO + SumRCO3 ----> SumRCO3 + ACRO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   210 || <210>   || xACET + NO ----> NO + ACET  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   211 || <211>   || xACET + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   212 || <212>   || xACET + NO3 ----> NO3 + ACET  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   213 || <213>   || xACET + SumRO2 ----> SumRO2 +  0.50000*ACET  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   214 || <214>   || xACET + SumRCO3 ----> SumRCO3 + ACET  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   215 || <215>   || xMACR + NO ----> NO + MACR  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   216 || <216>   || xMACR + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   217 || <217>   || xMACR + NO3 ----> NO3 + MACR  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   218 || <218>   || xMACR + SumRO2 ----> SumRO2 +  0.50000*MACR  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   219 || <219>   || xMACR + SumRCO3 ----> SumRCO3 + MACR  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   220 || <220>   || xMVK + NO ----> NO + MVK  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   221 || <221>   || xMVK + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   222 || <222>   || xMVK + NO3 ----> NO3 + MVK  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   223 || <223>   || xMVK + SumRO2 ----> SumRO2 +  0.50000*MVK  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   224 || <224>   || xMVK + SumRCO3 ----> SumRCO3 + MVK  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   225 || <225>   || xBACL + NO ----> NO + BACL  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   226 || <226>   || xBACL + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   227 || <227>   || xBACL + NO3 ----> NO3 + BACL  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   228 || <228>   || xBACL + SumRO2 ----> SumRO2 +  0.50000*BACL  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   229 || <229>   || xBACL + SumRCO3 ----> SumRCO3 + BACL  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   230 || <230>   || xMGLY + NO ----> NO + MGLY  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   231 || <231>   || xMGLY + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   232 || <232>   || xMGLY + NO3 ----> NO3 + MGLY  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   233 || <233>   || xMGLY + SumRO2 ----> SumRO2 +  0.50000*MGLY  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   234 || <234>   || xMGLY + SumRCO3 ----> SumRCO3 + MGLY  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   235 || <235>   || xBUDAL + NO ----> NO + BUDAL  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   236 || <236>   || xBUDAL + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   237 || <237>   || xBUDAL + NO3 ----> NO3 + BUDAL  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   238 || <238>   || xBUDAL + SumRO2 ----> SumRO2 +  0.50000*BUDAL  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   239 || <239>   || xBUDAL + SumRCO3 ----> SumRCO3 + BUDAL  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   240 || <240>   || xFURNS + NO ----> NO + FURNS  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   241 || <241>   || xFURNS + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   242 || <242>   || xFURNS + NO3 ----> NO3 + FURNS  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   243 || <243>   || xFURNS + SumRO2 ----> SumRO2 +  0.50000*FURNS  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   244 || <244>   || xFURNS + SumRCO3 ----> SumRCO3 + FURNS  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   245 || <245>   || xBALD + NO ----> NO + BALD  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   246 || <246>   || xBALD + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   247 || <247>   || xBALD + NO3 ----> NO3 + BALD  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   248 || <248>   || xBALD + SumRO2 ----> SumRO2 +  0.50000*BALD  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   249 || <249>   || xBALD + SumRCO3 ----> SumRCO3 + BALD  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   250 || <250>   || xBENX + NO ----> NO + BENX  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   251 || <251>   || xBENX + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   252 || <252>   || xBENX + NO3 ----> NO3 + BENX  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   253 || <253>   || xBENX + SumRO2 ----> SumRO2 +  0.50000*BENX  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   254 || <254>   || xBENX + SumRCO3 ----> SumRCO3 + BENX  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   255 || <255>   || xRCHO + NO ----> NO + RCHO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   256 || <256>   || xRCHO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   257 || <257>   || xRCHO + NO3 ----> NO3 + RCHO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   258 || <258>   || xRCHO + SumRO2 ----> SumRO2 +  0.50000*RCHO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   259 || <259>   || xRCHO + SumRCO3 ----> SumRCO3 + RCHO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   260 || <260>   || xKET2 + NO ----> NO + KET2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   261 || <261>   || xKET2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   262 || <262>   || xKET2 + NO3 ----> NO3 + KET2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   263 || <263>   || xKET2 + SumRO2 ----> SumRO2 +  0.50000*KET2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   264 || <264>   || xKET2 + SumRCO3 ----> SumRCO3 + KET2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   265 || <265>   || xLVKS + NO ----> NO + LVKS  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   266 || <266>   || xLVKS + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   267 || <267>   || xLVKS + NO3 ----> NO3 + LVKS  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   268 || <268>   || xLVKS + SumRO2 ----> SumRO2 +  0.50000*LVKS  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   269 || <269>   || xLVKS + SumRCO3 ----> SumRCO3 + LVKS  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   270 || <270>   || xOLEA1 + NO ----> NO + OLEA1  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   271 || <271>   || xOLEA1 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   272 || <272>   || xOLEA1 + NO3 ----> NO3 + OLEA1  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   273 || <273>   || xOLEA1 + SumRO2 ----> SumRO2 +  0.50000*OLEA1  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   274 || <274>   || xOLEA1 + SumRCO3 ----> SumRCO3 + OLEA1  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   275 || <275>   || xOLEA2 + NO ----> NO + OLEA2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   276 || <276>   || xOLEA2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   277 || <277>   || xOLEA2 + NO3 ----> NO3 + OLEA2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   278 || <278>   || xOLEA2 + SumRO2 ----> SumRO2 +  0.50000*OLEA2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   279 || <279>   || xOLEA2 + SumRCO3 ----> SumRCO3 + OLEA2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   280 || <280>   || xOLEP + NO ----> NO + OLEP  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   281 || <281>   || xOLEP + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   282 || <282>   || xOLEP + NO3 ----> NO3 + OLEP  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   283 || <283>   || xOLEP + SumRO2 ----> SumRO2 +  0.50000*OLEP  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   284 || <284>   || xOLEP + SumRCO3 ----> SumRCO3 + OLEP  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   285 || <285>   || xOACID + NO ----> NO + OACID  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   286 || <286>   || xOACID + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   287 || <287>   || xOACID + NO3 ----> NO3 + OACID  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   288 || <288>   || xOACID + SumRO2 ----> SumRO2 +  0.50000*OACID  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   289 || <289>   || xOACID + SumRCO3 ----> SumRCO3 + OACID  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   290 || <290>   || xPACID + NO ----> NO + PACID  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   291 || <291>   || xPACID + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   292 || <292>   || xPACID + NO3 ----> NO3 + PACID  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   293 || <293>   || xPACID + SumRO2 ----> SumRO2 +  0.50000*PACID  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   294 || <294>   || xPACID + SumRCO3 ----> SumRCO3 + PACID  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   295 || <295>   || xAMINS + NO ----> NO + AMINS  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   296 || <296>   || xAMINS + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   297 || <297>   || xAMINS + NO3 ----> NO3 + AMINS  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   298 || <298>   || xAMINS + SumRO2 ----> SumRO2 +  0.50000*AMINS  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   299 || <299>   || xAMINS + SumRCO3 ----> SumRCO3 + AMINS  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   300 || <305>   || xRPNO3 + NO ----> NO + RPNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   301 || <306>   || xRPNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   302 || <307>   || xRPNO3 + NO3 ----> NO3 + RPNO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   303 || <308>   || xRPNO3 + SumRO2 ----> SumRO2 +  0.50000*RPNO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   304 || <309>   || xRPNO3 + SumRCO3 ----> SumRCO3 + RPNO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   305 || <310>   || xRCNO3 + NO ----> NO + RCNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   306 || <311>   || xRCNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   307 || <312>   || xRCNO3 + NO3 ----> NO3 + RCNO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   308 || <313>   || xRCNO3 + SumRO2 ----> SumRO2 +  0.50000*RCNO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   309 || <314>   || xRCNO3 + SumRCO3 ----> SumRCO3 + RCNO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   310 || <315>   || xRHNO3 + NO ----> NO + RHNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   311 || <316>   || xRHNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   312 || <317>   || xRHNO3 + NO3 ----> NO3 + RHNO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   313 || <318>   || xRHNO3 + SumRO2 ----> SumRO2 +  0.50000*RHNO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   314 || <319>   || xRHNO3 + SumRCO3 ----> SumRCO3 + RHNO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   315 || <320>   || xRDNO3 + NO ----> NO + RDNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   316 || <321>   || xRDNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   317 || <322>   || xRDNO3 + NO3 ----> NO3 + RDNO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   318 || <323>   || xRDNO3 + SumRO2 ----> SumRO2 +  0.50000*RDNO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   319 || <324>   || xRDNO3 + SumRCO3 ----> SumRCO3 + RDNO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   320 || <330>   || xHPCRB + NO ----> NO + HPCRB  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   321 || <331>   || xHPCRB + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   322 || <332>   || xHPCRB + NO3 ----> NO3 + HPCRB  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   323 || <333>   || xHPCRB + SumRO2 ----> SumRO2 +  0.50000*HPCRB  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   324 || <334>   || xHPCRB + SumRCO3 ----> SumRCO3 + HPCRB  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   325 || <335>   || xAFG1 + NO ----> NO + AFG1  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   326 || <336>   || xAFG1 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   327 || <337>   || xAFG1 + NO3 ----> NO3 + AFG1  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   328 || <338>   || xAFG1 + SumRO2 ----> SumRO2 +  0.50000*AFG1  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   329 || <339>   || xAFG1 + SumRCO3 ----> SumRCO3 + AFG1  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   330 || <340>   || xAFG2A + NO ----> NO + AFG2A  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   331 || <341>   || xAFG2A + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   332 || <342>   || xAFG2A + NO3 ----> NO3 + AFG2A  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   333 || <343>   || xAFG2A + SumRO2 ----> SumRO2 +  0.50000*AFG2A  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   334 || <344>   || xAFG2A + SumRCO3 ----> SumRCO3 + AFG2A  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   335 || <345>   || xAFG2B + NO ----> NO + AFG2B  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   336 || <346>   || xAFG2B + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   337 || <347>   || xAFG2B + NO3 ----> NO3 + AFG2B  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   338 || <348>   || xAFG2B + SumRO2 ----> SumRO2 +  0.50000*AFG2B  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   339 || <349>   || xAFG2B + SumRCO3 ----> SumRCO3 + AFG2B  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   340 || <350>   || xAFG3 + NO ----> NO + AFG3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   341 || <351>   || xAFG3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   342 || <352>   || xAFG3 + NO3 ----> NO3 + AFG3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   343 || <353>   || xAFG3 + SumRO2 ----> SumRO2 +  0.50000*AFG3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   344 || <354>   || xAFG3 + SumRCO3 ----> SumRCO3 + AFG3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   345 || <355>   || xPAN2 + NO ----> NO + PAN2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   346 || <356>   || xPAN2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   347 || <357>   || xPAN2 + NO3 ----> NO3 + PAN2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   348 || <358>   || xPAN2 + SumRO2 ----> SumRO2 +  0.50000*PAN2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   349 || <359>   || xPAN2 + SumRCO3 ----> SumRCO3 + PAN2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   350 || <365>   || xMEO2 + NO ----> NO + MEO2 + SumRO2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   351 || <366>   || xMEO2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   352 || <367>   || xMEO2 + NO3 ----> NO3 + MEO2 + SumRO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   353 || <368>   || xMEO2 + SumRO2 ----> 1.50000*SumRO2 +  0.50000*MEO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   354 || <369>   || xMEO2 + SumRCO3 ----> SumRCO3 + MEO2 + SumRO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   355 || <370>   || xETO2 + NO ----> NO + ETO2 + SumRO2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   356 || <371>   || xETO2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   357 || <372>   || xETO2 + NO3 ----> NO3 + ETO2 + SumRO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   358 || <373>   || xETO2 + SumRO2 ----> 1.50000*SumRO2 +  0.50000*ETO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   359 || <374>   || xETO2 + SumRCO3 ----> SumRCO3 + ETO2 + SumRO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   360 || <375>   || xMECO3 + NO ----> NO + MECO3 + SumRCO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   361 || <376>   || xMECO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   362 || <377>   || xMECO3 + NO3 ----> NO3 + MECO3 + SumRCO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   363 || <378>   || xMECO3 + SumRO2 ----> SumRO2 +  0.50000*MECO3 +  0.50000*SumRCO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   364 || <379>   || xMECO3 + SumRCO3 ----> 2.00000*SumRCO3 + MECO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   365 || <380>   || xR2CO3 + NO ----> NO + R2CO3 + SumRCO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   366 || <381>   || xR2CO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   367 || <382>   || xR2CO3 + NO3 ----> NO3 + R2CO3 + SumRCO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   368 || <383>   || xR2CO3 + SumRO2 ----> SumRO2 +  0.50000*R2CO3 +  0.50000*SumRCO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   369 || <384>   || xR2CO3 + SumRCO3 ----> 2.00000*SumRCO3 + R2CO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   370 || <385>   || xMACO3 + NO ----> NO + MACO3 + SumRCO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   371 || <386>   || xMACO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   372 || <387>   || xMACO3 + NO3 ----> NO3 + MACO3 + SumRCO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   373 || <388>   || xMACO3 + SumRO2 ----> SumRO2 +  0.50000*MACO3 +  0.50000*SumRCO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   374 || <389>   || xMACO3 + SumRCO3 ----> 2.00000*SumRCO3 + MACO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   375 || <390>   || xTBUO + NO ----> NO + TBUO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   376 || <391>   || xTBUO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   377 || <392>   || xTBUO + NO3 ----> NO3 + TBUO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   378 || <393>   || xTBUO + SumRO2 ----> SumRO2 +  0.50000*TBUO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   379 || <394>   || xTBUO + SumRCO3 ----> SumRCO3 + TBUO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   380 || <395>   || xBZO + NO ----> NO + BZO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   381 || <396>   || xBZO + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   382 || <397>   || xBZO + NO3 ----> NO3 + BZO  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   383 || <398>   || xBZO + SumRO2 ----> SumRO2 +  0.50000*BZO  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   384 || <399>   || xBZO + SumRCO3 ----> SumRCO3 + BZO  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   385 || <400>   || yROOH + NO ----> NO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   386 || <401>   || yROOH + HO2 ----> HO2 + ROOH  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   387 || <402>   || yROOH + NO3 ----> NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   388 || <403>   || yROOH + SumRO2 ----> SumRO2 +  0.50000*KET2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   389 || <404>   || yROOH + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   390 || <405>   || yRUOOH + NO ----> NO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   391 || <406>   || yRUOOH + HO2 ----> HO2 + RUOOH  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   392 || <407>   || yRUOOH + NO3 ----> NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   393 || <408>   || yRUOOH + SumRO2 ----> SumRO2 +  0.50000*OLEP  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   394 || <409>   || yRUOOH + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   395 || <410>   || yRAOOH + NO ----> NO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   396 || <411>   || yRAOOH + HO2 ----> HO2 + RAOOH  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   397 || <412>   || yRAOOH + NO3 ----> NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   398 || <413>   || yRAOOH + SumRO2 ----> SumRO2 +  0.50000*OLEP  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   399 || <414>   || yRAOOH + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   400 || <415>   || yHPCRB + NO ----> NO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   401 || <416>   || yHPCRB + HO2 ----> HO2 + HPCRB  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   402 || <417>   || yHPCRB + NO3 ----> NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   403 || <418>   || yHPCRB + SumRO2 ----> SumRO2 +  0.50000*KET2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   404 || <419>   || yHPCRB + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   405 || <420>   || yRPNO3 + NO ----> NO  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   406 || <421>   || yRPNO3 + HO2 ----> HO2 + RPNO3  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   407 || <422>   || yRPNO3 + NO3 ----> NO3  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   408 || <423>   || yRPNO3 + SumRO2 ----> SumRO2 +  0.50000*R1NO3  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   409 || <424>   || yRPNO3 + SumRCO3 ----> SumRCO3  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   410 || <425>   || zR1NO3 + NO ----> NO + R1NO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   411 || <426>   || zR1NO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   412 || <427>   || zR1NO3 + NO3 ----> NO3 + KET2 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   413 || <428>   || zR1NO3 + SumRO2 ----> SumRO2 +  0.50000*KET2 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   414 || <429>   || zR1NO3 + SumRCO3 ----> SumRCO3 + KET2 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   415 || <430>   || zR2NO3 + NO ----> NO + R2NO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   416 || <431>   || zR2NO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   417 || <432>   || zR2NO3 + NO3 ----> NO3 + KET2 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   418 || <433>   || zR2NO3 + SumRO2 ----> SumRO2 +  0.50000*KET2 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   419 || <434>   || zR2NO3 + SumRCO3 ----> SumRCO3 + KET2 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   420 || <435>   || zRHNO3 + NO ----> NO + RHNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   421 || <436>   || zRHNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   422 || <437>   || zRHNO3 + NO3 ----> NO3 + KET2 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   423 || <438>   || zRHNO3 + SumRO2 ----> SumRO2 +  0.50000*KET2 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   424 || <439>   || zRHNO3 + SumRCO3 ----> SumRCO3 + KET2 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   425 || <440>   || zRCNO3 + NO ----> NO + RCNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   426 || <441>   || zRCNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   427 || <442>   || zRCNO3 + NO3 ----> NO3 + KET2 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   428 || <443>   || zRCNO3 + SumRO2 ----> SumRO2 +  0.50000*KET2 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   429 || <444>   || zRCNO3 + SumRCO3 ----> SumRCO3 + KET2 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   430 || <445>   || zRANO3 + NO ----> NO + RANO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   431 || <446>   || zRANO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   432 || <447>   || zRANO3 + NO3 ----> NO3 + RUOOH + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   433 || <448>   || zRANO3 + SumRO2 ----> SumRO2 +  0.50000*RUOOH +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   434 || <449>   || zRANO3 + SumRCO3 ----> SumRCO3 + RUOOH + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   435 || <450>   || zRPNO3 + NO ----> NO + RPNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   436 || <451>   || zRPNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   437 || <452>   || zRPNO3 + NO3 ----> NO3 + RUOOH + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   438 || <453>   || zRPNO3 + SumRO2 ----> SumRO2 +  0.50000*RUOOH +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   439 || <454>   || zRPNO3 + SumRCO3 ----> SumRCO3 + RUOOH + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   440 || <455>   || zRDNO3 + NO ----> NO + RDNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   441 || <456>   || zRDNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   442 || <457>   || zRDNO3 + NO3 ----> NO3 + R1NO3 + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   443 || <458>   || zRDNO3 + SumRO2 ----> SumRO2 +  0.50000*R1NO3 +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   444 || <459>   || zRDNO3 + SumRCO3 ----> SumRCO3 + R1NO3 + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   445 || <460>   || zRNNO3 + NO ----> NO + RNNO3  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   446 || <461>   || zRNNO3 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   447 || <462>   || zRNNO3 + NO3 ----> NO3 + OTHN + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   448 || <463>   || zRNNO3 + SumRO2 ----> SumRO2 +  0.50000*OTHN +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   449 || <464>   || zRNNO3 + SumRCO3 ----> SumRCO3 + OTHN + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   450 || <465>   || zPAN2 + NO ----> NO + PAN2  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   451 || <466>   || zPAN2 + HO2 ----> HO2  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   452 || <467>   || zPAN2 + NO3 ----> NO3 + RCHO + HO2  ||   <''R2N3''> ||   2.3000E-12 ||   2.3000E-12 || Rate constant multiple of constant for listed reaction || 
+|-
+||   453 || <468>   || zPAN2 + SumRO2 ----> SumRO2 +  0.50000*RCHO +  0.50000*HO2  ||   <''R2R2''> ||   1.6000E-14 ||   1.6000E-14 || Rate constant multiple of constant for listed reaction || 
+|-
+||   454 || <469>   || zPAN2 + SumRCO3 ----> SumRCO3 + RCHO + HO2  ||   <''R3R2''> ||   1.5924E-11 ||   2.1495E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   455 || <Q2NO>   || R2CO3 + NO ----> NO2 +  0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO +  0.04000*zR1NO3 + yROOH + CO2 + SumRO2  ||   6.7000E-12*exp<sup>(  3.4000E+02/T)</sup> ||   2.0957E-11 ||   2.3053E-11 || || 
+|-
+||   456 || <Q2N2>   || R2CO3 + NO2 ----> PAN2  ||   7.7000E-12 ||   7.7000E-12 ||   7.7000E-12 || || 
+|-
+||   457 || <Q2N3>   || R2CO3 + NO3 ----> NO2 +  0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO +  0.04000*zR1NO3 + yROOH + CO2 + SumRO2  ||   4.0000E-12 ||   4.0000E-12 ||   4.0000E-12 || || 
+|-
+||   458 || <Q2H2>   || R2CO3 + HO2 ----> 0.13000*O3 +  0.50000*OH +  0.48000*xHO2 +  0.48000*RO2C +  0.02000*RO2XC +  0.48000*xETCHO +  0.13000*OACID +  0.37000*PACID +  0.02000*zR1NO3 +  0.50000*yROOH +  0.50000*CO2 +  0.50000*SumRO2  ||   2.2000E-11 ||   2.2000E-11 ||   2.2000E-11 || || 
+|-
+||   459 || <Q2R2>   || R2CO3 + SumRO2 ----> 0.86000*xHO2 +  0.86000*RO2C +  0.04000*RO2XC +  0.86000*xETCHO +  0.10000*OACID +  0.04000*zR1NO3 +  0.90000*yROOH +  0.90000*CO2 +  0.90000*SumRO2  ||   1.6000E-11 ||   1.6000E-11 ||   1.6000E-11 || || 
+|-
+||   460 || <Q2R3>   || R2CO3 + SumRCO3 ----> 0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.95000*xETCHO +  0.04000*zR1NO3 + yROOH + CO2 + SumRO2  ||   1.4000E-11 ||   1.4000E-11 ||   1.4000E-11 || || 
+|-
+||   461 || <Q5UI>   || MACO3 ----> 0.93000*xHO2 +  0.93000*RO2C +  0.07000*RO2XC +  0.93000*xPACID +  0.07000*zRCNO3 + SumRO2  ||   7.7900E+08*exp<sup>( -5.0030E+03/T)</sup> ||   4.0180E+01 ||   9.8820E+00 || || 
+|-
+||   462 || <Q5NO>   || MACO3 + NO ----> NO2 + MEO2 + HCHO + CO2 + CO + SumRO2  ||   6.7000E-12*exp<sup>(  3.4000E+02/T)</sup> ||   2.0957E-11 ||   2.3053E-11 || || 
+|-
+||   463 || <Q5N2>   || MACO3 + NO2 ----> APANS  ||   7.7000E-12 ||   7.7000E-12 ||   7.7000E-12 || || 
+|-
+||   464 || <Q5N3>   || MACO3 + NO3 ----> NO2 + MEO2 + HCHO + CO2 + CO + SumRO2  ||   4.0000E-12 ||   4.0000E-12 ||   4.0000E-12 || || 
+|-
+||   465 || <Q5H2>   || MACO3 + HO2 ----> 0.13000*O3 +  0.50000*OH +  0.50000*MEO2 +  0.50000*HCHO +  0.37000*PACID +  0.13000*OLEP +  0.50000*CO2 +  0.50000*CO +  0.50000*SumRO2  ||   2.2000E-11 ||   2.2000E-11 ||   2.2000E-11 || || 
+|-
+||   466 || <Q5R2>   || MACO3 + SumRO2 ----> 0.90000*MEO2 +  0.90000*HCHO +  0.10000*OLEP +  0.90000*CO2 +  0.90000*CO +  0.90000*SumRO2  ||   1.6000E-11 ||   1.6000E-11 ||   1.6000E-11 || || 
+|-
+||   467 || <Q5R3>   || MACO3 + SumRCO3 ----> MEO2 + HCHO + CO2 + CO + SumRO2  ||   1.4000E-11 ||   1.4000E-11 ||   1.4000E-11 || || 
+|-
+||   468 || <C2OH>   || ETHAN + OH ----> ETO2 + SumRO2  ||   1.5100E-12*exp<sup>( -5.3300E+02/T)</sup>*(T/300)<sup>(  1.9200E+00 )</sup> ||   2.4971E-13 ||   1.8433E-13 || || 
+|-
+||   469 || <C3OH>   || PROP + OH ----> 0.95000*xHO2 +  0.96000*RO2C +  0.04000*RO2XC +  0.01000*xMEO2 +  0.01000*xMECHO +  0.27000*xETCHO +  0.68000*xACET +  0.04000*zR1NO3 + yROOH + SumRO2  ||   2.0000E-12*exp<sup>( -1.7200E+02/T)</sup>*(T/300)<sup>(  1.7600E+00 )</sup> ||   1.1111E-12 ||   9.1930E-13 || || 
+|-
+||   470 || <C4OH>   || NC4 + OH ----> 0.59000*xHO2 +  1.02000*RO2C +  0.08000*RO2XC +  0.33000*xETO2 +  0.33000*xMECHO +  0.12000*xRCHO +  0.48000*xMEK +  0.07000*zR1NO3 +  0.01000*zRHNO3 +  1.10000*yROOH +  1.10000*SumRO2  ||   2.0900E-12*exp<sup>(  4.2000E+01/T)</sup>*(T/300)<sup>(  1.8200E+00 )</sup> ||   2.3792E-12 ||   2.0801E-12 || || 
+|-
+||   471 || <E1OH>   || ETHEN + OH ----> xHO2 + RO2C +  1.48000*xHCHO +  0.26000*xGLCHO + yROOH + SumRO2  ||  k<sub>o</sub> =   1.1000E-28*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -3.5000E+00</sup>; k<sub>inf</sub> =   8.4000E-12*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup> -1.7500E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   7.8945E-12 ||   9.0806E-12 || || 
+|-
+||   472 || <E1O3>   || ETHEN + O3 ----> 0.17000*OH +  0.27000*HO2 +  0.42000*HCHO2 + HCHO +  0.23000*CO2 +  0.35000*CO  ||   6.8200E-15*exp<sup>( -2.5000E+03/T)</sup> ||   1.5567E-18 ||   7.7233E-19 || || 
+|-
+||   473 || <E1N3>   || ETHEN + NO3 ----> 0.01000*xNO2 +  0.99000*xHO2 + RO2C +  0.01000*xHCHO +  0.99000*xRCNO3 + yRPNO3 + SumRO2  ||   3.3000E-12*exp<sup>( -2.8800E+03/T)</sup> ||   2.1058E-16 ||   9.3917E-17 || || 
+|-
+||   474 || <E1OP>   || ETHEN + O3P ----> ETHEN_OP +  0.80000*HO2 +  0.22000*xHO2 +  0.29000*RO2C +  0.51000*MEO2 +  0.07000*xHCHO +  0.10000*MECHO +  4.41000*NROG +  0.51000*CO +  0.80000*SumRO2  ||   1.0700E-11*exp<sup>( -8.0000E+02/T)</sup> ||   7.3127E-13 ||   5.8435E-13 || || 
+|-
+||   475 || <495>   || ETHEN_OP ----> 0.07000*xOH +  0.22000*xPACID +  0.07000*CO2  ||   2.5700E+00 ||   2.5700E+00 ||   2.5700E+00 || || 
+|-
+||   476 || <496>   || ETHEN_OP + NO ----> NO +  0.07000*xHO2 +  0.20000*xHCHO +  0.02000*xGLY +  0.24000*yHPCRB +  0.27000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   477 || <E2OH>   || PROPE + OH ----> 0.97000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.97000*xHCHO +  0.97000*xMECHO +  0.03000*zRHNO3 + yROOH + SumRO2  ||   1.2000E-11*exp<sup>(  2.1000E+02/T)</sup>*(T/300)<sup>( -6.2000E-01 )</sup> ||   2.4363E-11 ||   2.7160E-11 || || 
+|-
+||   478 || <E2O3>   || PROPE + O3 ----> PROPE_O3 +  0.30000*OH +  0.17000*HO2 +  0.16000*xHO2 +  0.22000*RO2C +  0.03000*MEO2 +  0.21000*HCHO2 +  0.12000*MECHO2 +  0.50000*HCHO +  0.05000*xHCHO +  0.50000*MECHO +  0.05000*MEOH +  0.24000*CO2 +  0.22000*CO +  0.25000*SumRO2  ||   5.7700E-15*exp<sup>( -1.8800E+03/T)</sup> ||   1.0537E-17 ||   6.2201E-18 || || 
+|-
+||   479 || <499>   || PROPE_O3 ----> 0.05000*xOH +  0.16000*xPACID +  0.05000*CO2  ||   2.4500E+00 ||   2.4500E+00 ||   2.4500E+00 || || 
+|-
+||   480 || <500>   || PROPE_O3 + NO ----> NO +  0.06000*xHO2 +  0.15000*xHCHO +  0.18000*yHPCRB +  0.20000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   481 || <E2N3>   || PROPE + NO3 ----> 0.29000*xNO2 +  0.68000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.29000*xHCHO +  0.29000*xMECHO +  0.68000*xRCNO3 + yRPNO3 +  0.03000*zRDNO3 + SumRO2  ||   4.6000E-13*exp<sup>( -1.1550E+03/T)</sup> ||   9.5576E-15 ||   6.9138E-15 || || 
+|-
+||   482 || <E2OP>   || PROPE + O3P ----> 0.25000*ETCHO +  0.25000*ACET +  0.50000*ALK2  ||   1.0200E-11*exp<sup>( -2.8000E+02/T)</sup> ||   3.9879E-12 ||   3.6868E-12 || || 
+|-
+||   483 || <IPOH>   || ISOP + OH ----> ISOP_OH +  0.55000*xHO2 +  0.55000*RO2C +  0.05000*RO2XC +  0.50000*xHCHO +  0.23000*xMACR +  0.27000*xMVK +  0.05000*zRHNO3 +  0.60000*yRUOOH +  0.05000*xFURNS +  0.60000*SumRO2  ||   2.7000E-11*exp<sup>(  3.9000E+02/T)</sup> ||   9.9873E-11 ||   1.1141E-10 || || 
+|-
+||   484 || <504>   || ISOP_OH ----> 0.06000*OH +  0.34000*HO2 +  0.39000*HPCRB  ||   1.2900E+00 ||   1.2900E+00 ||   1.2900E+00 || || 
+|-
+||   485 || <505>   || ISOP_OH + NO ----> NO +  0.35000*xHO2 +  0.38000*RO2C +  0.05000*RO2XC +  0.03000*xHCHO +  0.34000*xOLEA1 +  0.05000*zRHNO3 +  0.42000*yRUOOH +  0.43000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   486 || <IPO3>   || ISOP + O3 ----> ISOP_O3 +  0.13000*OH +  0.29000*HO2 +  0.12000*xHO2 +  0.33000*RO2C +  0.01000*RO2XC +  0.16000*MECO3 +  0.13000*xMECO3 +  0.04000*xMACO3 +  0.23000*HCHO2 +  0.06000*RCHO2 +  0.40000*HCHO +  0.21000*xHCHO +  0.39000*MACR +  0.16000*MVK +  0.05000*OLEP +  0.01000*zRCNO3 +  0.15000*yHPCRB +  0.13000*CO2 +  0.33000*CO +  0.34000*SumRO2 +  0.16000*SumRCO3 + ISOPRXN  ||   1.0500E-14*exp<sup>( -2.0000E+03/T)</sup> ||   1.2821E-17 ||   7.3182E-18 || || 
+|-
+||   487 || <507>   || ISOP_O3 ----> 0.04000*xOH +  0.12000*xPACID +  0.04000*CO2  ||   2.8100E+00 ||   2.8100E+00 ||   2.8100E+00 || || 
+|-
+||   488 || <508>   || ISOP_O3 + NO ----> NO +  0.04000*xHO2 +  0.11000*xHCHO +  0.13000*yHPCRB +  0.14000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   489 || <IPN3>   || ISOP + NO3 ----> ISOP_N3 +  0.70000*xNO2 +  0.03000*xHO2 +  0.90000*RO2C +  0.10000*RO2XC +  0.48000*xHCHO +  0.22000*xOLEA1 +  0.48000*xMVK +  0.03000*xRCNO3 + yRPNO3 +  0.10000*zRDNO3 + SumRO2 + ISOPRXN  ||   2.9500E-12*exp<sup>( -4.5000E+02/T)</sup> ||   6.5214E-13 ||   5.7484E-13 || || 
+|-
+||   490 || <510>   || ISOP_N3 ----> 0.12000*NO2 +  0.04000*HO2 +  0.04000*RPNO3 +  0.12000*HPCRB  ||   1.0300E+00 ||   1.0300E+00 ||   1.0300E+00 || || 
+|-
+||   491 || <511>   || ISOP_N3 + NO ----> NO +  0.15000*xHO2 +  0.15000*RO2C +  0.01000*RO2XC +  0.10000*xHCHO +  0.10000*xRCNO3 +  0.05000*xRHNO3 +  0.17000*yRPNO3 +  0.01000*zRDNO3 +  0.16000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   492 || <IPOP>   || ISOP + O3P ----> 0.23000*RO2C +  0.02000*RO2XC +  0.25000*MEO2 +  0.23000*xMACO3 +  0.23000*xHCHO +  0.75000*OLEP +  0.02000*zRCNO3 +  0.21000*yHPCRB +  0.50000*SumRO2  ||   3.5000E-11 ||   3.5000E-11 ||   3.5000E-11 || || 
+|-
+||   493 || <E3OH>   || BUT13 + OH ----> BUT13_OH +  0.63000*xHO2 +  0.63000*RO2C +  0.04000*RO2XC +  0.58000*xHCHO +  0.58000*xACRO +  0.04000*zRHNO3 +  0.67000*yRUOOH +  0.05000*xFURNS +  0.67000*SumRO2  ||   1.1200E-11*exp<sup>(  5.3000E+02/T)</sup> ||   6.6257E-11 ||   7.6872E-11 || || 
+|-
+||   494 || <514>   || BUT13_OH ----> 0.31000*HO2 +  0.33000*HPCRB  ||   1.0700E+00 ||   1.0700E+00 ||   1.0700E+00 || || 
+|-
+||   495 || <515>   || BUT13_OH + NO ----> NO +  0.31000*xHO2 +  0.33000*RO2C +  0.02000*RO2XC +  0.03000*xHCHO +  0.31000*xOLEA1 +  0.02000*zRHNO3 +  0.35000*yRUOOH +  0.35000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   496 || <E3O3>   || BUT13 + O3 ----> BUT13_O3 +  0.08000*OH +  0.50000*HO2 +  0.27000*xHO2 +  0.36000*RO2C +  0.21000*HCHO2 +  0.14000*RCHO2 +  0.50000*HCHO +  0.09000*xHCHO +  0.50000*ACRO +  0.12000*CO2 +  0.54000*CO +  0.36000*SumRO2  ||   1.3400E-14*exp<sup>( -2.2830E+03/T)</sup> ||   6.3331E-18 ||   3.3392E-18 || || 
+|-
+||   497 || <517>   || BUT13_O3 ----> 0.09000*xOH +  0.27000*xPACID +  0.09000*CO2  ||   2.5500E+00 ||   2.5500E+00 ||   2.5500E+00 || || 
+|-
+||   498 || <518>   || BUT13_O3 + NO ----> NO +  0.09000*xHO2 +  0.25000*xHCHO +  0.02000*xGLY +  0.30000*yHPCRB +  0.33000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   499 || <E3N3>   || BUT13 + NO3 ----> 0.89000*xNO2 +  0.06000*xHO2 +  0.94000*RO2C +  0.06000*RO2XC +  0.74000*xHCHO +  0.14000*xOLEA1 +  0.74000*xACRO +  0.06000*xRCNO3 + yRPNO3 +  0.06000*zRDNO3 + SumRO2  ||   1.1000E-13 ||   1.1000E-13 ||   1.1000E-13 || || 
+|-
+||   500 || <E3OP>   || BUT13 + O3P ----> 0.25000*OLEA2 +  0.25000*MVK +  0.50000*OLEP  ||   2.2600E-11*exp<sup>( -4.0000E+01/T)</sup> ||   1.9763E-11 ||   1.9542E-11 || || 
+|-
+||   501 || <APOH>   || APINE + OH ----> APINE_OH +  0.02000*HO2 +  0.59000*xHO2 +  1.07000*RO2C +  0.30000*RO2XC +  0.08000*xHCHO +  0.51000*xRCHO +  0.08000*xOLEA2 +  0.17000*xACET +  0.06000*xMVK +  0.03000*xLVKS +  0.01000*zR2NO3 +  0.01000*zRCNO3 +  0.28000*zRHNO3 +  0.53000*yROOH +  0.71000*yRUOOH +  0.02000*HPCRB +  0.13000*yHPCRB +  1.37000*SumRO2 + TRPRXN  ||   1.3400E-11*exp<sup>(  4.1000E+02/T)</sup> ||   5.3006E-11 ||   5.9463E-11 || || 
+|-
+||   502 || <522>   || APINE_OH ----> 0.01000*OH +  0.08000*HO2 +  0.07000*HPCRB  ||   7.4900E+00 ||   7.4900E+00 ||   7.4900E+00 || || 
+|-
+||   503 || <523>   || APINE_OH + NO ----> NO +  0.06000*xHO2 +  0.08000*RO2C +  0.02000*RO2XC +  0.01000*xHCHO +  0.06000*xOLEA2 +  0.02000*zRHNO3 +  0.09000*yHPCRB +  0.10000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   504 || <APO3>   || APINE + O3 ----> 0.69000*OH +  0.01000*xOH +  0.01000*HO2 +  0.17000*xHO2 +  0.79000*RO2C +  0.26000*RO2XC +  0.03000*xMECO3 +  0.20000*xR2CO3 +  0.29000*RCHO2 +  0.20000*xHCHO +  0.02000*RCHO +  0.13000*xRCHO +  0.03000*xBACL +  0.09000*xACET +  0.03000*KET2 +  0.07000*xPACID +  0.26000*zRCNO3 +  0.82000*yHPCRB +  0.03000*CO2 +  0.17000*CO +  1.05000*SumRO2 + TRPRXN  ||   8.2200E-16*exp<sup>( -6.4000E+02/T)</sup> ||   9.6079E-17 ||   8.0297E-17 || || 
+|-
+||   505 || <APN3>   || APINE + NO3 ----> 0.81000*xNO2 +  0.81000*RO2C +  0.19000*RO2XC +  0.81000*xRCHO + yRPNO3 +  0.19000*zRDNO3 + SumRO2  ||   1.2000E-12*exp<sup>(  4.9000E+02/T)</sup> ||   6.2077E-12 ||   7.1219E-12 || || 
+|-
+||   506 || <APOP>   || APINE + O3P ----> 0.50000*KET2 +  0.50000*ALK4 + TRPRXN  ||   3.2000E-11 ||   3.2000E-11 ||   3.2000E-11 || || 
+|-
+||   507 || <BPOH>   || BPINE + OH ----> BPINE_OH +  0.01000*xOH +  0.01000*HO2 +  0.37000*xHO2 +  1.43000*RO2C +  0.42000*RO2XC +  0.03000*xR2CO3 +  0.35000*xHCHO +  0.03000*xRCHO +  0.23000*xOLEA2 +  0.29000*xACET +  0.11000*xKET2 +  0.02000*xPACID +  0.02000*zR2NO3 +  0.09000*zRCNO3 +  0.31000*zRHNO3 +  0.32000*yROOH + yRUOOH +  0.01000*HPCRB +  0.45000*yHPCRB +  1.85000*SumRO2 + TRPRXN  ||   1.6200E-11*exp<sup>(  4.6000E+02/T)</sup> ||   7.5782E-11 ||   8.6213E-11 || || 
+|-
+||   508 || <528>   || BPINE_OH ----> 0.04000*OH +  0.12000*HO2 +  0.03000*PACID +  0.01000*xPACID +  0.11000*HPCRB +  0.01000*CO2  ||   3.4500E+00 ||   3.4500E+00 ||   3.4500E+00 || || 
+|-
+||   509 || <529>   || BPINE_OH + NO ----> NO +  0.11000*xHO2 +  0.15000*RO2C +  0.04000*RO2XC +  0.02000*xHCHO +  0.01000*xRCHO +  0.08000*xOLEA2 +  0.01000*zRCNO3 +  0.03000*zRHNO3 +  0.01000*yRUOOH +  0.21000*yHPCRB +  0.19000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   510 || <BPO3>   || BPINE + O3 ----> 0.39000*OH +  0.14000*HO2 +  0.23000*RO2C +  0.08000*RO2XC +  0.23000*xR2CO3 +  0.21000*HCHO2 +  0.20000*RCHO2 +  0.50000*HCHO +  0.50000*KET2 +  0.08000*zRCNO3 +  0.26000*yHPCRB +  0.12000*CO2 +  0.17000*CO +  0.31000*SumRO2 + TRPRXN  ||   1.3900E-15*exp<sup>( -1.2800E+03/T)</sup> ||   1.8990E-17 ||   1.3264E-17 || || 
+|-
+||   511 || <BPN3>   || BPINE + NO3 ----> 0.02000*OH +  0.04000*xOH +  0.18000*xHO2 +  2.25000*RO2C +  0.63000*RO2XC +  0.14000*xR2CO3 +  0.04000*xHCHO +  0.02000*xRCHO +  0.27000*xACET +  0.14000*xPACID +  0.02000*RCNO3 +  0.22000*xRCNO3 +  0.43000*zRCNO3 + yRPNO3 +  0.19000*zRDNO3 +  0.04000*CO2 +  2.88000*SumRO2 + TRPRXN  ||   2.5000E-12 ||   2.5000E-12 ||   2.5000E-12 || || 
+|-
+||   512 || <BPOP>   || BPINE + O3P ----> 0.50000*RCHO +  0.50000*ALK5 + TRPRXN  ||   2.7000E-11 ||   2.7000E-11 ||   2.7000E-11 || || 
+|-
+||   513 || <ACOH>   || ACETL + OH ----> 0.67000*OH +  0.33000*HO2 +  0.67000*GLY +  0.33000*HCOOH +  0.33000*CO  ||  k<sub>o</sub> =   5.5000E-30*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  0.0000E+00</sup>; k<sub>inf</sub> =   8.3000E-13*exp<sup>(  0.0000E+00/T)</sup>*(T/300)<sup>  2.0000E+00</sup>; n =   1.0000E+00; F =   6.0000E-01 ||   7.4748E-13 ||   6.3658E-13 || || 
+|-
+||   514 || <ACO3>   || ACETL + O3 ----> 0.26000*HO2 +  0.34000*RCHO2 +  0.34000*HCHO +  0.18000*HCOOH +  0.47000*CO2 +  0.31000*CO  ||   1.0000E-20 ||   1.0000E-20 ||   1.0000E-20 || || 
+|-
+||   515 || <BZOH>   || BENZ + OH ----> 0.69000*HO2 +  0.28000*xHO2 +  0.28000*RO2C +  0.04000*RO2XC +  0.12000*OLEA2 +  0.28000*xGLY +  0.28000*xBUDAL +  0.57000*PHEN +  0.04000*zRANO3 +  0.31000*yRAOOH +  0.32000*SumRO2 + BENZRO2  ||   2.3000E-12*exp<sup>( -1.9000E+02/T)</sup> ||   1.2161E-12 ||   1.1530E-12 || || 
+|-
+||   516 || <TLOH>   || TOLU + OH ----> 0.41000*HO2 +  0.50000*xHO2 +  0.50000*RO2C +  0.08000*RO2XC +  0.01000*OLEA1 +  0.21000*OLEA2 +  0.22000*xGLY +  0.22000*xMGLY +  0.22000*xBUDAL +  0.02000*xAFG1 +  0.19000*xAFG2A +  0.06000*xBALD +  0.19000*CRES +  0.01000*zR1NO3 +  0.07000*zRANO3 +  0.08000*yROOH +  0.51000*yRAOOH +  0.58000*SumRO2 + TOLRO2  ||   1.8000E-12*exp<sup>(  3.4000E+02/T)</sup> ||   5.6302E-12 ||   6.1934E-12 || || 
+|-
+||   517 || <OXOH>   || OXYL + OH ----> 0.35000*HO2 +  0.54000*xHO2 +  0.54000*RO2C +  0.11000*RO2XC +  0.10000*OLEA1 +  0.10000*OLEA2 +  0.12000*xGLY +  0.22000*xMGLY +  0.15000*xBACL +  0.15000*xBUDAL +  0.01000*xAFG1 +  0.22000*xAFG2A +  0.11000*xAFG2B +  0.06000*xBALD +  0.06000*LVKS +  0.08000*XYNL +  0.02000*zR2NO3 +  0.09000*zRANO3 +  0.08000*yROOH +  0.57000*yRAOOH +  0.65000*SumRO2 + XYLRO2  ||   1.3600E-11 ||   1.3600E-11 ||   1.3600E-11 || || 
+|-
+||   518 || <MXOH>   || MXYL + OH ----> 0.21000*HO2 +  0.66000*xHO2 +  0.66000*RO2C +  0.13000*RO2XC +  0.01000*OLEA1 +  0.13000*OLEA2 +  0.04000*xGLY +  0.59000*xMGLY +  0.05000*xAFG1 +  0.58000*xAFG2A +  0.03000*xBALD +  0.07000*XYNL +  0.01000*zR2NO3 +  0.12000*zRANO3 +  0.03000*yROOH +  0.75000*yRAOOH +  0.79000*SumRO2 + XYLRO2  ||   2.3100E-11 ||   2.3100E-11 ||   2.3100E-11 || || 
+|-
+||   519 || <PXOH>   || PXYL + OH ----> 0.38000*HO2 +  0.52000*xHO2 +  0.52000*RO2C +  0.11000*RO2XC +  0.02000*OLEA1 +  0.23000*OLEA2 +  0.16000*xGLY +  0.29000*xMGLY +  0.29000*xAFG1 +  0.07000*xBALD +  0.16000*xAFG3 +  0.14000*XYNL +  0.02000*zR2NO3 +  0.09000*zRANO3 +  0.09000*yROOH +  0.53000*yRAOOH +  0.63000*SumRO2 + XYLRO2  ||   4.1400E-12*exp<sup>(  3.1900E+02/T)</sup> ||   1.2069E-11 ||   1.3198E-11 || || 
+|-
+||   520 || <X1OH>   || BZ123 + OH ----> 0.18000*HO2 +  0.67000*xHO2 +  0.67000*RO2C +  0.15000*RO2XC +  0.03000*OLEA1 +  0.03000*OLEA2 +  0.03000*xGLY +  0.07000*xMGLY +  0.54000*xBACL +  0.54000*xAFG2A +  0.10000*xAFG2B +  0.02000*xBALD +  0.10000*LVKS +  0.02000*XYNL +  0.01000*zR2NO3 +  0.14000*zRANO3 +  0.03000*yROOH +  0.78000*yRAOOH +  0.82000*SumRO2 + XYLRO2  ||   3.2700E-11 ||   3.2700E-11 ||   3.2700E-11 || || 
+|-
+||   521 || <X2OH>   || BZ124 + OH ----> 0.23000*HO2 +  0.63000*xHO2 +  0.63000*RO2C +  0.14000*RO2XC +  0.04000*OLEA1 +  0.11000*OLEA2 +  0.03000*xGLY +  0.51000*xMGLY +  0.06000*xBACL +  0.08000*xAFG1 +  0.04000*xAFG2A +  0.27000*xAFG2B +  0.03000*xBALD +  0.02000*LVKS +  0.21000*xAFG3 +  0.05000*XYNL +  0.01000*zR2NO3 +  0.13000*zRANO3 +  0.04000*yROOH +  0.73000*yRAOOH +  0.77000*SumRO2 + XYLRO2  ||   3.2500E-11 ||   3.2500E-11 ||   3.2500E-11 || || 
+|-
+||   522 || <X3OH>   || BZ135 + OH ----> 0.17000*HO2 +  0.68000*xHO2 +  0.68000*RO2C +  0.15000*RO2XC +  0.11000*OLEA2 +  0.67000*xMGLY +  0.67000*xAFG2A +  0.02000*xBALD +  0.05000*XYNL +  0.01000*zR2NO3 +  0.15000*zRANO3 +  0.02000*yROOH +  0.81000*yRAOOH +  0.83000*SumRO2 + XYLRO2  ||   5.8600E-11 ||   5.8600E-11 ||   5.8600E-11 || || 
+|-
+||   523 || <EBOH>   || C2BEN + OH ----> 0.36000*HO2 +  0.51000*xHO2 +  0.54000*RO2C +  0.12000*RO2XC +  0.01000*xMEO2 +  0.02000*xHCHO +  0.01000*OLEA1 +  0.18000*OLEA2 +  0.18000*xGLY +  0.18000*xMGLY +  0.18000*xBUDAL +  0.02000*xAFG1 +  0.16000*xAFG2A +  0.03000*xBALD +  0.16000*XYNL +  0.05000*zR2NO3 +  0.07000*zRANO3 +  0.23000*yROOH +  0.44000*yRAOOH +  0.13000*xBENX +  0.66000*SumRO2  ||   7.0000E-12 ||   7.0000E-12 ||   7.0000E-12 || || 
+|-
+||   524 || <MTOH>   || MTBE + OH ----> 0.72000*xHO2 +  1.12000*RO2C +  0.09000*RO2XC +  0.19000*xMEO2 +  0.20000*xHCHO +  0.09000*zR1NO3 +  0.89000*yROOH +  0.17000*ALK1 +  0.72000*ALK2 +  0.01000*ALK3 +  1.21000*SumRO2  ||   1.8700E-13*exp<sup>(  8.4300E+02/T)</sup>*(T/300)<sup>(  3.3400E+00 )</sup> ||   3.0961E-12 ||   2.9992E-12 || || 
+|-
+||   525 || <MLOH>   || MEOH + OH ----> HO2 + HCHO  ||   2.3200E-13*exp<sup>(  4.0200E+02/T)</sup>*(T/300)<sup>(  2.7200E+00 )</sup> ||   8.7851E-13 ||   7.9043E-13 || || 
+|-
+||   526 || <FAOH>   || HCOOH + OH ----> HO2 + CO2  ||   4.5000E-13 ||   4.5000E-13 ||   4.5000E-13 || || 
+|-
+||   527 || <H1OH>   || MEOOH + OH ----> 0.03000*OH +  0.97000*MEO2 +  0.03000*HCHO +  0.97000*SumRO2  ||   5.3000E-12*exp<sup>(  1.9000E+02/T)</sup> ||   1.0024E-11 ||   1.0572E-11 || || 
+|-
+||   528 || <H1HV>   || MEOOH ----> OH + HO2 + HCHO  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   529 || <A2OH>   || MECHO + OH ----> MECHO_OH +  0.04000*xHO2 +  0.05000*RO2C +  0.95000*MECO3 +  0.01000*xHCHO +  0.05000*SumRO2 +  0.95000*SumRCO3  ||   2.4000E-12*exp<sup>(  5.4600E+02/T)</sup>*(T/300)<sup>(  7.7000E-01 )</sup> ||   1.4910E-11 ||   1.6334E-11 || || 
+|-
+||   530 || <550>   || MECHO_OH ----> 0.01000*xOH +  0.04000*xPACID +  0.01000*CO2  ||   3.7500E+00 ||   3.7500E+00 ||   3.7500E+00 || || 
+|-
+||   531 || <551>   || MECHO_OH + NO ----> NO +  0.01000*xHO2 +  0.04000*xHCHO +  0.04000*yHPCRB +  0.05000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   532 || <A2N3>   || MECHO + NO3 ----> HNO3 + MECO3 + SumRCO3  ||   1.4000E-12*exp<sup>( -1.8600E+03/T)</sup> ||   2.7340E-15 ||   1.6230E-15 || || 
+|-
+||   533 || <A2HV>   || MECHO ----> HO2 +  0.90000*MEO2 +  0.10000*MECO3 +  0.90000*CO +  0.90000*SumRO2 +  0.10000*SumRCO3  || <''CCHOR_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   534 || <EAOH>   || ETOH + OH ----> 0.95000*HO2 +  0.05000*xHO2 +  0.05000*RO2C +  0.07000*xHCHO +  0.95000*MECHO +  0.01000*xGLCHO +  0.05000*yROOH +  0.05000*SumRO2  ||   4.4200E-13*exp<sup>(  6.0600E+02/T)</sup>*(T/300)<sup>(  2.2900E+00 )</sup> ||   3.3265E-12 ||   3.2805E-12 || || 
+|-
+||   535 || <GAOH>   || GLCHO + OH ----> 0.20000*HO2 +  0.80000*R2CO3 +  0.20000*GLY +  0.80000*SumRCO3  ||   1.1000E-11 ||   1.1000E-11 ||   1.1000E-11 || || 
+|-
+||   536 || <GAN3>   || GLCHO + NO3 ----> HNO3 +  0.10000*HO2 +  0.90000*R2CO3 +  0.10000*GLY +  0.90000*SumRCO3  ||   1.8400E-14 ||   1.8400E-14 ||   1.8400E-14 || || 
+|-
+||   537 || <GAHV>   || GLCHO ----> GLCHO_HV +  0.07000*OH +  1.66000*HO2 +  0.05000*xHO2 +  0.07000*RO2C +  0.83000*HCHO +  0.02000*xHCHO +  0.10000*MEOH +  0.93000*CO +  0.07000*SumRO2  || <''GLALD_14''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   538 || <558>   || GLCHO_HV ----> 0.02000*xOH +  0.05000*xPACID +  0.02000*CO2  ||   2.6200E+00 ||   2.6200E+00 ||   2.6200E+00 || || 
+|-
+||   539 || <559>   || GLCHO_HV + NO ----> NO +  0.02000*xHO2 +  0.04000*xHCHO +  0.06000*yHPCRB +  0.06000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   540 || <A3OH>   || ETCHO + OH ----> 0.04000*xHO2 +  0.04000*RO2C +  0.96000*R2CO3 +  0.04000*xMECHO +  0.01000*xPACID +  0.03000*yHPCRB +  0.04000*CO +  0.04000*SumRO2 +  0.96000*SumRCO3  ||   6.6300E-13*exp<sup>(  1.0180E+03/T)</sup>*(T/300)<sup>(  1.9900E+00 )</sup> ||   1.9908E-11 ||   2.2573E-11 || || 
+|-
+||   541 || <A3N3>   || ETCHO + NO3 ----> HNO3 + R2CO3 + SumRCO3  ||   6.3000E-15 ||   6.3000E-15 ||   6.3000E-15 || || 
+|-
+||   542 || <A3HV>   || ETCHO ----> HO2 + ETO2 + CO + SumRO2  || <''C2CHOabs''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   543 || <AROH>   || ACRO + OH ----> ACRO_OH +  0.31000*xHO2 +  0.31000*RO2C +  0.01000*RO2XC +  0.68000*MACO3 +  0.07000*xHCHO +  0.01000*xGLY +  0.24000*xGLCHO +  0.01000*zRHNO3 +  0.22000*yHPCRB +  0.24000*CO +  0.32000*SumRO2 +  0.68000*SumRCO3  ||   7.1000E-12*exp<sup>(  3.3300E+02/T)</sup> ||   2.1693E-11 ||   2.3816E-11 || || 
+|-
+||   544 || <564>   || ACRO_OH ----> 0.06000*xPACID  ||   1.6900E+00 ||   1.6900E+00 ||   1.6900E+00 || || 
+|-
+||   545 || <565>   || ACRO_OH + NO ----> NO +  0.06000*xGLY +  0.06000*yHPCRB  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   546 || <ARO3>   || ACRO + O3 ----> 0.15000*OH +  0.27000*HO2 +  0.38000*HCHO2 +  0.03000*RCHO2 +  0.13000*HCHO +  0.90000*GLY +  0.02000*HCOOH +  0.26000*CO2 +  0.34000*CO  ||   2.8000E-19 ||   2.8000E-19 ||   2.8000E-19 || || 
+|-
+||   547 || <ARN3>   || ACRO + NO3 ----> 0.94000*HNO3 +  0.06000*xHO2 +  0.06000*RO2C +  0.94000*MACO3 +  0.06000*xRCNO3 +  0.05000*yRPNO3 +  0.06000*CO +  0.06000*SumRO2 +  0.94000*SumRCO3  ||   1.1000E-15 ||   1.1000E-15 ||   1.1000E-15 || || 
+|-
+||   548 || <ARHV>   || ACRO ----> ACRO_HV +  0.22000*OH +  0.49000*HO2 +  0.17000*xHO2 +  0.22000*RO2C +  0.05000*MEO2 +  0.15000*MACO3 +  0.15000*HCHO +  0.06000*xHCHO +  0.06000*MEOH +  0.25000*ETHEN +  0.16000*CO2 +  1.06000*CO +  0.27000*SumRO2 +  0.15000*SumRCO3  || <''ACROL_16''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   549 || <569>   || ACRO_HV ----> 0.06000*xOH +  0.17000*xPACID +  0.06000*CO2  ||   2.4000E+00 ||   2.4000E+00 ||   2.4000E+00 || || 
+|-
+||   550 || <570>   || ACRO_HV + NO ----> NO +  0.05000*xHO2 +  0.15000*xHCHO +  0.19000*yHPCRB +  0.21000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   551 || <K3OH>   || ACET + OH ----> 0.96000*RO2C +  0.04000*RO2XC +  0.96000*xMECO3 +  0.96000*xHCHO +  0.04000*zRCNO3 +  0.85000*yHPCRB + SumRO2  ||   1.9700E-14*exp<sup>(  6.7800E+02/T)</sup>*(T/300)<sup>(  3.8800E+00 )</sup> ||   1.8691E-13 ||   1.6554E-13 || || 
+|-
+||   552 || <K3HV>   || ACET ----> MEO2 + MECO3 + SumRO2 + SumRCO3  || <''ACET_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   553 || <K4OH>   || MEK + OH ----> 0.29000*xHO2 +  0.94000*RO2C +  0.07000*RO2XC +  0.55000*xMECO3 +  0.08000*xR2CO3 +  0.11000*xHCHO +  0.54000*xMECHO +  0.29000*xRCHO +  0.07000*zRCNO3 +  0.91000*yHPCRB +  1.01000*SumRO2  ||   5.4200E-14*exp<sup>(  8.8900E+02/T)</sup>*(T/300)<sup>(  3.5700E+00 )</sup> ||   1.0456E-12 ||   1.0072E-12 || || 
+|-
+||   554 || <K4HV>   || MEK ----> 0.15000*MEO2 +  0.85000*ETO2 +  0.85000*MECO3 +  0.15000*R2CO3 + SumRO2 + SumRCO3  ||   1.7500E-01<''MEK_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   555 || <MAOH>   || MACR + OH ----> MACR_OH +  0.05000*xHO2 +  0.75000*RO2C +  0.04000*RO2XC +  0.21000*MACO3 +  0.05000*xHCHO +  0.61000*xKET2 +  0.79000*SumRO2 +  0.21000*SumRCO3  ||   8.0000E-12*exp<sup>(  3.8000E+02/T)</sup> ||   2.8616E-11 ||   3.1833E-11 || || 
+|-
+||   556 || <576>   || MACR_OH ----> 0.69000*xOH +  0.08000*xKET2 +  0.05000*xPACID +  0.04000*zRCNO3 +  0.69000*CO2  ||   5.2600E-01 ||   5.2600E-01 ||   5.2600E-01 || || 
+|-
+||   557 || <577>   || MACR_OH + NO ----> NO +  0.69000*xHO2 +  0.09000*xHCHO +  0.14000*xMGLY +  0.04000*zRHNO3 +  0.68000*yHPCRB +  0.61000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   558 || <MAO3>   || MACR + O3 ----> 0.19000*OH +  0.01000*xOH +  0.25000*HO2 +  0.03000*xHO2 +  0.04000*RO2C +  0.01000*MECO3 +  0.38000*HCHO2 +  0.03000*RCHO2 +  0.10000*HCHO +  0.02000*xHCHO +  0.02000*MECHO +  0.90000*MGLY +  0.01000*OACID +  0.02000*xPACID +  0.01000*yHPCRB +  0.24000*CO2 +  0.38000*CO +  0.04000*SumRO2 +  0.01000*SumRCO3  ||   1.4000E-15*exp<sup>( -2.1000E+03/T)</sup> ||   1.2224E-18 ||   6.7843E-19 || || 
+|-
+||   559 || <MAN3>   || MACR + NO3 ----> MACR_N3 +  0.30000*HNO3 +  0.66000*RO2C +  0.04000*RO2XC +  0.30000*MACO3 +  0.66000*xRCNO3 +  0.70000*SumRO2 +  0.30000*SumRCO3  ||   3.4000E-15 ||   3.4000E-15 ||   3.4000E-15 || || 
+|-
+||   560 || <580>   || MACR_N3 ----> 0.66000*xOH +  0.04000*zRCNO3 +  0.66000*CO2  ||   5.2400E-01 ||   5.2400E-01 ||   5.2400E-01 || || 
+|-
+||   561 || <581>   || MACR_N3 + NO ----> NO +  0.66000*xHO2 +  0.59000*yRPNO3 +  0.04000*zRDNO3 +  0.66000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   562 || <MAHV>   || MACR ----> 0.45000*OH +  0.30000*HO2 +  0.43000*RO2C +  0.02000*RO2XC +  0.15000*MEO2 +  0.43000*xMECO3 +  0.15000*MACO3 +  0.15000*HCHO +  0.43000*xHCHO +  0.02000*zRCNO3 +  0.38000*yHPCRB +  0.25000*PROPE + CO +  0.60000*SumRO2 +  0.15000*SumRCO3  || <''MACR_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   563 || <MVOH>   || MVK + OH ----> 0.28000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.66000*xMECO3 +  0.28000*xHCHO +  0.66000*xGLCHO +  0.28000*xMGLY +  0.05000*zRCNO3 +  0.90000*yHPCRB + SumRO2  ||   2.6000E-12*exp<sup>(  6.1000E+02/T)</sup> ||   2.0115E-11 ||   2.3867E-11 || || 
+|-
+||   564 || <MVO3>   || MVK + O3 ----> 0.18000*OH +  0.26000*HO2 +  0.02000*xHO2 +  0.02000*RO2C +  0.40000*HCHO2 +  0.01000*RCHO2 +  0.05000*HCHO +  0.01000*xHCHO +  0.01000*MECHO +  0.95000*MGLY +  0.01000*xPACID +  0.01000*yHPCRB +  0.23000*CO2 +  0.36000*CO +  0.02000*SumRO2  ||   8.5000E-16*exp<sup>( -1.5200E+03/T)</sup> ||   5.1921E-18 ||   3.3905E-18 || || 
+|-
+||   565 || <MVHV>   || MVK ----> 0.40000*MEO2 +  0.40000*MACO3 +  0.60000*PROPE +  0.60000*CO +  0.40000*SumRO2 +  0.40000*SumRCO3  || <''MVK_16''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   566 || <F1OH>   || BUDAL + OH ----> BUDAL_OH +  0.54000*OH +  0.44000*xHO2 +  0.44000*RO2C +  0.02000*RO2XC +  0.41000*xGLY +  0.54000*MALAH +  0.05000*xPACID +  0.02000*CO +  0.46000*SumRO2  ||   5.2900E-11 ||   5.2900E-11 ||   5.2900E-11 || || 
+|-
+||   567 || <587>   || BUDAL_OH ----> 0.39000*xPACID +  0.02000*zRCNO3  ||   2.0200E+01 ||   2.0200E+01 ||   2.0200E+01 || || 
+|-
+||   568 || <588>   || BUDAL_OH + NO ----> NO +  0.37000*xGLY +  0.35000*yHPCRB  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   569 || <F1HV>   || BUDAL ----> OH + HO2 + MALAH  ||   2.5000E-01<''AFGS''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   570 || <PHOH>   || PHEN + OH ----> 0.85000*HO2 +  0.07000*xHO2 +  0.07000*RO2C +  0.01000*RO2XC +  0.07000*BZO +  0.01000*OLEA1 +  0.04000*OLEA2 +  0.03000*xGLY +  0.04000*xMGLY +  0.04000*xBUDAL +  0.01000*xAFG1 +  0.02000*xAFG2A +  0.03000*OLEP +  0.77000*CATL +  0.01000*zRANO3 +  0.08000*yRAOOH +  0.08000*SumRO2  ||   4.7000E-13*exp<sup>(  1.2200E+03/T)</sup> ||   2.8131E-11 ||   3.9604E-11 || || 
+|-
+||   571 || <PHN3>   || PHEN + NO3 ----> HNO3 + BZO  ||   4.5000E-12 ||   4.5000E-12 ||   4.5000E-12 || || 
+|-
+||   572 || <L1OH>   || ALK1 + OH ----> 0.96000*xHO2 +  0.97000*RO2C +  0.03000*RO2XC +  0.01000*xMECO3 +  0.01000*xHCHO +  0.09000*xMGLY +  0.43000*xOACID +  0.03000*zRCNO3 +  0.62000*yHPCRB + 39.33000*NROG +  0.43000*CO + SumRO2  ||   3.3500E-13 ||   3.3500E-13 ||   3.3500E-13 || || 
+|-
+||   573 || <L2OH>   || ALK2 + OH ----> 0.10000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.01000*xMEO2 +  0.84000*xMECO3 +  0.01000*xHCHO +  0.08000*xRCHO +  0.01000*xMGLY +  0.84000*xOACID +  0.05000*zRCNO3 +  0.64000*yHPCRB +  1.38000*NROG + SumRO2  ||   1.6700E-12 ||   1.6700E-12 ||   1.6700E-12 || || 
+|-
+||   574 || <L3OH>   || ALK3 + OH ----> 0.34000*xHO2 +  1.20000*RO2C +  0.12000*RO2XC +  0.14000*xETO2 +  0.07000*xR2CO3 +  0.33000*xTBUO +  0.10000*xHCHO +  0.10000*xMECHO +  0.09000*xRCHO +  0.07000*xACET +  0.01000*xKET2 +  0.12000*xOACID +  0.07000*zR1NO3 +  0.03000*zRCNO3 +  0.02000*zRHNO3 +  0.81000*yROOH +  0.33000*yHPCRB +  0.12000*ALK1 + 16.91000*NROG +  0.05000*CO +  1.32000*SumRO2  ||   2.8500E-12 ||   2.8500E-12 ||   2.8500E-12 || || 
+|-
+||   575 || <L4OH>   || ALK4 + OH ----> 0.01000*xOH +  0.27000*HO2 +  0.36000*xHO2 +  0.96000*RO2C +  0.12000*RO2XC +  0.23000*xETO2 +  0.06000*xHCHO +  0.13000*xMECHO +  0.05000*xETCHO +  0.07000*xRCHO +  0.26000*ACET +  0.30000*xACET +  0.03000*xMEK +  0.15000*xKET2 +  0.09000*zR1NO3 +  0.03000*zRHNO3 +  1.05000*yROOH +  0.01000*HPCRB +  0.01000*yHPCRB +  0.01000*CO2 +  1.08000*SumRO2  ||   4.5400E-12 ||   4.5400E-12 ||   4.5400E-12 || || 
+|-
+||   576 || <L5OH>   || ALK5 + OH ----> ALK5_OH +  0.30000*HO2 +  0.33000*xHO2 + RO2C +  0.22000*RO2XC +  0.02000*xETO2 +  0.01000*xR2CO3 +  0.01000*HCHO +  0.03000*xHCHO +  0.04000*xMECHO +  0.02000*xETCHO +  0.11000*RCHO +  0.04000*xRCHO +  0.06000*GLCHO +  0.01000*xGLCHO +  0.05000*xACET +  0.05000*xMEK +  0.13000*KET2 +  0.23000*xKET2 +  0.01000*xPACID +  0.08000*zR1NO3 +  0.05000*zR2NO3 +  0.02000*zRCNO3 +  0.06000*zRHNO3 +  1.05000*yROOH +  0.12000*yHPCRB +  0.01000*ALK4 +  0.01000*ALK5 +  1.22000*SumRO2  ||   1.1400E-11 ||   1.1400E-11 ||   1.1400E-11 || || 
+|-
+||   577 || <597>   || ALK5_OH ----> 0.11000*HO2 +  0.03000*PACID +  0.08000*HPCRB  ||   2.8700E-01 ||   2.8700E-01 ||   2.8700E-01 || || 
+|-
+||   578 || <598>   || ALK5_OH + NO ----> NO +  0.06000*xHO2 +  0.11000*RO2C +  0.02000*RO2XC +  0.02000*xMECO3 +  0.01000*xR2CO3 +  0.02000*xETCHO +  0.06000*xRCHO +  0.01000*xKET2 +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.05000*yROOH +  0.08000*yHPCRB +  0.01000*ALK5 +  0.12000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   579 || <L6OH>   || ALK6 + OH ----> ALK6_OH +  0.16000*HO2 +  0.40000*xHO2 +  0.97000*RO2C +  0.33000*RO2XC +  0.01000*xR2CO3 +  0.01000*xTBUO +  0.08000*xHCHO +  0.01000*xMECHO +  0.01000*xETCHO +  0.07000*RCHO +  0.08000*xRCHO +  0.15000*xACET +  0.09000*KET2 +  0.26000*xKET2 +  0.01000*zR1NO3 +  0.15000*zR2NO3 +  0.05000*zRCNO3 +  0.12000*zRHNO3 +  1.05000*yROOH +  0.24000*yHPCRB +  0.06000*ALK3 +  0.01000*ALK4 +  0.01000*ALK5 +  1.31000*SumRO2  ||   1.6300E-11 ||   1.6300E-11 ||   1.6300E-11 || || 
+|-
+||   580 || <600>   || ALK6_OH ----> 0.03000*HO2 +  0.08000*HPCRB  ||   2.7000E-01 ||   2.7000E-01 ||   2.7000E-01 || || 
+|-
+||   581 || <601>   || ALK6_OH + NO ----> NO +  0.06000*xHO2 +  0.12000*RO2C +  0.02000*RO2XC +  0.01000*xR2CO3 +  0.02000*xHCHO +  0.01000*xMECHO +  0.02000*xRCHO +  0.04000*xACET +  0.01000*xKET2 +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.06000*yROOH +  0.04000*yHPCRB +  0.04000*ALK2 +  0.01000*ALK5 +  0.14000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   582 || <O1OH>   || OLE1 + OH ----> 0.78000*xHO2 +  1.12000*RO2C +  0.10000*RO2XC +  0.01000*xMEO2 +  0.11000*xTBUO +  0.69000*xHCHO +  0.01000*xMECHO +  0.35000*xETCHO +  0.35000*xRCHO +  0.15000*xGLCHO +  0.02000*xACRO +  0.03000*xACET +  0.02000*xKET2 +  0.01000*xMVK +  0.01000*zR1NO3 +  0.01000*zR2NO3 +  0.08000*zRHNO3 +  1.15000*yROOH +  0.07000*yRUOOH +  1.22000*SumRO2  ||   3.1800E-11 ||   3.1800E-11 ||   3.1800E-11 || || 
+|-
+||   583 || <O1O3>   || OLE1 + O3 ----> 0.26000*OH +  0.01000*xOH +  0.17000*HO2 +  0.16000*xHO2 +  0.18000*RO2C +  0.01000*RO2XC +  0.01000*ETO2 +  0.01000*xTBUO +  0.21000*HCHO2 +  0.17000*RCHO2 +  0.50000*HCHO +  0.08000*xMECHO +  0.19000*ETCHO +  0.04000*xETCHO +  0.31000*RCHO +  0.02000*xRCHO +  0.04000*xACET +  0.02000*ETOH +  0.01000*zRCNO3 +  0.02000*yROOH +  0.14000*yHPCRB +  0.03000*ETHAN +  0.02000*PROP +  0.01000*NC4 +  0.01000*ALK2 +  0.02000*ALK3 +  0.01000*ALK4 +  0.24000*CO2 +  0.37000*CO +  0.20000*SumRO2  ||   8.7000E-18 ||   8.7000E-18 ||   8.7000E-18 || || 
+|-
+||   584 || <O1N3>   || OLE1 + NO3 ----> 0.09000*xNO2 +  0.55000*xHO2 +  1.41000*RO2C +  0.13000*RO2XC +  0.09000*xETO2 +  0.15000*xTBUO +  0.09000*xHCHO +  0.09000*xETCHO +  0.01000*xRCHO +  0.14000*xACET +  0.02000*zR1NO3 +  0.81000*xRCNO3 +  1.22000*yRPNO3 +  0.11000*zRDNO3 +  0.31000*yROOH +  1.53000*SumRO2  ||   1.4400E-14 ||   1.4400E-14 ||   1.4400E-14 || || 
+|-
+||   585 || <O1OP>   || OLE1 + O3P ----> 0.25000*RCHO +  0.10000*MEK +  0.15000*KET2 +  0.09000*ALK2 +  0.36000*ALK3 +  0.05000*ALK4  ||   4.4300E-12 ||   4.4300E-12 ||   4.4300E-12 || || 
+|-
+||   586 || <O2OH>   || OLE2 + OH ----> 0.92000*xHO2 +  0.94000*RO2C +  0.07000*RO2XC +  1.25000*xMECHO +  0.40000*xETCHO +  0.12000*xRCHO +  0.01000*xACRO +  0.07000*zRHNO3 +  0.99000*yROOH +  0.01000*yRUOOH +  1.01000*SumRO2  ||   6.2900E-11 ||   6.2900E-11 ||   6.2900E-11 || || 
+|-
+||   587 || <O2O3>   || OLE2 + O3 ----> OLE2_O3 +  0.46000*OH +  0.06000*HO2 +  0.32000*xHO2 +  0.40000*RO2C +  0.01000*RO2XC +  0.04000*MEO2 +  0.01000*ETO2 +  0.16000*MECHO2 +  0.10000*RCHO2 +  0.07000*xHCHO +  0.67000*MECHO +  0.09000*xMECHO +  0.22000*ETCHO +  0.01000*xETCHO +  0.07000*RCHO +  0.01000*xACET +  0.06000*MEOH +  0.02000*ETOH +  0.01000*zRCNO3 +  0.09000*yHPCRB +  0.04000*ETHAN +  0.23000*CO2 +  0.18000*CO +  0.46000*SumRO2  ||   1.9000E-16 ||   1.9000E-16 ||   1.9000E-16 || || 
+|-
+||   588 || <608>   || OLE2_O3 ----> 0.01000*OH +  0.08000*xOH +  0.01000*RCHO +  0.22000*xPACID +  0.08000*CO2  ||   2.4500E+00 ||   2.4500E+00 ||   2.4500E+00 || || 
+|-
+||   589 || <609>   || OLE2_O3 + NO ----> NO +  0.08000*xHO2 +  0.01000*RO2C +  0.01000*xR2CO3 +  0.20000*xHCHO +  0.02000*xGLY +  0.26000*yHPCRB +  0.29000*CO +  0.01000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   590 || <O2N3>   || OLE2 + NO3 ----> 0.80000*xNO2 +  0.11000*xHO2 +  1.01000*RO2C +  0.08000*RO2XC +  1.11000*xMECHO +  0.33000*xETCHO +  0.09000*xRCHO +  0.01000*xACET +  0.11000*xRCNO3 +  1.08000*yRPNO3 +  0.08000*zRDNO3 +  0.01000*yROOH +  1.09000*SumRO2  ||   4.3400E-13 ||   4.3400E-13 ||   4.3400E-13 || || 
+|-
+||   591 || <O2OP>   || OLE2 + O3P ----> 0.21000*MEK +  0.29000*KET2 +  0.21000*ALK1 +  0.22000*ALK2 +  0.07000*ALK3  ||   1.9500E-11 ||   1.9500E-11 ||   1.9500E-11 || || 
+|-
+||   592 || <O3OH>   || OLE3 + OH ----> 0.94000*xHO2 +  0.94000*RO2C +  0.05000*RO2XC +  0.94000*xHCHO +  0.82000*xACET +  0.12000*xMEK +  0.05000*zRHNO3 + yROOH + SumRO2  ||   5.2600E-11 ||   5.2600E-11 ||   5.2600E-11 || || 
+|-
+||   593 || <O3O3>   || OLE3 + O3 ----> 0.58000*OH +  0.14000*HO2 +  0.48000*RO2C +  0.02000*RO2XC +  0.45000*xMECO3 +  0.03000*xR2CO3 +  0.21000*HCHO2 +  0.50000*HCHO +  0.45000*xHCHO +  0.03000*xMECHO +  0.43000*ACET +  0.07000*MEK +  0.02000*zRCNO3 +  0.42000*yHPCRB +  0.12000*CO2 +  0.17000*CO +  0.50000*SumRO2  ||   1.1800E-17 ||   1.1800E-17 ||   1.1800E-17 || || 
+|-
+||   594 || <O3N3>   || OLE3 + NO3 ----> 0.86000*xNO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.01000*xMEO2 +  0.07000*xETO2 +  0.86000*xHCHO +  0.80000*xACET +  0.06000*xMEK +  0.08000*xRCNO3 + yRPNO3 +  0.05000*zRDNO3 + SumRO2  ||   3.6200E-13 ||   3.6200E-13 ||   3.6200E-13 || || 
+|-
+||   595 || <O3OP>   || OLE3 + O3P ----> 0.50000*RCHO +  0.50000*ALK2  ||   1.7000E-11 ||   1.7000E-11 ||   1.7000E-11 || || 
+|-
+||   596 || <O4OH>   || OLE4 + OH ----> 0.92000*xHO2 +  0.92000*RO2C +  0.08000*RO2XC +  0.83000*xMECHO +  0.09000*xETCHO +  0.92000*xACET +  0.08000*zRHNO3 + yROOH + SumRO2  ||   8.7100E-11 ||   8.7100E-11 ||   8.7100E-11 || || 
+|-
+||   597 || <O4O3>   || OLE4 + O3 ----> OLE4_O3 +  0.72000*OH +  0.03000*HO2 +  0.16000*xHO2 +  0.70000*RO2C +  0.02000*RO2XC +  0.03000*MEO2 +  0.48000*xMECO3 +  0.11000*MECHO2 +  0.01000*RCHO2 +  0.53000*xHCHO +  0.45000*MECHO +  0.02000*xMECHO +  0.05000*ETCHO +  0.50000*ACET +  0.05000*MEOH +  0.02000*zRCNO3 +  0.44000*yHPCRB +  0.01000*ETHAN +  0.12000*CO2 +  0.07000*CO +  0.75000*SumRO2  ||   4.0500E-16 ||   4.0500E-16 ||   4.0500E-16 || || 
+|-
+||   598 || <618>   || OLE4_O3 ----> 0.05000*xOH +  0.14000*xPACID +  0.05000*CO2  ||   2.4500E+00 ||   2.4500E+00 ||   2.4500E+00 || || 
+|-
+||   599 || <619>   || OLE4_O3 + NO ----> NO +  0.05000*xHO2 +  0.14000*xHCHO +  0.17000*yHPCRB +  0.18000*CO  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   600 || <O4N3>   || OLE4 + NO3 ----> 0.92000*xNO2 +  0.92000*RO2C +  0.08000*RO2XC +  0.83000*xMECHO +  0.09000*xETCHO +  0.92000*xACET + yRPNO3 +  0.08000*zRDNO3 + SumRO2  ||   9.3100E-12 ||   9.3100E-12 ||   9.3100E-12 || || 
+|-
+||   601 || <O4OP>   || OLE4 + O3P ----> 0.50000*KET2 +  0.50000*ALK2  ||   5.1100E-11 ||   5.1100E-11 ||   5.1100E-11 || || 
+|-
+||   602 || <TPOH>   || TERP + OH ----> TERP_OH +  0.02000*HO2 +  0.53000*xHO2 +  1.07000*RO2C +  0.28000*RO2XC +  0.01000*xMACO3 +  0.15000*xHCHO +  0.29000*xRCHO +  0.13000*xOLEA2 +  0.09000*xACET +  0.05000*xKET2 +  0.01000*xMVK +  0.04000*xLVKS +  0.05000*xOLEP +  0.02000*zR2NO3 +  0.06000*zRCNO3 +  0.20000*zRHNO3 +  0.51000*yROOH +  0.55000*yRUOOH +  0.01000*HPCRB +  0.24000*yHPCRB +  1.35000*SumRO2 + TRPRXN  ||   1.1000E-10 ||   1.1000E-10 ||   1.1000E-10 || || 
+|-
+||   603 || <623>   || TERP_OH ----> 0.06000*OH +  0.01000*xOH +  0.09000*HO2 +  0.02000*AFG2A +  0.01000*xKET2 +  0.03000*PACID +  0.01000*xPACID +  0.06000*HPCRB  ||   1.4800E+00 ||   1.4800E+00 ||   1.4800E+00 || || 
+|-
+||   604 || <624>   || TERP_OH + NO ----> NO +  0.07000*xHO2 +  0.16000*RO2C +  0.05000*RO2XC +  0.03000*xR2CO3 +  0.02000*xHCHO +  0.03000*xRCHO +  0.02000*xOLEA1 +  0.02000*xOLEA2 +  0.01000*xAFG2A +  0.01000*xOLEP +  0.04000*zRCNO3 +  0.01000*zRHNO3 +  0.01000*yRUOOH +  0.22000*yHPCRB +  0.21000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   605 || <TPO3>   || TERP + O3 ----> TERP_O3 +  0.58000*OH +  0.02000*xOH +  0.07000*HO2 +  0.08000*xHO2 +  0.37000*RO2C +  0.12000*RO2XC +  0.08000*xMECO3 +  0.11000*xR2CO3 +  0.08000*HCHO2 +  0.25000*RCHO2 +  0.18000*HCHO +  0.06000*xHCHO +  0.13000*xRCHO +  0.03000*xGLY +  0.01000*xMACR +  0.01000*ACET +  0.01000*xACET +  0.17000*KET2 +  0.01000*LVKS +  0.01000*xAFG3 +  0.01000*xPACID +  0.02000*OLEP +  0.12000*zRCNO3 +  0.01000*yROOH +  0.01000*xHPCRB +  0.41000*yHPCRB +  0.06000*CO2 +  0.12000*CO +  0.49000*SumRO2 + TRPRXN  ||   1.1700E-16 ||   1.1700E-16 ||   1.1700E-16 || || 
+|-
+||   606 || <626>   || TERP_O3 ----> 0.06000*OH +  0.07000*HO2 +  0.01000*PACID +  0.01000*OTHN +  0.05000*HPCRB  ||   1.0700E+00 ||   1.0700E+00 ||   1.0700E+00 || || 
+|-
+||   607 || <627>   || TERP_O3 + NO ----> NO +  0.02000*xHO2 +  0.12000*RO2C +  0.04000*RO2XC +  0.04000*xMECO3 +  0.04000*xMACO3 +  0.04000*xHCHO +  0.04000*xOLEA2 +  0.04000*zRCNO3 +  0.13000*yHPCRB +  0.16000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   608 || <TPN3>   || TERP + NO3 ----> TERP_N3 +  0.51000*xNO2 +  0.01000*OH +  0.01000*xOH +  0.05000*xHO2 +  1.12000*RO2C +  0.28000*RO2XC +  0.01000*xHCHO +  0.29000*xRCHO +  0.21000*xOLEA2 +  0.15000*xACET +  0.01000*xMVK +  0.01000*xOLEP +  0.01000*RCNO3 +  0.07000*xRCNO3 +  0.08000*zRCNO3 + yRPNO3 +  0.19000*zRDNO3 +  0.04000*yROOH +  0.01000*yRUOOH +  1.40000*SumRO2 + TRPRXN  ||   1.1100E-11 ||   1.1100E-11 ||   1.1100E-11 || || 
+|-
+||   609 || <629>   || TERP_N3 ----> 0.10000*OH +  0.04000*HO2 +  0.10000*RCNO3 +  0.01000*HPCRB  ||   1.2700E+00 ||   1.2700E+00 ||   1.2700E+00 || || 
+|-
+||   610 || <630>   || TERP_N3 + NO ----> NO +  0.06000*xHO2 +  0.17000*RO2C +  0.05000*RO2XC +  0.03000*xR2CO3 +  0.01000*xHCHO +  0.01000*xACET +  0.06000*xRCNO3 +  0.05000*zRCNO3 +  0.01000*yRPNO3 +  0.01000*yROOH +  0.01000*yHPCRB +  0.01000*CO +  0.22000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   611 || <TPOP>   || TERP + O3P ----> 0.16000*RCHO +  0.04000*OLEA2 +  0.18000*KET2 +  0.01000*LVKS +  0.27000*OLEP +  0.18000*ALK3 +  0.08000*ALK4 +  0.08000*ALK5 + TRPRXN  ||   4.2400E-11 ||   4.2400E-11 ||   4.2400E-11 || || 
+|-
+||   612 || <SQOH>   || SESQ + OH ----> SESQ_OH +  0.05000*OH +  0.05000*HO2 +  0.47000*xHO2 +  0.77000*RO2C +  0.23000*RO2XC +  0.02000*xHCHO +  0.44000*xOLEA2 +  0.05000*OLEP +  0.02000*xOLEP +  0.03000*zRCNO3 +  0.18000*zRHNO3 +  0.84000*yRUOOH +  0.02000*HPCRB +  0.09000*yHPCRB + SumRO2 + SESQRXN  ||   2.0000E-10 ||   2.0000E-10 ||   2.0000E-10 || || 
+|-
+||   613 || <633>   || SESQ_OH ----> 0.07000*OH +  0.13000*HO2 +  0.01000*OLEP +  0.01000*zRPNO3 +  0.01000*OTHN +  0.12000*HPCRB  ||   5.5800E+00 ||   5.5800E+00 ||   5.5800E+00 || || 
+|-
+||   614 || <634>   || SESQ_OH + NO ----> NO +  0.08000*xHO2 +  0.32000*RO2C +  0.12000*RO2XC +  0.10000*xHCHO +  0.08000*xOLEA2 +  0.10000*xACET +  0.01000*zRCNO3 +  0.12000*zRHNO3 +  0.01000*yROOH +  0.24000*yRUOOH +  0.21000*yHPCRB +  0.44000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   615 || <SQO3>   || SESQ + O3 ----> SESQ_O3 +  0.66000*OH +  0.01000*HO2 +  0.19000*RO2C +  0.07000*RO2XC +  0.15000*xMACO3 +  0.33000*RCHO2 +  0.01000*HCHO +  0.15000*xHCHO +  0.01000*OLEP +  0.07000*zRCNO3 +  0.01000*HPCRB +  0.22000*yHPCRB +  0.26000*SumRO2 + SESQRXN  ||   3.1400E-16 ||   3.1400E-16 ||   3.1400E-16 || || 
+|-
+||   616 || <636>   || SESQ_O3 ----> 0.07000*OH +  0.36000*HO2 +  0.06000*OTHN +  0.01000*HPCRB  ||   4.3200E+00 ||   4.3200E+00 ||   4.3200E+00 || || 
+|-
+||   617 || <637>   || SESQ_O3 + NO ----> NO +  0.01000*xOH +  0.43000*RO2C +  0.17000*RO2XC +  0.17000*xMECO3 +  0.02000*xHCHO +  0.02000*xRCHO +  0.22000*xOLEA2 +  0.17000*zRCNO3 +  0.01000*xHPCRB +  0.51000*yHPCRB +  0.04000*CO +  0.60000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   618 || <SQN3>   || SESQ + NO3 ----> SESQ_N3 +  0.74000*xNO2 +  0.02000*OH +  0.82000*RO2C +  0.22000*RO2XC +  0.74000*xOLEA2 +  0.02000*RCNO3 +  0.01000*zRCNO3 + yRPNO3 +  0.21000*zRDNO3 +  1.04000*SumRO2 + SESQRXN  ||   1.9000E-11 ||   1.9000E-11 ||   1.9000E-11 || || 
+|-
+||   619 || <639>   || SESQ_N3 ----> 0.01000*OH +  0.01000*HO2 +  0.01000*RCNO3  ||   2.5300E+00 ||   2.5300E+00 ||   2.5300E+00 || || 
+|-
+||   620 || <640>   || SESQ_N3 + NO ----> NO +  0.04000*RO2C +  0.01000*RO2XC +  0.01000*zRCNO3 +  0.05000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   621 || <SQOP>   || SESQ + O3P ----> 0.13000*OLEA2 +  0.87000*OLEP + SESQRXN  ||   6.8500E-11 ||   6.8500E-11 ||   6.8500E-11 || || 
+|-
+||   622 || <BXOH>   || BENX + OH ----> 0.69000*HO2 +  0.28000*xHO2 +  0.28000*RO2C +  0.04000*RO2XC +  0.12000*OLEA2 +  0.28000*xGLY +  0.28000*xBUDAL +  0.57000*PHEN +  0.04000*zRANO3 +  0.31000*yRAOOH +  0.32000*SumRO2  ||   1.2100E-12 ||   1.2100E-12 ||   1.2100E-12 || || 
+|-
+||   623 || <B1OH>   || ARO1 + OH ----> 0.27000*HO2 +  0.48000*xHO2 +  0.75000*RO2C +  0.21000*RO2XC +  0.05000*xETO2 +  0.01000*xHCHO +  0.06000*xMECHO +  0.11000*xETCHO +  0.01000*xRCHO +  0.01000*OLEA1 +  0.13000*OLEA2 +  0.13000*xGLY +  0.13000*xMGLY +  0.13000*xBUDAL +  0.01000*xAFG1 +  0.12000*xAFG2A +  0.20000*xBALD +  0.12000*XYNL +  0.03000*zR1NO3 +  0.11000*zR2NO3 +  0.01000*zRHNO3 +  0.06000*zRANO3 +  0.64000*yROOH +  0.32000*yRAOOH +  0.04000*ARO1 +  3.11000*NROG +  0.96000*SumRO2 + TOLRO2  ||   7.6900E-12 ||   7.6900E-12 ||   7.6900E-12 || || 
+|-
+||   624 || <B2OH>   || ARO2 + OH ----> ARO2_OH +  0.29000*HO2 +  0.56000*xHO2 +  0.60000*RO2C +  0.14000*RO2XC +  0.03000*OLEA1 +  0.13000*OLEA2 +  0.07000*xGLY +  0.39000*xMGLY +  0.03000*xBACL +  0.03000*xBUDAL +  0.07000*xAFG1 +  0.30000*xAFG2A +  0.04000*xAFG2B +  0.04000*BALD +  0.03000*xBALD +  0.01000*xKET2 +  0.01000*LVKS +  0.04000*xAFG3 +  0.08000*XYNL +  0.02000*zR2NO3 +  0.01000*zRCNO3 +  0.11000*zRANO3 +  0.10000*yROOH +  0.59000*yRAOOH +  0.04000*yHPCRB +  0.03000*xBENX +  1.38000*NROG +  0.74000*SumRO2 + XYLRO2  ||   2.1300E-11 ||   2.1300E-11 ||   2.1300E-11 || || 
+|-
+||   625 || <645>   || ARO2_OH ----> 0.01000*HPCRB  ||   1.7600E-01 ||   1.7600E-01 ||   1.7600E-01 || || 
+|-
+||   626 || <646>   || ARO2_OH + NO ----> NO +  0.01000*RO2C +  0.01000*yHPCRB +  0.32000*NROG +  0.01000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   627 || <FUOH>   || FURNS + OH ----> 0.75000*HO2 +  0.24000*xHO2 +  0.24000*RO2C +  0.01000*RO2XC +  0.07000*xRCHO +  0.03000*xOLEA1 +  0.75000*BUDAL +  0.14000*xOLEP +  0.01000*zRHNO3 +  0.15000*yRUOOH +  0.01000*yHPCRB +  0.08000*CO +  0.25000*SumRO2  ||   3.8400E-11 ||   3.8400E-11 ||   3.8400E-11 || || 
+|-
+||   628 || <FUO3>   || FURNS + O3 ----> 0.39000*HO2 +  0.38000*xHO2 +  0.38000*RO2C +  0.01000*RO2XC +  0.40000*RCHO2 +  0.14000*OLEA1 +  0.05000*xGLY +  0.01000*zRCNO3 +  0.07000*HPCRB +  0.25000*yHPCRB +  0.33000*ALK1 +  0.19000*CO2 +  0.79000*CO +  0.39000*SumRO2  ||   2.4000E-18 ||   2.4000E-18 ||   2.4000E-18 || || 
+|-
+||   629 || <FUN3>   || FURNS + NO3 ----> 0.08000*xNO2 +  0.87000*xHO2 +  0.95000*RO2C +  0.05000*RO2XC +  0.07000*xOLEA1 +  0.01000*xOLEP +  0.87000*xRCNO3 +  0.63000*yRPNO3 +  0.05000*zRDNO3 +  0.28000*CO + SumRO2  ||   1.2000E-12 ||   1.2000E-12 ||   1.2000E-12 || || 
+|-
+||   630 || <STOH>   || STYRS + OH ----> 0.06000*HO2 +  0.79000*xHO2 +  0.79000*RO2C +  0.15000*RO2XC +  0.74000*xHCHO +  0.03000*OLEA2 +  0.02000*xGLY +  0.02000*xMGLY +  0.03000*xBUDAL +  0.02000*xAFG2A +  0.74000*xBALD +  0.02000*XYNL +  0.14000*zRHNO3 +  0.01000*zRANO3 +  0.88000*yROOH +  0.06000*yRAOOH +  0.94000*SumRO2 + XYLRO2  ||   5.8000E-11 ||   5.8000E-11 ||   5.8000E-11 || || 
+|-
+||   631 || <STO3>   || STYRS + O3 ----> 0.08000*OH +  0.17000*HO2 +  0.03000*RO2C +  0.03000*xBZO +  0.21000*HCHO2 +  0.34000*RCHO2 +  0.50000*HCHO +  0.50000*BALD +  0.05000*PHEN +  0.03000*yROOH +  0.09000*BENZ +  0.23000*CO2 +  0.22000*CO +  0.03000*SumRO2  ||   1.6000E-17 ||   1.6000E-17 ||   1.6000E-17 || || 
+|-
+||   632 || <AMOH>   || AMINS + OH ----> 0.02000*HO2 +  0.96000*xHO2 +  0.97000*RO2C +  0.02000*RO2XC +  0.01000*xMEO2 +  0.08000*xHCHO +  0.02000*RCHO +  0.02000*zR2NO3 +  0.99000*yROOH +  0.97000*xAMINS +  0.99000*SumRO2  ||   4.3500E-11 ||   4.3500E-11 ||   4.3500E-11 || || 
+|-
+||   633 || <AMO3>   || AMINS + O3 ----> 0.61000*AMINS + 29.54000*NROG  ||   3.0900E-18 ||   3.0900E-18 ||   3.0900E-18 || || 
+|-
+||   634 || <TAOH>   || TAMNS + OH ----> 0.06000*RO2C +  0.03000*xMEO2 +  0.03000*xHCHO +  0.06000*yROOH +  0.97000*PNAMIN +  0.03000*xAMINS +  0.06000*SumRO2  ||   1.0100E-11 ||   1.0100E-11 ||   1.0100E-11 || || 
+|-
+||   635 || <A4OH>   || RCHO + OH ----> 0.01000*OH +  0.01000*xOH +  0.10000*HO2 +  0.07000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC +  0.80000*R2CO3 +  0.04000*xHCHO +  0.01000*xMECHO +  0.06000*RCHO +  0.02000*xRCHO +  0.05000*MGLY +  0.01000*xACET +  0.03000*xPACID +  0.01000*zRCNO3 +  0.04000*yHPCRB +  0.01000*ALK4 +  0.14000*NROG +  0.01000*CO2 +  0.02000*CO +  0.10000*SumRO2 +  0.80000*SumRCO3  ||   3.2900E-11 ||   3.2900E-11 ||   3.2900E-11 || || 
+|-
+||   636 || <A4N3>   || RCHO + NO3 ----> HNO3 +  0.07000*HO2 +  0.01000*RO2C +  0.92000*R2CO3 +  0.04000*RCHO +  0.03000*MGLY +  0.01000*SumRO2 +  0.92000*SumRCO3  ||   2.2300E-14 ||   2.2300E-14 ||   2.2300E-14 || || 
+|-
+||   637 || <A4HV>   || RCHO ----> 1.40000*HO2 +  0.51000*xHO2 +  0.65000*RO2C +  0.04000*RO2XC +  0.01000*xETO2 +  0.05000*xMECO3 +  0.15000*xHCHO +  0.17000*MECHO +  0.05000*xMECHO +  0.05000*xETCHO +  0.01000*RCHO +  0.23000*xRCHO +  0.22000*GLCHO +  0.01000*xGLCHO +  0.01000*xMGLY +  0.07000*xACET +  0.01000*xMEK +  0.06000*xKET2 +  0.01000*zR1NO3 +  0.03000*zRHNO3 +  0.59000*yROOH +  0.08000*yHPCRB +  0.03000*ALK4 +  0.08000*NROG + CO +  0.69000*SumRO2  || <''C2CHOabs''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   638 || <A5OH>   || OLEA1 + OH ----> OLEA1_OH +  0.22000*HO2 +  0.26000*xHO2 +  0.59000*RO2C +  0.05000*RO2XC +  0.03000*MACO3 +  0.01000*xHCHO +  0.06000*RCHO +  0.05000*xGLY +  0.20000*xGLCHO +  0.05000*AFG1 +  0.03000*AFG2A +  0.08000*AFG2B +  0.17000*xKET2 +  0.02000*xPACID +  0.01000*HPCRB +  0.05000*yHPCRB +  0.65000*SumRO2 +  0.03000*SumRCO3  ||   5.0600E-11 ||   5.0600E-11 ||   5.0600E-11 || || 
+|-
+||   639 || <659>   || OLEA1_OH ----> 0.33000*xOH +  0.10000*HO2 +  0.20000*xKET2 +  0.19000*xPACID +  0.05000*zRCNO3 +  0.10000*HPCRB +  0.33000*CO2  ||   7.5200E-01 ||   7.5200E-01 ||   7.5200E-01 || || 
+|-
+||   640 || <660>   || OLEA1_OH + NO ----> NO +  0.42000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC +  0.09000*xGLY +  0.20000*xGLCHO +  0.48000*xMGLY +  0.09000*xHCOOH +  0.05000*zRHNO3 +  0.60000*yHPCRB +  0.04000*CO +  0.10000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   641 || <A5O3>   || OLEA1 + O3 ----> 0.62000*OH +  0.01000*xOH +  0.59000*HO2 +  0.02000*xHO2 +  0.12000*RO2C +  0.01000*MECO3 +  0.09000*xR2CO3 +  0.16000*RCHO2 +  0.04000*HCHO +  0.10000*xHCHO +  0.02000*MECHO +  0.42000*GLY +  0.06000*GLCHO +  0.81000*MGLY +  0.02000*KET2 +  0.10000*MEOH +  0.02000*HCOOH +  0.01000*OACID +  0.02000*xPACID +  0.08000*yHPCRB +  0.05000*ALK4 +  0.33000*CO2 +  0.11000*CO +  0.12000*SumRO2 +  0.01000*SumRCO3  ||   3.5000E-18 ||   3.5000E-18 ||   3.5000E-18 || || 
+|-
+||   642 || <A5N3>   || OLEA1 + NO3 ----> OLEA1_N3 +  0.56000*xNO2 +  0.04000*HNO3 +  0.22000*HO2 +  0.16000*xHO2 +  0.71000*RO2C +  0.06000*RO2XC +  0.01000*xHCHO +  0.03000*xGLY +  0.53000*xGLCHO +  0.02000*AFG1 +  0.01000*AFG2B +  0.03000*xKET2 +  0.22000*xPACID +  0.19000*RCNO3 +  0.01000*xRCNO3 +  0.02000*zRCNO3 +  0.15000*xRHNO3 +  0.17000*yRPNO3 +  0.02000*zRDNO3 +  0.15000*CO +  0.78000*SumRO2  ||   9.6400E-14 ||   9.6400E-14 ||   9.6400E-14 || || 
+|-
+||   643 || <663>   || OLEA1_N3 ----> 0.01000*AFG2B +  0.31000*xPACID +  0.03000*zRCNO3  ||   5.5100E+01 ||   5.5100E+01 ||   5.5100E+01 || || 
+|-
+||   644 || <664>   || OLEA1_N3 + NO ----> NO +  0.01000*RO2C +  0.31000*xMGLY +  0.34000*yRPNO3 +  0.03000*zRDNO3 +  0.01000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   645 || <A5HV>   || OLEA1 ----> 0.43000*OH +  0.01000*xOH +  0.49000*HO2 +  0.11000*xHO2 +  0.36000*RO2C +  0.02000*RO2XC +  0.10000*MEO2 +  0.13000*xMECO3 +  0.10000*xR2CO3 +  0.03000*MACO3 +  0.13000*xHCHO +  0.01000*xMECHO +  0.06000*xRCHO +  0.09000*GLCHO +  0.13000*xGLCHO +  0.06000*MGLY +  0.03000*AFG2A +  0.08000*AFG2B +  0.03000*KET2 +  0.04000*xKET2 +  0.01000*HCOOH +  0.01000*xPACID +  0.25000*OLEP +  0.02000*zRCNO3 +  0.01000*yROOH +  0.29000*yHPCRB +  0.02000*ALK4 +  0.01000*ALK5 +  0.05000*CO2 +  1.02000*CO +  0.48000*SumRO2 +  0.03000*SumRCO3  || <''MACR_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   646 || <A6OH>   || OLEA2 + OH ----> OLEA2_OH +  0.06000*OH +  0.09000*xOH +  0.05000*HO2 +  0.31000*xHO2 +  0.65000*RO2C +  0.13000*RO2XC +  0.01000*xMECO3 +  0.03000*xR2CO3 +  0.18000*MACO3 +  0.03000*xMACO3 +  0.22000*xHCHO +  0.31000*xRCHO +  0.02000*OLEA1 +  0.02000*OLEA2 +  0.02000*xGLY +  0.01000*xGLCHO +  0.01000*xMGLY +  0.08000*xKET2 +  0.01000*LVKS +  0.05000*MALAH +  0.12000*xPACID +  0.02000*OLEP +  0.11000*zRCNO3 +  0.01000*zRHNO3 +  0.04000*HPCRB +  0.47000*yHPCRB +  0.04000*CO2 +  0.09000*CO +  0.78000*SumRO2 +  0.18000*SumRCO3  ||   8.7800E-11 ||   8.7800E-11 ||   8.7800E-11 || || 
+|-
+||   647 || <667>   || OLEA2_OH ----> 0.04000*OH +  0.03000*xOH +  0.03000*HO2 +  0.02000*xKET2 +  0.05000*xPACID +  0.05000*HPCRB +  0.02000*CO2  ||   4.1400E+00 ||   4.1400E+00 ||   4.1400E+00 || || 
+|-
+||   648 || <668>   || OLEA2_OH + NO ----> NO +  0.06000*xHO2 +  0.07000*RO2C +  0.02000*RO2XC +  0.02000*xMECO3 +  0.01000*xR2CO3 +  0.02000*xHCHO +  0.05000*xRCHO +  0.03000*xMGLY +  0.01000*xACET +  0.01000*MALAH +  0.02000*zRCNO3 +  0.18000*yHPCRB +  0.02000*CO +  0.09000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   649 || <A6O3>   || OLEA2 + O3 ----> OLEA2_O3 +  0.52000*OH +  0.12000*HO2 +  0.08000*xHO2 +  0.35000*RO2C +  0.07000*RO2XC +  0.12000*xMECO3 +  0.13000*HCHO2 +  0.15000*RCHO2 +  0.29000*HCHO +  0.08000*xHCHO +  0.38000*RCHO +  0.11000*xRCHO +  0.16000*GLY +  0.01000*xGLY +  0.20000*MGLY +  0.01000*xPACID +  0.07000*zRCNO3 +  0.14000*yHPCRB +  0.14000*CO2 +  0.29000*CO +  0.43000*SumRO2  ||   1.6500E-17 ||   1.6500E-17 ||   1.6500E-17 || || 
+|-
+||   650 || <670>   || OLEA2_O3 ----> 0.15000*xOH +  0.03000*xBACL +  0.10000*xKET2 +  0.08000*xPACID +  0.05000*CO2  ||   1.5300E+00 ||   1.5300E+00 ||   1.5300E+00 || || 
+|-
+||   651 || <671>   || OLEA2_O3 + NO ----> NO +  0.02000*OH +  0.05000*xHO2 +  0.01000*RO2C +  0.01000*RO2XC +  0.07000*xR2CO3 +  0.01000*xRCHO +  0.03000*xGLY +  0.07000*xMGLY +  0.02000*KET2 +  0.01000*zRCNO3 +  0.24000*yHPCRB +  0.08000*CO +  0.02000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   652 || <A6N3>   || OLEA2 + NO3 ----> OLEA2_N3 +  0.09000*xNO2 +  0.28000*HNO3 +  0.13000*xOH +  0.20000*xHO2 +  1.17000*RO2C +  0.22000*RO2XC +  0.03000*xMECO3 +  0.14000*xR2CO3 +  0.07000*MACO3 +  0.07000*xMACO3 +  0.05000*xHCHO +  0.28000*xRCHO +  0.01000*xMGLY +  0.01000*xAFG3 +  0.05000*MALAH +  0.26000*xPACID +  0.32000*xRCNO3 +  0.21000*zRCNO3 +  0.02000*xRHNO3 +  0.07000*yRPNO3 +  0.01000*zRDNO3 +  0.02000*yHPCRB +  0.07000*CO2 +  0.03000*CO +  1.40000*SumRO2 +  0.07000*SumRCO3  ||   1.1900E-12 ||   1.1900E-12 ||   1.1900E-12 || || 
+|-
+||   653 || <673>   || OLEA2_N3 ----> 0.01000*NO2 +  0.02000*OH +  0.03000*xOH +  0.13000*xPACID +  0.01000*RCNO3 +  0.01000*HPCRB +  0.03000*CO2  ||   3.1700E+01 ||   3.1700E+01 ||   3.1700E+01 || || 
+|-
+||   654 || <674>   || OLEA2_N3 + NO ----> NO +  0.02000*xNO2 +  0.02000*xHO2 +  0.03000*RO2C +  0.01000*xMECO3 +  0.07000*xHCHO +  0.05000*xRCHO +  0.02000*xMGLY +  0.01000*xRCNO3 +  0.03000*yRPNO3 +  0.24000*yHPCRB +  0.07000*CO +  0.03000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   655 || <A6HV>   || OLEA2 ----> OLEA2_HV +  0.15000*OH +  0.01000*xOH +  1.04000*HO2 +  0.35000*xHO2 +  1.06000*RO2C +  0.26000*RO2XC +  0.04000*xMECO3 +  0.45000*xHCHO +  0.17000*xRCHO +  0.01000*OLEA2 +  0.06000*xOLEA2 +  0.19000*xMACR +  0.13000*xAFG2A +  0.01000*xAFG2B +  0.01000*xLVKS +  0.13000*OLEP +  0.24000*zRCNO3 +  0.02000*zRHNO3 +  0.07000*yRUOOH +  0.04000*HPCRB +  1.23000*yHPCRB +  1.11000*CO +  1.33000*SumRO2  || <''C2CHOabs''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   656 || <676>   || OLEA2_HV ----> 0.14000*OH +  0.02000*HO2 +  0.01000*AFG2A +  0.11000*HPCRB +  0.01000*CO2  ||   2.2200E+00 ||   2.2200E+00 ||   2.2200E+00 || || 
+|-
+||   657 || <677>   || OLEA2_HV + NO ----> NO +  0.09000*xHO2 +  0.22000*RO2C +  0.06000*RO2XC +  0.01000*xMECO3 +  0.04000*xHCHO +  0.03000*xOLEA2 +  0.03000*xLVKS +  0.05000*zRCNO3 +  0.01000*zRHNO3 +  0.01000*yRUOOH +  0.27000*yHPCRB +  0.28000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   658 || <K5OH>   || KET2 + OH ----> 0.56000*HO2 +  0.16000*xHO2 +  0.45000*RO2C +  0.07000*RO2XC +  0.02000*MECO3 +  0.05000*xMECO3 +  0.01000*R2CO3 +  0.12000*xR2CO3 +  0.02000*HCHO +  0.14000*xHCHO +  0.09000*xMECHO +  0.01000*xETCHO +  0.13000*RCHO +  0.16000*xRCHO +  0.37000*MGLY +  0.01000*xACET +  0.07000*KET2 +  0.03000*xKET2 +  0.07000*zRCNO3 +  0.50000*yHPCRB +  0.52000*SumRO2 +  0.02000*SumRCO3  ||   9.5600E-12 ||   9.5600E-12 ||   9.5600E-12 || || 
+|-
+||   659 || <K5HV>   || KET2 ----> 0.37000*HO2 +  0.30000*xHO2 +  0.37000*RO2C +  0.02000*RO2XC +  0.09000*MEO2 +  0.13000*ETO2 +  0.51000*MECO3 +  0.40000*R2CO3 +  0.36000*HCHO +  0.03000*xHCHO +  0.02000*xMECHO +  0.04000*xETCHO +  0.26000*xRCHO +  0.02000*zRHNO3 +  0.39000*yROOH +  0.08000*ALK4 +  0.01000*ALK5 +  0.09000*CO +  0.61000*SumRO2 +  0.91000*SumRCO3  ||   7.5300E-02<''MEK_06''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   660 || <K6OH>   || LVKS + OH ----> LVKS_OH +  0.22000*HO2 +  0.04000*xHO2 +  0.39000*RO2C +  0.03000*RO2XC +  0.13000*MECO3 +  0.09000*xMECO3 +  0.25000*xR2CO3 +  0.04000*xHCHO +  0.20000*RCHO +  0.09000*xRCHO +  0.13000*OLEA1 +  0.01000*MGLY +  0.04000*xBACL +  0.25000*xKET2 +  0.03000*zRCNO3 +  0.36000*yHPCRB +  0.42000*SumRO2 +  0.13000*SumRCO3  ||   6.0900E-11 ||   6.0900E-11 ||   6.0900E-11 || || 
+|-
+||   661 || <681>   || LVKS_OH ----> 0.23000*OH +  0.01000*HO2 +  0.23000*HPCRB  ||   4.6800E-01 ||   4.6800E-01 ||   4.6800E-01 || || 
+|-
+||   662 || <682>   || LVKS_OH + NO ----> NO +  0.01000*xOH +  0.09000*xHO2 +  0.21000*RO2C +  0.04000*RO2XC +  0.10000*xMECO3 +  0.09000*xRCHO +  0.01000*xBACL +  0.01000*xAFG2B +  0.01000*xPACID +  0.04000*zRCNO3 +  0.09000*xHPCRB +  0.23000*yHPCRB +  0.01000*CO +  0.25000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   663 || <K6O3>   || LVKS + O3 ----> LVKS_O3 +  0.53000*OH +  0.38000*HO2 +  0.02000*xHO2 +  0.18000*RO2C +  0.01000*RO2XC +  0.01000*MECO3 +  0.09000*xMECO3 +  0.01000*xR2CO3 +  0.13000*HCHO2 +  0.13000*RCHO2 +  0.03000*HCHO +  0.02000*xHCHO +  0.01000*MECHO +  0.03000*RCHO +  0.01000*xGLY +  0.59000*MGLY +  0.01000*xMGLY +  0.32000*BACL +  0.01000*xBACL +  0.06000*KET2 +  0.03000*HCOOH +  0.01000*OACID +  0.02000*xPACID +  0.01000*zRCNO3 +  0.04000*yHPCRB +  0.40000*CO2 +  0.30000*CO +  0.19000*SumRO2 +  0.01000*SumRCO3  ||   3.0400E-17 ||   3.0400E-17 ||   3.0400E-17 || || 
+|-
+||   664 || <684>   || LVKS_O3 ----> 0.02000*OH +  0.01000*xOH +  0.04000*xMECO3 +  0.12000*xPACID +  0.01000*CO2  ||   5.1300E+00 ||   5.1300E+00 ||   5.1300E+00 || || 
+|-
+||   665 || <685>   || LVKS_O3 + NO ----> NO +  0.05000*xHO2 +  0.02000*RO2C +  0.01000*RO2XC +  0.02000*xHCHO +  0.10000*xMGLY +  0.01000*zRCNO3 +  0.13000*yHPCRB +  0.02000*CO +  0.03000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   666 || <K6HV>   || LVKS ----> 0.06000*xOH +  0.14000*HO2 +  0.12000*RO2C +  0.03000*RO2XC +  0.26000*MEO2 +  0.06000*xMECO3 +  0.25000*MACO3 +  0.14000*HCHO +  0.06000*xMGLY +  0.06000*MALAH +  0.06000*xPACID +  0.60000*OLEP +  0.03000*zRCNO3 +  0.60000*CO +  0.41000*SumRO2 +  0.25000*SumRCO3  || <''MVK_16''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   667 || <O5OH>   || OLEP + OH ----> OLEP_OH +  0.01000*OH +  0.13000*HO2 +  0.55000*xHO2 +  0.65000*RO2C +  0.14000*RO2XC +  0.02000*xHCHO +  0.53000*xRCHO +  0.11000*OLEA1 +  0.01000*xBACL +  0.02000*xKET2 +  0.01000*xMVK +  0.01000*OLEP +  0.14000*zRCNO3 +  0.03000*yROOH +  0.01000*yRUOOH +  0.01000*HPCRB +  0.74000*yHPCRB +  0.80000*SumRO2  ||   8.3400E-11 ||   8.3400E-11 ||   8.3400E-11 || || 
+|-
+||   668 || <688>   || OLEP_OH ----> 0.05000*OH +  0.01000*xOH +  0.10000*HO2 +  0.12000*HPCRB +  0.01000*CO2  ||   2.3000E+00 ||   2.3000E+00 ||   2.3000E+00 || || 
+|-
+||   669 || <689>   || OLEP_OH + NO ----> NO +  0.07000*xHO2 +  0.25000*RO2C +  0.03000*RO2XC +  0.06000*xMECO3 +  0.11000*xHCHO +  0.06000*xGLCHO +  0.02000*xMGLY +  0.03000*xKET2 +  0.02000*zRCNO3 +  0.01000*zRHNO3 +  0.07000*yRUOOH +  0.14000*yHPCRB +  0.04000*CO +  0.28000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   670 || <O5O3>   || OLEP + O3 ----> OLEP_O3 +  0.61000*OH +  0.05000*HO2 +  0.08000*xHO2 +  0.33000*RO2C +  0.09000*RO2XC +  0.04000*xMECO3 +  0.11000*xR2CO3 +  0.06000*HCHO2 +  0.23000*RCHO2 +  0.14000*HCHO +  0.14000*xHCHO +  0.08000*RCHO +  0.09000*xRCHO +  0.02000*xGLY +  0.13000*KET2 +  0.09000*zRCNO3 +  0.35000*yHPCRB +  0.03000*ALK2 +  0.09000*CO2 +  0.18000*CO +  0.41000*SumRO2  ||   1.5000E-16 ||   1.5000E-16 ||   1.5000E-16 || || 
+|-
+||   671 || <691>   || OLEP_O3 ----> 0.17000*OH +  0.04000*HO2 +  0.01000*KET2 +  0.17000*HPCRB  ||   9.3600E-01 ||   9.3600E-01 ||   9.3600E-01 || || 
+|-
+||   672 || <692>   || OLEP_O3 + NO ----> NO +  0.17000*RO2C +  0.06000*RO2XC +  0.15000*xMECO3 +  0.01000*xR2CO3 +  0.15000*xRCHO +  0.06000*zRCNO3 +  0.18000*yHPCRB +  0.22000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   673 || <O5N3>   || OLEP + NO3 ----> 0.74000*xNO2 +  0.08000*xHO2 +  0.88000*RO2C +  0.16000*RO2XC +  0.01000*xMECO3 +  0.18000*xHCHO +  0.64000*xRCHO +  0.11000*xKET2 +  0.09000*xRCNO3 +  0.14000*zRCNO3 +  0.28000*yRPNO3 +  0.02000*zRDNO3 +  0.01000*yHPCRB +  1.04000*SumRO2  ||   8.5000E-12 ||   8.5000E-12 ||   8.5000E-12 || || 
+|-
+||   674 || <OAOH>   || OACID + OH ----> 0.30000*xHO2 +  0.30000*RO2C +  0.70000*MEO2 +  0.02000*xHCHO +  0.28000*xMGLY +  0.26000*yHPCRB +  0.72000*CO2 + SumRO2  ||   7.4700E-13 ||   7.4700E-13 ||   7.4700E-13 || || 
+|-
+||   675 || <PAOH>   || PACID + OH ----> 0.19000*xOH +  0.56000*xHO2 +  0.74000*RO2C +  0.26000*MECO3 +  0.19000*xHCHO +  0.56000*xPACID +  0.19000*CO2 +  0.74000*SumRO2 +  0.26000*SumRCO3  ||   3.0000E-14 ||   3.0000E-14 ||   3.0000E-14 || || 
+|-
+||   676 || <PAHV>   || PACID ----> OH + MEO2 + CO2 + SumRO2  || <''PAA''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   677 || <MGOH>   || MGLY + OH ----> 0.01000*xHO2 +  0.01000*RO2C +  0.99000*MECO3 +  0.01000*xHCHO +  0.01000*xPACID + CO +  0.01000*SumRO2 +  0.99000*SumRCO3  ||   1.1900E-11 ||   1.1900E-11 ||   1.1900E-11 || || 
+|-
+||   678 || <MGN3>   || MGLY + NO3 ----> HNO3 + MECO3 + CO + SumRCO3  ||   5.0000E-16 ||   5.0000E-16 ||   5.0000E-16 || || 
+|-
+||   679 || <MGHV>   || MGLY ----> HO2 + MECO3 + CO + SumRCO3  || <''MGLY_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   680 || <BAHV>   || BACL ----> 2.00000*MECO3 +  2.00000*SumRCO3  || <''BACL_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   681 || <CROH>   || CRES + OH ----> 0.84000*HO2 +  0.11000*xHO2 +  0.11000*RO2C +  0.02000*RO2XC +  0.03000*BZO +  0.02000*OLEA1 +  0.08000*OLEA2 +  0.02000*xGLY +  0.05000*xMGLY +  0.03000*xBACL +  0.03000*xBUDAL +  0.01000*xAFG1 +  0.05000*xAFG2A +  0.02000*xAFG2B +  0.01000*xBALD +  0.17000*LVKS +  0.14000*OLEP +  0.42000*CATL +  0.02000*zRANO3 +  0.02000*yROOH +  0.12000*yRAOOH +  0.13000*SumRO2  ||   4.6500E-11 ||   4.6500E-11 ||   4.6500E-11 || || 
+|-
+||   682 || <CRN3>   || CRES + NO3 ----> HNO3 + BZO  ||   1.2700E-11 ||   1.2700E-11 ||   1.2700E-11 || || 
+|-
+||   683 || <XLOH>   || XYNL + OH ----> 0.78000*HO2 +  0.16000*xHO2 +  0.17000*RO2C +  0.04000*RO2XC +  0.02000*BZO +  0.02000*OLEA1 +  0.06000*OLEA2 +  0.01000*xGLY +  0.04000*xMGLY +  0.10000*xBACL +  0.01000*xBUDAL +  0.01000*xAFG1 +  0.09000*xAFG2A +  0.03000*xAFG2B +  0.01000*xBALD +  0.26000*LVKS +  0.01000*xAFG3 +  0.16000*OLEP +  0.01000*XYNL +  0.27000*CATL +  0.03000*zRANO3 +  0.02000*yROOH +  0.18000*yRAOOH +  0.20000*SumRO2  ||   6.7300E-11 ||   6.7300E-11 ||   6.7300E-11 || || 
+|-
+||   684 || <XLN3>   || XYNL + NO3 ----> HNO3 + BZO  ||   3.0900E-11 ||   3.0900E-11 ||   3.0900E-11 || || 
+|-
+||   685 || <CAOH>   || CATL + OH ----> 0.96000*HO2 +  0.03000*xHO2 +  0.03000*RO2C +  0.01000*RO2XC +  0.01000*BZO +  0.01000*OLEA1 +  0.02000*OLEA2 +  0.02000*xBACL +  0.02000*xAFG2A +  0.73000*LVKS +  0.06000*OLEP +  0.12000*CATL3 +  0.01000*zRANO3 +  0.03000*yRAOOH +  0.03000*SumRO2  ||   1.5600E-10 ||   1.5600E-10 ||   1.5600E-10 || || 
+|-
+||   686 || <CAN3>   || CATL + NO3 ----> HNO3 + BZO  ||   4.0400E-11 ||   4.0400E-11 ||   4.0400E-11 || || 
+|-
+||   687 || <N4OH>   || RCNO3 + OH ----> RCNO3_OH +  0.34000*NO2 +  0.10000*xNO2 +  0.02000*OH +  0.01000*xOH +  0.05000*HO2 +  0.13000*xHO2 +  0.49000*RO2C +  0.07000*RO2XC +  0.05000*xMECO3 +  0.07000*R2CO3 +  0.08000*xR2CO3 +  0.03000*MACO3 +  0.13000*xHCHO +  0.05000*xMECHO +  0.05000*RCHO +  0.05000*xRCHO +  0.01000*xGLY +  0.05000*MGLY +  0.02000*xACET +  0.12000*KET2 +  0.01000*xKET2 +  0.01000*PACID +  0.04000*xPACID +  0.04000*OLEP +  0.07000*RCNO3 +  0.21000*xRCNO3 +  0.07000*zRCNO3 +  0.03000*yRPNO3 +  0.03000*yHPCRB +  0.06000*ALK2 +  4.74000*NROG +  0.01000*CO2 +  0.01000*CO +  0.56000*SumRO2 +  0.09000*SumRCO3  ||   2.0600E-11 ||   2.0600E-11 ||   2.0600E-11 || || 
+|-
+||   688 || <708>   || RCNO3_OH ----> 0.05000*HO2 +  0.01000*xPACID +  0.05000*RCNO3  ||   2.7600E+00 ||   2.7600E+00 ||   2.7600E+00 || || 
+|-
+||   689 || <709>   || RCNO3_OH + NO ----> NO +  0.01000*xHO2 +  0.07000*RO2C +  0.02000*RO2XC +  0.03000*xR2CO3 +  0.03000*xHCHO +  0.01000*xGLY +  0.04000*xRCNO3 +  0.02000*zRCNO3 +  0.01000*yRPNO3 +  0.02000*yHPCRB +  0.09000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   690 || <N4HV>   || RCNO3 ----> RCNO3_HV +  0.77000*NO2 +  0.04000*xNO2 +  0.01000*xOH +  0.38000*HO2 +  0.19000*xHO2 +  0.53000*RO2C +  0.10000*RO2XC +  0.07000*ETO2 +  0.11000*MECO3 +  0.04000*R2CO3 +  0.03000*xR2CO3 +  0.11000*HCHO +  0.02000*xHCHO +  0.05000*MECHO +  0.02000*RCHO +  0.07000*xRCHO +  0.09000*OLEA2 +  0.03000*MACR +  0.04000*AFG2A +  0.07000*xACET +  0.04000*xKET2 +  0.04000*OACID +  0.03000*xOACID +  0.02000*PACID +  0.04000*xPACID +  0.02000*xRCNO3 +  0.08000*zRCNO3 +  0.03000*xRHNO3 +  0.17000*yRPNO3 +  0.02000*zRDNO3 +  0.22000*yHPCRB +  8.77000*NROG +  0.01000*CO2 +  0.34000*CO +  0.71000*SumRO2 +  0.14000*SumRCO3  || <''CRBNIT''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   691 || <711>   || RCNO3_HV ----> 0.25000*HO2 +  0.06000*PACID +  0.02000*xPACID +  0.06000*RCNO3 +  0.02000*RPNO3 +  0.10000*HPCRB  ||   3.1500E-01 ||   3.1500E-01 ||   3.1500E-01 || || 
+|-
+||   692 || <712>   || RCNO3_HV + NO ----> NO +  0.05000*xOH +  0.06000*xHO2 +  0.21000*RO2C +  0.04000*RO2XC +  0.05000*xMECO3 +  0.05000*xR2CO3 +  0.01000*xHCHO +  0.14000*xRCHO +  0.01000*xMGLY +  0.04000*zRCNO3 +  0.07000*xRHNO3 +  0.02000*yRPNO3 +  0.14000*yHPCRB +  0.05000*CO2 +  0.02000*CO +  0.25000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   693 || <N3OH>   || RHNO3 + OH ----> 0.60000*NO2 +  0.08000*HO2 +  0.26000*xHO2 +  0.30000*RO2C +  0.05000*RO2XC +  0.07000*xHCHO +  0.03000*xGLCHO +  0.01000*KET2 +  0.07000*xKET2 +  0.01000*LVKS +  0.08000*RCNO3 +  0.21000*xRCNO3 +  0.05000*xRHNO3 +  0.34000*yRPNO3 +  0.05000*zRDNO3 +  0.02000*ALK4 +  0.56000*ALK5 +  0.35000*SumRO2  ||   3.8000E-11 ||   3.8000E-11 ||   3.8000E-11 || || 
+|-
+||   694 || <N3HV>   || RHNO3 ----> NO2 +  0.94000*HO2 +  0.03000*xHO2 +  0.09000*RO2C +  0.02000*RO2XC +  0.74000*HCHO +  0.02000*xHCHO +  0.02000*MECHO +  0.06000*OLEA1 +  0.06000*OLEA2 +  0.02000*xOLEA2 +  0.32000*MACR +  0.02000*ACET +  0.03000*KET2 +  0.37000*MVK +  0.02000*OLEP +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.05000*yRUOOH +  0.01000*HPCRB +  0.05000*yHPCRB +  0.07000*FURNS +  0.11000*SumRO2  || <''IC3ONO2''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   695 || <N5OH>   || RANO3 + OH ----> 0.42000*NO2 +  0.58000*HO2 +  0.02000*AFG2A +  0.01000*OLEP +  0.47000*RCNO3 +  0.11000*RHNO3 +  0.01000*ALK5 +  0.37000*ALK6  ||   4.4900E-11 ||   4.4900E-11 ||   4.4900E-11 || || 
+|-
+||   696 || <N5HV>   || RANO3 ----> 0.66000*RCNO3 +  0.34000*RHNO3  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   697 || <N6OH>   || RPNO3 + OH ----> RPNO3_OH +  0.01000*zRNNO3 +  0.37000*NO2 +  0.07000*xNO2 +  0.19000*OH +  0.12000*HO2 +  0.11000*xHO2 +  0.23000*RO2C +  0.05000*RO2XC +  0.10000*xHCHO +  0.04000*xOLEA1 +  0.01000*xOLEA2 +  0.03000*xKET2 +  0.02000*xMVK +  0.03000*RCNO3 +  0.10000*xRCNO3 +  0.16000*RHNO3 +  0.12000*RPNO3 +  0.01000*xRPNO3 +  0.14000*yRPNO3 +  0.03000*zRDNO3 +  0.32000*ROOH +  0.05000*HPCRB +  0.01000*xHPCRB +  0.28000*SumRO2  ||   5.1900E-11 ||   5.1900E-11 ||   5.1900E-11 || || 
+|-
+||   698 || <718>   || RPNO3_OH ----> 0.03000*NO2 +  0.05000*OH +  0.02000*HO2 +  0.05000*RCNO3 +  0.01000*RPNO3 +  0.03000*HPCRB  ||   4.7700E-01 ||   4.7700E-01 ||   4.7700E-01 || || 
+|-
+||   699 || <719>   || RPNO3_OH + NO ----> NO +  0.03000*xNO2 +  0.05000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC +  0.02000*xHCHO +  0.03000*xGLY +  0.02000*xOLEP +  0.03000*xRCNO3 +  0.02000*xRPNO3 +  0.10000*yRPNO3 +  0.01000*zRDNO3 +  0.02000*xHPCRB +  0.11000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   700 || <N6HV>   || RPNO3 ----> RPNO3_HV +  0.81000*NO2 + OH +  0.14000*HO2 +  0.01000*RO2C +  0.63000*HCHO +  0.43000*OLEA1 +  0.10000*OLEA2 +  0.12000*MVK +  0.15000*OLEP +  0.14000*RCNO3 +  0.01000*yRPNO3 +  0.01000*SumRO2  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   701 || <721>   || RPNO3_HV ----> 0.03000*NO2 +  0.01000*HO2 +  0.01000*RPNO3 +  0.03000*HPCRB  ||   1.1100E+00 ||   1.1100E+00 ||   1.1100E+00 || || 
+|-
+||   702 || <722>   || RPNO3_HV + NO ----> NO +  0.04000*xHO2 +  0.05000*RO2C +  0.01000*RO2XC +  0.03000*xHCHO +  0.03000*xRCNO3 +  0.01000*xRHNO3 +  0.05000*yRPNO3 +  0.05000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   703 || <NDOH>   || RDNO3 + OH ----> 0.53000*NO2 +  0.04000*xNO2 +  0.01000*HO2 +  0.25000*xHO2 +  0.60000*RO2C +  0.15000*RO2XC +  0.20000*xHCHO +  0.03000*xACET +  0.10000*xKET2 +  0.02000*RCNO3 +  0.25000*xRCNO3 +  0.01000*zRCNO3 +  0.52000*RHNO3 +  0.05000*xRDNO3 +  0.13000*zRDNO3 +  0.01000*CO +  0.75000*SumRO2  ||   3.6000E-11 ||   3.6000E-11 ||   3.6000E-11 || || 
+|-
+||   704 || <NDHV>   || RDNO3 ----> RDNO3_HV +  1.86000*NO2 +  0.03000*HO2 +  0.01000*xHO2 +  0.08000*RO2C +  0.03000*RO2XC +  0.01000*xR2CO3 +  0.30000*HCHO +  0.21000*OLEA1 +  0.35000*OLEA2 +  0.02000*xACET +  0.05000*KET2 +  0.25000*MVK +  0.03000*RCNO3 +  0.01000*xRCNO3 +  0.03000*zRCNO3 +  0.11000*SumRO2  || <''DIONO2''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   705 || <725>   || RDNO3_HV ----> 0.04000*NO2 +  0.02000*HO2 +  0.02000*RPNO3 +  0.04000*HPCRB  ||   1.0900E+00 ||   1.0900E+00 ||   1.0900E+00 || || 
+|-
+||   706 || <726>   || RDNO3_HV + NO ----> NO +  0.06000*xHO2 +  0.06000*RO2C +  0.01000*RO2XC +  0.04000*xHCHO +  0.04000*xRCNO3 +  0.02000*xRHNO3 +  0.06000*yRPNO3 +  0.01000*zRDNO3 +  0.07000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   707 || <N1OH>   || R1NO3 + OH ----> 0.17000*NO2 +  0.41000*xNO2 +  0.01000*HO2 +  0.29000*xHO2 +  0.99000*RO2C +  0.12000*RO2XC +  0.10000*xHCHO +  0.29000*xMECHO +  0.05000*xETCHO +  0.02000*xRCHO +  0.05000*ACET +  0.25000*xACET +  0.05000*MEK +  0.04000*xMEK +  0.07000*KET2 +  0.05000*xKET2 +  0.19000*xRCNO3 +  0.10000*xRHNO3 +  0.01000*RPNO3 +  1.12000*yRPNO3 +  0.12000*zRDNO3 +  1.12000*SumRO2  ||   1.4700E-12 ||   1.4700E-12 ||   1.4700E-12 || || 
+|-
+||   708 || <N1HV>   || R1NO3 ----> NO2 +  0.19000*HO2 +  0.38000*xHO2 +  0.45000*RO2C +  0.06000*RO2XC +  0.32000*ETO2 +  0.04000*TBUO +  0.01000*xTBUO +  0.05000*xHCHO +  0.12000*MECHO +  0.03000*ETCHO +  0.03000*xETCHO +  0.02000*xRCHO +  0.34000*ACET +  0.12000*xACET +  0.11000*MEK +  0.05000*KET2 +  0.22000*xKET2 +  0.01000*zR1NO3 +  0.06000*zRHNO3 +  0.51000*yROOH +  0.83000*SumRO2  || <''IC3ONO2''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   709 || <N2OH>   || R2NO3 + OH ----> 0.06000*NO2 +  0.12000*xNO2 +  0.01000*HO2 +  0.52000*xHO2 +  1.12000*RO2C +  0.29000*RO2XC +  0.06000*xRCHO +  0.04000*KET2 +  0.07000*xKET2 +  0.01000*RCNO3 +  0.49000*xRCNO3 +  0.01000*zRCNO3 +  0.03000*xRHNO3 +  1.36000*yRPNO3 +  0.29000*zRDNO3 +  0.01000*HPCRB +  0.01000*CO +  1.42000*SumRO2  ||   2.5100E-11 ||   2.5100E-11 ||   2.5100E-11 || || 
+|-
+||   710 || <N2HV>   || R2NO3 ----> R2NO3_HV + NO2 +  0.10000*HO2 +  0.46000*xHO2 +  0.74000*RO2C +  0.21000*RO2XC +  0.05000*xMACO3 +  0.04000*xRCHO +  0.08000*KET2 +  0.37000*xKET2 +  0.04000*xMVK +  0.03000*xPACID +  0.07000*zRCNO3 +  0.14000*zRHNO3 +  0.51000*yROOH +  0.02000*HPCRB +  0.36000*yHPCRB +  0.01000*CO +  0.95000*SumRO2  || <''IC3ONO2''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   711 || <731>   || R2NO3_HV ----> 0.09000*OH +  0.09000*HO2 +  0.07000*PACID +  0.03000*xPACID +  0.10000*HPCRB  ||   9.6900E-01 ||   9.6900E-01 ||   9.6900E-01 || || 
+|-
+||   712 || <732>   || R2NO3_HV + NO ----> NO +  0.13000*xHO2 +  0.22000*RO2C +  0.05000*RO2XC +  0.03000*xHCHO +  0.11000*xRCHO +  0.04000*xOLEA2 +  0.03000*zRCNO3 +  0.02000*zRHNO3 +  0.29000*yHPCRB +  0.01000*CO +  0.27000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   713 || <H4OH>   || RAOOH + OH ----> 0.76000*OH +  0.17000*HO2 +  0.06000*xHO2 +  0.06000*RO2C +  0.01000*RO2XC +  0.31000*RCHO +  0.02000*xGLY +  0.04000*xMGLY +  0.02000*xBUDAL +  0.02000*AFG2A +  0.03000*xAFG2A +  0.01000*KET2 +  0.03000*OLEP +  0.01000*zRANO3 +  0.07000*yRAOOH +  0.17000*HPCRB +  0.01000*ALK5 +  0.37000*ALK6 +  0.07000*SumRO2  ||   8.2700E-11 ||   8.2700E-11 ||   8.2700E-11 || || 
+|-
+||   714 || <H4HV>   || RAOOH ----> HPCRB  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   715 || <H3OH>   || RUOOH + OH ----> RUOOH_OH +  0.63000*OH +  0.08000*HO2 +  0.10000*xHO2 +  0.11000*RO2C +  0.01000*RO2XC +  0.08000*xHCHO +  0.03000*xMACR +  0.05000*xMVK +  0.02000*LVKS +  0.01000*zRHNO3 +  0.01000*yROOH +  0.10000*yRUOOH +  0.08000*HPCRB +  0.01000*xHPCRB +  0.02000*ALK4 +  0.59000*ALK5 +  0.01000*xFURNS +  0.12000*SumRO2  ||   5.9700E-11 ||   5.9700E-11 ||   5.9700E-11 || || 
+|-
+||   716 || <736>   || RUOOH_OH ----> 0.06000*OH +  0.12000*HO2 +  0.17000*HPCRB  ||   1.2800E-02 ||   1.2800E-02 ||   1.2800E-02 || || 
+|-
+||   717 || <737>   || RUOOH_OH + NO ----> NO +  0.16000*xHO2 +  0.16000*RO2C +  0.01000*RO2XC +  0.03000*xHCHO +  0.03000*xGLCHO +  0.05000*xKET2 +  0.01000*zRPNO3 +  0.17000*yROOH +  0.16000*xHPCRB +  0.17000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   718 || <H3HV>   || RUOOH ----> OH +  0.99000*HO2 +  0.02000*RO2C +  0.86000*HCHO +  0.04000*OLEA1 +  0.39000*MACR +  0.01000*KET2 +  0.46000*MVK +  0.01000*OLEP +  0.01000*yRUOOH +  0.01000*yHPCRB +  0.09000*FURNS +  0.02000*SumRO2  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   719 || <H5OH>   || HPCRB + OH ----> HPCRB_OH +  0.50000*OH +  0.01000*HO2 +  0.03000*xHO2 +  0.03000*RO2C +  0.03000*xHCHO +  0.35000*RCHO +  0.01000*OLEA1 +  0.02000*AFG1 +  0.03000*xPACID +  0.13000*OLEP +  0.01000*HPCRB +  0.03000*SumRO2  ||   5.4000E-11 ||   5.4000E-11 ||   5.4000E-11 || || 
+|-
+||   720 || <740>   || HPCRB_OH ----> 0.44000*OH +  0.02000*HO2 +  0.01000*AFG2B +  0.01000*PACID +  0.08000*OLEP +  0.36000*HPCRB  ||   6.3700E-01 ||   6.3700E-01 ||   6.3700E-01 || || 
+|-
+||   721 || <741>   || HPCRB_OH + NO ----> NO +  0.42000*xHO2 +  0.43000*RO2C +  0.04000*RO2XC +  0.01000*xHCHO +  0.05000*xGLY +  0.01000*xGLCHO +  0.24000*xMGLY +  0.05000*xAFG2B +  0.01000*xPACID +  0.01000*zRCNO3 +  0.03000*zRPNO3 +  0.34000*xHPCRB +  0.45000*yHPCRB +  0.04000*CO +  0.47000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   722 || <H5HV>   || HPCRB ----> OH +  0.01000*xOH +  0.90000*HO2 +  0.08000*xHO2 +  0.09000*RO2C +  0.01000*RO2XC +  0.11000*HCHO +  0.06000*xHCHO +  0.11000*OLEA1 +  0.05000*AFG1 +  0.21000*AFG2A +  0.53000*AFG2B +  0.02000*xAFG2B +  0.01000*xLVKS +  0.06000*xPACID +  0.01000*zRCNO3 +  0.01000*CO2 +  0.10000*SumRO2  ||   1.0000E-01<''HPALDS''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   723 || <H2OH>   || ROOH + OH ----> ROOH_OH +  0.19000*OH +  0.03000*xOH +  0.22000*HO2 +  0.37000*xHO2 +  0.56000*RO2C +  0.04000*RO2XC +  0.07000*xETO2 +  0.02000*xTBUO +  0.01000*HCHO +  0.35000*xHCHO +  0.11000*xMECHO +  0.01000*xETCHO +  0.01000*RCHO +  0.01000*xRCHO +  0.06000*GLCHO +  0.04000*xGLCHO +  0.02000*ACET +  0.15000*xACET +  0.02000*MEK +  0.02000*xMEK +  0.08000*KET2 +  0.04000*xKET2 +  0.02000*zR1NO3 +  0.01000*zRHNO3 +  0.01000*zRPNO3 +  0.59000*yROOH +  0.22000*HPCRB +  0.01000*yHPCRB +  0.60000*SumRO2  ||   1.1600E-11 ||   1.1600E-11 ||   1.1600E-11 || || 
+|-
+||   724 || <744>   || ROOH_OH ----> 0.04000*OH +  0.01000*HO2 +  0.05000*HPCRB  ||   6.7800E-02 ||   6.7800E-02 ||   6.7800E-02 || || 
+|-
+||   725 || <745>   || ROOH_OH + NO ----> NO +  0.03000*xOH +  0.01000*xHO2 +  0.05000*RO2C +  0.01000*RO2XC +  0.01000*xHCHO +  0.03000*xMECHO +  0.01000*xETCHO +  0.01000*xRCHO +  0.01000*xACET +  0.01000*zRPNO3 +  0.06000*yROOH +  0.01000*xHPCRB +  0.06000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   726 || <H2HV>   || ROOH ----> OH +  0.74000*HO2 +  0.09000*xHO2 +  0.13000*RO2C +  0.02000*RO2XC +  0.12000*ETO2 +  0.02000*TBUO +  0.77000*HCHO +  0.25000*MECHO +  0.01000*ETCHO +  0.01000*xETCHO +  0.01000*xRCHO +  0.10000*GLCHO +  0.18000*ACET +  0.03000*xACET +  0.04000*MEK +  0.06000*KET2 +  0.05000*xKET2 +  0.01000*zRCNO3 +  0.01000*zRHNO3 +  0.10000*yROOH +  0.03000*yHPCRB +  0.27000*SumRO2  || <''COOH''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   727 || <F2OH>   || AFG1 + OH ----> AFG1_OH +  0.43000*OH +  0.02000*HO2 +  0.19000*xHO2 +  0.19000*RO2C +  0.02000*RO2XC +  0.18000*xGLY +  0.41000*MALAH +  0.03000*xPACID +  0.03000*HPCRB +  0.01000*CO +  0.21000*SumRO2  ||   3.3900E-11 ||   3.3900E-11 ||   3.3900E-11 || || 
+|-
+||   728 || <748>   || AFG1_OH ----> 0.02000*OH +  0.33000*HO2 +  0.02000*PACID +  0.16000*xPACID +  0.02000*zRCNO3 +  0.33000*HPCRB  ||   1.3100E+01 ||   1.3100E+01 ||   1.3100E+01 || || 
+|-
+||   729 || <749>   || AFG1_OH + NO ----> NO +  0.30000*xHO2 +  0.32000*RO2C +  0.03000*RO2XC +  0.30000*xGLY +  0.46000*xMGLY +  0.02000*MALAH +  0.43000*yHPCRB +  0.35000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   730 || <F2HV>   || AFG1 ----> AFG1_HV +  0.30000*OH +  0.94000*HO2 +  0.03000*xHO2 +  0.03000*RO2C +  0.06000*MEO2 +  0.01000*AFG1 +  0.02000*AFG2A +  0.26000*PACID +  0.03000*xPACID +  0.02000*HPCRB +  0.03000*CO +  0.09000*SumRO2  ||   2.2000E-01<''AFGS''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   731 || <751>   || AFG1_HV ----> 0.67000*OH +  0.33000*PACID +  0.33000*HPCRB  ||   1.7500E+01 ||   1.7500E+01 ||   1.7500E+01 || || 
+|-
+||   732 || <752>   || AFG1_HV + NO ----> NO +  0.52000*xOH +  0.07000*xHO2 +  0.59000*RO2C +  0.08000*RO2XC +  0.52000*MALAH +  0.08000*zRCNO3 +  0.67000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   733 || <F3OH>   || AFG2A + OH ----> AFG2A_OH +  0.57000*xHO2 +  0.73000*RO2C +  0.07000*RO2XC +  0.15000*xMECO3 +  0.01000*xR2CO3 +  0.20000*MACO3 +  0.03000*xRCHO +  0.47000*xGLY +  0.54000*xMGLY +  0.02000*xPACID +  0.07000*zRCNO3 +  0.46000*yHPCRB +  0.03000*CO +  0.80000*SumRO2 +  0.20000*SumRCO3  ||   5.9900E-11 ||   5.9900E-11 ||   5.9900E-11 || || 
+|-
+||   734 || <754>   || AFG2A_OH ----> 0.22000*xPACID  ||   2.3400E+01 ||   2.3400E+01 ||   2.3400E+01 || || 
+|-
+||   735 || <755>   || AFG2A_OH + NO ----> NO +  0.14000*xRCHO +  0.06000*xGLY +  0.20000*yHPCRB  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   736 || <F3HV>   || AFG2A ----> OH +  0.91000*MEO2 +  0.09000*ETO2 + MALAH + SumRO2  ||   2.5000E-01<''AFGS''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   737 || <F4OH>   || AFG2B + OH ----> AFG2B_OH +  0.02000*HO2 +  0.40000*xHO2 +  0.40000*RO2C +  0.05000*RO2XC +  0.17000*MACO3 +  0.39000*xGLY +  0.39000*xBACL +  0.05000*zRCNO3 +  0.02000*HPCRB +  0.38000*yHPCRB +  0.45000*SumRO2 +  0.17000*SumRCO3  ||   4.5800E-11 ||   4.5800E-11 ||   4.5800E-11 || || 
+|-
+||   738 || <758>   || AFG2B_OH ----> 0.36000*HO2 +  0.36000*HPCRB  ||   1.1600E+01 ||   1.1600E+01 ||   1.1600E+01 || || 
+|-
+||   739 || <759>   || AFG2B_OH + NO ----> NO +  0.20000*xHO2 +  0.32000*RO2C +  0.04000*RO2XC +  0.12000*xMECO3 +  0.13000*xRCHO +  0.20000*xGLY +  0.20000*xBACL +  0.04000*zRCNO3 +  0.31000*yHPCRB +  0.36000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   740 || <F4HV>   || AFG2B ----> AFG2B_HV +  0.88000*OH +  0.03000*xHO2 +  0.03000*RO2C + MEO2 +  0.87000*MALAH +  0.03000*xPACID +  0.03000*CO +  1.03000*SumRO2  ||   2.2000E-01<''AFGS''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   741 || <761>   || AFG2B_HV ----> 0.09000*OH +  0.05000*PACID +  0.05000*HPCRB  ||   8.6200E+00 ||   8.6200E+00 ||   8.6200E+00 || || 
+|-
+||   742 || <762>   || AFG2B_HV + NO ----> NO +  0.08000*RO2C +  0.08000*MALAH +  0.09000*SumRO2  ||   2.5500E-12*exp<sup>(  3.8000E+02/T)</sup> ||   9.1214E-12 ||   1.0147E-11 || || 
+|-
+||   743 || <F5OH>   || AFG3 + OH ----> 0.27000*xHO2 +  0.89000*RO2C +  0.11000*RO2XC +  0.62000*xMECO3 +  0.62000*xRCHO +  0.54000*xMGLY +  0.11000*zRCNO3 +  0.85000*yHPCRB + SumRO2  ||   7.2000E-11 ||   7.2000E-11 ||   7.2000E-11 || || 
+|-
+||   744 || <P2UI>   || PAN2 ----> NO2 + R2CO3 + SumRCO3  ||   3.3900E-04 ||   3.3900E-04 ||   3.3900E-04 || || 
+|-
+||   745 || <P2OH>   || PAN2 + OH ----> 0.07000*zPAN2 +  0.05000*NO3 +  0.73000*xNO3 +  1.15000*xHO2 +  1.55000*RO2C +  0.07000*RO2XC +  0.17000*xHCHO +  0.66000*xMECHO +  0.07000*xETCHO +  0.15000*xPAN2 +  0.05000*ALK3 +  0.73000*CO2 +  0.50000*CO +  1.62000*SumRO2  ||   3.4200E-12 ||   3.4200E-12 ||   3.4200E-12 || || 
+|-
+||   746 || <P2HV>   || PAN2 ----> NO2 + R2CO3 + SumRCO3  || <''PPN_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   747 || <P4UI>   || APANS ----> NO2 + MACO3 + SumRCO3  ||   3.3900E-04 ||   3.3900E-04 ||   3.3900E-04 || || 
+|-
+||   748 || <P4OH>   || APANS + OH ----> 0.01000*zPAN2 +  0.74000*NO3 +  0.18000*xNO3 +  0.07000*xHO2 +  0.25000*RO2C +  0.01000*RO2XC +  0.07000*xHCHO +  0.18000*xKET2 +  0.19000*OACID +  0.07000*xPAN2 +  0.56000*ALK4 +  0.18000*CO2 +  0.26000*SumRO2  ||   2.9000E-11 ||   2.9000E-11 ||   2.9000E-11 || || 
+|-
+||   749 || <P4O3>   || APANS + O3 ----> 0.05000*NO2 +  0.19000*OH +  0.25000*HO2 +  0.09000*RO2C +  0.09000*xR2CO3 +  0.38000*HCHO2 +  0.01000*RCHO2 +  0.10000*HCHO +  0.04000*xHCHO +  0.90000*PAN2 +  0.21000*CO2 +  0.31000*CO +  0.09000*SumRO2  ||   8.2000E-18 ||   8.2000E-18 ||   8.2000E-18 || || 
+|-
+||   750 || <P4N3>   || APANS + NO3 ----> 0.05000*zPAN2 +  0.95000*xNO3 +  0.95000*RO2C +  0.05000*RO2XC +  0.95000*xRCNO3 +  0.95000*CO2 + SumRO2  ||   1.6000E-16 ||   1.6000E-16 ||   1.6000E-16 || || 
+|-
+||   751 || <P4HV>   || APANS ----> 0.60000*NO2 +  0.40000*NO3 +  0.40000*MEO2 +  0.60000*MACO3 +  0.40000*HCHO +  0.40000*CO2 +  0.40000*CO +  0.40000*SumRO2 +  0.60000*SumRCO3  || <''PPN_11''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   752 || <AALK>   || SOAALK + OH ----> OH +  0.00600*SVAVB2 +  0.05200*SVAVB3 +  0.08100*SVAVB4  ||   2.7000E-12*exp<sup>(  3.7400E+02/T)</sup> ||   9.4655E-12 ||   1.0512E-11 || || 
+|-
+||   753 || <AE51>   || BENZRO2 + NO ----> NO +  0.03400*SVAVB2 +  0.39200*SVAVB4  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   754 || <AE52>   || BENZRO2 + HO2 ----> HO2 +  0.14600*SVAVB1  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   755 || <AE53>   || XYLRO2 + NO ----> NO +  0.01500*SVAVB2 +  0.02300*SVAVB3 +  0.06000*SVAVB4  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   756 || <AE54>   || XYLRO2 + HO2 ----> HO2 +  0.19300*SVAVB1  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   757 || <AE55>   || TOLRO2 + NO ----> NO +  0.01600*SVAVB2 +  0.05100*SVAVB3 +  0.04700*SVAVB4  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   758 || <AE56>   || TOLRO2 + HO2 ----> HO2 +  0.14000*SVAVB1  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   759 || <AE57>   || PAHRO2 + NO ----> NO +  0.02800*SVAVB2 +  0.22500*SVAVB3 +  0.19100*SVAVB4  ||   <''R2NO''> ||   9.1214E-12 ||   1.0147E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   760 || <AE58>   || PAHRO2 + HO2 ----> HO2 +  0.47300*SVAVB1  ||   <''R2H2''> ||   1.4900E-11 ||   1.4900E-11 || Rate constant multiple of constant for listed reaction || 
+|-
+||   761 || <HET_NO2>   || NO2 ----> 0.50000*HONO +  0.50000*HNO3  || <''HETERO_NO2''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   762 || <HET_N2O5IJ>   || N2O5 ----> HNO3 + H2NO3PIJ  || <''HETERO_N2O5IJ''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   763 || <HET_N2O5K>   || N2O5 ----> HNO3 + H2NO3PK  || <''HETERO_N2O5K''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   764 || <HET_H2NO3PIJA>   || H2NO3PIJ ----> HNO3  || <''HETERO_H2NO3PAIJ''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   765 || <HET_H2NO3PKA>   || H2NO3PK ----> HNO3  || <''HETERO_H2NO3PAK''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   766 || <HAL_Ozone>   || O3 ----> || SEAWATER*min( 6.701E-11*exp<sup>( 1.074E+01*P),</sup> + 3.415E-08*exp<sup>(-6.713E-01*P),</sup>,  2.000E-06) ||   2.0000E-06 ||   3.2702E-07 || Set to zero if sun is below the horizon. SEAWATER equals surface fraction covered by ice free open ocean plus surf zones. P equals air pressure in atmospheres || 
+|-
+||   767 || <HET_NO3>   || NO3 ----> HNO3  || <''HETERO_NO3''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   768 || <OLIG_ISOPRENE1>   || AISO1J ----> 0.50000*AOLGBJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   769 || <OLIG_ISOPRENE2>   || AISO2J ----> 0.50000*AOLGBJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   770 || <OLIG_SESQT1>   || ASQTJ ----> 1.50000*AOLGBJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   771 || <OLIG_AROMATIC1>   || AAVB2J ----> 0.90700*AOLGAJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   772 || <OLIG_AROMATIC2>   || AAVB3J ----> 0.92500*AOLGAJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   773 || <OLIG_AROMATIC3>   || AAVB4J ----> 0.94300*AOLGAJ  ||   9.4882E-06 ||   9.4882E-06 ||   9.4882E-06 || || 
+|-
+||   774 || <RPOAGEPI>   || APOCI + OH ----> 1.25000*APNCOMI + APOCI + OH  ||   2.5000E-12 ||   2.5000E-12 ||   2.5000E-12 || || 
+|-
+||   775 || <RPOAGELI>   || APNCOMI + OH ----> OH  || <''HETERO_PNCOMLI''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   776 || <RPOAGEPJ>   || APOCJ + OH ----> 1.25000*APNCOMJ + APOCJ + OH  ||   2.5000E-12 ||   2.5000E-12 ||   2.5000E-12 || || 
+|-
+||   777 || <RPOAGELJ>   || APNCOMJ + OH ----> OH  || <''HETERO_PNCOMLJ''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   778 || <PCSOA>   || PCVOC + OH ----> OH + PCSOARXN  ||   1.2500E-11 ||   1.2500E-11 ||   1.2500E-11 || || 
+|-
+||   779 || <POA_AGE1>   || VLVPO1 + OH ----> OH +  0.48570*VLVPO1 +  0.00620*VSVPO1 +  0.00250*VSVPO2 +  0.00260*VSVPO3 +  0.00230*VIVPO1 +  0.29440*VLVOO1 +  0.20210*VLVOO2 +  0.00190*VSVOO2 +  0.00230*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   780 || <POA_AGE2>   || VSVPO1 + OH ----> OH +  0.30030*VLVPO1 +  0.28620*VSVPO1 +  0.00410*VSVPO2 +  0.00350*VSVPO3 +  0.22390*VLVOO1 +  0.18200*VLVOO2  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   781 || <POA_AGE3>   || VSVPO2 + OH ----> OH +  0.38560*VLVPO1 +  0.09500*VSVPO1 +  0.13730*VSVPO2 +  0.00050*VSVPO3 +  0.20510*VLVOO1 +  0.17640*VLVOO2  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   782 || <POA_AGE4>   || VSVPO3 + OH ----> OH +  0.21810*VLVPO1 +  0.30630*VSVPO1 +  0.01530*VSVPO2 +  0.10430*VSVPO3 +  0.18930*VLVOO1 +  0.16680*VLVOO2  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   783 || <POA_AGE5>   || VIVPO1 + OH ----> OH +  0.24120*VLVPO1 +  0.20890*VSVPO1 +  0.30000*VSVPO2 +  0.20280*VLVOO1 +  0.04710*VLVOO2  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   784 || <POA_AGE6>   || VLVOO1 + OH ----> OH +  0.66640*VLVOO1 +  0.01430*VLVOO2 +  0.01230*VSVOO1 +  0.12390*VSVOO2 +  0.18310*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   785 || <POA_AGE7>   || VLVOO2 + OH ----> OH +  0.28580*VLVOO1 +  0.39310*VLVOO2 +  0.01390*VSVOO1 +  0.10270*VSVOO2 +  0.20450*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   786 || <POA_AGE8>   || VSVOO1 + OH ----> OH +  0.33030*VLVOO1 +  0.22720*VLVOO2 +  0.26070*VSVOO1 +  0.07020*VSVOO2 +  0.11160*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   787 || <POA_AGE9>   || VSVOO2 + OH ----> OH +  0.34440*VLVOO1 +  0.27490*VLVOO2 +  0.04910*VSVOO1 +  0.25770*VSVOO2 +  0.07390*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   788 || <POA_AGE10>   || VSVOO3 + OH ----> OH +  0.38860*VLVOO1 +  0.24210*VLVOO2 +  0.06400*VSVOO1 +  0.03850*VSVOO2 +  0.26670*VSVOO3  ||   4.0000E-11 ||   4.0000E-11 ||   4.0000E-11 || || 
+|-
+||   789 || <HET_GLY>   || GLY ----> AGLYJ  || <''HETERO_GLY''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   790 || <HET_MGLY>   || MGLY ----> AGLYJ  || <''HETERO_MGLY''> || Not Available || Not Available || Heteorogeneous Reaction;Depends predicted concentrations || 
+|-
+||   791 || <TR01>   || HCHO_PRIMARY ----> || <''HCHOR_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   792 || <TR02>   || HCHO_PRIMARY ----> || <''HCHOM_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   793 || <TR03>   || HCHO_PRIMARY + OH ----> OH  ||   5.5000E-12*exp<sup>(  1.2500E+02/T)</sup> ||   8.3645E-12 ||   8.6629E-12 || || 
+|-
+||   794 || <TR05>   || HCHO_PRIMARY + NO3 ----> NO3  ||   5.8000E-16 ||   5.8000E-16 ||   5.8000E-16 || || 
+|-
+||   795 || <TR07>   || CCHO_PRIMARY + OH ----> OH  ||   2.4000E-12*exp<sup>(  5.4600E+02/T)</sup>*(T/300)<sup>(  7.7000E-01 )</sup> ||   1.4910E-11 ||   1.6334E-11 || || 
+|-
+||   796 || <TR08>   || CCHO_PRIMARY ----> || <''CCHOR_13''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+||   797 || <TR09>   || CCHO_PRIMARY + NO3 ----> NO3  ||   1.4000E-12*exp<sup>( -1.8600E+03/T)</sup> ||   2.7340E-15 ||   1.6230E-15 || || 
+|-
+||   798 || <TR11>   || ACRO_PRIMARY + OH ----> OH  ||   7.1000E-12*exp<sup>(  3.3300E+02/T)</sup> ||   2.1693E-11 ||   2.3816E-11 || || 
+|-
+||   799 || <TR12>   || ACRO_PRIMARY + O3 ----> O3  ||   2.8000E-19 ||   2.8000E-19 ||   2.8000E-19 || || 
+|-
+||   800 || <TR13>   || ACRO_PRIMARY + NO3 ----> NO3  ||   1.1000E-15 ||   1.1000E-15 ||   1.1000E-15 || || 
+|-
+||   801 || <TR15>   || ACRO_PRIMARY ----> || <''ACROL_16''> || Not Available || Not Available || Photolysis Reaction;depends on radiation and predicted concentrations || 
+|-
+|}
