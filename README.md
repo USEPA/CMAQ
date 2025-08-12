@@ -82,7 +82,7 @@ Code documentation is included within this repository (they are version-controll
 
 ## CMAQ Test Cases 
 Test case input and output data for the CMAQv5.5 release are available from the CMAS Data Warehouse. Step-by-step benchmark tutorials using the test case data are provided in the GitHub repo. 
-* [CMAQ Test Case Data](DOCS/Test_Case_Data.md)
+* [CMAQ Test Case Data](DOCS/Case_Data.md)
 
 
 ## Other Online Resources 
