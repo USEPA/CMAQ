@@ -4,6 +4,8 @@ CMAQ Documentation
 This directory contains documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
 While documentation is packaged with the code when it is downloaded or cloned, users are encouraged to go [online](https://github.com/USEPA/CMAQ/tree/main/DOCS) to view the latest version.
 
+A report describing the implementation of SAPRC-22 mechanism in CMAQv5.4 and its testing is provided here: [SAPRC-22 Implementation Report](SAPRC22_DraftReport_Deliverable_3.4.25.pdf).
+
 The following documents are available for each CMAQ release:
 
 - **[Release Notes](https://github.com/USEPA/CMAQ/wiki/CMAQ-Release-Notes)**: Technical notes on the new features and science in this release of CMAQ are available on the CMAQ Wiki.
@@ -14,6 +16,5 @@ The following documents are available for each CMAQ release:
 
 - **[Chemical Mechanism Tables](../CCTM/src/MECHS/README.md)**: Tables of model species and chemical reactions in each chemical mechanism available in the most recently released version of CMAQ.
 
-- **[Developers' Guide](Developers_Guide/CMAQ_Dev_Guide.md)**: A guide to version control practices and expectations adopted by the CMAQ development team and enforced on itself and any other collaborators who wish to contribute code.
 
 
