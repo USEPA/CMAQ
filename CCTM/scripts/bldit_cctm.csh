@@ -80,14 +80,17 @@ set make_options = "-j"                #> additional options for make command if
 
 #set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
                                        #>   comment out to use standard process
-#> Two-way WRF-CMAQ 
-#set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
-                                       #>   comment out for off-line chemistry 
+                                       #> Note that DDM is not compatible with the 
+                                       #>   STAGE deposition model in v5.4
+#> Two-way WRF-CMAQ
+#set build_twoway                      #> uncomment to build WRF-CMAQ twoway;
+                                       #>   comment out for off-line chemistry      
 
 #> Potential vorticity free-troposphere O3 scaling
 #set potvortO3
 
 #> Working directory and Version IDs
+
  if ( $?ISAM_CCTM ) then
      set VRSN  = v54_ISAM             #> model configuration ID for CMAQ_ISAM
  else if ( $?DDM3D_CCTM ) then
