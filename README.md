@@ -26,7 +26,7 @@ particulates, toxics, and acid deposition.
 * Biogenic emissions algorithm options have been expanded
 * Revised algorithms for modeling the dry deposition of particles from the atmosphere (M3DRY and STAGE updates)
 * Streamlined building of the coupled WRF-CMAQ system compatible with WRFv4.4+ 
-* Improved efficiency, accuracy, and user experience for CMAQ instrumented model extensions CMAQ-DDM-3D and CMAQ-ISAM
+* Improved efficiency, accuracy, and user experience for CMAQ instrumented model extensions CMAQ-DDM-3D and CMAQ-ISAM. (*Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.4.*)
 * Expansion of emissions diagnostic output features
 * Introduction of a domain-wide Budget Reporting tool 
 * Online integration of common pollutant post-processing tasks (i.e. output total PM2.5 mass and more directly!)
