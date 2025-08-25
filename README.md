@@ -21,7 +21,8 @@ To clone the 5.4_saprc22 branch code from the CMAQ Git archive, specify the bran
 
 `git clone -b 5.4_saprc22 https://github.com/USEPA/CMAQ.git CMAQ_REPO_5.4_saprc22`
 
-### CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts
+### CMAQv5.4_SAPRC22 Modifications to the build and run script: 
+
 To build CMAQ with the SAPRC-22 mechanism, make the following changes to the bldit script:
 
 1. Specify mechanism
@@ -30,6 +31,13 @@ setenv Mechanism saprc22_ae65_aq              #> chemical mechanism (see $CMAQ_M
 2. Include saprc-22 in mechanism list
 set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_a
 e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
+
+### CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts
+
+Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts</a>
+
+Example script is provided with the input data on the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts</a> under the scripts directory.
+
 
 ### User Support
 Questions regarding this mechanism can be directed to EPA (baublitz.colleen@epa.gov).
