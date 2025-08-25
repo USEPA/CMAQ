@@ -3,14 +3,19 @@ New CMAQ versions are released on the 'main' branch.  After a CMAQ release an ad
 
 Below is the record of tagged bugfix versions for each CMAQ release. 
 
-### Record of changes to CMAQv5.5+  
+### Record of changes to CMAQv5.5.0.3  
 To clone code with all of the CMAQv5.5 bug fixes issue the following command from within a working directory on your server:
 ```
- git clone -b 5.5+ https://github.com/USEPA/CMAQ.git CMAQ_REPO
+ git clone -b CMAQv5.5.0.3_11Jul2025 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
-Note, each tagged version of CMAQv5.5+ contains all updates from previous versions.
+
+*Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.5.*
+
+
+Note, each tagged version of CMAQv5.5.0.3 contains all updates from previous versions.
 |      Tag        |   PR Number       |         PR Name          |   Merge Date     | Brief Description |
 | -------------- | ------------------ | ------------------------ | ---------------- | -----------------------|
+| [CMAQv5.5.0.3_11Jul2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.3_11Jul2025)|[#253](https://github.com/USEPA/CMAQ/pull/253)|Diagnostic NH3 emissions from Agriculture and Biogenic sources | 2025-07-11 | Adds new diagnostic emissions when using the STAGE deposition option and bidirectional NH3 exchange to support 2023 and later NEI development.|
 | |[#252](https://github.com/USEPA/CMAQ/pull/252)|enable parallel I/O for ELMO, AELMO, and lightning diagnostic files | 2025-05-28 | Bugfix to avoid a model crash when using a parallel file system. This resolves an [issue](https://forum.cmascenter.org/t/unable-to-write-to-aelmo-even-though-new-aelmo-file-successfully-created/5762/20) raised on the CMAS User Forum.|
 | |[#249](https://github.com/USEPA/CMAQ/pull/249)|Increase string size for DDM-3D control file | 2025-05-14 | Updates allows for longer strings of emissions stream names and region names for DDM-3D simulations.|
 | [CMAQv5.5.0.2_13May2025](https://github.com/USEPA/CMAQ/releases/tag/CMAQv5.5.0.2_13May2025)  |[#246](https://github.com/USEPA/CMAQ/pull/246)|5.5 Tutorial Updates from CMAS  | 2025-04-29 | Improvements to the WRF-CMAQ Tutorial and supporting documentation for preparing your compute environment prior to running CMAQ.|
