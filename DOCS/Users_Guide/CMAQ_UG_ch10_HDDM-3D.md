@@ -29,6 +29,9 @@ To use CMAQ-DDM-3D, follow the normal build process for CMAQ described in [Chapt
  set DDM3D_CCTM                        #> uncomment to compile CCTM with DDM-3D activated
 ```
 
+**Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.5.**   
+Simulations with DDM-3D should use ``` set DepMod    = m3dry``` in bldit_cctm.csh.
+
 **A note about I/O API installation for DDM applications**
 
 I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM-3D applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).

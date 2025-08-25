@@ -3,6 +3,10 @@
 **Type of update**: Bug Fix  
 **Release Version/Date**: CMAQv5.5    
 **Description**: A bug made its way into the chemistry routines that calculated 2nd order sensitivities (HDDM-3D) resulting in erroneous output for these parameters. Additionally, there are some runtime errors in the log files associated with writing out deposition sensitivity output. Finally, dry deposition sensitivities were not written out correctly.  
+
+*Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.5.*
+
+
 **Significance and Impact**: Second order sensitivities will now provide correct output and the log files will no longer display error messages about deposition sensitivities. Sensitivity of dry depositions will now output correctly past the 1st parameter.  
 
 |Merge Commit | Internal record|
@@ -34,6 +38,8 @@
 **Description**:  CMAQ-DDM-3D has been fully integrated into the base model. There is no longer a separate repository, and the sensitivity calculations are accessed through compiler flags set in the build script and by completing the appropriate sections of the run script. These options are demonstrated in the sample scripts provided with the release of the base model.
 
 Additionally, some code structure changes were made to the DDM-3D mainly in the gas phase chemistry routines.  Of note is the ability of the model to now calculate gas phase Jacobians inline making the code more flexible to accept new chemical mechanisms as well as changes to existing ones. 
+
+*Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.4.*
 
 **Significance and Impact**: No changes to sensitivity outputs should be expected in this release outside the ones caused by modifications of the base CMAQ science routines. 
 

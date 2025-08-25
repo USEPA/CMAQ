@@ -26,7 +26,7 @@ Please see our 'How to Cite CMAQ' page if you are interested in referencing one 
 * New support for running pre-configured global CMAQ simulations coupled with meteorology from the Model for Prediction Across Scales – Atmosphere (MPAS-A) 
 * Expanded capabilities of the Integrated Source Apportionment Method (ISAM) to quantify source contributions to total secondary organic aerosol (SOA) and individual species
 * Updates to ISAM source attribution estimates, mainly impacting coarse particles and secondary organic aerosols formed through cloud processes
-* Updates to the Decoupled Direct Method (DDM) to improve second order ozone sensitivities  
+* Updates to the Decoupled Direct Method (DDM) to improve second order ozone sensitivities. (*Note that DDM-3D is not compatible with the STAGE deposition model in CMAQv5.5.*)  
 * Updated chemistry to properly capture photolysis effects from sub-grid clouds
 * Revised algorithms for modeling dry deposition (M3DRY and STAGE updates)
 * Improved accuracy and error checking for BDSNP soil NO in the MEGAN biogenic emissions algorithm 
