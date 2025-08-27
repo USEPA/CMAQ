@@ -23,20 +23,35 @@ To clone the 5.4_saprc22 branch code from the CMAQ Git archive, specify the bran
 
 ### CMAQv5.4_SAPRC22 Modifications to the build and run script: 
 
-To build CMAQ with the SAPRC-22 mechanism, make the following changes to the bldit script:
+To build CMAQ with the SAPRC-22 mechanism, make the following changes to the bldit script, note these changes have already been made to the provided script (./CCTM/scripts/bldit_cctm_saprc22.csh):<br>
 
-1. Specify mechanism
+<pre>
+1. Specify mechanism<br>
 setenv Mechanism saprc22_ae65_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
 
 2. Include saprc-22 in mechanism list
 set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_a
 e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
+</pre>
 
 ### CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts
 
-Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a>
+The run script has been modified to use the data from the s3 bucket titled: CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain) <br>
 
-Example script is provided with the input data on the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> under the scripts directory.
+Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
+
+Example script is provided with the input data on the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> under the scripts directory.<br>
+
+To download this data, use the following command:
+
+<pre>
+aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2
+</pre>
+<br>
+The total size of the data is 260.1 GiB<br>
+<br>
+
+
 
 
 ### User Support
