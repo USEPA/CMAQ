@@ -44,27 +44,25 @@ Obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_upda
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh
 </pre>
-
-Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
-
-Browse the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> under the scripts directory.<br>
-
-To download this data, use the following command:
-
+<br>
+To download this data, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
+<br>
 <pre>
 aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2
 </pre>
 
-To obtain the aws command line, please follow these instructions<br>
-
-<a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html">https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html</a>
-
-
+To obtain the aws command line if you do not already have it, please follow these instructions<br>
+<br>
+<a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">Instructions to Download AWS Command Line</a><br>
 <br>
 The total size of the data is 260.1 GiB<br>
 <br>
 
+Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
 
+Browse the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a>.<br>
+
+Readme.html with information about the data in the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html">https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html</a>
 
 
 ### User Support
