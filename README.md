@@ -37,34 +37,35 @@ e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
 ### CMAQv5.4_SAPRC22 Test Data and Sample Build and Run Scripts
 
 The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
+
+The scripts may be reviewed by clicking on the following links [bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_2016_saprc22_ebi_May2025_updates.csh](CCTM/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh) in the repository.<br>
 <br>
-Obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh script using the wget commands:
+Or, if you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:
 <br>
 <pre>
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh
 </pre>
 
-Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
-
-Browse the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> under the scripts directory.<br>
-
-To download this data, use the following command:
-
+<br>
+To download all of the data required to run the test case for the CMAQv5.4 SAPRC-22 benchmark case, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
+<br>
 <pre>
 aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2
 </pre>
 
-To obtain the aws command line, please follow these instructions<br>
-
-<a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html">https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html</a>
-
-
+To obtain the aws command line if you do not already have it, please follow these instructions<br>
+<br>
+<a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">Instructions to Download AWS Command Line</a><br>
 <br>
 The total size of the data is 260.1 GiB<br>
 <br>
 
+Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
 
+To browse the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a>.<br>
+
+Readme.html with information about the data in the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html">https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html</a>
 
 
 ### User Support
