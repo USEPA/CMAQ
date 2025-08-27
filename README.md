@@ -21,7 +21,7 @@ To clone the 5.4_saprc22 branch code from the CMAQ Git archive, specify the bran
 
 `git clone -b 5.4_saprc22 https://github.com/USEPA/CMAQ.git CMAQ_REPO_5.4_saprc22`
 
-### CMAQv5.4_SAPRC22 Modifications to the build and run script: 
+### CMAQv5.4_SAPRC22 Modifications to the build script: 
 
 To build CMAQ with the SAPRC-22 mechanism, make the following changes to the bldit script, note these changes have already been made to the provided script (./CCTM/scripts/bldit_cctm_saprc22.csh):<br>
 
@@ -34,7 +34,7 @@ set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, c
 e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
 </pre>
 
-### CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts
+### CMAQv5.4_SAPRC22 Test Data and Sample Build and Run Scripts
 
 The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html>CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
 <br>
