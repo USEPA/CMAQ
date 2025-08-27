@@ -36,7 +36,7 @@ e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
 
 ### CMAQv5.4_SAPRC22 Test Data and Sample Build and Run Scripts
 
-The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html>CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
+The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
 <br>
 Obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh script using the wget commands:
 <br>
