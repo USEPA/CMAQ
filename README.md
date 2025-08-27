@@ -34,9 +34,9 @@ e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
 
 ### CMAQv5.4_SAPRC22 Test Data and Sample Build/Run Scripts
 
-Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2012 12km CONUS  (12US2 domain)</a>
+Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a>
 
-Example script is provided with the input data on the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2012 12km CONUS  (12US2 domain)</a> under the scripts directory.
+Example script is provided with the input data on the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> under the scripts directory.
 
 
 ### User Support
