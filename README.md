@@ -23,7 +23,7 @@ To clone the 5.4_saprc22 branch code from the CMAQ Git archive, specify the bran
 
 ### CMAQv5.4_SAPRC22 Modifications to the build script: 
 
-To build CMAQ with the SAPRC-22 mechanism, make the following changes to the bldit script, note these changes have already been made to the provided script (./CCTM/scripts/bldit_cctm_saprc22.csh):<br>
+To build CMAQ with the SAPRC-22 mechanism, the following changes were made to the default bldit_cctm.csh script (./CCTM/scripts/bldit_cctm_saprc22.csh):<br>
 
 <pre>
 1. Specify mechanism<br>
