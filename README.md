@@ -38,14 +38,14 @@ e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
 
 The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
 <br>
-Obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh script using the wget commands:
+If you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:
 <br>
 <pre>
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh
 </pre>
 <br>
-To download this data, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
+To download all of the data required to run the test case for the CMAQv5.4 SAPRC-22 benchmark case, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
 <br>
 <pre>
 aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2
