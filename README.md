@@ -44,6 +44,8 @@ If you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_sap
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh
 wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh
 </pre>
+
+Or review the [bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_2016_saprc22_ebi_May2025_updates.csh](CCTM/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh) scripts in the repository.
 <br>
 To download all of the data required to run the test case for the CMAQv5.4 SAPRC-22 benchmark case, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
 <br>
