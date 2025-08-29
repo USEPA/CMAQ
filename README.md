@@ -23,49 +23,33 @@ To clone the 5.4_saprc22 branch code from the CMAQ Git archive, specify the bran
 
 ### CMAQv5.4_SAPRC22 Modifications to the build script: 
 
-To build CMAQ with the SAPRC-22 mechanism, the following changes were made to the default bldit_cctm.csh script. The bldit_cctm_saprc22.csh script is provided in both the CMAQ_REPO_5.4_saprc22 and the s3 bucket under ./CCTM/scripts/bldit_cctm_saprc22.csh:<br>
+To build CMAQ with the SAPRC-22 mechanism, the following changes were made to the default bldit_cctm.csh script.
 
-<pre>
 1. Specify mechanism<br>
-setenv Mechanism saprc22_ae65_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+```setenv Mechanism saprc22_ae65_aq```
 
-2. Include saprc-22 in mechanism list
-set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_a
-e7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq"
-</pre>
+2. Include saprc-22 in mechanism list  
+```set MechList = "cb6r5hap_ae7_aq, cb6r3_ae7_aq, cb6r5_ae7_aq, cb6r5_ae7_aqkmt2, cb6r5m_ae7_aq, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2, saprc22_ae65_aq" ```
 
-### CMAQv5.4_SAPRC22 Test Data and Sample Build and Run Scripts
+### CMAQv5.4_SAPRC22 Test Data 
 
-The run script has been modified to use the data from the s3 bucket titled: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a> <br>
+CMAQ input data for the contiguous US (CONUS) for July 1-7, 2016 are available on the CMAS AWS Open Data Platform to test buidling and running CMAQv5.4_SAPRC22. To browse and download the data on AWS: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
 
-The scripts may be reviewed by clicking on the following links [bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_2016_saprc22_ebi_May2025_updates.csh](CCTM/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh) in the repository.<br>
+To download all of the data (260.1 GB) required to run the test case for the CMAQv5.4 SAPRC-22 test case, use the following command, editing the your_local_directory to specify a path on your local machine:  
 <br>
-Or, if you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:
-<br>
-<pre>
-wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh
-wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh
-</pre>
+```aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2```
 
-<br>
-To download all of the data required to run the test case for the CMAQv5.4 SAPRC-22 benchmark case, use the following command, editing the your_local_directory to specify a path on your local machine:<br>
-<br>
-<pre>
-aws s3 cp --recursive s3://cmaqv54-saprc22-12us2-2016-07-test-data/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2 /your_local_directory/cmaqv54-saprc22-12us2-2016-07-test-data/2016_12US2
-</pre>
+Additional information on downloading the data is available in the top level [Readme](https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html) page for the AWS Simple Storage Service (S3) bucket.  Metadata, including the data DOI, are available on the CMAS DataVerse: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
 
-To obtain the aws command line if you do not already have it, please follow these instructions<br>
-<br>
-<a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">Instructions to Download AWS Command Line</a><br>
-<br>
-The total size of the data is 260.1 GiB<br>
-<br>
 
-Metadata to understand and reference this data: <a href="https://dataverse.unc.edu/dataset.xhtml?persistentId=doi:10.15139/S3/JWQWMC">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a><br>
 
-To browse the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/index.html">CMAQv5.4_SAPRC22 Test Data -- 07/01/2016 - 07/14/2016 12km CONUS  (12US2 domain)</a>.<br>
+### CMAQv5.4_SAPRC22 Sample Build and Run Scripts
 
-Readme.html with information about the data in the s3 bucket: <a href="https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html">https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/readme.html</a>
+Sample build and run scripts for the 2016 test case are available in this repository under *CCTM/srcipts* ([bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_2016_saprc22_ebi_May2025_updates.csh](CCTM/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh)).  The scripts are also stored on AWS with the input data under *2016_12US2/scripts*. If you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:  
+
+```wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh```   
+```wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh```
+
 
 
 ### User Support
