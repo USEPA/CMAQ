@@ -45,7 +45,7 @@ Additional information on downloading the data is available in the top level [Re
 
 ### CMAQv5.4_SAPRC22 Sample Build and Run Scripts
 
-Sample build and run scripts for the 2016 test case are available in this repository under *CCTM/srcipts* ([bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_2016_saprc22_ebi_May2025_updates.csh](CCTM/scripts/run_cctm_5.4_saprc22_2016_12US2.csh)).  The scripts are also stored on AWS with the input data under *2016_12US2/scripts*. If you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:  
+Sample build and run scripts for the 2016 test case are available in this repository under *CCTM/srcipts* ([bldit_cctm_saprc22.csh](CCTM/scripts/bldit_cctm_saprc22.csh) and [run_cctm_5.4_saprc22_2016_12US2.csh](CCTM/scripts/run_cctm_5.4_saprc22_2016_12US2.csh)).  The scripts are also stored on AWS with the input data under *2016_12US2/scripts*. If you would like to obtain the bldit_cctm_saprc22.csh and the run_cctm_2016_saprc22_ebi_May2025_updates.csh scripts without downloading the full bucket, use the wget commands:  
 
 ```wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/bldit_cctm_saprc22.csh```   
 ```wget https://cmaqv54-saprc22-12us2-2016-07-test-data.s3.amazonaws.com/2016_12US2/scripts/run_cctm_2016_saprc22_ebi_May2025_updates.csh```
