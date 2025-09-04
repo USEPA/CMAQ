@@ -16,7 +16,7 @@ The latest SAPRC mechanism, referred to as SAPRC-22, has been implemented in CMA
 
 A report describing the implementation of the mechanism and its testing is provided under the DOCS folder: [SAPRC-22 Implementation Report](DOCS/SAPRC22_DraftReport_Deliverable_3.4.25.pdf). Users wishing to use CMAQ with the SAPRC-22 mechanism are recommended to read the report. In particular, Section 4 of the report provides guidance on speciating total organic gas emissions. The Appendix section provides a listing of the mechanism and associated species.
 
-Note that CMAQv5.4_SAPRC22 does not include updates to ISAM, DDM, Process Analysis or other utilities.  This model version has been tested with the model configuration in the sample build and run scripts available in this repository and described below. 
+Note that CMAQv5.4_SAPRC22 does not include updates to ISAM, DDM, Process Analysis, or Species Defintion files used for COMBINE post-processing.  This model version has been tested with the model configuration in the sample build and run scripts available in this repository and described below. 
 
 
 ### Getting the CMAQv5.4_SAPRC22 Repository
