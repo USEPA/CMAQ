@@ -4,7 +4,7 @@ CMAQ Documentation
 This directory contains documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
 While documentation is packaged with the code when it is downloaded or cloned, users are encouraged to go [online](https://github.com/USEPA/CMAQ/tree/main/DOCS) to view the latest version.
 
-A report describing the implementation of SAPRC-22 mechanism in CMAQv5.4 and its testing is provided here: [SAPRC-22 Implementation Report](SAPRC22_DraftReport_Deliverable_3.4.25.pdf).
+A report describing the implementation of SAPRC-22 mechanism in CMAQv5.4 and its testing is provided here: [SAPRC-22 Implementation Report](SAPRC22_Report_Deliverable_3.4.25.V2.pdf).
 
 The following documents are available for each CMAQ release:
 
