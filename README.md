@@ -12,7 +12,7 @@ computing techniques in an open-source framework to deliver fast, technically so
 particulates, toxics, and acid deposition.
 
 ## SAPRC-22 Branch
-The latest SAPRC mechanism, referred to as SAPRC-22, has been implemented in CMAQ version 5.4.
+The latest SAPRC mechanism, referred to as SAPRC-22, has been implemented by Ramboll in CMAQ version 5.4.
 
 A report describing the implementation of the mechanism and its testing is provided under the DOCS folder: [SAPRC-22 Implementation Report](DOCS/SAPRC22_Report_Deliverable_3.4.25.V2.pdf). Users wishing to use CMAQ with the SAPRC-22 mechanism are recommended to read the report. In particular, Section 4 of the report provides guidance on speciating total organic gas emissions. The Appendix section provides a listing of the mechanism and associated species.
 
