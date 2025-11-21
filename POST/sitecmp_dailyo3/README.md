@@ -57,7 +57,7 @@ This Fortran program generates a csv (comma separated values) file that compares
  QA_FLAG_HEADER if QA_FLAG_CHECK is Y, name of the ozone QA flag in the header line of IN_TABLE 
                 (default "OZONE_F" to correspond to CASTNET data)
  QA_FLAG_VALUES if QA_FLAG_CHECK is Y, string composed of single-character QA flags that 
-                should be treated as missing values (default "BCDFIMP" to correspond to CASTNET data)
+                should be treated as missing values (default "#BCDFHIJKLMNPRTY" to capture known CASTNET flags)
  MISSING        string to indicate missing output data values (default "m")
  IOAPI_ISPH     projection sphere type (use type #20 to match WRF/CMAQ)(IOAPI default 8)
  LAMBXY         include x/y projection values for each site in OUT_TABLE (default N)

@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55              #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -68,51 +68,71 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv AERO_1 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"              # PM2.5 Total Mass
- setenv AERO_2 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM"          # PM2.5 Total Mass (I+J with FRM adjustment)
- setenv AERO_3 "PM10,ug/m3,ATOTIJK,ug/m3,PM10"       # PM10 Total Mass
- setenv AERO_4 "Isoprene,ppb,ISOP,ppb,Isoprene"            # Isoprene
- setenv AERO_5 "Ethylene,ppb,ETH,ppb,Ethylene"             # Ethene (Ethylene)
- setenv AERO_6 "Ethane,ppb,ETHA,ppb,Ethane"                # Ethane
- setenv AERO_7 "Toluene,ppb,TOL,ppb,Toluene"               # Toluene
- setenv AERO_8 "Acetaldehyde,ppb,ALD2,ppb,Acetaldehyde"    # Acetaldehyde
- setenv AERO_9 "Formaldehyde,ppb,FORM,ppb,Formaldehyde"    # Formaldehyde
- setenv AERO_10 "OC+OC_Blank,ug/m3,AOCIJ,ug/m3,OC"         # OC blank adjusted Mass
- setenv AERO_11 "EC,ug/m3,AECIJ,ug/m3,EC"                  # EC Mass
- setenv AERO_12 "OC+OC_Blank+EC,ug/m3,AOCIJ+AECIJ,,TC"     # Total Carbon
- setenv AERO_13 "Na,ug/m3, ANAIJ,,Na"                      # sodium
- setenv AERO_14 "Cl,ug/m3, ACLIJ,,Cl"                      # chlorine
- setenv AERO_15 "Na+Cl,ug/m3,ACLIJ+ANAIJ,,NaCl"            # sodium chloride
- setenv AERO_16 "SO4,ug/m3,ASO4IJ,ug/m3,SO4"               # PM2.5 Total Mass  
- setenv AERO_17 "NO3,ug/m3,ANO3IJ,ug/m3,NO3"               # PM2.5 Total Mass
- setenv AERO_18 "NH4,ug/m3,ANH4IJ,ug/m3,NH4"               # PM2.5 Total Mass
+     setenv AERO_1 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"              # PM2.5 Total Mass
+     setenv AERO_2 "PM25_88101,ug/m3,ATOTIJ,ug/m3,PM_TOT_88101"
+     setenv AERO_3 "PM25_88502,ug/m3,ATOTIJ,ug/m3,PM_TOT_88502"
+     setenv AERO_4 "PM10_81102,ug/m3,ATOTIJ+ATOTK,ug/m3,PM10_IJK"       # PM10 Total Mass
+     setenv AERO_5 "Isoprene,ppb,ISOP,ppb,Isoprene"            # Isoprene
+     setenv AERO_6 "Ethylene,ppb,ETH,ppb,Ethylene"             # Ethene (Ethylene)
+     setenv AERO_7 "Ethane,ppb,ETHA,ppb,Ethane"                # Ethane
+     setenv AERO_8 "Toluene,ppb,TOL,ppb,Toluene"               # Toluene
+     setenv AERO_9 "Acetaldehyde,ppb,ALD2,ppb,Acetaldehyde"    # Acetaldehyde
+     setenv AERO_10 "Formaldehyde,ppb,FORM,ppb,Formaldehyde"    # Formaldehyde
+     setenv AERO_11 "Benzene,ppb,BENZENE,ppb,Benzene"             # Benzene
+     setenv AERO_12 "OC,ug/m3,AOCIJ,ug/m3,OC"            # OC blank adjusted Mass
+     setenv AERO_13 "EC,ug/m3,AECIJ,ug/m3,EC"            # EC Mass
+     setenv AERO_14 "OC+EC,ug/m3,AOCIJ+AECIJ,,TC"  # Total Carbon
+     setenv AERO_15 "OC_88305,ug/m3,AOCIJ,ug/m3,OC_88305"            # OC blank adjusted Mass
+     setenv AERO_16 "EC_88307,ug/m3,AECIJ,ug/m3,EC_88307"            # EC Mass
+     setenv AERO_17 "OC_88305+EC_88307,ug/m3,AOCIJ+AECIJ,,TC_88305"  # Total Carbon
+     setenv AERO_18 "OC_88370,ug/m3,AOCIJ,ug/m3,OC_88370"            # OC blank adjusted Mass
+     setenv AERO_19 "EC_88380,ug/m3,AECIJ,ug/m3,EC_88380"            # EC Mass
+     setenv AERO_20 "OC_88370+EC_88380,ug/m3,AOCIJ+AECIJ,,TC_88370"  # Total Carbon
+     setenv AERO_21 "OC_88320,ug/m3,AOCIJ,ug/m3,OC_88320"            # OC blank adjusted Mass
+     setenv AERO_22 "EC_88321,ug/m3,AECIJ,ug/m3,EC_88321"            # EC Mass
+     setenv AERO_23 "OC_88320+EC_88321,ug/m3,AOCIJ+AECIJ,,TC_88320"  # Total Carbon 
+     setenv AERO_24 "Na,ug/m3, ANAIJ,,Na"                      # sodium
+     setenv AERO_25 "Cl,ug/m3, ACLIJ,,Cl"                      # chlorine
+     setenv AERO_26 "Na+Cl,ug/m3,ACLIJ+ANAIJ,,NaCl"            # sodium chloride
+     setenv AERO_27 "SO4,ug/m3,ASO4IJ,ug/m3,SO4"               # PM2.5 Total Mass  
+     setenv AERO_28 "NO3,ug/m3,ANO3IJ,ug/m3,NO3"               # PM2.5 Total Mass
+     setenv AERO_29 "NH4,ug/m3,ANH4IJ,ug/m3,NH4"               # PM2.5 Total Mass
  
 #> PM2.5 Sharp Cutoff Species
 #> Requires preprocessing using setenv CCTM_AELMO file
- setenv AERO_19 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"       # PM2.5 Total Mass with sharp cutoff
- setenv AERO_20 "PM25,ug/m3,PM25_FRM,,PM25_FRM"            # PM2.5 Total Mass (cutoff with FRM adjustment)
- setenv AERO_21 "SO4,ug/m3, PM25_SO4,,PM25_SO4"            # sulfate (sharp cutoff)
- setenv AERO_22 "NO3,ug/m3, PM25_NO3,,PM25_NO3"            # nitrate (sharp cutoff)
- setenv AERO_23 "NH4,ug/m3, PM25_NH4,,PM25_NH4"            # ammonium (sharp cutoff)
- setenv AERO_24 "OC+OC_Blank,ug/m3, PM25_OC,,PM25_OC"               # Organic Carbon (sharp cutoff)
- setenv AERO_25 "EC,ug/m3, PM25_EC,,PM25_EC"               # Elemental Carbon (sharp cutoff)
- setenv AERO_26 "OC+OC_Blank+EC,ug/m3,PM25_OC+PM25_EC,,PM25_TC"     # Total Carbon (sharp cutoff)
+     setenv AERO_30 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"       # PM2.5 Total Mass with sharp cutoff
+     setenv AERO_31 "SO4,ug/m3, PM25_SO4,,PM25_SO4"            # sulfate (sharp cutoff)
+     setenv AERO_32 "NO3,ug/m3, PM25_NO3,,PM25_NO3"            # nitrate (sharp cutoff)
+     setenv AERO_33 "NH4,ug/m3, PM25_NH4,,PM25_NH4"            # ammonium (sharp cutoff)
+     setenv AERO_34 "OC,ug/m3, PM25_OC,,PM25_OC"               # Organic Carbon (sharp cutoff)
+     setenv AERO_35 "EC,ug/m3, PM25_EC,,PM25_EC"               # Elemental Carbon (sharp cutoff)
+     setenv AERO_36 "OC+EC,ug/m3,PM25_OC+PM25_EC,,PM25_TC"     # Total Carbon (sharp cutoff)
+     setenv AERO_37 "OC_88305,ug/m3,PM25_OC,ug/m3,PM25_OC_88305"            # OC blank adjusted Mass
+     setenv AERO_38 "EC_88307,ug/m3,PM25_EC,ug/m3,PM25_EC_88307"            # EC Mass
+     setenv AERO_39 "OC_88305+EC_88307,ug/m3,AOCIJ+AECIJ,,PM25_TC_88305"  # Total Carbon
+     setenv AERO_40 "OC_88370,ug/m3,PM25_OC,ug/m3,PM25_OC_88370"            # OC blank adjusted Mass
+     setenv AERO_41 "EC_88380,ug/m3,PM25_EC,ug/m3,PM25_EC_88380"            # EC Mass
+     setenv AERO_42 "OC_88370+EC_88380,ug/m3,AOCIJ+AECIJ,,PM25_TC_88370"  # Total Carbon
+     setenv AERO_43 "OC_88320,ug/m3,PM25_OC,ug/m3,PM25_OC_88320"            # OC blank adjusted Mass
+     setenv AERO_44 "EC_88321,ug/m3,PM25_EC,ug/m3,PM25_EC_88321"            # EC Mass
+     setenv AERO_45 "OC_88320+EC_88380,ug/m3,AOCIJ+AECIJ,,PM25_TC_88320"  # Total Carbon
+     setenv AERO_46 "PM10_81102,ug/m3,PM10,ug/m3,PM10"       # PM10 Total Mass 
  
  #> setenv AERO6 species
  #> note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium
  #> all other elemental concentrations (including Cl and K) come from XRF
-  setenv AERO_27 "Fe,ug/m3, AFEJ,,Fe"         # iron
-  setenv AERO_28 "Al,ug/m3,AALJ,,Al"          # aluminum 
-  setenv AERO_29 "Si,ug/m3, ASIJ,,Si"         # silicon
-  setenv AERO_30 "Ti,ug/m3, ATIJ,,Ti"         # titanium
-  setenv AERO_31 "Ca,ug/m3,ACAJ,,Ca"          # calcium
-  setenv AERO_32 "Mg,ug/m3,AMGJ,,Mg"          # magnesium
-  setenv AERO_33 "K,ug/m3,AKJ,,K"             # potassium
-  setenv AERO_34 "Mg,ug/m3,AMNJ,,Mn"          # manganese
-  setenv AERO_35 "2.2*Al+2.49*Si+1.63*Ca+2.42*Fe+1.94*Ti,ug/m3,ASOILJ,,soil" 
-  setenv AERO_36 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti , ug/m3, AUNSPEC1IJ,,OTHER"        # PM Other
-  setenv AERO_37 "0.8*OC,ug/m3, ANCOMIJ,,NCOM"    # PM Other
-  setenv AERO_38 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti-0.8*OC,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other no NCOM
+     setenv AERO_47 "Fe,ug/m3, AFEJ,,Fe"         # iron
+     setenv AERO_48 "Al,ug/m3,AALJ,,Al"          # aluminum 
+     setenv AERO_49 "Si,ug/m3, ASIJ,,Si"         # silicon
+     setenv AERO_50 "Ti,ug/m3, ATIJ,,Ti"         # titanium
+     setenv AERO_51 "Ca,ug/m3,ACAJ,,Ca"          # calcium
+     setenv AERO_52 "Mg,ug/m3,AMGJ,,Mg"          # magnesium
+     setenv AERO_53 "K,ug/m3,AKJ,,K"             # potassium
+     setenv AERO_54 "Mg,ug/m3,AMNJ,,Mn"          # manganese
+     setenv AERO_55 "2.2*Al+2.49*Si+1.63*Ca+2.42*Fe+1.94*Ti,ug/m3,ASOILJ,,soil" 
+     setenv AERO_56 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti , ug/m3, AUNSPEC1IJ,,OTHER"        # PM Other
+     setenv AERO_57 "0.8*OC,ug/m3, ANCOMIJ,,NCOM"    # PM Other
+     setenv AERO_58 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti-0.8*OC,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other no NCOM
 
 #>> End Species List <<#
 
@@ -145,13 +165,16 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
+#> indicate whether or not to check QA flag (default Y)
+ setenv QA_FLAG_CHECK N 
+
 #############################################################
 #  Input files
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
-         #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_AELMO_${RUNID}_201607.nc
+         #[Add location of input file, e.g. COMBINE_AELMO file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
 #> GMT offset, state, county, and elevation (csv format)

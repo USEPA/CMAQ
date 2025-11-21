@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -68,46 +68,47 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv AERO_1 "SO4f_val,ug/m3,ASO4IJ,,SO4"                         # sulfate
- setenv AERO_2 "NO3f_val,ug/m3,ANO3IJ,,NO3"                         # nitrate
- setenv AERO_3 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,ANH4IJ,,NH4"   # ammonium (estimated assuming fully neutralized SO4 and NO3)
- setenv AERO_4 "MF_val,ug/m3,ATOTIJ,ug/m3,PM_TOT"          # Total PM2.5 mass 
- setenv AERO_5 "OCf_val,ug/m3,AOCIJ,,OC"                            # Organic Carbon
- setenv AERO_6 "ECf_val,ug/m3,AECIJ,,EC"                            # Elemental Carbon
- setenv AERO_7 "OCf_val+ECf_val,ug/m3,AOCIJ+AECIJ,,TC"              # Total Carbon
- setenv AERO_8 "CHLf_val,ug/m3,ACLIJ,ug/m3,Cl"                      # CL Ion
- setenv AERO_9 "MT_val,ug/m3,ATOTIJK,ug/m3,PM10"              # PM10
- setenv AERO_10 "CM_calculated_val,ug/m3,ATOTK,ug/m3,PMC_TOT"     # PM Course
+  setenv AERO_1 "SO4f_val,ug/m3,ASO4IJ,,SO4"                         # sulfate
+  setenv AERO_2 "NO3f_val,ug/m3,ANO3IJ,,NO3"                         # nitrate
+  setenv AERO_3 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,ANH4IJ,,NH4"   # ammonium (estimated assuming fully neutralized SO4 and NO3)
+  setenv AERO_4 "MF_val,ug/m3,ATOTIJ,ug/m3,PM_TOT"          # Total PM2.5 mass 
+  setenv AERO_5 "OCf_val,ug/m3,AOCIJ,,OC"                            # Organic Carbon
+  setenv AERO_6 "ECf_val,ug/m3,AECIJ,,EC"                            # Elemental Carbon
+  setenv AERO_7 "OCf_val+ECf_val,ug/m3,AOCIJ+AECIJ,,TC"              # Total Carbon
+  setenv AERO_8 "CHLf_val,ug/m3,ACLIJ,ug/m3,Cl"                      # CL Ion
+  setenv AERO_9 "MT_val,ug/m3,ATOTIJ+ATOTK,ug/m3,PM10_IJK"  # PM10 (sum of the IJK modes)
+  setenv AERO_10 "CM_calculated_val,ug/m3,ATOTK,ug/m3,PMC_TOT"       # PM Course
 
 #> PM2.5 Sharp Cutoff Species
 #> Requires preprocessing using setenv CCTM_AELMO file
- setenv AERO_11 "SO4f_val,ug/m3,PM25_SO4,,PM25_SO4"                 	# sulfate (< 2.5um)
- setenv AERO_12 "NO3f_val,ug/m3,PM25_NO3,,PM25_NO3"                 	# nitrate (< 2.5um)
- setenv AERO_13 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,PM25_NH4,,PM25_NH4"	# ammonium (< 2.5um)
- setenv AERO_14 "OCf_val,ug/m3,PM25_OC,,PM25_OC"                    	# Organic Carbon (< 2.5um)
- setenv AERO_15 "ECf_val,ug/m3,PM25_EC,,PM25_EC"                    	# Elemental Carbon (< 2.5um)
- setenv AERO_16 "OCf_val+ECf_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC"    	# Total Carbon (< 2.5um)
- setenv AERO_17 "MF_val,ug/m3,PM25_TOT,ug/m3,PM25_TOT"              	# Total PM2.5 mass (< 2.5um)
- setenv AERO_18 "CHLf_val,ug/m3,PM25_CL,ug/m3,PM25_Cl"              	# CL Ion (< 2.5um)
- setenv AERO_19  "CM_calculated_val,ug/m3,PMC_TOT,ug/m3,PMC_TOT_CUT" # PM Course
+  setenv AERO_11 "SO4f_val,ug/m3,PM25_SO4,,PM25_SO4"                 	# sulfate (< 2.5um)
+  setenv AERO_12 "NO3f_val,ug/m3,PM25_NO3,,PM25_NO3"                 	# nitrate (< 2.5um)
+  setenv AERO_13 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,PM25_NH4,,PM25_NH4"	# ammonium (< 2.5um)
+  setenv AERO_14 "OCf_val,ug/m3,PM25_OC,,PM25_OC"                    	# Organic Carbon (< 2.5um)
+  setenv AERO_15 "ECf_val,ug/m3,PM25_EC,,PM25_EC"                    	# Elemental Carbon (< 2.5um)
+  setenv AERO_16 "OCf_val+ECf_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC"    	# Total Carbon (< 2.5um)
+  setenv AERO_17 "MF_val,ug/m3,PM25_TOT,ug/m3,PM25_TOT"              	# Total PM2.5 mass (< 2.5um)
+  setenv AERO_18 "MT_val,ug/m3,PM10,ug/m3,PM10"  # PM10 (sharp cut at 10 microns)
+  setenv AERO_19 "CHLf_val,ug/m3,PM25_CL,ug/m3,PM25_Cl"              	# CL Ion (< 2.5um)
+  setenv AERO_20  "CM_calculated_val,ug/m3,PMC_TOT,ug/m3,PMC_TOT_CUT" # PM Course
 
 #> new AE6 species
 #> note: we use XRF sodium because there is not IC sodium mesaurement
 #> we use IC measurement for chlorid (CHLf_val) instead of XRF chlroine (CLf_Val)
- setenv AERO_20 "NAf_val,ug/m3, ANAIJ,,Na"                          # sodium
- setenv AERO_21 "NAf_val + CHLf_val,ug/m3,ACLIJ + ANAIJ,,NaCl"      # sodium chloride
- setenv AERO_22 "FEf_val,ug/m3, AFEJ,,Fe"                           # iron
- setenv AERO_23 "ALf_val,ug/m3,AALJ,,Al"                            # aluminum 
- setenv AERO_24 "SIf_val,ug/m3, ASIJ,,Si"                           # silicon
- setenv AERO_25 "TIf_val,ug/m3, ATIJ,,Ti"                           # titanium
- setenv AERO_26 "CAf_val,ug/m3,ACAJ,,Ca"                            # calcium
- setenv AERO_27 "MGf_val,ug/m3,AMGJ,,Mg"                            # magnesium
- setenv AERO_28 "Kf_val,ug/m3,AKJ,,K"                               # potassium
- setenv AERO_29 "MNf_val,ug/m3,AMNJ,,Mn"                            # manganese
- setenv AERO_30 "2.20*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil"       # IMPROVE soil eqn.
- setenv AERO_31 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3,AUNSPEC1IJ,,OTHER"        # PM Other
- setenv AERO_32 "0.8*OCf_val,ug/m3, ANCOMIJ,,NCOM"    # NCOM
- setenv AERO_33 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other remaining
+  setenv AERO_21 "NAf_val,ug/m3, ANAIJ,,Na"                          # sodium
+  setenv AERO_22 "NAf_val + CHLf_val,ug/m3,ACLIJ + ANAIJ,,NaCl"      # sodium chloride
+  setenv AERO_23 "FEf_val,ug/m3, AFEJ,,Fe"                           # iron
+  setenv AERO_24 "ALf_val,ug/m3,AALJ,,Al"                            # aluminum 
+  setenv AERO_25 "SIf_val,ug/m3, ASIJ,,Si"                           # silicon
+  setenv AERO_26 "TIf_val,ug/m3, ATIJ,,Ti"                           # titanium
+  setenv AERO_27 "CAf_val,ug/m3,ACAJ,,Ca"                            # calcium
+  setenv AERO_28 "MGf_val,ug/m3,AMGJ,,Mg"                            # magnesium
+  setenv AERO_29 "Kf_val,ug/m3,AKJ,,K"                               # potassium
+  setenv AERO_30 "MNf_val,ug/m3,AMNJ,,Mn"                            # manganese
+  setenv AERO_31 "2.20*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil"       # IMPROVE soil eqn.
+  setenv AERO_32 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3,AUNSPEC1IJ,,OTHER"        # PM Other
+  setenv AERO_33 "0.8*OCf_val,ug/m3, ANCOMIJ,,NCOM"    # NCOM
+  setenv AERO_34 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other remaining
  
 #>> End Species List <<#
 
@@ -140,13 +141,16 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
+#> indicate whether or not to check QA flag (default Y)
+ setenv QA_FLAG_CHECK N 
+
 #############################################################
 #  Input files
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
-         #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_AELMO_${RUNID}_201607.nc
+         #[Add location of input file, e.g. COMBINE_AELMO file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
 #> GMT offset, state, county, and elevation (csv format)

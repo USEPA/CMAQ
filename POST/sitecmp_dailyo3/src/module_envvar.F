@@ -30,10 +30,12 @@ C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1999
 C                   
 C*************************************************************************
 
-      CHARACTER*256  IN_TABLE        ! Input table of actual values  
+      INTEGER, PARAMETER :: MAXLEN = 1000
 
-      CHARACTER*256  OUT_TABLE       ! Output table containing both actual and modeled values 
-      CHARACTER*256  AVG_TABLE       ! Output table containing averages over time period
+      CHARACTER(MAXLEN) IN_TABLE     ! Input table of actual values  
+
+      CHARACTER(MAXLEN) OUT_TABLE    ! Output table containing both actual and modeled values 
+      CHARACTER(MAXLEN) AVG_TABLE    ! Output table containing averages over time period
 
       INTEGER        START_DATE      ! starting date of period to process
       INTEGER        START_TIME      ! starting time of period to process
@@ -284,7 +286,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
           ENDIF
 
-          ENV_DFLT = 'BCDFIMP'
+          ENV_DFLT = '#BCDFHIJKLMNPRTY'
           ENV_DESC = 'String containing the QA flag values to indicate bad data'        
           CALL ENVSTR( QA_FLAG_VALUES, ENV_DESC, ENV_DFLT, QA_FLAG_STRING, STATUS)
 

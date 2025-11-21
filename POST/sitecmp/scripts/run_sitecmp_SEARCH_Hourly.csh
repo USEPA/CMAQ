@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -68,7 +68,7 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
-  setenv AERO_1 "Average O3[ppb],ppb,O3,,O3"                               
+  setenv AERO_1 "Average O3[ppb],ppb,O3,,O3"                       
   setenv AERO_2 "Average CO[ppb],ppb,CO,,CO"                               
   setenv AERO_3 "Average SO2[ppb],ppb,SO2,,SO2"                            
   setenv AERO_4 "Average NO[ppb],ppb,NO,,NO"                               
@@ -121,13 +121,17 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
+#> indicate whether or not to check QA flag (default Y)
+ setenv QA_FLAG_CHECK Y 
+ setenv QA_FLAG_VALUES "#BCDFHIJKLMNPRTY" 
+
 #############################################################
 #  Input files
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
-         #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_AELMO_${RUNID}_201607.nc
+         #[Add location of input file, e.g. COMBINE_AELMO file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
 #> GMT offset, state, county, and elevation (csv format)

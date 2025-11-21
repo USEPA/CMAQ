@@ -43,6 +43,10 @@ This Fortran program generates a csv (comma separated values) file that compares
  END_DATE    ending date of time period to process (YYYYJJJ)
  END_TIME    ending time of time period to process (HHMMSS)
  APPLY_DLS   apply daylight savings time (default N)
+ QA_FLAG_CHECK  does IN_TABLE include a QA flag for ozone values, and should it be used? 
+                (Default Y, but can be set to N for any network except CASTNET and SEARCH because flags are currently only present in the data files for these networks) 
+ QA_FLAG_VALUES if QA_FLAG_CHECK is Y, string composed of single-character QA flags that 
+                should be treated as missing values (default "#BCDFHIJKLMNPRTY" to capture known CASTNET data and SEARCH flags)
  TIME_SHIFT  number of hours to add when retrieving time steps from M3_FILE_n files 
              during processing. This should only be non-zero if the M3_FILE_n files
              were pre-processed with a utility like m3tshift (default 0)
