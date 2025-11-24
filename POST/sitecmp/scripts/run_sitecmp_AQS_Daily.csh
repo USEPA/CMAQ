@@ -115,7 +115,7 @@
      setenv AERO_42 "OC_88370+EC_88380,ug/m3,AOCIJ+AECIJ,,PM25_TC_88370"  # Total Carbon
      setenv AERO_43 "OC_88320,ug/m3,PM25_OC,ug/m3,PM25_OC_88320"            # OC blank adjusted Mass
      setenv AERO_44 "EC_88321,ug/m3,PM25_EC,ug/m3,PM25_EC_88321"            # EC Mass
-     setenv AERO_45 "OC_88320+EC_88380,ug/m3,AOCIJ+AECIJ,,PM25_TC_88320"  # Total Carbon
+     setenv AERO_45 "OC_88320+EC_88321,ug/m3,AOCIJ+AECIJ,,PM25_TC_88320"  # Total Carbon
      setenv AERO_46 "PM10_81102,ug/m3,PM10,ug/m3,PM10"       # PM10 Total Mass 
  
  #> setenv AERO6 species
