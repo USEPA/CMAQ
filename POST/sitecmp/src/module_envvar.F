@@ -30,13 +30,15 @@ C
 C*************************************************************************
       MODULE ENV_VARS
 
-      CHARACTER*256  SITE_FILE       ! Site info file
+      INTEGER, PARAMETER :: MAXLEN = 1000
 
-      CHARACTER*16   TABLE_TYPE      ! Table type on input (IMPROVE, CASTNET, MDN, NADP, STN)
+      CHARACTER(MAXLEN) SITE_FILE    ! Site info file
 
-      CHARACTER*256  IN_TABLE        ! Input table of actual values  
+      CHARACTER*16      TABLE_TYPE   ! Table type on input (IMPROVE, CASTNET, MDN, NADP, STN)
 
-      CHARACTER*256  OUT_TABLE       ! Output table containing both actual and modeled values 
+      CHARACTER(MAXLEN) IN_TABLE     ! Input table of actual values  
+
+      CHARACTER(MAXLEN) OUT_TABLE    ! Output table containing both actual and modeled values 
 
       INTEGER        START_DATE      ! starting date of period to process
       INTEGER        START_TIME      ! starting time of period to process
@@ -49,6 +51,10 @@ C*************************************************************************
       CHARACTER*16   PRECIP_FIELD    ! name of precip species in wet concentration calculations
 
       CHARACTER*10   MISSING_VALUE   ! indicates missing value in output
+
+      CHARACTER*16   QA_FLAG_STRING  ! string of QA flags indicating invalid obs
+
+      LOGICAL        QAFLAG_CHECK    ! does the observation file include a QA flag?      
 
       CONTAINS
 
@@ -77,6 +83,8 @@ C..SCRATCH LOCAL VARIABLES:
          CHARACTER*256   RET_VAL          ! Returned value of env var
          CHARACTER*16    ENV_DFLT         ! default env value 
          CHARACTER*16    ENV_DESC         ! message string
+         CHARACTER*16    QA_FLAG_CHECK    ! Indicate whether QA flags should be checked
+         CHARACTER*16    QA_FLAG_VALUES   ! string of QA flags indicating invalid obs
          INTEGER   STATUS                 ! Status code
          LOGICAL   LERROR                 ! Error flag
 
@@ -90,6 +98,8 @@ C**********************************************************************
          DATA  OUTTABLE        / 'OUT_TABLE'       /  
          DATA  APPLY_DLS       / 'APPLY_DLS'       /  
          DATA  MISSING         / 'MISSING'         /  
+         DATA  QA_FLAG_VALUES  / 'QA_FLAG_VALUES'  /  
+         DATA  QA_FLAG_CHECK   / 'QA_FLAG_CHECK'   /  
 
          LERROR = .FALSE.
    
@@ -206,6 +216,30 @@ c  Get the Character string to use for missing values
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc    
          ENV_DESC = 'String to indicate missing values'        
          CALL ENVSTR( MISSING, ENV_DESC, '-999', MISSING_VALUE, STATUS)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the flag to see if a QA field is present in obs file (default is true)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc    
+         ENV_DESC = 'Flag to indicate whether QA flag field is present'        
+         QAFLAG_CHECK = ENVYN( QA_FLAG_CHECK, ENV_DESC, .TRUE., STATUS)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the Character strings for the QA flag header and QA flag strings
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc    
+         IF (QAFLAG_CHECK) THEN
+         
+          ENV_DFLT = '#BCDFHIJKLMNPRTY'
+          ENV_DESC = 'String containing the QA flag values to indicate bad data'        
+          CALL ENVSTR( QA_FLAG_VALUES, ENV_DESC, ENV_DFLT, QA_FLAG_STRING, STATUS)
+
+          IF( STATUS .NE. 0 ) THEN
+            MSG = 'WARNING: no value assigned to '//QA_FLAG_VALUES
+            CALL M3MESG( MSG )
+            MSG = 'USING DEFAULT '//ENV_DFLT
+            CALL M3MESG( MSG )
+          ENDIF
+
+         ENDIF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Stop if errors detected

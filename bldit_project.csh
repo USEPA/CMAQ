@@ -235,7 +235,13 @@
        mkdir -pv $CMAQ_HOME/POST/sitecmp/scripts
     endif
     cp POST/sitecmp/scripts/bldit_sitecmp.csh  $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_AQS_Daily.csh    $CMAQ_HOME/POST/sitecmp/scripts/
     cp POST/sitecmp/scripts/run_sitecmp_AQS_Hourly.csh    $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_CASTNET_Hourly.csh    $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_CSN.csh    $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_IMPROVE.csh    $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_NADP.csh    $CMAQ_HOME/POST/sitecmp/scripts/
+    cp POST/sitecmp/scripts/run_sitecmp_SEARCH_Hourly.csh    $CMAQ_HOME/POST/sitecmp/scripts/
  endif
 
 #===============================================================================

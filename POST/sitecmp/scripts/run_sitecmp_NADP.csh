@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -140,6 +140,9 @@
 #> Number of hours to add when retrieving time steps from M3_FILE_n files during processing.
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
+
+#> indicate whether or not to check QA flag (default Y)
+ setenv QA_FLAG_CHECK N 
 
 #############################################################
 #  Input files

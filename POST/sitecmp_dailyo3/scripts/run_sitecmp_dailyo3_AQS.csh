@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -105,8 +105,8 @@
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
-        #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_AELMO_${RUNID}_201607.nc
+        #[Add location of input file, e.g. COMBINE_AELMO file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
 #> GMT offset, state, county, and elevation (csv format)

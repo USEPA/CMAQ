@@ -35,16 +35,16 @@ C*************************************************************************
          CHARACTER(len=512) OBS_EXPRESSION
          CHARACTER(len=16) OBS_UNITS
          INTEGER           OBS_NUMSPEC
-         CHARACTER(len=36) OBS_NAME(20)
-         REAL              OBS_FACTOR(20)
-         INTEGER           OBS_FIELD(20)
-         LOGICAL           OBS_OPTNAL(20)
+         CHARACTER(len=36) OBS_NAME(50)
+         REAL              OBS_FACTOR(50)
+         INTEGER           OBS_FIELD(50)
+         LOGICAL           OBS_OPTNAL(50)
 
          CHARACTER(len=512) MOD_EXPRESSION
          CHARACTER(len=16) MOD_UNITS
          INTEGER           MOD_NUMSPEC
-         CHARACTER(len=36) MOD_NAME(20)
-         REAL              MOD_FACTOR(20)
+         CHARACTER(len=36) MOD_NAME(50)
+         REAL              MOD_FACTOR(50)
 
          CHARACTER(len=2)  OP_CODE
 

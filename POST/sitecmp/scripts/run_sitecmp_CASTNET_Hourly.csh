@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ===================== SITECMP_v5.5.X Run Script =====================
-# Usage: run_sitecmp_CSN.csh >&! sitecmp_CSN.log &
+# Usage: run_sitecmp_CASTNET_Hourly.csh >&! sitecmp_CASTNET_Hourly.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -53,12 +53,13 @@
 # ~~~~~~~~~~~~ START NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 #> The following environment variables will change depending on what 
 #> observation network is being matched with CMAQ output.
+#> This sample run script is set up for hourly data from CASTNET.
 #> See the README.md file in this folder for the settings to use for 
 #> the following networks: IMPROVE, CASTNET, CSN (formally STN), NADP
 #> SEARCH, AIRMON
 
 #> Set TABLE TYPE
- setenv TABLE_TYPE CASTNET
+  setenv TABLE_TYPE MET
 
 #> Specify the variable names used in your observation inputs
 #> and model output files for each of the species you are analyzing below.
@@ -68,56 +69,12 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
-  setenv AERO_1 "SO4,ug/m3, ASO4IJ,,SO4"                     		     # sulfate
-  setenv AERO_2 "NO3,ug/m3, ANO3IJ,,NO3"                     		     # nitrate
-  setenv AERO_3 "NH4,ug/m3, ANH4IJ,,NH4"                     		     # ammonium
-  setenv AERO_4 "PM25,ug/m3,ATOTIJ,,PM_TOT"        # PM2.5 (88101 and 88502)
-  setenv AERO_5 "PM25_88101,ug/m3,ATOTIJ,,PM_TOT_88101"  	     # PM2.5 (88101 only)
-  setenv AERO_6 "PM25_88502,ug/m3,ATOTIJ,,PM_TOT_88502"	     # PM2.5 (88502 only)
-  setenv AERO_7 "PM10_81102,ug/m3,ATOTIJ+ATOTK,,PM10_IJK"         # PM10 (81102 vs ATOTIJK)
-  setenv AERO_8 "OC,ug/m3, AOCIJ,,OC"      				     # Organic Carbon (best available)
-  setenv AERO_9 "EC,ug/m3, AECIJ,,EC"                        		     # Elemental Carbon (best available)
-  setenv AERO_10 "OC+EC,ug/m3,AOCIJ+AECIJ,,TC"     			     # Total Carbon (best available)
-  setenv AERO_11 "OC_88305,ug/m3, AOCIJ,,OC_88305"                          # Organic Carbon (88305 raw)
-  setenv AERO_12 "OC_88305_adj,ug/m3,AOCIJ,,OC_88305_adj"                  # Organic Carbon (88305 adjusted)
-  setenv AERO_13 "OC_88370,ug/m3, AOCIJ,,OC_88370"                         # Organic Carbon (88370 raw)
-  setenv AERO_14 "OC_88370_adj,ug/m3,AOCIJ,,OC_88370_adj"                  # Organic Carbon (88370 adjusted)
-  setenv AERO_15 "OC_88320,ug/m3,AOCIJ,,OC_88320"                          # Organic Carbon (88320)
-  setenv AERO_16 "EC_88307,ug/m3, AECIJ,,EC_88307"                         # Elemental Carbon (88307 raw)
-  setenv AERO_17 "EC_88307_adj,ug/m3,AECIJ,,EC_88307_adj"                  # Elemental Carbon (88307 adjusted)
-  setenv AERO_18 "EC_88380,ug/m3, AECIJ,,EC_88380"                         # Elemental Carbon (88380)
-  setenv AERO_19 "EC_88321,ug/m3,AECIJ,,EC_88321"                          # Elemental Carbon (88321)
-     
- #> PM2.5 Sharp Cutoff Species
- #> Requires preprocessing using setenv CCTM_AELMO file
-  setenv AERO_20 "SO4,ug/m3, PM25_SO4,,PM25_SO4"                   	     # sulfate (sharp cutoff)
-  setenv AERO_21 "NO3,ug/m3, PM25_NO3,,PM25_NO3"                  	     # nitrate (sharp cutoff)
-  setenv AERO_22 "NH4,ug/m3, PM25_NH4,,PM25_NH4"                  	     # ammonium (sharp cutoff)
-  setenv AERO_23 "OC,ug/m3, PM25_OC,,PM25_OC"                    	     # Organic Carbon (sharp cutoff)
-  setenv AERO_24 "EC,ug/m3, PM25_EC,,PM25_EC"                 # Elemental Carbon (sharp cutoff)
-  setenv AERO_25 "OC+EC,ug/m3,PM25_OC+PM25_EC,,PM25_TC"       # Total Carbon (sharp cutoff)
-  setenv AERO_26 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"       # Total PM2.5 (sharp cutoff)
-  setenv AERO_27 "PM10_81102,ug/m3,PM10,ug/m3,PM10"      # PM10 (sharp cutoff)
-
-#> setenv AERO6 species
-#> note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium
-#> all other elemental concentrations (including Cl and K) come from XRF
-  setenv AERO_28 "Na,ug/m3, ANAIJ,,Na"        # sodium
-  setenv AERO_29 "Cl,ug/m3, ACLIJ,,Cl"        # chlorine
-  setenv AERO_30 "Fe,ug/m3, AFEJ,,Fe"         # iron
-  setenv AERO_31 "Al,ug/m3,AALJ,,Al"          # aluminum
-  setenv AERO_32 "Si,ug/m3, ASIJ,,Si"         # silicon
-  setenv AERO_33 "Ti,ug/m3, ATIJ,,Ti"         # titanium
-  setenv AERO_34 "Ca,ug/m3,ACAJ,,Ca"          # calcium
-  setenv AERO_35 "Mg,ug/m3,AMGJ,,Mg"          # magnesium
-  setenv AERO_36 "K,ug/m3,AKJ,,K"             # potassium
-  setenv AERO_37 "Mn,ug/m3,AMNJ,,Mn"          # manganese
-  setenv AERO_38 "2.2*Al+2.49*Si+1.63*Ca+2.42*Fe+1.94*Ti,ug/m3,ASOILJ,,soil" # SOIL_OLD
-  setenv AERO_39 "Na + Cl, ug/m3, ANAIJ+ACLIJ,,NaCl"                                   # NaCl
-  setenv AERO_40 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti , ug/m3, AUNSPEC1IJ,,OTHER"        # PM Other
-  setenv AERO_41 "0.8*OC,ug/m3, ANCOMIJ,,NCOM"    # PM Other
-  setenv AERO_42 "PM25-SO4-NO3-NH4-OC-EC-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti-0.8*OC,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other no NCOM
-  
+  setenv GAS_1 "ozone,ppb,O3,ppb,O3"				 # ozone
+  setenv GAS_2 "temperature,C,SFC_TMP,C,SFC_TMP"			 # 2 meter temperature
+  setenv GAS_3 "relative_humidity,%,RH,%,RH"			 # Relative Humidity
+  setenv GAS_4 "solar_radiation,watts/m2,SOL_RAD,watts/m2,Solar_Rad" # Solar Radiation
+  setenv GAS_5 "precipitation,mm/hr,precip,mm/hr,precip"		 # Precipitation
+  setenv GAS_6 "windspeed,m/s,WSPD10,m/s,WSPD10"			 # Wind Speed
 #>> End Species List <<#
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,7 +107,8 @@
  setenv TIME_SHIFT 0
 
 #> indicate whether or not to check QA flag (default Y)
- setenv QA_FLAG_CHECK N 
+ setenv QA_FLAG_CHECK Y 
+ setenv QA_FLAG_VALUES "#BCDFHIJKLMNPRTY" 
 
 #############################################################
 #  Input files
@@ -168,24 +126,25 @@
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> See the README.md file in this folder for the information on 
 #> where to download this file.
- setenv SITE_FILE AQS_full_site_list.csv
+ setenv SITE_FILE CASTNET_full_site_list.csv
 #> On EPA system:
-#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv
+#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/CASTNET_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
-#> AQS obs data in the format needed for sitecmp are available online.
+#> CASTNET obs data in the format needed for sitecmp are available online.
 #> See the README.md file in this folder for the information on 
 #> where to download this file.
- setenv IN_TABLE AQS_CSN_data_2016.csv
+ setenv IN_TABLE CASTNET_hourly_data_2016.csv
 #> One EPA system:
-#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/AQS_CSN_data_2016.csv
+#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/CASTNET_hourly_data_2016.csv
+
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE ${POSTDIR}/CSN_CMAQ_${RUNID}_201607.csv
+ setenv OUT_TABLE ${POSTDIR}/CASTNET_Hourly_CMAQ_${RUNID}_201607.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}

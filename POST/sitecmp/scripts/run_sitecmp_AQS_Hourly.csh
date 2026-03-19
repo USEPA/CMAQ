@@ -22,7 +22,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN      = v55               #> Code Version
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set MECH      = cb6r5_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -69,31 +69,30 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv GAS_1 "O3,ppb,O3,ppb,O3" 
- setenv GAS_2 "NO,ppb,NO,ppb,NO"              
- setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"              
- setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"              
- setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
- setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
- setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
- setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
- setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
- setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
- setenv GAS_12 "Ethylene,ppb,ETH,ppb,Ethylene"   
- setenv GAS_13 "Ethane,ppb,ETHA,ppb,Ethane"      
- setenv GAS_14 "Toluene,ppb,TOL,ppb,Toluene"     
- setenv GAS_15 "Temperature,C,SFC_TMP,C,SFC_TMP" 
- setenv GAS_16 "RH,%,RH,%,RH"                    
- setenv GAS_17 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
- setenv GAS_18 ",,PBLH,m,PBLH"                   
- setenv GAS_19 ",,SOL_RAD,watts/m2,Solar_Rad"    
- setenv GAS_20 ",,10*precip,mm/hr,precip"       
+     setenv GAS_1 "O3,ppb,O3,ppb,O3"                           # O3
+     setenv GAS_2 "NO,ppb,NO,ppb,NO"                           # NO
+     setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"                        # NOY
+     setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"                        # NO2
+     setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"                     # NOX
+     setenv GAS_6 "CO,ppb,CO,ppb,CO"                           # CO
+     setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"                        # SO2
+     setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"    # PM25
+     setenv GAS_9 "PM10_81102,ug/m3,ATOTIJ+ATOTK,ug/m3,PM10_IJK"       # PM10
+     setenv GAS_10 "Isoprene,ppb,ISOP,ppb,Isoprene"            # Isoprene
+     setenv GAS_11 "Ethylene,ppb,ETH,ppb,Ethylene"             # Ethene (Ethylene)
+     setenv GAS_12 "Ethane,ppb,ETHA,ppb,Ethane"                # Ethane
+     setenv GAS_13 "Toluene,ppb,TOL,ppb,Toluene"               # Toluene
+     setenv GAS_14 "Temperature,C,SFC_TMP,C,SFC_TMP"           # Surface Temperature
+     setenv GAS_15 "RH,%,RH,%,RH"                              # Relative Humidity
+     setenv GAS_16 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"          # Wind Speed
+     setenv GAS_17 ",,PBLH,m,PBLH"                             # PBL Height
+     setenv GAS_18 ",,SOL_RAD,watts/m2,Solar_Rad"              # Solar Radiation
+     setenv GAS_19 ",,10*precip,mm/hr,precip"                  # Precipitation
    
 #> PM2.5 Sharp Cutoff Species
 #> Requires preprocessing using CCTM_AELMO file
- setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
- setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
+     setenv GAS_20 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"       # PM2.5 Total Mass with sharp cutoff
+     setenv GAS_21 "PM10_81102,ug/m3,PM10,ug/m3,PM10"       # PM10
 #>> End Species List <<#
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,13 +124,16 @@
 #> This should only be non-zero if the M3_FILE_n files were pre-processed with a utility like m3tshift (default 0).
  setenv TIME_SHIFT 0
 
+#> indicate whether or not to check QA flag (default Y)
+ setenv QA_FLAG_CHECK N 
+
 #############################################################
 #  Input files
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
-         #[Add location of input file, e.g. COMBINE_ACONC file.]
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_AELMO_${RUNID}_201607.nc
+         #[Add location of input file, e.g. COMBINE_AELMO file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
 #> GMT offset, state, county, and elevation (csv format)

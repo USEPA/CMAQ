@@ -853,7 +853,8 @@ C  routine to read and compute observed values from input record
 C****************************************************************************
       Subroutine getObsField(record, delimiter, TABLE_TYPE, VAR, resultValue)
 
-      USE SPECIES_DEF 
+      USE SPECIES_DEF
+      USE ENV_VARS, ONLY: QAFLAG_CHECK, QA_FLAG_STRING 
 
       ! arguments
       Character*(*) record
@@ -876,19 +877,26 @@ C****************************************************************************
         Call getField(record, delimiter, VAR%OBS_FIELD(n), field)
         Call rmQuots( field )
 
-        ! check for a code flag field following data field 
-        if(TABLE_TYPE .eq. 'CASTNET' .or. TABLE_TYPE .eq. 'SEARCH') then
-          Call getField(record, delimiter, VAR%OBS_FIELD(n)+1, flag)
-          Call rmQuots( flag )
-          if( INDEX('#IJKLMNBCDFP', flag(1:1)) .gt. 0 ) field = ' '
-          endif
+        ! perform a QA flag check if requested 
+        if(QAFLAG_CHECK) then
 
-        ! check for a code flag field following data field
-        if(TABLE_TYPE .eq. 'MET') then
-          Call getField(record, delimiter, VAR%OBS_FIELD(n)+1, flag)
-          Call rmQuots( flag )
-          if( LEN_TRIM(flag).eq.1 .and. INDEX('BCDFIMP',flag(1:1)).gt.0 ) field = ' '
-          endif
+         ! check for a code flag field following data field for
+         ! CASTNET or SEARCH table types
+         if(TABLE_TYPE .eq. 'CASTNET' .or. TABLE_TYPE .eq. 'SEARCH') then
+           Call getField(record, delimiter, VAR%OBS_FIELD(n)+1, flag)
+           Call rmQuots( flag )
+           if( INDEX(QA_FLAG_STRING, flag(1:1)) .gt. 0 ) field = ' '
+           endif
+
+         ! check for a code flag field following data field for
+         ! MET table type
+         if(TABLE_TYPE .eq. 'MET') then
+           Call getField(record, delimiter, VAR%OBS_FIELD(n)+1, flag)
+           Call rmQuots( flag )
+           if( LEN_TRIM(flag).eq.1 .and. INDEX(QA_FLAG_STRING,flag(1:1)).gt.0 ) field = ' '
+           endif
+
+        endif
 
         !  read fieldValue and check if missing
         read(field,'(g16.0)',iostat=status) fieldValue
