@@ -637,7 +637,8 @@ C Calculate Rst
             If(HGBIDI .And. Hg_Hit ) Then
                flux_hgII = 0.0 
 ! negative values are deposition fluxes
-               flux_hgII = -Sum( Tile_Data%Lu_Vd( c,r,n_HgII,: ) * Tile_Data%LUFRAC( c,r,: ), mask = WATER)
+               flux_hgII = -cgridl1(n_HGII) *
+     &           Sum( Tile_Data%Lu_Vd( c,r,n_HgII,: ) * Tile_Data%LUFRAC( c,r,: ), mask = WATER )
 
                Call Hg_Surf_Update ( f_stom, f_cut, f_soil, f_wat, flux_hgII, 
      &                               Heff_wat, Heff, TStep, c, r, Jdate, Jtime )

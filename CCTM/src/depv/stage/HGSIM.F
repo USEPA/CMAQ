@@ -308,12 +308,12 @@ C Flux unit conversions
 !********* Unit conversions *********************
 !         REAL, Parameter :: M3MOLVOL = MOLVOL/1.0e3 ! molar volume of air at stp m3/mol      
 C*************************** Ocean box parameters ***********************
-         REAL, PARAMETER :: satten = 7.58-1
+         REAL, PARAMETER :: satten = 7.58e-1
 C***** reduction and partioning terms from Whalin et al 2007 ************
          REAL, PARAMETER :: rref  = 240.0  ! referance incoming radiation
                                            ! for redox measurements (w/m2)
-         REAL, PARAMETER :: kphot = 6.5-4 ! drm photoreduction rate 1/s
-         REAL, PARAMETER :: kox   = 7.2-4 ! dgm photo-oxidation rate 1/s
+         REAL, PARAMETER :: kphot = 6.5e-4 ! drm photoreduction rate 1/s
+         REAL, PARAMETER :: kox   = 7.2e-4 ! dgm photo-oxidation rate 1/s
          CHARACTER( 16 ), PARAMETER :: pname      = 'Hg_Surf_Update'
 
          Hg_st     = CMEDIA( c,r,5 ) ! umol/g bulk leaf concentration
