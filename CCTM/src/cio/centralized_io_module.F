@@ -6205,6 +6205,7 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           USE HGRD_DEFN
+          use RUNTIME_VARS, only : LTNGON_DATA
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
@@ -6216,19 +6217,6 @@ C Read the various categories of normalized emissions
           integer :: startcol, endcol, startrow, endrow, gxoff, gyoff
           integer :: v, i, n, jdate, jtime, tstep, nstep, nvars
 
-          IF ( .NOT. OPEN3( LTNGFILE, FSREAD3, PNAME ) ) THEN
-                XMSG = 'Open failure for ' // LTNGFILE
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
-          IF ( .NOT. DESC3( LTNGFILE ) ) THEN
-               XMSG = 'Could not get description of file  '// LTNGFILE
-               CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
-          jdate = SDATE3D
-          jtime = STIME3D
-          tstep = TSTEP3D
-          nstep = MXREC3D
-          nvars = NVARS3D
           allocate (OCEAN_MASK(ncols, nrows), 
      &              SLOPE(ncols, nrows), 
      &              INTERCEPT(ncols, nrows), 
@@ -6236,7 +6224,6 @@ C Read the various categories of normalized emissions
      &              INTERCEPT_lg(ncols, nrows), 
      &              ICCG_SUM(ncols, nrows), 
      &              ICCG_WIN(ncols, nrows), 
-     &              LTNG_DATA4D(ncols, nrows, 1, nstep, nvars),
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
              XMSG = 'Failure allocating ltng parameter arrays'
@@ -6255,7 +6242,7 @@ C Read the various categories of normalized emissions
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "OCNMASK", 1, 1,
      &                        startrow, endrow, startcol, endcol,
      &                        0, 0, OCEAN_MASK ) ) Then
-             XMSG = 'Could not extract OPEN from ' // LTNGPARMS_FILE
+             XMSG = 'Could not extract OCNMASK from ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
@@ -6301,19 +6288,42 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
+          IF ( LTNGON_DATA ) THEN
 
-          DO n = 1, nstep 
-            DO v = 1, nvars
-               IF ( .NOT. XTRACT3( LTNGFILE, LT_NAME(v), 1, 1,
+            IF ( .NOT. OPEN3( LTNGFILE, FSREAD3, PNAME ) ) THEN
+                  XMSG = 'Open failure for ' // LTNGFILE
+                  Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. DESC3( LTNGFILE ) ) THEN
+                  XMSG = 'Could not get description of file  '// LTNGFILE
+                  CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+            END IF
+            jdate = SDATE3D
+            jtime = STIME3D
+            tstep = TSTEP3D
+            nstep = MXREC3D
+            nvars = NVARS3D
+
+            allocate (LTNG_DATA4D(ncols, nrows, 1, nstep, nvars),
+     &                STAT=STAT)
+            IF ( STAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating ltng data array'
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+            END IF
+
+            DO n = 1, nstep 
+               DO v = 1, nvars
+                  IF ( .NOT. XTRACT3( LTNGFILE, LT_NAME(v), 1, 1,
      &                        startrow, endrow, startcol, endcol,
      &                        jdate, jtime, LTNG_DATA4D(:,:,:,n,v) ) ) Then
-                  XMSG = 'Could not extract ' // LT_NAME(v) // ' from ' // LTNGFILE
-                  Call M3EXIT( PNAME, jdate, jtime, XMSG, XSTAT1 )
-               End If
+                     XMSG = 'Could not extract ' // LT_NAME(v) // ' from ' // LTNGFILE
+                     Call M3EXIT( PNAME, jdate, jtime, XMSG, XSTAT1 )
+                  End If
+               ENDDO
+               CALL nextime (jdate, jtime, tstep)
             ENDDO
-            CALL nextime (jdate, jtime, tstep)
-          ENDDO
-             
+
+          ENDIF ! LTNGON_DATA
 
         end subroutine retrieve_ltng_param_data
 
