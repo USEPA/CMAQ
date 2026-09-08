@@ -970,23 +970,39 @@ C...   = Initial amount - amount deposited  (mol/liter)
           S_CACOR(NP)   = SEAS_CA_FAC * S_SEASCOR( NP ) + SOIL_CA_FAC * S_SOILCOR( NP ) + CORS_CA_FAC * S_ANTHCOR( NP )
           S_KCOR(NP)    = SEAS_K_FAC  * S_SEASCOR( NP ) + SOIL_K_FAC  * S_SOILCOR( NP ) + CORS_K_FAC  * S_ANTHCOR( NP )
 
-          S_TS6(NP)     = S_LOADING( NP, LSO4,  IAIT ) + S_LOADING( NP, LSO4, IACC ) + S_TS6COR( NP )
-     &            - ( S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL ) ) * XC1
-     &            - S_DS4( NP, 0 )
-          S_NA(NP)      = S_LOADING( NP, LNA,   IACC ) + S_LOADING( NP, LNA, IAIT ) + S_NACOR( NP )
-     &            - S_WETDEP( NP, LNAACCL ) * XC1
+c         S_TS6(NP)     = S_LOADING( NP, LSO4,  IAIT ) + S_LOADING( NP, LSO4, IACC ) + S_TS6COR( NP )
+c    &            - ( S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL ) ) * XC1
+c    &            - S_DS4( NP, 0 )
+c         S_NA(NP)      = S_LOADING( NP, LNA,   IACC ) + S_LOADING( NP, LNA, IAIT ) + S_NACOR( NP )
+c    &            - S_WETDEP( NP, LNAACCL ) * XC1
           S_CA(NP)      = S_LOADING( NP, LCA,   IACC) - S_WETDEP( NP, LCAACCL ) * XC1 + S_CACOR( NP )
           S_MG(NP)      = S_LOADING( NP, LMG,   IACC) - S_WETDEP( NP, LMGACCL ) * XC1 + S_MGCOR( NP )
           S_K(NP)       = S_LOADING( NP, LK,    IACC) - S_WETDEP( NP, LKACCL  ) * XC1 + S_KCOR( NP )
           S_FE(NP)      = S_LOADING( NP, LFE,   IACC) - S_WETDEP( NP, LFEACCL ) * XC1 + S_FECOR( NP )
           S_MN(NP)      = S_LOADING( NP, LMN,   IACC) - S_WETDEP( NP, LMNACCL ) * XC1 + S_MNCOR( NP )
-          S_SOA(NP)     = S_LOADING( NP, LSOA,  IACC ) + S_LOADING( NP, LSOA, IAIT ) - S_WETDEP( NP, LSOAL  ) * XC1
+c         S_SOA(NP)     = S_LOADING( NP, LSOA,  IACC ) + S_LOADING( NP, LSOA, IAIT ) - S_WETDEP( NP, LSOAL  ) * XC1
           S_ORGC(NP)    = S_LOADING( NP, LORGC, IACC ) + S_DORGC( NP ) - S_WETDEP( NP, LORGCL ) * XC1
-          S_POA(NP)     = S_LOADING( NP, LPOA,  IACC ) + S_LOADING( NP, LPOA, IAIT ) - S_WETDEP( NP, LPOAL ) * XC1
-          S_EC(NP)      = S_LOADING( NP, LEC,   IACC ) + S_LOADING( NP, LEC,  IAIT ) - S_WETDEP( NP, LECL   ) * XC1
-          S_PRIM(NP)    = S_LOADING( NP, LPRI,  IACC ) + S_LOADING( NP, LPRI, IAIT ) - S_WETDEP( NP, LPRIML ) * XC1
+c         S_POA(NP)     = S_LOADING( NP, LPOA,  IACC ) + S_LOADING( NP, LPOA, IAIT ) - S_WETDEP( NP, LPOAL ) * XC1
+c         S_EC(NP)      = S_LOADING( NP, LEC,   IACC ) + S_LOADING( NP, LEC,  IAIT ) - S_WETDEP( NP, LECL   ) * XC1
+c         S_PRIM(NP)    = S_LOADING( NP, LPRI,  IACC ) + S_LOADING( NP, LPRI, IAIT ) - S_WETDEP( NP, LPRIML ) * XC1
           S_NUMCOR(NP)  = S_LOADING( NP, LNUM,  ICOR ) - S_WETDEP( NP, LNUMCORL  ) * XC1
-
+c SLN change on 2July2026, aerosols with i-mode that are aggregated into
+c surrogates (SOA, PRI, and POA) in cb6 and cracmm can cause instability
+c here due to the possibility of both negative and positive signs on the
+c sensitivity of the components. This can cause the i-mode to drive the
+c results of aqchem for these species causing the instability.
+c Investigate this further for other species that are not aggregated,
+c but these are removed, because this summation makes negligible
+c difference (until it goes unstable.)
+          S_TS6(NP)     =                                S_LOADING( NP, LSO4, IACC ) + S_TS6COR( NP )
+     &            - ( S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL ) ) * XC1
+     &            - S_DS4( NP, 0 )
+          S_NA(NP)      = S_LOADING( NP, LNA,   IACC )                               + S_NACOR( NP )
+     &            - S_WETDEP( NP, LNAACCL ) * XC1
+          S_SOA(NP)     = S_LOADING( NP, LSOA,  IACC )                               - S_WETDEP( NP, LSOAL  ) * XC1
+          S_POA(NP)     = S_LOADING( NP, LPOA,  IACC )                               - S_WETDEP( NP, LPOAL ) * XC1
+          S_EC(NP)      = S_LOADING( NP, LEC,   IACC )                               - S_WETDEP( NP, LECL   ) * XC1
+          S_PRIM(NP)    = S_LOADING( NP, LPRI,  IACC )                               - S_WETDEP( NP, LPRIML ) * XC1
         END DO
 #endif
 
@@ -1503,11 +1519,11 @@ C...compute modal concentrations
           S_MNACC( NP )   = S_MN( NP )     - S_MNCOR( NP )
         END DO
 
-c       IF ( HSO4COR .EQ. 0.0D0 ) THEN
-c         DO NP = 1, NPMAX
-c           S_HSO4COR( NP ) = 0.0D0
-c         END DO
-c       END IF
+        IF ( HSO4COR .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_HSO4COR( NP ) = 0.0D0
+          END DO
+        END IF
 
         IF ( TS6ACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX
@@ -1527,11 +1543,11 @@ c       END IF
           END DO
         END IF
 
-c       IF ( NO3ACC .EQ. 0.0D0 ) THEN
-c         DO NP = 1, NPMAX
-c           S_NO3ACC( NP ) = 0.0D0
-c         END DO
-c       END IF
+        IF ( NO3ACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_NO3ACC( NP ) = 0.0D0
+          END DO
+        END IF
 
         IF ( NAACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX
@@ -1539,17 +1555,17 @@ c       END IF
           END DO
         END IF
 
-c       IF ( CLACC .EQ. 0.0D0 ) THEN
-c         DO NP = 1, NPMAX
-c           S_CLACC( NP ) = 0.0D0
-c         END DO
-c       END IF
+        IF ( CLACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_CLACC( NP ) = 0.0D0
+          END DO
+        END IF
 
-c       IF ( NH4ACC .EQ. 0.0D0 ) THEN
-c         DO NP = 1, NPMAX
-c           S_NH4ACC( NP ) = 0.0D0
-c         END DO
-c       END IF
+        IF ( NH4ACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_NH4ACC( NP ) = 0.0D0
+          END DO
+        END IF
 
         IF ( CAACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX
@@ -2305,13 +2321,13 @@ C...gas concentrations (mol/molV)
       DO NP = 1, NPMAX
         IF ( IPT(NP) .EQ. 4 ) CYCLE ! hddm
         S_GAS( NP, LSO2   ) = ( S_PSO2F( NP )  + XL *  S_SIV( NP ) )   * RECIPAP1
-c       S_GAS( NP, LH2O2  ) = ( S_PH2O2F( NP ) + XL *  S_H2O2L( NP ) ) * RECIPAP1
-c       S_GAS( NP, LO3    ) = ( S_PO3F( NP )   + XL *  S_O3L( NP ) )   * RECIPAP1
-c       S_GAS( NP, LCO2   ) = ( S_PCO2F( NP )  + XL *  S_CO2L( NP ) )  * RECIPAP1
-c       S_GAS( NP, LFOA   ) = ( S_PFOAF( NP )  + XL * ( S_FOAL( NP ) + S_HCO2( NP ) ) ) * RECIPAP1
-c       S_GAS( NP, LMHP   ) = ( S_PMHPF( NP )  + XL *  S_MHPL( NP ) )  * RECIPAP1
-c       S_GAS( NP, LPAA   ) = ( S_PPAAF( NP )  + XL *  S_PAAL( NP ) )  * RECIPAP1
-c       S_GAS( NP, LHCL   ) = ( S_PHCLF( NP )  + XL *  S_HCLL( NP ) )  * RECIPAP1
+        S_GAS( NP, LH2O2  ) = ( S_PH2O2F( NP ) + XL *  S_H2O2L( NP ) ) * RECIPAP1
+        S_GAS( NP, LO3    ) = ( S_PO3F( NP )   + XL *  S_O3L( NP ) )   * RECIPAP1
+        S_GAS( NP, LCO2   ) = ( S_PCO2F( NP )  + XL *  S_CO2L( NP ) )  * RECIPAP1
+        S_GAS( NP, LFOA   ) = ( S_PFOAF( NP )  + XL * ( S_FOAL( NP ) + S_HCO2( NP ) ) ) * RECIPAP1
+        S_GAS( NP, LMHP   ) = ( S_PMHPF( NP )  + XL *  S_MHPL( NP ) )  * RECIPAP1
+        S_GAS( NP, LPAA   ) = ( S_PPAAF( NP )  + XL *  S_PAAL( NP ) )  * RECIPAP1
+        S_GAS( NP, LHCL   ) = ( S_PHCLF( NP )  + XL *  S_HCLL( NP ) )  * RECIPAP1
         S_GAS( NP, LGLY   ) = ( S_PGLYF( NP )  + XL *  S_GLYL( NP ) )  * RECIPAP1
         S_GAS( NP, LMGLY  ) = ( S_PMGLYF( NP ) + XL *  S_MGLYL( NP ))  * RECIPAP1
 c       S_GAS( NP, LNH3   ) = S_FNH3( NP )  * S_TOTAMM( NP )
@@ -2488,13 +2504,40 @@ C...aerosol concentrations (mol/molV)
         S_AEROSOL( NP, LPRI, IAIT )   = S_AEROSOL( NP, LPRI, IAIT ) * EALFA3T
         S_AEROSOL( NP, LPOA, IAIT )   = S_AEROSOL( NP, LPOA, IAIT ) * EALFA3T
         S_AEROSOL( NP, LSOA, IAIT )   = S_AEROSOL( NP, LSOA, IAIT ) * EALFA3T
+
         S_AEROSOL( NP, LSO4, IACC )   = S_TS6ACC( NP ) * XL * RECIPAP1
         S_AEROSOL( NP, LEC,  IACC )   = S_EC( NP )     * XL * RECIPAP1
         S_AEROSOL( NP, LPRI, IACC )   = S_PRIM( NP )   * XL * RECIPAP1
         S_AEROSOL( NP, LSOA, IACC )   = S_SOA( NP )  * XL * RECIPAP1
         S_AEROSOL( NP, LORGC,IACC )   = S_ORGC( NP ) * XL * RECIPAP1
         S_AEROSOL( NP, LPOA, IACC )   = S_POA( NP )  * XL * RECIPAP1
+
+c       S_AEROSOL( NP, LNH4, IACC )   = S_FNH4ACC( NP ) * S_TOTAMM( NP )
+c       S_AEROSOL( NP, LNO3, IACC )   = S_FNO3ACC( NP ) * S_TOTNIT( NP )
+
         S_AEROSOL( NP, LSO4, ICOR )   = S_TS6COR( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LNO3, ICOR )   = S_NO3COR( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LNH4, ICOR )   = S_NH4COR( NP ) * XL * RECIPAP1
+
+
+        S_AEROSOL( NP, LNA, IAIT  )   = S_AEROSOL( NP, LNA, IAIT ) * EALFA3T
+        S_AEROSOL( NP, LCL, IAIT  )   = S_AEROSOL( NP, LCL, IAIT ) * EALFA3T
+        S_AEROSOL( NP, LNA, IACC  )   = S_NAACC( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LCL, IACC  )   = S_CLACC( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LCL, ICOR  )   = S_CLCOR( NP ) * XL * RECIPAP1
+
+        S_AEROSOL( NP, LNUM, IAIT )   = S_AEROSOL( NP, LNUM, IAIT ) * EALFA0T
+        S_AEROSOL( NP, LNUM, IACC )   = S_AEROSOL( NP, LNUM, IACC ) * EBETASO4T
+        S_AEROSOL( NP, LNUM, ICOR )   = S_AEROSOL( NP, LNUM, ICOR ) * EXP(-TAUCLD / TWASH )
+
+        S_AEROSOL( NP, LCA,   IACC )  = S_CAACC( NP )   * XL * RECIPAP1
+        S_AEROSOL( NP, LMG,   IACC )  = S_MGACC( NP )   * XL * RECIPAP1
+        S_AEROSOL( NP, LK,    IACC )  = S_KACC( NP )    * XL * RECIPAP1
+        S_AEROSOL( NP, LSOIL, ICOR )  = S_SOILCOR( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LANTH, ICOR )  = S_ANTHCOR( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LSEAS, ICOR )  = S_SEASCOR( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LFE,   IACC )  = S_FEACC( NP )   * XL * RECIPAP1
+        S_AEROSOL( NP, LMN,   IACC )  = S_MNACC( NP )   * XL * RECIPAP1
       END DO
 #endif
 

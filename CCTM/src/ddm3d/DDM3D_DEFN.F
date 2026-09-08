@@ -132,6 +132,8 @@ c Cloud module variables
       REAL( 4 ) S_CONDIS
       REAL( 4 ), ALLOCATABLE, SAVE :: DDM3D_CONCMINL(:,:)  
 
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_WSRGAQ( :,: )      ! Surrogate weights in aq_map
+
 c VDIFF module variables
       REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
       REAL, ALLOCATABLE, SAVE :: S_DDEP( :,:,:,: )         ! ddep sens accumulator

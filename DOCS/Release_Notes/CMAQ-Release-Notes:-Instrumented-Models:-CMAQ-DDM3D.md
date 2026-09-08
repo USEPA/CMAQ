@@ -1,5 +1,24 @@
 # Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)
 
+### DDM-3D Mass Transfer in Cloud Module
+ 
+ Sergey L. Napelenok(mailto:napelenok.sergey@epa.gov), U.S. Environmental Protection Agency    
+ 
+**Type of update**: Update  
+
+**Release Version/Date**: v6.0
+
+**Significance and Impact**:
+DDM-3D occasionally goes unstable when propagating sensitivities through the cloud module. This can happen essentially because the cloud module aggregates across layers in the convection module, across species (combining into surrogates) in the aq_map module, and also across aerosol modes in the aqueous chemistry module. This aggregation, and more importantly the disaggregation at the end of the processes, has always been challenging to implement for instrumented models. Furthermore, as the model has evolved, and become more interdependent across different modules, small errors and disturbances in sensitivity fields that before did not impact results before being flushed out, can now have a more immediate and dramatic impacts.
+
+The main issue with sensitivity aggregation addressed here is the fact that the coefficients can be both positive and negative, unlike the base mode that floored at 1e-30. Therefore, the disaggregation fractions for concentrations are strictly between 0.0 and 1.0. This is not true for sensitivities. For example, in a hypothetical aggregation of concentration values of 10, 8, 8, 6, 4, 1, the fractions would be approximately 0.27, 0.22, 0.22, 0.16, 0.10, .03. In a hypothetical aggregation of sensitivity values of 5, 3, 2, -1, -3, the fractions would be approximately 2.33, 1.00, 0.67, -0.33, -1.00, -1.67. This still adds up to 100%, but is not constrained to be between 0.0 and 1.0 resulting in some very high potential fractions for some cases where the sum of aggregated sensitivities approaches 0.0. This problem is exacerbated with double and triple aggregation that can happen for SOA, POA, and PRI species, where these undergo vertical column summation in convective module, followed by summing into surrogates in aq_map module, and finally into I/J summation in aqchem module.
+
+This patch removes the last I/J aggregation from DDM-3D calculations. It has minimal impact on the results when it is working correctly, but can destabilize the entire species sensitivity array when the vertical summation and/or the surrogate summation of the J-mode species becomes smaller in absolute value than the corresponding I-mode of the same. What follows is the inappropriate influence of the i-mode on the total system when it is first added to the J-mode at the beginning of aqchem and then disaggregated at the end.  
+
+
+ **Internal PRs**: 
+[PR#1441](https://github.com/USEPA/CMAQ_Dev/pull/1441)  
+
 ### DDM-3D Convective Clouds
 [Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), U.S. Environmental Protection Agency      
 **Type of update**: Science Update   

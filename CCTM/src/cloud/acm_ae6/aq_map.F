@@ -80,7 +80,7 @@ C-----------------------------------------------------------------------
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX, S_POLC, S_CEND, S_REMOV,
      &                       S_REMOVAC, S_HPWDEP, S_GAS, S_GASWDEP,
-     &                       S_AEROSOL, S_AERWDEP
+     &                       S_AEROSOL, S_AERWDEP, S_WSRGAQ
 #endif 
       USE CONST, ONLY  : DPI
       IMPLICIT NONE
@@ -218,9 +218,15 @@ C... Allocate sensitivity arrays
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+        ALLOCATE ( S_WSRGAQ ( NPMAX, N_CGRID_SPC ),  STAT = STAT )
+        IF ( STAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_WSRGAQ'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 #endif
 
       END IF
+
 
 C...for subsequent calls, check to make sure some surrogates were
 C...  specified, otherwise there is no need to perform aqueous chemistry
@@ -261,6 +267,7 @@ C...Zero out concentrations
       S_GASWDEP = 0.0D0
       S_AEROSOL = 0.0D0
       S_AERWDEP = 0.0D0
+      S_WSRGAQ  = 0.0D0
 #endif
 
       ! Load all Gas and Aerosol Concentrations
@@ -298,6 +305,15 @@ C...Zero out concentrations
            ELSE
               WSRGAQ( ISPC ) = 1.0D0 / N_AQSRG_GAS( IAQ )
            END IF
+#ifdef sens
+           DO NP = 1, NPMAX
+             IF ( S_GAS( NP, IAQ ) .NE. 0.0D0 ) THEN
+               S_WSRGAQ( NP, ISPC ) = REAL( S_POLC( NP,ISPC ), 8 ) /S_GAS( NP, IAQ )
+             ELSE
+               S_WSRGAQ( NP, ISPC ) = 1.0D0 / N_AQSRG_GAS( IAQ )
+             END IF
+           END DO
+#endif
         END IF
 
         ! Next try aerosol surrogates
@@ -310,10 +326,19 @@ C...Zero out concentrations
            ELSE
               WSRGAQ( ISPC ) = 1.0D0 / REAL( N_AQSRG_AER( IAQ, IM ), 8 )
            END IF
+#ifdef sens
+           DO NP = 1, NPMAX
+             IF ( S_AEROSOL( NP,  IAQ, IM ) .NE. 0.0D0 ) THEN
+               S_WSRGAQ( NP, ISPC ) = REAL( S_POLC( NP,ISPC ), 8 ) 
+     &                              / S_AEROSOL( NP,  IAQ, IM )
+             ELSE
+               S_WSRGAQ( NP, ISPC ) = 1.0D0 / REAL( N_AQSRG_AER( IAQ, IM ), 8 )
+             END IF
+           END DO
+#endif
         END IF
 
       END DO
-
 
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
@@ -372,8 +397,8 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
              REMOV( ISPC ) = GASWDEP( IAQ ) * WSRGAQ( ISPC )
 #ifdef sens
              DO NP = 1, NPMAX
-               S_CEND ( NP, ISPC ) = S_GAS    ( NP, IAQ ) * WSRGAQ( ISPC )
-               S_REMOV( NP, ISPC ) = S_GASWDEP( NP, IAQ ) * WSRGAQ( ISPC )
+               S_CEND ( NP, ISPC ) = S_GAS    ( NP, IAQ ) * S_WSRGAQ( NP,ISPC )
+               S_REMOV( NP, ISPC ) = S_GASWDEP( NP, IAQ ) * S_WSRGAQ( NP,ISPC )
              ENDDO
 #endif
         END IF 
@@ -387,8 +412,8 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
              REMOV( ISPC ) = AERWDEP( IAQ, IM ) * WSRGAQ( ISPC )
 #ifdef sens
              DO NP = 1, NPMAX
-                S_CEND ( NP,ISPC ) = S_AEROSOL( NP,IAQ,IM ) * WSRGAQ( ISPC )
-                S_REMOV( NP,ISPC ) = S_AERWDEP( NP,IAQ,IM ) * WSRGAQ( ISPC )
+                S_CEND ( NP,ISPC ) = S_AEROSOL( NP,IAQ,IM ) * S_WSRGAQ( NP, ISPC )
+                S_REMOV( NP,ISPC ) = S_AERWDEP( NP,IAQ,IM ) * S_WSRGAQ( NP, ISPC )
              ENDDO
 #endif 
              IF ( IM .EQ. IACC ) THEN
@@ -403,24 +428,29 @@ C...Now, re-apportion mass back into cend/remov (cgrid-type) array
      &                                   + FRACAIT(IAQ)  * AEROSOL( IAQ,IM ) * WSRGAQ( JSPC )
                    REMOV( ISPC ) = (1.d0 - FRACAIT(IAQ)) * AERWDEP( IAQ,IM ) * WSRGAQ( ISPC )
      &                                   + FRACAIT(IAQ)  * AERWDEP( IAQ,IM ) * WSRGAQ( JSPC )
-#ifdef sens      
-                   DO NP = 1, NPMAX
-                      S_CEND ( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AEROSOL(NP,IAQ,IM) * WSRGAQ( ISPC )
-     &                                           + FRACAIT(IAQ)  * S_AEROSOL(NP,IAQ,IM) * WSRGAQ( JSPC )
-                      S_REMOV( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AERWDEP(NP,IAQ,IM) * WSRGAQ( ISPC )
-     &                                           + FRACAIT(IAQ)  * S_AERWDEP(NP,IAQ,IM) * WSRGAQ( JSPC )
-                   ENDDO
-#endif           
+!#ifdef sens      
+! Ignore this part DDM-3D, because it causes instability and has very
+! little impact on sensitivity results. Plan to develop a
+! different way to transfer this mass in the future.
+!                  DO NP = 1, NPMAX
+!                     S_CEND ( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AEROSOL(NP,IAQ,IM) * S_WSRGAQ( NP,ISPC )
+!    &                                           + FRACAIT(IAQ)  * S_AEROSOL(NP,IAQ,IM) * S_WSRGAQ( NP,JSPC )
+!                     S_REMOV( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AERWDEP(NP,IAQ,IM) * S_WSRGAQ( NP,ISPC )
+!    &                                           + FRACAIT(IAQ)  * S_AERWDEP(NP,IAQ,IM) * S_WSRGAQ( NP,JSPC )
+!                  ENDDO
+!#endif           
                 ELSE
                    ! Transfer Accumulation-Mode Mass without an Aitken mode counterpart
                    CEND ( ISPC ) = (1.d0 - FRACAIT(IAQ)) * AEROSOL( IAQ,IM ) * WSRGAQ( ISPC )
                    REMOV( ISPC ) = (1.d0 - FRACAIT(IAQ)) * AERWDEP( IAQ,IM ) * WSRGAQ( ISPC )
-#ifdef sens        
-                   DO NP = 1, NPMAX
-                      S_CEND ( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AEROSOL( NP,IAQ,IM ) * WSRGAQ( ISPC )
-                      S_REMOV( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AERWDEP( NP,IAQ,IM ) * WSRGAQ( ISPC )
-                   ENDDO
-#endif             
+!#ifdef sens        
+!                  DO NP = 1, NPMAX
+c                     S_CEND ( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AEROSOL( NP,IAQ,IM ) * WSRGAQ( ISPC )
+c                     S_REMOV( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AERWDEP( NP,IAQ,IM ) * WSRGAQ( ISPC )
+!                     S_CEND ( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AEROSOL( NP,IAQ,IM ) * S_WSRGAQ( NP,ISPC )
+!                     S_REMOV( NP,ISPC ) = (1.d0 - FRACAIT(IAQ)) * S_AERWDEP( NP,IAQ,IM ) * S_WSRGAQ( NP,ISPC )
+!                  ENDDO
+!#endif             
                 END IF
              END IF
 

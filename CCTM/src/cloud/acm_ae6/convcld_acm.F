@@ -972,7 +972,7 @@ C...  initialize all species to CMIN
           CONCMINL = 1.0E-25
 
 #ifdef sens
-          DDM3D_CONCMINL = 1.0E-25
+          DDM3D_CONCMINL = 1.0E-30
 #endif
 
 C...  set minimum for aerosol species
