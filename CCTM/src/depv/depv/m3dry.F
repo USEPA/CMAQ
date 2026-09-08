@@ -477,7 +477,12 @@ C-------------------------------------------------------------------------------
 
             ELSE  ! Already have canopy wetness explicitly from met model
 
-               wrmax = 0.2e-3 * vegcr * laicr   ! [m]
+               IF ( vegcr .EQ. 0.0 ) THEN
+                  ! avoid potential divide by zero
+                  wrmax = 0.2e-3 * 1.0e-3 * laicr   ! [m]
+               ELSE
+                  wrmax = 0.2e-3 * vegcr * laicr   ! [m]
+               ENDIF
                IF ( MET_DATA%WR( c,r ) .LE. 0.0 ) THEN
                   delta( c,r ) = 0.0
                ELSE
