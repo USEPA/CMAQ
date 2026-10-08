@@ -13,7 +13,7 @@ In this chapter, the user will learn basic hardware and software requirements to
 
 ## 3.2 Hardware Requirements
 
-The suggested hardware requirements for running the CMAQ Northeast Benchmark case on a Linux workstation are:
+The suggested hardware requirements for running the CMAQ Benchmark case on a Linux workstation are:
 
 -   8 processors
 -   4 GB RAM

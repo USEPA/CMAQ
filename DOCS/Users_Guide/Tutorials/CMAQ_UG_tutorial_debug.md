@@ -161,8 +161,8 @@ This stack trace indicates that the error occurred on line 503 of the file aero_
 To rebuild a debug version
 
 ```
-cp bldit_cctm.csh bldit_cctmv55_debug.csh
-vi bldit_cctmv55_debug.csh
+cp bldit_cctm.csh bldit_cctmv6_debug.csh
+vi bldit_cctmv6_debug.csh
 ```
 
 uncomment the following line 
@@ -180,7 +180,7 @@ set Debug_CCTM
 Rerun the build script
 
 ```
-./bldit_cctmv55_debug.csh gcc |& tee ./bldit_cctmv55_debug.log
+./bldit_cctmv6_debug.csh gcc |& tee ./bldit_cctmv6_debug.log
 ```
 
 Edit your run script to use the newly compiled debug version that is in a BLD directory with the following extension `_debug`
@@ -208,7 +208,7 @@ Selecting a category is important, as the CMAS Center and EPA staff are only mon
 * Type in a title for your topic that describes your CMAQ compiler environment
 Example Title: 
 ```
-CMAQv5.4 segmentation fault using gcc and openmpi
+CMAQv6 segmentation fault using gcc and openmpi
 ```
 
 ### Template for what to include in your new issue.
@@ -237,8 +237,8 @@ grep -B 10 -i error CTM_LOG_000*
 | | |
 |:--------:|:----------------:|
 | Compiler Version | ifort version 18.0.1 |
-|CMAQ Version | BLD_CCTM_v54_intel/CCTM_v54.exe |
-| Run Script | run_cctm_Bench_2018_12NE3.csh |
+|CMAQ Version | BLD_CCTM_v6_intel/CCTM_v6.exe |
+| Run Script | run_cctm_Bench_2022_12SE1.csh |
 
 Error message encountered: 
 ```
@@ -255,7 +255,7 @@ Click on the up arrow icon in the menu underneath the Create New Topic Title inc
 * Note You will need to rename any files to match one of the following extensions (jpg, jpeg, png, gif, csh, txt, csv), for instance, copy cmaq.log to cmaq.log.txt
 
 ```
-CTM_LOG_000.v54_gcc_Bench_2018_12NE3_2day_20180701  CTM_LOG_000.v54_gcc_Bench_2018_12NE3_2day_20180702  
+CTM_LOG_000.v6_gcc_Bench_2022_12SE1_2day_20220701  CTM_LOG_000.v6_gcc_Bench_2022_12SE1_2day_20220702  
 ```
 
 * When someone replies to your topic, you will receive an e-mail notification. 

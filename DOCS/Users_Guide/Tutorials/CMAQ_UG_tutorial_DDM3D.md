@@ -1,9 +1,9 @@
-## CMAQ-DDM3D Benchmark Tutorial ## 
+## CMAQ-DDM3D CRACMM3 Benchmark Tutorial ## 
 
-### Procedure to build and run the CMAQ-DDM3D model using cb6r5 mechanism and m3dry dry deposition scheme using gnu compiler: ###
+### Procedure to build and run the CMAQ-DDM3D model using cracmm3 mechanism and stage dry deposition scheme using gnu compiler: ###
 
-### Step 1: Download and run the CMAQv5.5 cb6r5 benchmark case (without DDM3D) to confirm that your model run is consistent with the provided benchmark output.
-- [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
+### Step 1: Download and run the CMAQv6 cracmm3 benchmark case (without DDM3D) to confirm that your model run is consistent with the provided benchmark output.
+- [CMAQ CRACMM3 Benchmark Tutorial](CMAQ_UG_tutorial_benchmark_cracmm3_stage.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
 
@@ -14,38 +14,28 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-DDM-3D with the provided input files:
 
-The following  control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):
+The following  control file is provided in the CCTM/scripts directory when you obtain the CMAQv6 code from github (step 5 below):
 
 ```
-sensinput.2018_12NE3.dat
+sensinput.2022_12SE1.dat
 ```
 
 The above file contains the following sensitivity definition block:
 
 ```
-PPA
+EGU
  EMIS
   PT_EGU
  SPECIES
-  SO2
- REGION
-  PA
-
-GNJ
- EMIS
-  GRIDDED_EMIS
- SPECIES
-  NO2, NO
- REGION
-  NJ
+  NO, NO2
 
 END
 ```
 
-The following gridmask file is provided with the [5.5 benchmark inputs](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/) tar file CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz. (See step 10 below.)
+The following gridmask file is provided with the [v6 benchmark inputs](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v6/) tar file CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz. (See step 10 below.)
 
 ```
-GRIDMASK_STATES_12NE3.nc
+surface/GRIDMASK_STATES_12SE1.nc
 ```
 
 The instructions require the user to edit the emissions control namelist file and the chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files.
@@ -63,7 +53,7 @@ module avail
 ```
 
 ```
-module load openmpi_4.0.1/gcc_9.1.0 
+module load openmpi/5.0.10/gcc_15.2.0
 ```
 
 ### Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)
@@ -88,7 +78,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
+set CMAQ_HOME = [your_install_path]/CMAQv6.0
 ```
 
 Now execute the script.
@@ -100,19 +90,19 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd [your_install_path]/CMAQ_v5.5
+cd [your_install_path]/CMAQv6.0
 ```
 
 
 ### Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
-### Step 7: Copy the bldit_cctm.csh script to a new bldit_cctm_cb6r5_m3dry_ddm.csh bldit script, and make the following edits:
+### Step 7: Copy the bldit_cctm.csh script to a new bldit_cctm_t script, and make the following edits:
 
 Change directory to CCTM/scripts
 
 ```
 cd CCTM/scripts
-cp bldit_cctm.csh bldit_cctm_cb6r5_m3dry_ddm.csh
+cp bldit_cctm.csh bldit_cctm_cracmm3_ddm.csh
 ```
 
 Modify the following option to compile CCTM with DDM3D:
@@ -123,14 +113,14 @@ set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D act
 
 ### Step 8: Run the bldit_cctm.csh script
 ```
-./bldit_cctm_cb6r5_m3dry_ddm.csh gcc |& tee bldit_cctm_cb6r5_m3dry_ddm.log
+./bldit_cctm_cracmm3_ddm.csh gcc |& tee bldit_cctm_cracmm3_ddm.log
 ```
 
-### Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
+### Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file  (optional)
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v55_DDM3D_gcc_cb6r5_ae7_aq_m3dry
+cd BLD_CCTM_v6_gcc_debug_cracmm3
 ```
 
 edit the Control namelist file
@@ -139,64 +129,46 @@ edit the Control namelist file
 gedit CMAQ_Control.nml
 ```
 
-Add the Regions to the &Desid_RegionDef section of the control namelist.
+Add the Regions to the &Desid_RegionDef section of the control namelist (optional).
 
 ```
 &Desid_RegionDef
  Desid_Reg_nml  =
  !            Region Label   | File_Label  | Variable on File
                'EVERYWHERE'  ,'N/A'        ,'N/A',
-                'PA'        ,'CMAQ_MASKS'        , 'PA',
-                'NJ'        ,'CMAQ_MASKS'        , 'NJ',
+ !               'NC'        ,'CMAQ_MASKS'        , 'NC',         # uncomment this line if you want to see contributions from NC only
 /
 ```
 
-### Step 10: Example of emissions scaling (Reduce the PT_EGU emissions in PA by 25%) (Optional step)
 
-edit the chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
+### Step 10: Install the CMAQ-DDM-3D reference input and output benchmark data
 
-
-```
-#gedit CMAQ_Control_${MECH}.nml
-gedit CMAQ_Control_cb6r5_ae7_aq.nml
-```
-
-Add the following line at the bottom of the the namelist file (before the /)
-
-```
-   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in Pennsylvania by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
-   'PA'  , 'PT_EGU'      ,'All'    ,'All'         ,'All' ,.75    ,'UNIT','o',
-
-```
-
-
-### Step 11: Install the CMAQ-DDM-3D reference input and output benchmark data
-
-Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz	and output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S that uses the cb6r5_ae7_aq mechanism and the m3dry dry deposition scheme.  
+Download the CMAQ two day reference input and output data from the [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v6/): CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz and output_CCTM_v6_DDM3D_gcc_Bench_2020_12SE1_cracmm3_stage.tar.gz. The CMAQ benchmark test case is a two day simulation for July 1-2 2022 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S that uses the cracmm3 mechanism and the stage dry deposition scheme.  
 
 Download and copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz
+tar xvzf CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz
 mkdir ref_output
 cd ref_output
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
-tar xvzf output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/DDM3D_Benchmark/output_CCTM_v6_DDM3D_gcc_Bench_2020_12SE1_cracmm3_stage.tar.gz
+tar xvzf output_CCTM_v6_DDM3D_gcc_Bench_2020_12SE1_cracmm3_stage.tar.gz
 ```
 
     
-### Step 12: Review the CMAQ-DDM3D runscript
+### Step 11: Review the CMAQ-DDM3D runscript
 
 ```
-gedit run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm.csh
+cp run_cctm_Bench_2022_12SE1.csh run_cctm_Bench_2022_12SE1_cracmm3_ddm.csh
+gedit run_cctm_Bench_2022_12SE1_cracmm3_ddm.csh
 ```
 
 Verify General Parameters for Configuring the Simulation
 
 ```
- set VRSN      = v55_DDM3D
+ set VRSN      = v6_DDM3D
 ```
 
 
@@ -204,45 +176,46 @@ Verify that script turns on DDM3D, uncomments SEN_INPUT file and sets the number
 
 ```
  setenv CTM_DDM3D Y  
- setenv SEN_INPUT ${WORKDIR}/sensinput.2018_12NE3.dat
- set NPMAX    = 2      # Number of sensitivity parameters defined in SEN_INPUT
+ setenv SEN_INPUT ${WORKDIR}/sensinput.2022_12SE1.dat
+ set NPMAX    = 1      # Number of sensitivity parameters defined in SEN_INPUT
 ```
    
 Run or Submit the script to the batch queueing system
 
 ```
-./run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm.csh
+./run_cctm_Bench_2022_12SE1_cracmm3_ddm.csh
 ```
 
-OR (If using SLRUM)
+OR (If using SLRUM, after adding #SLURM commands)
 
 ```
-sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ddm.csh
+sbatch run_cctm_Bench_2022_12SE1_cracmm3_ddm.csh 
 ```
 
-### Step 13: Verify that the run was successful
+### Step 12: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd ../../data/2018_12NE3_BENCH/output_CCTM_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
+   cd ../../data/CMAQv6.0_2022_12SE1_Benchmark_2day/output_CCTM_v6_DDM3D_gcc_Bench_2022_12SE1_gcc
    ```
    If the run was successful you will see the following output
    
    ```
-   tail ./LOGS/CTM_LOG_000.v55_DDM3D_gcc_Bench_2018_12NE3_cracmm2_20180702
+   tail ./LOGS/CTM_LOG_000.v6_DDM3D_gcc_Bench_2022_12SE1_gcc_20220702
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 14: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program
+### Step 13: Compare output with the 2 day benchmark outputs provided on the CMAS Center AWS Open Data Program
 
 Note, the following DDM-3D output files are generated in addition to the standard CMAQ output files.
 
 ```
- CCTM_SENWDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
- CCTM_SENDDEP_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
- CCTM_SENGRID_v55_DDM3D_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc
+CCTM_SENWDEP_v6_DDM3D_gcc_Bench_2022_12SE1_gcc_20220701.nc
+CCTM_SENDDEP_v6_DDM3D_gcc_Bench_2022_12SE1_gcc_20220701.nc
+CCTM_ASENS_v6_DDM3D_gcc_Bench_2022_12SE1_gcc_20220701.nc
+CCTM_SENGRID_v6_DDM3D_gcc_Bench_2022_12SE1_gcc_20220701.nc
 ```
 
-### Step 15: Compare sensitivities
+### Step 14: Compare sensitivities
 
 First order sensitivities should not be larger than bulk, second order should not be larger than first order.

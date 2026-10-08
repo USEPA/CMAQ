@@ -25,7 +25,7 @@
  # the user will pull from to create executables. If the user is building
  # CMAQ inside the repository then it will be equal to CMAQ_HOME. If not,
  # the user must supply an alternative folder locaiton.
- setenv CMAQ_REPO $CMAQ_HOME
+ setenv CMAQ_REPO $CMAQ_HOME 
 
  # CMAQ_DATA - this may be where the input data are located. It may be a 
  # symbolic link to another location on the system, but it should be
@@ -96,9 +96,9 @@
     
         #> Compiler Aliases and Flags
         #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
-        setenv myFC mpiifort
-        setenv myCC icc       
-        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -vec-guard-write -unroll-aggressive"
+        setenv myFC mpiifx
+        setenv myCC icx       
+        setenv myFSTD "-O3 -fno-alias -fp-model source -ftz -align all"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
         setenv myLINK_FLAG #"-qopenmp-simd" openMP not supported w/ CMAQ
         setenv myFFLAGS "-fixed -132"
@@ -161,8 +161,8 @@
         #> set the compiler flag -fopt-info-missed to generate a missed optimization report in the bldit logfile
         setenv myFC mpifort
         setenv myCC gcc
-        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -ftree-vectorize -ftree-loop-if-convert -finline-limit=512"
-        setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
+        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -ftree-vectorize -ftree-loop-if-convert -finline-limit=512 -fallow-argument-mismatch"
+	setenv myDBG "-Wall -O0 -g -fcheck=all -ffpe-trap=overflow -fbacktrace -fallow-argument-mismatch"
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"

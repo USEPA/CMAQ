@@ -348,9 +348,9 @@ set make_options = "-j"                #> additional options for make command if
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
  if ( $?Debug_CCTM ) then
-     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_debug
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_debug_${Mechanism}
  else
-     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}
  endif
 
 

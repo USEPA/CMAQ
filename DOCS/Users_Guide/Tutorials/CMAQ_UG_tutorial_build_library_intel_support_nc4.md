@@ -1,4 +1,4 @@
-## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
+## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv6 
 
 This tutorial is based on these instructions: [Installing NetCDF](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html)
 
@@ -17,13 +17,13 @@ Install the netCDF libraries and their prerequisites for the compiler version th
 ### Create install directory
 
 ```
-mkdir -p $cwd/CMAQv5.5/build
+mkdir -p $cwd/CMAQv6/build
 ```
 
 ### Download the install scripts for the intel 2024 compiler.
 
 ```
-cd $cwd/CMAQv5.5/build
+cd $cwd/CMAQv6/build
 wget https://raw.githubusercontent.com/USEPA/CMAQ/9bd3734176479c2e49139fea98e1d5e8a16170e3/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_20.2_install_netcdf_for_nc4_compression.csh
 wget https://raw.githubusercontent.com/USEPA/CMAQ/9bd3734176479c2e49139fea98e1d5e8a16170e3/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/intel_2024_install_ioapi_for_nc4_compression.csh
 ```
@@ -83,8 +83,8 @@ If this is successful, you will see a stream of log messages including the m3too
 
 Output
 ```
-cd /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel -I/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/ioapi -I/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -O3 -unroll -stack-temps -safe-cray-ptr -convert big_endian -assume byterecl  -traceback                                           -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -c /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/m3tools/wrfwndw.f90
-cd /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel  wrfwndw.o -L/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -lioapi -L/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lcurl -lz -lsz -ldl -lm  -lnetcdf -qopenmp -shared-intel   -o wrfwndw
+cd /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel -I/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/ioapi -I/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -O3 -unroll -stack-temps -safe-cray-ptr -convert big_endian -assume byterecl  -traceback                                           -DIOAPI_NCF4=1 -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DAVOID_FLUSH=1 -DBIT32=1 -c /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/m3tools/wrfwndw.f90
+cd /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx; ifx -auto -warn notruncated_source -Bstatic -static-intel  wrfwndw.o -L/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2/Linux2_x86_64ifx -lioapi -L/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lcurl -lz -lsz -ldl -lm  -lnetcdf -qopenmp -shared-intel   -o wrfwndw
 ifx: command line warning #10121: overriding '-static-intel' with '-shared-intel'
 
 ```
@@ -125,7 +125,7 @@ proc ModulesHelp { } {
 
 module-whatis "This module adds ioapi-3.2/intel-2024 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/ioapi-3.2"
+set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/ioapi-3.2"
 prepend-path PATH "${basedir}/Linux2_x86_64ifx"
 prepend-path LD_LIBRARY_PATH "${basedir}/ioapi/fixed_src"
 ```
@@ -150,7 +150,7 @@ proc ModulesHelp { } {
 
 module-whatis "This module adds netcdf-4.5.3-for_nc4/ifort-2024.2.1 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel/"
+set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel/"
 prepend-path PATH "${basedir}/bin"
 prepend-path LD_LIBRARY_PATH "${basedir}/lib"
 module load intel/2024.2.1
@@ -162,7 +162,7 @@ module load intel/2024.2.1
 Now that the module files have been created, add the following line to your .cshrc
 
 ```
-module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
+module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/Modules/modulefiles
 ```
 
 ### Use module avail to see custom modules, and then load them
@@ -645,7 +645,7 @@ note, the paths need to be edited to match the location for your installation
 ```
 #>  Intel fortran compiler......................................................
     case intel:
-       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_intel
+       setenv BUILD /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/LIBRARIES_intel
        setenv MPI /nas/sycamore/apps/intel/2024.2.1/intel/oneapi/mpi/latest
 
 

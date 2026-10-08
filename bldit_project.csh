@@ -16,7 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- set CMAQ_HOME = /home/username/path
+  set CMAQ_HOME = /home/username/path
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -101,8 +101,10 @@
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
     cp CCTM/scripts/isam_control.2018_12NE3.txt $CMAQ_HOME/CCTM/scripts/isam_control.2018_12NE3.txt
     cp CCTM/scripts/isam_control.2016_12SE1.txt $CMAQ_HOME/CCTM/scripts/isam_control.2016_12SE1.txt
+    cp CCTM/scripts/isam_control.2022_12SE1.txt $CMAQ_HOME/CCTM/scripts/isam_control.2022_12SE1.txt
     cp CCTM/scripts/sensinput.2018_12NE3.dat $CMAQ_HOME/CCTM/scripts/sensinput.2018_12NE3.dat
     cp CCTM/scripts/sensinput.2016_12SE1.dat $CMAQ_HOME/CCTM/scripts/sensinput.2016_12SE1.dat
+    cp CCTM/scripts/sensinput.2022_12SE1.dat $CMAQ_HOME/CCTM/scripts/sensinput.2022_12SE1.dat
     cp CCTM/scripts/run_cctm_*.csh $CMAQ_HOME/CCTM/scripts/
  endif
 

@@ -1,8 +1,8 @@
 ## CMAQ-ISAM Benchmark Tutorial ## 
 
-Procedure to build and run the CMAQ-ISAM model using gnu compiler for the cb6r5_ae7_aq mechanism with the m3dry dry deposition scheme:
+Procedure to build and run the CMAQ-ISAM model using intel compiler for the cracmm3 mechanism with the STAGE dry deposition scheme:
 
-### Step 1: Download and run the CMAQv5.5 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
+### Step 1: Download and run the CMAQv6 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
 - [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
@@ -14,31 +14,33 @@ https://forum.cmascenter.org/
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files
 
-The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv5.5 code from github (step 5 below):
+The following isam control file is provided in the CCTM/scripts directory when you obtain the CMAQv6 code from github (step 5 below):
 
 ```
-cat isam_control.2018_12NE3.txt
+cat isam_control.2022_12SE1.txt
 ```
 
-This file contains the following tag classes
+This file contains the following tag classes and tag names.
 
 ```
-TAG NAME        |EGU
-REGION(S)       |EVERYWHERE
+TAG CLASSES     |SULFATE, OZONE
+
+TAG NAME        |NCE
+REGION(S)       |NC
 EMIS STREAM(S)  |PT_EGU
 
-TAG NAME        |BIO
-REGION(S)       |NY
-EMIS STREAM(S)  |BIOG
+TAG NAME        |NCF
+REGION(S)       |NC
+EMIS STREAM(S)  |PT_FIRES
 ```
 
-The following gridmask file is provided with the benchmark inputs in the 2018_12NE3_BENCH/2018_12NE3 directory (see step 11 below)
+The following gridmask file is provided with the benchmark inputs in the CMAQv6.0_2022_12SE1_Benchmark_2day/2022_12SE1/surface/ directory (see step 11 below)
 
 ```
-GRIDMASK_STATES_12NE3.nc
+GRIDMASK_STATES_12SE1.nc
 ```
 
-Note, all states are listed in the variable list in the header of the file, but the data only contains valid entries for the states in the 12NE3 domain. 
+Note, all states are listed in the variable list in the header of the file, but the data only contains valid entries for the states in the 12SE1 domain. 
 
 The instructions require the user to edit the emissions control namelist file and the chemical control namelist file in the BLD directory. If you want to use emission scaling (independently from ISAM or DDM3D) you will also need to edit these files. (see step 10 below).
 
@@ -55,7 +57,7 @@ module avail
 ```
 
 ```
-module load openmpi_4.0.1/gcc_9.1.0 
+module load openmpi/5.0.10/gcc_15.2.0
 ```
 
 ### Step 4 (optional): Install I/O API (note, this assumes you have already installed netCDF C and Fortran Libraries)
@@ -80,7 +82,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
+set CMAQ_HOME = [your_install_path]/CMAQ_v6
 ```
 
 Now execute the script.
@@ -92,7 +94,7 @@ Now execute the script.
 Change directories to the CMAQ_HOME directory
 
 ```
-cd [your_install_path]/CMAQ_v5.5
+cd [your_install_path]/CMAQ_v6
 ```
 
 
@@ -113,11 +115,10 @@ Uncomment the following option to compile CCTM with ISAM (remove the # before se
 #> Integrated Source Apportionment Method (ISAM)
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
-### Step 8: Modify the bldit_cctm.csh to specify the cb6r5_ae7_aq mechanism and the m3dry dry deposition scheme and update the BLD directory name.
+### Step 8: Modify the bldit_cctm.csh to specify the cracmm3 mechanism
 
 ```
-set DepMod    = m3dry                 #> dry deposition scheme (m3dry or stage)
-setenv Mechanism cb6r5_ae7_aq              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
+setenv Mechanism cracmm3              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS) 
 ```
 
 Verify that the bldit_cctm_isam.csh script contains the following lines: (the mechanism and the dry deposition scheme have been added to the BLD directory name):
@@ -127,9 +128,9 @@ Verify that the bldit_cctm_isam.csh script contains the following lines: (the me
 
 ```
  if ( $?Debug_CCTM ) then
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}_debug
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_debug_${Mechanism}
  else
-    set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}_${DepMod}
+     set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${Mechanism}
  endif
 ```
 
@@ -143,7 +144,7 @@ Verify that the bldit_cctm_isam.csh script contains the following lines: (the me
 
 Change directories to the build directory
 ```
-cd BLD_CCTM_v55_ISAM_gcc_cb6r5_ae7_aq_m3dry
+cd BLD_CCTM_v6_ISAM_gcc_cracmm3 
 ```
 
 edit the emissions namelist file
@@ -155,9 +156,6 @@ gedit CMAQ_Control.nml
 Uncomment the line that contains ISAM_REGIONS as the File Label
 
 ```
-&Desid_RegionDef
- Desid_Reg_nml  =
- !            Region Label   | File_Label  | Variable on File
                'EVERYWHERE'  ,'N/A'        ,'N/A',
  !              'NY'          ,'CMAQ_MASKS', 'NY',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
@@ -167,7 +165,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
 ```
 
 
-### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NY by 25%) (Optional step, described here, but not used)
+### Step 11: Example of emissions scaling (Reduce the PT_EGU emissions in NC by 25%) (Optional step, described here, but not used)
 
 edit the chemical control namelist file, note please specify the mechanism or define the MECH environment variable.
 
@@ -178,37 +176,37 @@ gedit CMAQ_Control_${MECH}.nml
 Add the following line at the bottom of the the namelist file (before the /)
 
 ```
-   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in NY by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
-   'NY'  , 'PT_EGU'      ,'All'    ,'All'         ,'All' ,.75    ,'UNIT','o',
+   ! PT_EGU Emissions Scaling reduce PT_EGU emissions in NC by 25%. Note, to reduce the emissions by 25% we use DESID to multiply what had been 100% emissions by .75, so that the resulting emissions is reduced by 25%.
+   'NC'  , 'PT_EGU'      ,'All'    ,'All'         ,'All' ,.75    ,'UNIT','o',
 
 ```
 
 ### Step 12: Install the CMAQ-ISAM reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data from the  [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v5_5/): CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz and output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz.
+Download the CMAQ two day reference input and output data from the  [CMAS Center Data Warehouse Amazon Web Services S3 Bucket](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/index.html#v6/): CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz and CMAQv6.0_ISAM_2022_12SE1_Benchmark_2day_Output.tar.gz.
 
 Download and copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz
+tar xvzf CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz
 mkdir ref_output
 cd ref_output
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
-tar xzvf output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/ISAM_Benchmark/CMAQv6.0_ISAM_2022_12SE1_Benchmark_2day_Output.tar.gz
+tar xzvf CMAQv6.0_ISAM_2022_12SE1_Benchmark_2day_Output.tar.gz
 ```
 
-The input files for the CMAQv5.4 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample isam_control.txt provided in this release package are included in the benchmark outputs for the base model.
+The input files for the CMAQv6 ISAM benchmark case are the same as the benchmark inputs for the base model. Output source apportionment files associated with the sample isam_control.txt provided in this release package are included in the benchmark outputs for the base model.
     
 ### Step 13: Edit the CMAQ-ISAM runscript
 
 Note: there is an example of the run script on the AWS S3 bucket.
 
 ```
-cd CMAQ_v5.5/CCTM/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/CCTM/scripts/run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
-cat run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+cd CMAQ_v6/CCTM/scripts
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/ISAM_Benchmark/CCTM/scripts/run_cctm_Bench_2022_12SE1_cracmm3_ISAM.csh
+cat run_cctm_Bench_2022_12SE1_cracmm3_ISAM.csh 
 ```
 
 Verify the following settings in the run script for this ISAM benchmark.
@@ -216,19 +214,12 @@ Verify the following settings in the run script for this ISAM benchmark.
 Verify the General Parameters for Configuring the Simulation
 
 ```
- set VRSN = v55_ISAM
+ set VRSN      = v6_ISAM
  set PROC      = mpi               #> serial or mpi
- set MECH      = cb6r5_ae7_aq      #> Mechanism ID
- set APPL      = Bench_2018_12NE3_${MECH}_m3dry  #> Application Name (e.g. Gridname)
+ set MECH      = cracmm3      #> Mechanism ID
+ set APPL      = Bench_2022_12SE1_${MECH}  #> Application Name (e.g. Gridname)
 ```
 
-Verify the Build directory to include the dry deposition mechanism in the name
-
-```
-#> Set the build directory (this is where the CMAQ executable
-#> is located by default).
- set BLD       = ${CMAQ_HOME}/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_${MECH}_m3dry
-```
 
 Verify the input data directory
 
@@ -236,7 +227,7 @@ Verify the input data directory
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  ${CMAQ_DATA}/CMAQv5.4_2018_12NE3_Benchmark_2Day_Input/2018_12NE3            #> Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/CMAQv6.0/CMAQv6.0_2022_12SE1_Benchmark_2day/2022_12SE1            #> Input Directory
 ```
 
 Verify the start and end dates to match the input data for this benchmark.
@@ -244,8 +235,8 @@ Verify the start and end dates to match the input data for this benchmark.
 ```
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
- set START_DATE = "2018-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2018-07-02"     #> ending date    (July 2, 2016)
+ set START_DATE = "2022-07-01"     #> beginning date (July 1, 2022)
+ set END_DATE   = "2022-07-02"     #> ending date    (July 2, 2022)
 ```
 
 
@@ -253,66 +244,66 @@ Verify that ISAM is turned on and that the SA_IOLIST file and ISAM regions file 
 
 ```
 setenv CTM_ISAM Y
-setenv SA_IOLIST ${WORKDIR}/isam_control.2018_12NE3.txt
-setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12NE3.nc
+setenv SA_IOLIST ${WORKDIR}/isam_control.2022_12SE1.txt
+setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
 ```
 
    
 Run or Submit the script to the batch queueing system
 
 ```
-./run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+./run_cctm_Bench_2022_12SE1_cracmm3_ISAM.csh
 ```
 
 OR (If using SLRUM) edit the #SBATCH commands at the top of the script for your machine, then run using
 
 ```
-sbatch run_cctm_Bench_2018_12NE3_cb6r5_m3dry_ISAM.csh
+sbatch run_cctm_Bench_2022_12SE1_cracmm3_ISAM.csh
 ```
 
 ### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd ../../data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry
+   cd ../../data/output_CCTM_v6_ISAM_gcc_Bench_2022_12SE1
    ```
    If the run was successful you will see the following output
    
    ```
-   tail ./LOGS/CTM_LOG_000.v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702
+   tail ./LOGS/CTM_LOG_016.v6_ISAM_gcc_Bench_2022_12SE1_20220702
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 15: Compare output with the 2 day benchmark outputs provided on the google drive
+### Step 15: Compare output with the 2 day benchmark outputs that were downloaded from the s3 bucket above. 
 
 The following ISAM output files are generated in addition to the standard CMAQ output files. Note, the ACONC files created for the  benchmark case without ISAM and this run will not be comparible if emission scaling is used (Step 11 - optional), but if emission scaling was not used, the files should be identical.
 
 ```
-CCTM_SA_CONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
-CCTM_SA_WETDEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
-CCTM_SA_DRYDEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
-CCTM_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
-CCTM_SA_CGRID_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180702.nc
+CCTM_SA_CONC_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc
+CCTM_SA_WETDEP_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc
+CCTM_SA_DRYDEP_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc
+CCTM_SA_CGRID_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc
+CCTM_SA_ACONC_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc
 ```
 
 ### Step 16: Compare the tagged species in `CCTM_SA_ACONC` output file to the species in `CCTM_ACONC` output file
 
 ```
-ncdump -h CCTM_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_20180701.nc | grep SO2_
+ncdump -h CCTM_SA_CONC_v6_ISAM_gcc_Bench_2022_12SE1_20220701.nc | grep SO2_
 ```
 
 
 The following tagged species should add up to the total SO2 in the CONC file.
 
 ```
-	float SO2_EGU(TSTEP, LAY, ROW, COL) ;
-		SO2_EGU:long_name = "SO2_EGU         " ;
-		SO2_EGU:units = "ppmV            " ;
-		SO2_EGU:var_desc = "tracer conc.                                                                    " ;
-	float SO2_BIO(TSTEP, LAY, ROW, COL) ;
-		SO2_BIO:long_name = "SO2_BIO         " ;
-		SO2_BIO:units = "ppmV            " ;
-		SO2_BIO:var_desc = "tracer conc.                                                                    " ;
+	float SO2_NCE(TSTEP, LAY, ROW, COL) ;
+		SO2_NCE:long_name = "SO2_NCE         " ;
+		SO2_NCE:units = "ppmV            " ;
+		SO2_NCE:var_desc = "tracer conc.                                                                    " ;
+	float SO2_NCF(TSTEP, LAY, ROW, COL) ;
+		SO2_NCF:long_name = "SO2_NCF         " ;
+		SO2_NCF:units = "ppmV            " ;
+		SO2_NCF:var_desc = "tracer conc.                                                                    " ;
 	float SO2_BCO(TSTEP, LAY, ROW, COL) ;
 		SO2_BCO:long_name = "SO2_BCO         " ;
 		SO2_BCO:units = "ppmV            " ;
@@ -324,34 +315,33 @@ The following tagged species should add up to the total SO2 in the CONC file.
 	float SO2_ICO(TSTEP, LAY, ROW, COL) ;
 		SO2_ICO:long_name = "SO2_ICO         " ;
 		SO2_ICO:units = "ppmV            " ;
-		SO2_ICO:var_desc = "tracer conc.                    
+		SO2_ICO:var_desc = "tracer conc.                                                                    " ;
 ```
 
 The sum of the tagged species in the SA_ACONC file is equal to the species in the ACONC file.
 
 ```
-SO2_EGU[1] + SO2_BIO[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
+SO2_NCE[1] + SO2_NCF[1] + SO2_BCO[1] + SO2_OTH[1] + SO2_ICO[1] = SO2[2]
 
 [1] = SA_ACONC
 [2] = ACONC
 ```
 
-Both tagged species EGU and BIO contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
+Both tagged species NCE and NCF contribute to the bulk concentration, therefore the sum of all tagged species including boundary conditions (BCO) and initial conditions (ICO) and other (all untagged emissions) (OTH)
 
 ### Step 17: Obtain scripts and species definition files to post process CMAQ-ISAM 
+
 
 Note: we will be running each post processing routine twice, once for the tagged species found in the SA_ACONC, SA_DRYDEP, and SA_WETDEP output files, and again for the untagged species found in ACONC and the DRYDEP, WETDEP files. This will allow us to confirm that the sum of the tagged species is equal to the untagged species.
 
 Example species definition file and combine run script are provided to help users post-process the CMAQ-ISAM output to aggregate output from the SA_ACONC, SA_DRYDEP, and SA_WETDEP files.
 
 Download the run script and species definition files for this case from the AWS S3 Bucket.
+Install the AWS CLI on your local computer using the following instructions: <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#cliv2-linux-install">Install AWS CLI</a>
 
 ```
-cd CMAQ_v5.5/POST/combine/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/combine/scripts/SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
+cd CMAQ_v6/POST/combine/scripts
+aws s3 cp --recursive --no-sign-request --recursive s3://cmaq-release-benchmark-data-for-easy-download/v6/ISAM_Benchmark/POST/combine/scripts/ .
 ```
 
 List the files after they have been downloaded
@@ -363,10 +353,10 @@ ls -lrt
 Output
 
 ```
-SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
-SpecDef_ISAM_Dep_benchmark_cb6r5_ae7_aq.txt
-run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
-run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
+run_combine_ISAM_aconc+dep_example_cracmm3_12se1_benchmark.csh
+run_combine_ISAM_sa_aconc+sa_dep_example_cracmm3_12se1_benchmark.csh
+SpecDef_ISAM_Dep_cracmm3.txt
+SpecDef_ISAM_Conc_cracmm3.txt
 ```
 
 
@@ -375,35 +365,35 @@ run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh
 Build the combine executable
 
 ```
-cd CMAQ_v5.5/POST/combine/scripts
+cd CMAQ_v6/POST/combine/scripts
 ./bldit_combine.csh gcc |& tee ./bldit_combine.log
 ```
 
 Run combine to create a file with all hours for the time period of your ISAM simulation for each tagged aggregate species in the SA_ACONC output file and for another file with all hours of the time period in your ISAM simulation for the SA_DRYDEP and SA_WETDEP output files.
 
 ```
-./run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh gcc |& tee ./run_combine_ISAM_sa_aconc+sa_dep_example_cb6r5_ae7_aq_12ne3_benchmark.log
+./run_combine_ISAM_sa_aconc+sa_dep_example_cracmm3_12se1_benchmark.csh |& tee ./run_combine_ISAM_sa_aconc+sa_dep_example_cracmm3_12se1_benchmark.log
 ```
 
 Run combine to create a file with all hours for the time period of your ISAM simulation for each aggregate species in the ACONC output file and for another file with all hours of the time period in your ISAM simulation for the DRYDEP and WETDEP output files.
 
 ```
-./run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.csh |& tee ./run_combine_ISAM_aconc+dep_example_cb6r5_ae7_aq_12ne3_benchmark.log
+./run_combine_ISAM_aconc+dep_example_cracmm3_12se1_benchmark.csh |& tee ./run_combine_ISAM_aconc+dep_example_cracmm3_12se1_benchmark.log
 ```
 
 Examine the output files
 
 ```
-ls -lrt ../../../data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
+ls -lrt ../../../CMAQv6.0/CMAQv6.0_2022_12SE1_Benchmark_2day/POST/
 ```
 
 You should see that four output files were created:
 
 ```
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 223856976 Sep 26 15:32 COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 223857340 Sep 26 15:33 COMBINE_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 393254448 Sep 26 15:33 COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 526353656 Sep 26 15:34 COMBINE_SA_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
+COMBINE_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+COMBINE_DEP_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+COMBINE_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+COMBINE_SA_DEP_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
 ```
 
 ### Step 19: Review the species definition files for the ISAM run.
@@ -411,14 +401,14 @@ You should see that four output files were created:
 The species definition file calculates each of the tagged aggregate species. To see each tagged species definition for NOX, where NOX = NO + NO2, use the following grep command:.
 
 ```
-grep  NOX_ SpecDef_ISAM_Conc_benchmark_cb6r5_ae7_aq.txt
+grep  NOX_  SpecDef_ISAM_Conc_cracmm3.txt 
 ```
 
 Output:
 
 ```
-NOX_EGU             ,ppbV      ,1000.0*(NO_EGU[1] + NO2_EGU[1])
-NOX_BIO             ,ppbV      ,1000.0*(NO_BIO[1] + NO2_BIO[1])
+NOX_NCE             ,ppbV      ,1000.0*(NO_NCE[1] + NO2_NCE[1])
+NOX_NCF             ,ppbV      ,1000.0*(NO_NCF[1] + NO2_NCF[1])
 NOX_BCO             ,ppbV      ,1000.0*(NO_BCO[1] + NO2_BCO[1])
 NOX_ICO             ,ppbV      ,1000.0*(NO_ICO[1] + NO2_ICO[1])
 NOX_OTH             ,ppbV      ,1000.0*(NO_OTH[1] + NO2_OTH[1])
@@ -431,23 +421,23 @@ NOX_OTH             ,ppbV      ,1000.0*(NO_OTH[1] + NO2_OTH[1])
 Build the calc_tmetric executable
 
 ```
-cd CMAQ_v5.5/POST/calc_tmetric/scripts
-./bldit_calc_tmetric.csh gcc |& tee ./bldit_calc_tmetric.log
+edit script to use version = v6_ISAM
+cd CMAQ_v6/POST/calc_tmetric/scripts
+./bldit_calc_tmetric_ISAM.csh gcc |& tee ./bldit_calc_tmetric_ISAM.log
 ```
 
 Download the run scripts for calc_tmetric for the ISAM run and copy them to the calc_tmetric/scripts directory..
 
 ```
-cd CMAQ_v5.5/POST/calc_tmetric/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_aconc.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/calc_tmetric/scripts/run_calc_tmetric_ISAM_sa_aconc.csh
+cd CMAQ_v6/POST/calc_tmetric/scripts
+aws s3 cp --no-sign-request --recursive s3://cmaq-release-benchmark-data-for-easy-download/v6/ISAM_Benchmark/POST/calc_tmetric/scripts/ .
 ```
 
 Run the calc_tmetric scripts
 
 ```
-./run_calc_tmetric_ISAM_sa_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_sa_aconc.log
-./run_calc_tmetric_ISAM_aconc.csh gcc |& tee ./run_calc_tmetric_ISAM_aconc.log
+./run_calc_tmetric_ISAM_aelmo.csh |& tee ./run_calc_tmetric_ISAM_aelmo.log
+./run_calc_tmetric_ISAM_sa_aelmo.csh gcc |& tee ./run_calc_tmetric_ISAM_sa_aelmo.log
 ``` 
 
 ### Step 21: Build and run hr2day to calculate the daily average concentration for each tagged and aggregated species.
@@ -455,74 +445,66 @@ Run the calc_tmetric scripts
 Build the hr2day executable
 
 ```
-cd CMAQ_v5.5/POST/hr2day/scripts
-./bldit_hr2day.csh gcc |& tee ./bldit_hr2day.log
+cd CMAQ_v6/POST/hr2day/scripts
+./bldit_hr2day_ISAM.csh gcc |& tee ./bldit_hr2day_ISAM.log
 ```
 
 Download the run scripts for hr2day for the ISAM run
 
 ```
-cd  CMAQ_v5.5/POST/hr2day/scripts
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_aconc.csh
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/ISAM_Benchmark/POST/hr2day/scripts/run_hr2day_ISAM_sa_aconc.csh
+cd  CMAQ_v6/POST/hr2day/scripts
+aws s3 cp --no-sign-request --recursive s3://cmaq-release-benchmark-data-for-easy-download/v6/ISAM_Benchmark/POST/hr2day/scripts/ .
 ```
 
 
 Run hr2day for both the SA_ACONC and ACONC file
 
 ```
-./run_hr2day_ISAM_sa_aconc.csh gcc |& tee ./run_hr2day_ISAM_sa_aconc.log
-./run_hr2day_ISAM_aconc.csh gcc |& tee ./run_hr2day_ISAM_aconc.log
+./run_hr2day_ISAM_sa_aelmo.csh gcc |& tee ./run_hr2day_ISAM_sa_aelmo.log
+./run_hr2day_ISAM_aelmo.csh gcc |& tee ./run_hr2day_ISAM_aelmo.log
 ```
 
 Note, there are HR2DAY configuration options that were modified from the default settings, as this ISAM benchmark contains only two days of output, so it does not make sense to use the option to change from GMT time to local time, which is typically done to compare to observational data.
 
-The output data is set to be saved under the ISAM output directory.
 
 ```
-cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
+cd CMAQ_v6/CMAQv6.0_2022_12SE1_Benchmark_2day/POST
 ls -lrt
 ```
 
 List of POST Output files:
 
 ```
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 223856976 Sep 26 15:32 COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 223857340 Sep 26 15:33 COMBINE_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 393254448 Sep 26 15:33 COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx 526353656 Sep 26 15:34 COMBINE_SA_DEP_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx   8251888 Sep 27 14:07 AVG_COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx    432268 Sep 27 14:13 dailyavg_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc
--rw-rw-r-- 1 lizadams rc_cep-emc_psx     95208 Sep 27 14:14 dailyavg_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 253555116 Oct  4 17:43 COMBINE_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 162894164 Oct  4 17:43 COMBINE_DEP_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx  63427596 Oct  5 10:12 average_concentrations_ISAM_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 327314176 Oct  5 10:44 COMBINE_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx 301192136 Oct  5 10:44 COMBINE_SA_DEP_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx  81876832 Oct  5 10:46 average_concentrations_ISAM_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx     43200 Oct  5 10:48 dailymaxozone_ISAM_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc
+-rw-rw-r-- 1 lizadams rc_cep-emc_psx     11192 Oct  5 10:48 dailymaxozone_ISAM_sa_aelmo_v6_ISAM_gcc_Bench_2022_12SE1.nc
 ```
 
 VERDI can be used to compare the aggregated species in ACONC to the sum of the tagged aggregated species in the SA_ACONC file.
 
 ```
-cd CMAQ_v5.5/data/output_CCTM_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry/POST
-verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile 
+cd CMAQ_v6/CMAQv6.0_2022_12SE1_Benchmark_2day/POST/
+verdi -f $cwd/COMBINE_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc -f $cwd/COMBINE_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc -s "NOX[1]" -g tile -s "NOX_NCE[2]+NOX_NCF[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile 
 ```
 Note, the min and max of the two tile plots should be identical. The difference can also be calculated to verify that they are only different by numerical roundoff.
 
 ```
-verdi -f $cwd/COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1] - (NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2])" -g tile
+verdi -f $cwd/COMBINE_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc -f $cwd/COMBINE_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc -s "NOX[1] - (NOX_NCE[2]+NOX_NCF[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2])" -g tile
 ```
 
 VERDI can also be used to confirm that the average concentration of the aggregated species is equal to the sum of the tagged aggregated species, please note that this average is taken over two days, as the ISAM benchmark ran for two days, and two days were available in the combine output file.
 
 ```
-verdi -f $cwd/AVG_COMBINE_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc -f $cwd/AVG_COMBINE_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry.nc -s "NOX[1]" -g tile -s "NOX_EGU_AVG[2]+NOX_BIO_AVG[2]+NOX_BCO_AVG[2]+NOX_ICO_AVG[2]+NOX_OTH_AVG[2]" -g tile
+verdi -f $cwd/average_concentrations_ISAM_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc -f $cwd/COMBINE_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1_202207.nc -s "NOX[1]" -g tile -s "NOX_NCE_AVG[2]+NOX_NCF_AVG[2]+NOX_BCO_AVG[2]+NOX_ICO_AVG[2]+NOX_OTH_AVG[2]" -g tile
 ```
 
 VERDI can also be used to confirm that the daily average concentration of the aggregated species is equal to the sum of the tagged aggregated species. Note, that there are two timesteps in each daily average file, one containing the average for day 1 and one containing the average for day 2
 
 ```
-verdi -f $cwd/dailyavg_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -f $cwd/dailyavg_SA_ACONC_v55_ISAM_gcc_Bench_2018_12NE3_cb6r5_ae7_aq_m3dry_201807.nc -s "NOX[1]" -g tile -s "NOX_EGU[2]+NOX_BIO[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile  
+verdi -f $cwd/dailyavg_ISAM_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc -f $cwd/dailyavg_ISAM_SA_AELMO_v6_ISAM_gcc_Bench_2022_12SE1.nc -s "NOX[1]" -g tile -s "NOX_NCE[2]+NOX_NCF[2]+NOX_BCO[2]+NOX_ICO[2]+NOX_OTH[2]" -g tile  
 ```
-
-
-
-
-
-
-

@@ -1,6 +1,6 @@
-# CMAQ Installation & Benchmarking Tutorial for CRACMM2
+# CMAQ Installation & Benchmarking Tutorial for CRACMM3
 
-Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM2 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
+Purpose: This guide describes how to install and run the CMAQ test case for the CRACMM3 mechanism with the STAGE dry deposition scheme, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
 
 Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
 - Installation by a new user
@@ -14,7 +14,7 @@ CMAQ requires a specific hardware and software configuration. To learn about the
 
 ## Install CMAQ 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.5:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv6:
 
 ```
 git clone -b main https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -39,7 +39,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
+set CMAQ_HOME = [your_install_path]/CMAQ_v6
 ```
 
 Now execute the script.
@@ -82,17 +82,17 @@ source config_cmaq.csh gcc 9.5
 
 ## Install the CMAQ reference input and output benchmark data
 
-Download the CMAQ two day reference input and output data for the CRACMM2 mechanism from the [AWS CMAS Data Warehouse](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz). The CMAQ benchmark test case is a two day simulation for July 1-2 2018 on a 100 column x 105 row x 35 layer 12-km resolution domain over the northeast U.S.  
+Download the CMAQ two day reference input and output data for the CRACMM3 mechanism from the [AWS CMAS Data Warehouse](https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz). The CMAQ benchmark test case is a two day simulation for July 1-2 2022 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  
 Copy the data to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input files:
 
 ```
 cd $CMAQ_DATA
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/CMAQv5.5_2018_12NE3_Benchmark_cracmm2_stage_2Day_Input.tar.gz
-tar xvzf CMAQv5.4_2018_12NE3_Benchmark_2Day_Input_CRACCM2.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz	
+tar xvzf CMAQv6.0_2022_12SE1_Benchmark_2day_Input.tar.gz
 mkdir ref_output
 cd ref_output
-wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v5_5/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
-tar -xzvf output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage.tar.gz
+wget https://cmaq-release-benchmark-data-for-easy-download.s3.amazonaws.com/v6/output_CCTM_v6_gcc_Bench_2022_12SE1_gcc_8x4.tar.gz
+tar -xzvf output_CCTM_v6_gcc_Bench_2022_12SE1_gcc_8x4.tar.gz
 
 ```
 
@@ -105,8 +105,8 @@ Create the model executables for CCTM using the steps shown below.
 Create a bldit_cctm script for this benchmark and verify or modify the settings listed below.
 
 ```
-cp bldit_cctm.csh bldit_cctm_cracmm2_stage.csh
-vi bldit_cctm_cracmm2_stage.csh
+cp bldit_cctm.csh bldit_cctm_cracmm3.csh
+vi bldit_cctm_cracmm3.csh
 ```
 
 
@@ -131,13 +131,13 @@ The build directory parameters for the benchmark test case include the following
 -   Multiprocessor simulation 
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
--   Vertical diffusion: ACM2_Stage
--   Deposition: STAGE
+-   Vertical diffusion: ACM2
+-   Deposition: depv (either stage or m3dry)
 -   Chemistry solver: EBI
 -   Aerosol module: cracmm
 -   Cloud module: acm_craccm
--   Mechanism: cracmm2
--   Inline biogenic emissions
+-   Mechanism: cracmm3
+-   Inline biogenic emissions: beis4
 -   Inline plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
@@ -145,17 +145,13 @@ To configure these parameters, the CCTM Science Modules within the bldit_cctm.cs
 
 
 
-Modify the dry deposition scheme to use STAGE instead of M3DRY
-```
-#> Set Dry Deposition Scheme to Stage
-
- set DepMod    = stage
+CMAQv6 supports compile time selection of the dry deposition scheme (can select STAGE or M3DRY in the run script)
 ```
 
-Modify the Mechanism to use craccm2 instead of cb6r5
+Modify the Mechanism to use craccm3 instead of cb6r5
 
 ```
- setenv Mechanism cracmm2              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cracmm3              #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
 ```
 
 
@@ -163,7 +159,7 @@ Following the requisite changes to the CCTM build script, use the following comm
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-./bldit_cctm_cracmm2_stage.csh [compiler] [version] |& tee bldit_cctm_cracmm2_stage.log
+./bldit_cctm_cracmm3.csh [compiler] [version] |& tee bldit_cctm_cracmm3.log
 ```
 
 Verify that the BLD directory contains a namelist called
@@ -174,18 +170,17 @@ CMAQ_Control_STAGE.nml
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 16 processors,
+For an MPI configuration with 32 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm_Bench_2018_12NE3_CRACMM2.csh) for the MPI configuration and compiler that you will use:
+Edit the CCTM run script (run_cctm_Bench_2022_12SE1.csh) for the MPI configuration and compiler that you will use:
 
 ```
 setenv compiler gcc
-setenv compilerVrsn 9.5
-setenv INPDIR  ${CMAQ_DATA}/2018_12NE3
+setenv INPDIR  ${CMAQ_DATA}/2022_12SE1
 @ NPCOL 8 ; @ NPROW = 4
 ```
 
@@ -208,13 +203,13 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 -  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
 -  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2018_12NE3_CRACMM2.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2022_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm_Bench_2018_12NE3_CRACMM2.csh |& tee run_cctm_Bench_2018_12NE3_CRACMM2.log 
+./run_cctm_Bench_2022_12SE1.csh |& tee run_cctm_Bench_2022_12SE1_CRACMM3.log 
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -226,19 +221,19 @@ To confirm that the benchmark case ran to completion view the run log file. For 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
+$CMAQ_DATA/output_CCTM_v6_gcc_Bench_2022_12SE1
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v55_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v55_gcc_Bench_2018_12NE3_2day_20180702
+CTM_LOG_[ProcessorID].v6_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v6_gcc_Bench_2022_12SE1_gcc_20180702
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v55_gcc_Bench_2018_12NE3_cracmm2_stage
+$CMAQ_DATA/output_CCTM_v6_gcc_Bench_2022_12SE1_gcc
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, AELMO, APMVIS, B3GTS_S, BSOILOUT, BUDGET, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, ELMO, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
@@ -253,15 +248,17 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 ## Check the CMAQ Benchmark Results
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
-- Linux Kernel 3.10.0-514.el7.x86_64
+- module list   1) netcdf-4.6.2/gcc-15   2) ioapi-3.2/gcc-15   3) gcc/15.2.0   4) openmpi/5.0.10/gcc_15.2.0
+- Linux Kernel 6.12.0-124.56.1.el10_1.x86_64 (use command: cat /proc/version)
 - Red Hat Enterprise Linux Server 7.3 (Maipo) (use command: cat /etc/os-release)
-- GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
+- gcc (GCC) 15.2.0 (use command: gcc --version)
+- 32 processors with mpirun (Open MPI) 5.0.10  (use command: mpirun --version) and I/O APIv3.2 tagged version 20200828 
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.5
+- CMAQv6
 
-The CMAQv5.5 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. 
+The CMAQv6 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 294 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 197 variables. 
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.cmascenter.org/verdi/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
-Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitive to small changes in machine precision and accuracy.
+Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitive to small changes in machine precision and accuracy. Due to the small size of this benchmark, there may also be issues with domain decomposition (NPCOLxNPROW).
 

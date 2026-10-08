@@ -744,25 +744,22 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
 
-Chemical mechanisms available with CMAQv5.5 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
+Chemical mechanisms available with CMAQv6.0 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
 <a id=Table6-3></a>
-**Table 6-3. Chemical Mechanisms Available with CMAQv5.5** 
+**Table 6-3. Chemical Mechanisms Available with CMAQv6.0** 
 
 |**Mechanism Name** | **Comment** |
 | ----------------- | ---------------------------------------------------- |
-| cb6r3_ae7_aq      | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for standard cloud chemistry |
 | cb6r5_ae7_aq      | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for standard cloud chemistry |
 | cb6r5_ae7_aqkmt2    | Carbon Bond 6 version r5 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
 | cb6r5m_ae7_aq     | Carbon Bond 6 version r5 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for standard cloud chemistry  | 
 | cb6r5hap_ae7_aq      | Carbon Bond 6 version r5 with air toxics and aero7 treatment of SOA set up for standard cloud chemistry | 
-| racm2_ae6_aq      | Regional Atmospheric Chemistry Mechanism version 2 with aero6 treatment of SOA set up for with standard cloud chemistry |
 | saprc07tic_ae7i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA set up for with standard cloud chemistry | 
-| saprc07tic_ae7i_aqkmt2 | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA for expanded organic cloud chemistry version 2  |
-| saprc07tc_ae6_aq | State Air Pollution Research Center version 07tc with aero6 treatment of SOA set up for with standard cloud chemistry  | 
-| cracmm1_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 | 
-| cracmm1amore_aq | Community Regional Atmospheric Chemistry Multiphase Mechanism version 1.0 with AMORE isoprene chemistry  | 
 | cracmm2 | Community Regional Atmospheric Chemistry Multiphase Mechanism version 2.0 | 
+| cracmm3 | Community Regional Atmospheric Chemistry Multiphase Mechanism version 3.0 | 
+| cracmm3m | Community Regional Atmospheric Chemistry Multiphase Mechanism version 3.0 with added marine halogen chemistry | 
+| cracmm3haps | Community Regional Atmospheric Chemistry Multiphase Mechanism version 3.0 with added gas and particulate Hazardous Air Pollutants (HAPS) | 
 | 2DVBS           | The 2D-VBS mechanism is contributed by collaborators at Tsinghua University. It is built on top of SAPRC07 mechanism. This mechanism is available in a separate research branch of the CMAQ repo. Please contact Professor Bin Zhao (bzhao@mail.tsinghua.edu.cn) for more details. |
 
 <a id=6.10.2_Solver></a>
@@ -857,7 +854,7 @@ CMAQ uses a default setting of Y to include the production of HONO from the hete
 The user can set it to N to exclude the heterogeneous production from the reaction. Note that the default setting for the inline deposition calculation (CTM_ILDEPV) flag is Y. If the flag is changed to N, then the production of HONO from the heterogeneous reaction on ground surface will not work properly. Additional description of the HONO chemistry in CMAQ can be found in Sarwar et al. (2008).
 
 <a id=6.10.5_CRACMM></a>
-### 6.10.5 CRACMM Version 1.0-2.0
+### 6.10.5 CRACMM Versions 
 
 <!-- BEGIN COMMENT -->
 
@@ -867,14 +864,14 @@ The user can set it to N to exclude the heterogeneous production from the reacti
 
 The Community Regional Atmospheric Chemistry Multiphase Mechanism (CRACMM) builds on the history of the Regional Atmospheric Chemistry Mechanism, Version 2 (RACM2) and aims to couple gas- and particle-phase chemistry by treating the entire pool of atmospheric reactive organic carbon (ROC) relevant to present-day emissions. CRACMM species were developed to represent the total emissions of ROC, considering the OH reactivity, ability to form ozone and secondary organic aerosol (SOA), and other properties of individual emitted compounds. The chemistry of CRACMM, which includes autoxidation, multigenerational oxidation, and the treatment of semivolatile and intermediate volatility compounds, was built using a variety of sources including literature and other mechanisms (RACM2, MCM, GECKO, and SAPRC18/mechgen). 
 
-CRACMM is available in three versions: CRACMMv1 and CRACMMv1AMORE originally implemented in CMAQv5.4 and CRACMMv2 introduced in CMAQv5.5. The development of CRACMMv1 is described by Pye et al. (2023) and the application of CRACMMv1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. (2023). CRACMMv1AMORE replaces the base isoprene chemistry of CRACMMv1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University (Wiser et al., 2023). CRACMMv2 is an update to both CRACMMv1 and CRACMMv1AMORE. Developments in CRACMMv2 targeted improvements to formaldehyde and resulted in updates in other systems as well (Skipper et al., 2024).
+CRACMM is available in four versions: CRACMM2 introduced in CMAQv5.5 and CRACMM3, CRACMM3M, & CRACMM3HAPS introduced in CMAQv6.0. Note: CRACMM1 and CRACMM1AMORE originally implemented in CMAQv5.4 have been removed but are still available in CMAQv5.4 & CMAQv5.5. The development of CRACMM1 is described by Pye et al. (2023) and the application of CRACMM1 within CMAQ to the northeast U.S. in summer 2018 as well as comparison with other mechanisms is presented by Place et al. (2023). CRACMM1AMORE replaces the base isoprene chemistry of CRACMM1 (which was ported from RACM2) with a graph theory-based condensation of a detailed isoprene mechanism developed by Prof. Faye McNeill's team at Columbia University (Wiser et al., 2023). CRACMM2 is an update to both CRACMM1 and CRACMM1AMORE. Developments in CRACMM2 targeted improvements to formaldehyde and resulted in updates in other systems as well (Skipper et al., 2024). CRACMM3 is an update to CRACMM2 and adds chlorine chemistry, heterogenous sulfur chemistry ([Farrell et al. (2025)](https://doi.org/10.5194/acp-25-3287-2025)), particulate nitrate photolysis (Sarwar et al. ([2024](https://doi.org/10.1016/j.scitotenv.2024.170406); [2025](https://doi.org/10.1016/j.scitotenv.2025.178968))), and updates reactions for several systems including radical cycling and photolytic loss for semi-volatile organic compounds. CRACMM3M builds on CRACMM3 adding detailed halogen chemistry to improve the representation of gas-phase and aerosol chemistry in marine environments. Similarly, CRACMM3HAPS builds on CRACMM3 adding several gas and particles Hazardous Air Pollutants. For more details see the CRACMM3 documentation: [USEPA/CRACMM](https://usepa.github.io/CRACMM/).
 
-When selected as the gas-phase mechanism, use of CRACMM fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and background methane is set to a fixed concentration of 1.85 ppm by default, roughly mathching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update). Emissions of methane on top of background levels can also be considered in CRACMMv2.
+When selected as the gas-phase mechanism, use of CRACMM fully specifies CMAQ's aerosol treatment. CRACMM was designed as a multiphase mechanism and thus includes pathways to SOA and precursors to inorganic aerosol. The aero versioned by number no longer applies, and potential combustion SOA (pcSOA) is deprecated in CRACMM. Methane reaction with OH is considered and background methane is set to a fixed concentration of 1.85 ppm by default, roughly matching global conditions in the later part of the 2010s. Year or location specific [methane concentrations](https://gml.noaa.gov/ccgg/trends_ch4/) could be used (see the end of the mechanism definition file to make the update). Emissions of methane on top of background levels can also be considered in CRACMM.
 
 One feature of CRACMM is the specification of representative structures for all species in the mechanism. This information is available as metadata describing all gas, particulate, and nonreactive species. Metadata exists in (csv-separated) columns appended to the species namelist files and in a new species description file. The information is not used at runtime by the CMAQ simulation, but should be updated if CRACMM species are updated to facilitate communication of how mechanism species are conceptualized. The metadata is leveraged to determine conservation of mass across chemical reactions (see the CHEMMECH README in the UTIL directory), determination of species properties such as solubility, and to communicate how species are conceptualized. Supplemental code automatically processes the metadata into markdown files for the CMAQ code repository.
 
 #### CRACMM Species Description File
-CRACMM mechanisms have a species description file (located in MECHS/cracmm1_aq/cracmm1_speciesdescription.csv and MECHS/cracmm2/cracmm2_speciesdescription.csv) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
+CRACMM mechanisms have a species description file (located in MECHS/cracmm3/cracmm3_speciesdescription.csv and MECHS/cracmm2/cracmm2_speciesdescription.csv) where the species in the mechanism are described. This file is a simple csv file with two values per line: 
 
 - Species name (string): All the GC.nml, AE.nml, and NR.nml species excluding phase (V,A) and particle size mode (I,J,K) identifiers
 - Description (string): string describing the species

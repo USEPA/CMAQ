@@ -6,8 +6,8 @@ These tutorials are designed to familiarize the user with the CMAQ suite of prog
 Benchmarking CMAQ is recommended in the following circumstances: installation by a new user; installation on a new server; following a new CMAQ release;
 following upgrades to your system kernel, Fortran/C compiler, netCDF library, or I/O API library.
 
-  - [Running the CMAQ Base Model with CRACMM2 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
-  - [Running the CMAQ Base Model with CB6r5 and M3DRY or STAGE](CMAQ_UG_tutorial_benchmark.md)
+  - [Running the CMAQ Base Model with CRACMM3 and STAGE](CMAQ_UG_tutorial_benchmark_cracmm3_stage.md)
+  - [Running the CMAQ Base Model with CB6r5 and STAGE](CMAQ_UG_tutorial_benchmark.md)
   - [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md)
   - [Running the CMAQ-DDM-3D Test Case](CMAQ_UG_tutorial_DDM3D.md)
   - [Running the WRF-CMAQ Test Case](CMAQ_UG_tutorial_WRF-CMAQ_Benchmark.md)

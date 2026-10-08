@@ -149,6 +149,7 @@ Chlorine chemistry increases nitryl chloride (ClNO2) in winter which subsequentl
 |[Merge for PR#1252](https://github.com/USEPA/CMAQ/commit/686bde3e7b2a335d8769b8ff14368d068ba95583) | [PR#1252](https://github.com/USEPA/CMAQ_Dev/pull/1252)  |
 
 ### Add aerosol organic nitrates to NOy definition for CRACMM
+ [Havala Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency  
  [Nash Skipper](mailto:skipper.nash@epa.gov), U.S. Environmental Protection Agency  
 **Type of update**: Post-processing  
 **Release Version/Date**: CMAQv6.0  
@@ -161,7 +162,7 @@ The addition of aerosol organic nitrate species to NOy has a small effect on the
 
 |Merge Commit | Internal record|
 |:------:|:-------:|
-| tbd | [PR#1446](https://github.com/USEPA/CMAQ_Dev/pull/1446)  |
+| [Merge for PR#1446](https://github.com/USEPA/CMAQ_Dev/commit/5824179adcd53b839058dd73d815f01f0735c288) | [PR#1446](https://github.com/USEPA/CMAQ_Dev/pull/1446)  |
 
 ### Correct the molecular weight of HCL for CRACMM
 [Havala Pye](mailto:pye.havala@epa.gov),  U.S. Environmental Protection Agency    

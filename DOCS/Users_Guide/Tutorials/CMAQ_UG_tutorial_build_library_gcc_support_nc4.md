@@ -1,9 +1,9 @@
-## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv5.5 
+## Follow these instructions to build the netCDF libraries for compressed netCDF-4, I/O API, and CMAQv6
 
 This tutorial is based on these instructions: [Installing netCDF](https://www.unidata.ucar.edu/software/netcdf/documentation/NUG/getting_and_building_netcdf.html)
 
 * netCDF requires the HDF5, zlib, and curl libraries. 
-* This Tutorial is for the gcc 11.4.1 compiler.   
+* This Tutorial is for the gcc 15.2 compiler.   
 * For gcc 10 and above, use the  -fallow-argument-mismatch argument (see alternative script and instructions for gcc 10 and above) 
 
 ## netCDF requires the HDF5, zlib, and curl libraries, these instructions use HDF5 1.10.5, zlib 1.3, and curl 8.11.0. 
@@ -20,13 +20,13 @@ Install the netCDF libraries and their prerequisites for the compiler version th
 ### Create install directory
 
 ```
-mkdir -p $cwd/CMAQv5.5/build
+mkdir -p $cwd/CMAQv6/build
 ```
 
-### Download the install scripts for the gcc version 11.4 compiler.
+### Download the install scripts for the gcc version 11.4+ compiler.
 
 ```
-cd $cwd/CMAQv5.5/build
+cd $cwd/CMAQv6/build
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_netcdf_for_nc4_compression.csh
 wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/cmaq_libraries/gcc_11.4_install_ioapi_for_nc4_compression.csh
 ```
@@ -34,7 +34,7 @@ wget https://github.com/USEPA/CMAQ/blob/main/DOCS/Users_Guide/Tutorials/scripts/
 Load the modules for your compiler and openmpi version and then run the library install script for the netcdf libraries.
 
 ```
-module load openmpi_5.0.5/gcc_11.4.1 
+module load openmpi/5.0.9/gcc_15.2.0 
 ```
 
 ### Run script to install the netcdf libraries:
@@ -80,8 +80,8 @@ If this is successful, you will see a stream of log messages including the m3too
 
 Output
 ```
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/ioapi -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -O3 -ffast-math -funroll-loops -m64   -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -c /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/m3tools/wrfwndw.f90
-cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran  wrfwndw.o -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -lioapi -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv5.5/build/LIBRARIES_gcc/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl -lnetcdf -fopenmp -dynamic -L/usr/lib64 -lm -lpthread -lc  -o wrfwndw
+cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/ioapi -I/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -O3 -ffast-math -funroll-loops -m64   -DAUTO_ARRAYS=1 -DF90=1 -DFLDMN=1 -DFSTR_L=int -DIOAPI_NO_STDOUT=1 -DNEED_ARGS=1 -c /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/m3tools/wrfwndw.f90
+cd /21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort; gfortran  wrfwndw.o -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/ioapi-3.2/Linux2_x86_64gfort -lioapi -L/21dayscratch/scr/l/i/lizadams/WRF-CMAQ/CMAQv6/build/LIBRARIES_gcc/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -ldl -lz -lcurl -lnetcdf -fopenmp -dynamic -L/usr/lib64 -lm -lpthread -lc  -o wrfwndw
 ```
 
 
@@ -107,17 +107,17 @@ Next, create the module file and save it to the ioapi-3.2 directory
 
 Example:
 ```
-cat  gcc-11.4
+cat  gcc-15
 #%Module
   
 proc ModulesHelp { } {
-   puts stderr "This module adds ioapi-3.2/gcc-11.4 to your path"
+   puts stderr "This module adds ioapi-3.2/gcc-15 to your path"
 }
 
-module-whatis "This module adds ioapi-3.2/gcc-11.4 to your path\n"
+module-whatis "This module adds ioapi-3.2/gcc-15 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/LIBRARIES_gcc/ioapi-3.2"
-prepend-path PATH "${basedir}/Linux2_x86_64gfort"
+set basedir "/proj/ie/proj/CMAS/CMASOps2026/CMAQ_CMAS_6/libraries/LIBRARIES_gcc/ioapi-3.2"
+prepend-path PATH "${basedir}/Linux2_x86_64gfort15"
 prepend-path LD_LIBRARY_PATH "${basedir}/ioapi/fixed_src"
 ```
 
@@ -130,18 +130,19 @@ mkdir -p $cwd/Modules/modulefiles/netcdf-4.5.3-for_nc4
 Next, create the module file and save it to the netcdf-4.5.3-for_nc4 directory
 
 ```
-cat gcc-11.4
+cat gcc-15
 #%Module
   
 proc ModulesHelp { } {
-   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path"
+   puts stderr "This module adds netcdf-4.5.3-for_nc4/gcc-15 to your path"
 }
 
-module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-11.4 to your path\n"
+module-whatis "This module adds netcdf-4.5.3-for_nc4/gcc-15 to your path\n"
 
-set basedir "/proj/ie/proj/CMAS/CMAQ/WRF-CMAQv5.5/build/LIBRARIES_gcc"
+set basedir "/proj/ie/proj/CMAS/CMASOps2026/CMAQ_CMAS_6/libraries/LIBRARIES_gcc/"
 prepend-path PATH "${basedir}/bin"
 prepend-path LD_LIBRARY_PATH "${basedir}/lib"
+module load openmpi/5.0.9/gcc_15.2.0
 ```
 
 
@@ -149,14 +150,14 @@ prepend-path LD_LIBRARY_PATH "${basedir}/lib"
 Now that the module files have been created, add the following line to your .cshrc
 
 ```
-module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv5.5/build/Modules/modulefiles
+module use --append /proj/ie/proj/CMAS/CMAQ/CMAQv6/build/Modules/modulefiles
 ```
 
 ### Use module avail to see private modules
 
 ```
 module avail
-module load netcdf-4.5.3-for_nc4/gcc-11.4 ioapi-3.2/gcc-11.4
+module load netcdf-4.5.3-for_nc4/gcc-15 ioapi-3.2/gcc-15
 ```
 
 Now you should see 4 modules loaded.
@@ -166,14 +167,14 @@ module list
 Output:
 ```
 Currently Loaded Modules:
-  1) openmpi_5.0.5/gcc_11.4.1   2) netcdf-4.5.3-for_nc4/gcc-11.4   3) ioapi-3.2/gcc-11.4
+ 1) gcc/15.2.0   2) openmpi/5.0.9/gcc_15.2.0   3) netcdf-4.5.3-for_nc4/gcc-15   4) ioapi-3.2/gcc-15
 ```
 
-### To build and run for the CRACMM2 mechanism and stage dry deposition scheme see the following tutorial
+### To build and run for the CRACMM3 mechanism and stage dry deposition scheme see the following tutorial
 
-[CRACMM2 and Stage Tutorial](./CMAQ_UG_tutorial_benchmark_cracmm2_stage.md)
+[CRACMM3 and Stage Tutorial](./CMAQ_UG_tutorial_benchmark_cracmm3_stage.md)
 
-### To build and run for the CB6r5 mechanism and m3dry deposition scheme see the following tutorial:
+### To build and run for the CB6r5 mechanism and stage deposition scheme see the following tutorial:
 
 [CMAQ Installation Tutorial for CB6r5](./CMAQ_UG_tutorial_benchmark.md)
 

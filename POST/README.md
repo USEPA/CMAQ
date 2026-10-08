@@ -14,9 +14,9 @@ The following utility programs are provided to process and prepare data for mode
 * **[writesite](writesite/README.md)**: user can generate a csv file from an IOAPI data file for a set of species at defined site locations.
 
 ## Observed data for model evaluation
-The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2020 from the CMAS Center Data Warehouse Google Drive.
-* [Link to Google Drive folder with observation files](https://drive.google.com/drive/folders/1QUlUXnHXvXz9qwePi5APzzHkiH5GWACw?usp=sharing)
-* [Link to README text file with metadata on observation files](https://drive.google.com/file/d/1QVTDxGMXoNNnl8IXhz5pcIO0x45q2IS1/view?usp=drive_link)
+The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2024 from the CMAS Center Data Warehouse Open Data Warehouse.
+* [Link to AWS s3 bucket with observation files](https://cmas-amet.s3.amazonaws.com/index.html#AMET/2000_2024_NAmerican_AQ_Obs_Data/)
+* [Link to README text file with metadata on observation files](https://cmas-amet.s3.amazonaws.com/AMET/2000_2024_NAmerican_AQ_Obs_Data/AMET_Release_Observation_Files_Readme.txt)
 
 ## A note on model-observation pairing for model evaluation
 The task of matching model simulations to observations is performed by the sitecmp and sitecmp_dailyo3 utility programs. Documentation on how these programs handle matching model and observed species in space and time is provided in [Chapter 8 of the CMAQ User's Guide](../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.md).

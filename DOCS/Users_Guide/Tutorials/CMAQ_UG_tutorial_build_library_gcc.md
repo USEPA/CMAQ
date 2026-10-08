@@ -1,6 +1,6 @@
 ## Install netCDF-C
 
-### This tutorial assumes that you are using the C-shell, (csh or tcsh), GCC version 9.1.0, and OpenMPI 4.0.1
+### This tutorial assumes that you are using the C-shell, (csh or tcsh), GCC version 15.2, and OpenMPI 5.0.10
 
 1. To enter the csh shell you can type the following at the command line:
 
@@ -23,8 +23,8 @@ module avail
 4. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
 
 ```
-module load gcc9.1.0
-module load openmpi_4.0.1/gcc_9.1.0
+module load gcc/15.2.0 
+module load openmpi/5.0.10/gcc_15.2.0
 ```
 
 5. Create a LIBRARY directory where you would like to install the libraries required for CMAQ
@@ -313,17 +313,17 @@ cp Makefile.nocpl Makefile
 This will help future users identify what compiler version is compatible with this library.
 
 ```
-setenv BIN Linux2_x86_64gfort_gcc_9.1.0
+setenv BIN Linux2_x86_64gfort15
 ```
 
 6. Copy an existing Makeinclude file to have this BIN name at the end
 
 ```
-cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_gcc_9.1.0
+cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort15
 
 ```
 
-7. Edit the Makeinclude.Linux2_x86_64gfort_gcc_9.1.0 to comment out OMPFLAG and OMPLIBS 
+7. Edit the Makeinclude.Linux2_x86_64gfort15 to comment out OMPFLAG and OMPLIBS 
 settings.  This will remove the need to link the shared memory OPENMP libraries when compiling CMAQ and WRF-CMAQ.
 
 ```
@@ -341,7 +341,7 @@ mkdir ../$BIN
 
 ```
 cd ../
-ln -s Linux2_x86_64gfort_gcc_9.1.0 Linux2_x86_64gfort
+ln -s Linux2_x86_64gfort15 Linux2_x86_64gfort
 ```
 
 10. Set the HOME environment variable to be your LIBRARY install directory and run the make command to compile and link the ioapi library
@@ -401,7 +401,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = [your_install_path]/CMAQ_v5.5
+set CMAQ_HOME = [your_install_path]/CMAQ_v6
 ```
 
 Now execute the script.
@@ -439,7 +439,7 @@ source config_cmaq.csh [compiler]
 ```
 You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
 ```
-source config_cmaq.csh gcc 9.5
+source config_cmaq.csh gcc 15.2
 ```
 
 17. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md)

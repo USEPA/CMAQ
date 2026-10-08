@@ -249,7 +249,7 @@ In the example above, fine mode Wind-Blown Dust are linked to 'FINE_WBDUST', sea
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Species  | Species      |Mode  |Factor|      |
-'EVERYWHERE'  , 'ALL'         ,'ALL'    ,'ALL'         ,'FINE',1.0   ,'UNIT','m',
+'EVERYWHERE'  , 'ALL'         ,'ALL'    ,'ALL'         ,'FINE',2.0   ,'UNIT','m',
 ```
  
 ### B.3.4 Defining and Using Regions and Region Families
